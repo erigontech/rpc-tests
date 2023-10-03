@@ -27,7 +27,8 @@ tests_with_big_json = [
     "trace_replayBlockTransactions/test_01.tar",
     "trace_replayBlockTransactions/test_02.tar",
     "trace_replayTransaction/test_16.tar",
-    "trace_replayTransaction/test_23.tar"
+    "trace_replayTransaction/test_23.tar",
+    "erigon_getLatestLogs/test_12.json"
 ]
 
 api_not_compared = [
@@ -342,14 +343,15 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
     else:
         if verbose_level:
             print("OK")
-        if dump_output:
-            if silk_file != "" and os.path.exists(output_dir) == 0:
-                os.mkdir(output_dir)
-            if silk_file != "":
-                with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
+
+    if dump_output:
+        if silk_file != "" and os.path.exists(output_dir) == 0:
+            os.mkdir(output_dir)
+        if silk_file != "":
+            with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
                     json_file_ptr.write(json.dumps(response, indent=6))
-            if exp_rsp_file != "":
-                with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
+        if exp_rsp_file != "":
+            with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
                     json_file_ptr.write(json.dumps(expected_response, indent=5))
     return 0
 
