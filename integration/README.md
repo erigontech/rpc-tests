@@ -42,87 +42,36 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -d send requests also to the reference daemon i.e. Erigon RpcDaemon
 -i <infura_url> send any request also to the Infura API endpoint as reference
 -b blockchain [default: goerly]
--v verbose
+-v <verbose_level>
 -o dump response
 -k authentication token file
--x exclude API list (i.e txpool_content,txpool_status,engine_
--X exclude test list (i.e 18,22
+-x exclude API list (i.e. txpool_content,txpool_status,engine_
+-X exclude test list (i.e. 18,22
 -H host where the RpcDaemon is located (e.g. 10.10.2.3)
-```
-
-# Integration test (11/08/23)
-# erigon/rpcdaemon version 2.48.1 
-
-### To run integration tests comparing results with json file: ./run_tests.py -c -k jwt.hex
-### (in case Erigon without snapshot & KV access to DB & Rpcdaemon embedded)
-
-```
-Test time-elapsed (secs):     77
-Number of executed tests:     448/450
-Number of NOT executed tests: 0
-Number of success tests:      448
-Number of failed tests:       0
-```
-
-
-### To run integration tests comparing results with RPCdaemon response (KV) : ./run_tests.py -f -d -c -k jwt.hex
-### (in case Erigon without snapshot & KV access to DB comparing results with RPCDaemon KV, Rpcdaemon embedded)
-```
-091. erigon_forks/test_1.json                                     Failed
-351. trace_filter/test_06.tar                                     Failed
-352. trace_filter/test_07.tar                                     Failed
-                                                                                    
-Test time-elapsed (secs):     90
-Number of executed tests:     424/461
-Number of NOT executed tests: 0
-Number of success tests:      421
-Number of failed tests:       3
+-p port where the RpcDaemon is located (e.g. 8545)
 
 ```
 
-### To run integration tests comparing results with RPCdaemon response (KV) : ./run_tests.py -f -d -c -k jwt.hex
-### (in case Erigon with snapshot & KV access to DB comparing results with RPCDaemon KV & Rpcdaemon embedded)
-```
-091. erigon_forks/test_1.json                                     Failed
-351. trace_filter/test_06.tar                                     Failed
-352. trace_filter/test_07.tar                                     Failed
-                                                                                    
-Test time-elapsed (secs):     90
-Number of executed tests:     424/461
-Number of NOT executed tests: 0
-Number of success tests:      421
-Number of failed tests:       3
+# Invoke examples
 
-```
+% ./run_tests.py -b mainnet -d -c -v 1
+Runs all tests on main net chain comparing silkrpc response with rpcdaemon response, printing each test result
 
+% ./run_tests.py -b mainnet -c -v 1
+Runs all tests on main net chain comparing silkrpc response to response saved on json file, printing each test result
 
-### To run integration tests comparing results with local DB: ./run_tests.py -f -d -c -k jwt.hex
-### (in case Erigon without snapshot & local access to DB comparing results with RPCDaemon)
-```
-091. erigon_forks/test_1.json                                     Failed
-097. erigon_getBlockByTimestamp/test_1.json                       Failed
-351. trace_filter/test_06.tar                                     Failed
-352. trace_filter/test_07.tar                                     Failed
-                                                                                    
-Test time-elapsed (secs):     86
-Number of executed tests:     424/461
-Number of NOT executed tests: 0
-Number of success tests:      420
-Number of failed tests:       4
-```
+% ./run_tests.py -b mainnet -c -a eth_call
+Runs all tests of eth_call on main net chain comparing silkrpc response with saved json file, printing only failed tests
 
+% ./run_tests.py -b mainnet -r -c -a eth_call -t 1
+Runs test 1 of eth_call on main net chain comparing rpcdaemon response to saved json file, printing only failed tests
 
-### To run integration tests comparing results with local DB: ./run_tests.py -f -d -c -k jwt.hex
-### (in case Erigon with snapshot & local access to DB comparing results with RPCDaemon)
-```
-091. erigon_forks/test_1.json                                     Failed
-351. trace_filter/test_06.tar                                     Failed
-352. trace_filter/test_07.tar                                     Failed
-                                                                                    
-Test time-elapsed (secs):     89
-Number of executed tests:     424/461
-Number of NOT executed tests: 0
-Number of success tests:      421
-Number of failed tests:       3
+% ./run_tests.py -b mainnet -r -c -t 20 -v 1
+Runs test number 18 in main net chain using rpcdaemon and compare result with json file, printing each test result
 
-```
+% ./run_tests.py -b mainnet -d -c -X 20 -v 1
+Runs all tests (excluding test number 20) on main net chain comparing silkrpc response with rpcdaemon response, printing each test result
+
+% ./run_tests.py -b mainnet -d -c -x eth_call -v 1
+Runs all tests (excluding eth_call test) on main net chain comparing silkrpc response with rpcdaemon response, printing each test result
+
