@@ -1,8 +1,9 @@
 [
     {
-        "_comment": "# block 13999999(0xD59F7F) txs: #1",
-        "_comment": "https://etherscan.io/tx/0x2f89ebd51377291f39b315a5feac7cbef0c8377f512bba32b128d59b086f6abe",
-        "_comment": "invoke contract method" ,
+      "test": {
+           "reference": "https://etherscan.io/tx/0x2f89ebd51377291f39b315a5feac7cbef0c8377f512bba32b128d59b086f6abe",
+           "description": "invoke contract method"
+        },
         "request": {
             "jsonrpc":"2.0",
             "method":"eth_call",

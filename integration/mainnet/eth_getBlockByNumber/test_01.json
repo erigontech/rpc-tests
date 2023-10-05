@@ -1,8 +1,9 @@
 [
     {
-       "_comment": "# block 4306300",
-        "_comment": "https://etherscan.io/block/4306300",
-        "_comment": "block without transactions details" ,
+      "test": {
+           "reference": "https://etherscan.io/block/4306300",
+           "description": "block without transactions details"
+        },
         "request":{
             "jsonrpc":"2.0",
             "method":"eth_getBlockByNumber",

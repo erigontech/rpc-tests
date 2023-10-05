@@ -1,6 +1,9 @@
 [
   {
-       "_comment": "# logs in the range without topics",
+     "test": {
+           "reference": "",
+           "description": "logs in the range without topics"
+        },
         "request": {
             "jsonrpc":"2.0",
             "method":"eth_getLogs",
