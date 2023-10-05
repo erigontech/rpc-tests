@@ -83,26 +83,24 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 -h                      print this help
 -Z                      doesn't verify server is still active
 -R                      generate Report
--u                      generate report and save test report in Git repo
--b <chain name>         (mandatory in case -R or -u is specified)
+-u                      generate Report and save test report in Git repo
 -v                      verbose
 -x                      verbose and tracing
--y testType             test type: eth_call, eth_getLogs                                                       [default: eth_getLogs]
+-b <chain name>         mandatory in case of -R or -u
+-y testType             test type: eth_call, eth_getLogs, ...                                                  [default: eth_getLogs]
 -m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: 3]
--p vegetaPatternTarFile path to the request file for Vegeta attack                                             [default: ./vegeta/erigon_stress_test_eth_getLogs_goerly_001.tar]
+-p <vegetaPattern> path to the request file for Vegeta attack                                                  [default: ]
 -r testRepetitions      number of repetitions for each element in test sequence (e.g. 10)                      [default: 10]
 -t testSequence         list of query-per-sec and duration tests as <qps1>:<t1>,... (e.g. 200:30,400:10)       [default: 50:30,1000:30,2500:20,10000:20]
 -w testWaitInterval     time interval between successive test iterations in sec                                [default: 5]
--d rpcDaemonAddress     Erigon: address of RPCDaemon (e.g. 10.1.1.20)                                          [default: localhost]
--a erigonAddress        Erigon: address of Core component as <address>:<port> (e.g. localhost:9090)            [default: localhost:9090]
--g erigonBuildDir       Erigon: path to build folder (e.g. ../../../erigon/build)                              [default: ../../../erigon/build/]
--s silkrpcBuildDir      Silkrpc: path to build folder (e.g. ../../build/)                                      [default: ../../build/]
+-d rpcDaemonAddress     address of RPCDaemon/Silkrpc (e.g. 10.1.1.20)                                          [default: localhost]
+-g erigonBuildDir       Erigon: path to erigon folder (e.g. /home/erigon)                                      [default: ]
+-s silkrpcBuildDir      Silkrpc: path to silk folder (e.g. /home/silkworm)                                     [default: ]
 -c daemonVegetaOnCore   cpu list in taskset format for daemon & vegeta (e.g. 0-1:2-3 or 0-2:3-4 or 0,2:3,4...) [default: -:-]
 
-
 ```
-Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<date_time>_perf.csv`
-Results are written on output and in case -u option is specified also in a CSV file and saved in git `<repo>/perf/reports/<network>/<machine>/<date_time>_perf.csv`
+Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<test_type><date_time>_perf.csv`
+Results are written on output and in case -u option is specified also in a CSV file and saved in git `./reports/<network>/<machine>/<test_type><date_time>_perf.csv`
 
 
 Invokation examples
@@ -117,7 +115,7 @@ Runs perf eth_call test according input pattern making a tests sequence accordin
 ./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  -s /project/silkworm -g /project/erigon -r 5 -u -b mainnet -t 50:30,1000:30,2500:20,5000:20
 
 Runs perf eth_call test according input pattern making a tests sequence according the input (50 qps: 20 seconds, ...) each sequence is repetated 5 times 
-the report is saved on git repository (according chain name, machine, date+time)
+the report is saved on git repository (according: chain_name, machine, test_type, date+time)
 
 
 
