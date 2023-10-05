@@ -2,7 +2,7 @@
     {
        "_comment": "# block 16000000",
         "_comment": "https://etherscan.io/block/16000000",
-        "_comment": "unknown block" ,
+        "_comment": "wrong block number" ,
         "request":{
             "jsonrpc":"2.0",
             "method":"eth_getBlockByNumber",
