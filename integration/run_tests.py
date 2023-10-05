@@ -526,6 +526,7 @@ def main(argv):
                 dump_output = 1
             elif option == "-b":
                 json_dir = "./" + optarg + "/"
+                output_dir = json_dir + results_dir + "/"
             elif option == "-x":
                 exclude_api_list = optarg
             elif option == "-X":
