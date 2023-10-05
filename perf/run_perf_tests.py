@@ -44,6 +44,7 @@ def usage(argv):
     print("-u                      generate Report and save test report in Git repo")
     print("-v                      verbose")
     print("-x                      verbose and tracing")
+    print("-b <chain name>         chain name")
     print("-y testType             test type: eth_call, eth_getLogs, ...                                                  [default: " + DEFAULT_TEST_TYPE + "]")
     print("-m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: " + str(DEFAULT_TEST_MODE) + "]")
     print("-p <vegetaPattern> path to the request file for Vegeta attack                                                  [default: " + DEFAULT_VEGETA_PATTERN_TAR_FILE +"]")
@@ -72,8 +73,8 @@ class Config:
         """ Processes the command line contained in argv """
         self.vegeta_pattern_tar_file = DEFAULT_VEGETA_PATTERN_TAR_FILE
         self.daemon_vegeta_on_core = DEFAULT_DAEMON_VEGETA_ON_CORE
-        self.erigon_builddir = DEFAULT_ERIGON_BUILD_DIR
-        self.silkrpc_builddir = DEFAULT_SILKRPC_BUILD_DIR
+        self.erigon_dir = DEFAULT_ERIGON_BUILD_DIR
+        self.silkrpc_dir = DEFAULT_SILKRPC_BUILD_DIR
         self.repetitions = DEFAULT_REPETITIONS
         self.test_sequence = DEFAULT_TEST_SEQUENCE
         self.rpc_daemon_address = DEFAULT_RPCDAEMON_ADDRESS
@@ -91,7 +92,7 @@ class Config:
     def __parse_args(self, argv):
         try:
             local_config = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZR")
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:")
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -113,33 +114,35 @@ class Config:
                         print("ERROR: incompatible option -d with -g -s")
                         usage(argv)
                     local_config = 1
-                    self.erigon_builddir = optarg
+                    self.erigon_dir = optarg
                 elif option == "-s":
                     if local_config == 2:
                         print("ERROR: incompatible option -d with -g -s")
                         usage(argv)
                     local_config = 1
-                    self.silkrpc_builddir = optarg
+                    self.silkrpc_dir = optarg
                 elif option == "-r":
                     self.repetitions = int(optarg)
                 elif option == "-t":
                     self.test_sequence = optarg
                 elif option == "-R":
                     self.create_test_report = True
-                    if os.path.exists(self.erigon_builddir) == 0:
-                        print ("ERROR: erigon buildir not specified correctly: ", self.erigon_builddir)
+                    if os.path.exists(self.erigon_dir) == 0:
+                        print ("ERROR: erigon buildir not specified correctly: ", self.erigon_dir)
                         usage(argv)
-                    if os.path.exists(self.silkrpc_builddir) == 0:
-                        print ("ERROR: silkrpc buildir not specified correctly: ", self.silkrpc_builddir)
+                    if os.path.exists(self.silkrpc_dir) == 0:
+                        print ("ERROR: silkrpc buildir not specified correctly: ", self.silkrpc_dir)
                         usage(argv)
+                elif option == "-b":
+                    self.chain_name = optarg
                 elif option == "-u":
                     self.create_test_report = True
                     self.versioned_test_report = True
-                    if os.path.exists(self.erigon_builddir) == 0:
-                        print ("ERROR: erigon buildir not specified correctly: ", self.erigon_builddir)
+                    if os.path.exists(self.erigon_dir) == 0:
+                        print ("ERROR: erigon buildir not specified correctly: ", self.erigon_dir)
                         usage(argv)
-                    if os.path.exists(self.silkrpc_builddir) == 0:
-                        print ("ERROR: silkrpc buildir not specified correctly: ", self.silkrpc_builddir)
+                    if os.path.exists(self.silkrpc_dir) == 0:
+                        print ("ERROR: silkrpc buildir not specified correctly: ", self.silkrpc_dir)
                         usage(argv)
                 elif option == "-v":
                     self.verbose = True
@@ -335,9 +338,9 @@ class TestReport:
         # Build report folder w/ name recalling hw platform and create it if not exists
         csv_folder = Hardware.normalized_vendor() + '_' + Hardware.normalized_product()
         if self.config.versioned_test_report:
-            csv_folder_path = self.config.silkrpc_builddir + '../tests/perf/reports/goerli/' + csv_folder
+            csv_folder_path = './reports/' + self.config.chain_name + '/' + csv_folder
         else:
-            csv_folder_path = '/tmp/goerli/' + csv_folder
+            csv_folder_path = '/tmp/' + self.config.chain_name + '/' + csv_folder
         pathlib.Path(csv_folder_path).mkdir(parents=True, exist_ok=True)
 
         # Generate unique CSV file name w/ date-time and open it
@@ -371,17 +374,17 @@ class TestReport:
         silkrpc_branch = ""
         silkrpc_commit = ""
         if self.config.test_mode in ("1", "3"):
-            command = "cd " + self.config.silkrpc_builddir + " && git branch --show-current"
+            command = "cd " + self.config.silkrpc_dir + " && git branch --show-current"
             silkrpc_branch = os.popen(command).read().replace('\n', '')
 
-            command = "cd " + self.config.silkrpc_builddir + " && git rev-parse HEAD"
+            command = "cd " + self.config.silkrpc_dir + " && git rev-parse HEAD"
             silkrpc_commit = os.popen(command).read().replace('\n', '')
 
         if self.config.test_mode in ("2", "3"):
-            command = "cd " + self.config.erigon_builddir + " && git branch --show-current"
+            command = "cd " + self.config.erigon_dir + " && git branch --show-current"
             erigon_branch = os.popen(command).read().replace('\n', '')
 
-            command = "cd " + self.config.erigon_builddir + " && git rev-parse HEAD"
+            command = "cd " + self.config.erigon_dir + " && git rev-parse HEAD"
             erigon_commit = os.popen(command).read().replace('\n', '')
 
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Vendor", Hardware.vendor()])
