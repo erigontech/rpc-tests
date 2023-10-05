@@ -1,0 +1,33 @@
+[
+    {
+      "test": {
+           "reference": "https://etherscan.io/tx/0x2f89ebd51377291f39b315a5feac7cbef0c8377f512bba32b128d59b086f6abe",
+           "description": "invoke contract method"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_call",
+            "params":[
+                {
+                  "data": "0xf242432a000000000000000000000000d3181ddbb2cea7b4954b8d4a05dbf85d8fc36aef000000000000000000000000e44249550d8a03737f185e054a686e55577f38400000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000",
+                  "from": "0xd3181ddbB2CEA7B4954b8D4a05DBf85D8Fc36aef",
+                  "to" : "0xe3782B8688ad2b0D5ba42842d400F7AdF310F88d",
+                  "gas": "0xDDD2",
+                  "gasPrice": "0x2098A67800",
+                  "value": "0x0"
+                },
+                "0xD59F7F"
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "error": {
+               "code": -32000,
+               "message": "fee cap less than block base fee: address 0xd3181ddbb2cea7b4954b8d4a05dbf85d8fc36aef, gasfeecap: 140000000000 basefee: 146283608928"
+            }
+        }
+    }
+]
+
