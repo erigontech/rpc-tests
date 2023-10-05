@@ -72,7 +72,7 @@ Runs test 1 of eth_call on main net chain comparing rpcdaemon response to saved 
 
 % ./run_tests.py -b mainnet -r -c -t 20 -v 1
 
-Runs test number 18 in main net chain using rpcdaemon and compare result with json file, printing each test result
+Runs test number 20 in main net chain using rpcdaemon and compare result with json file, printing each test result
 
 % ./run_tests.py -b mainnet -d -c -X 20 -v 1
 
@@ -80,5 +80,5 @@ Runs all tests (excluding test number 20) on main net chain comparing silkrpc re
 
 % ./run_tests.py -b mainnet -d -c -x eth_call -v 1
 
-Runs all tests (excluding eth_call test) on main net chain comparing silkrpc response with rpcdaemon response, printing each test result
+Runs all tests (excluding eth_call tests) on main net chain comparing silkrpc response with rpcdaemon response, printing each test result
 
