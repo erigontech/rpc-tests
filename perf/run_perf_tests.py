@@ -16,7 +16,7 @@ import psutil
 
 DEFAULT_TEST_SEQUENCE = "50:30,1000:30,2500:20,10000:20"
 DEFAULT_REPETITIONS = 10
-DEFAULT_VEGETA_PATTERN_TAR_FILE = "pattern/erigon_stress_test_eth_getLogs_goerly_001.tar"
+DEFAULT_VEGETA_PATTERN_TAR_FILE = ""
 DEFAULT_DAEMON_VEGETA_ON_CORE = "-:-"
 DEFAULT_ERIGON_ADDRESS = "localhost:9090"
 DEFAULT_ERIGON_BUILD_DIR = "../../../erigon/build/"
@@ -39,20 +39,19 @@ def usage(argv):
     print("Launch an automated performance test sequence on Silkrpc and RPCDaemon using Vegeta")
     print("")
     print("-h                      print this help")
-    print("-Z                      doen't verify server is still active")
+    print("-Z                      doesn't verify server is still active")
     print("-R                      generate Report")
-    print("-u                      save test report in Git repo")
+    print("-u                      generate Report and save test report in Git repo")
     print("-v                      verbose")
     print("-x                      verbose and tracing")
-    print("-y testType             test type: eth_call, eth_getLogs                                                       [default: " + DEFAULT_TEST_TYPE + "]")
+    print("-y testType             test type: eth_call, eth_getLogs, ...                                                  [default: " + DEFAULT_TEST_TYPE + "]")
     print("-m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: " + str(DEFAULT_TEST_MODE) + "]")
-    print("-p vegetaPatternTarFile path to the request file for Vegeta attack                                             [default: " + DEFAULT_VEGETA_PATTERN_TAR_FILE +"]")
+    print("-p <vegetaPattern> path to the request file for Vegeta attack                                                  [default: " + DEFAULT_VEGETA_PATTERN_TAR_FILE +"]")
     print("-r testRepetitions      number of repetitions for each element in test sequence (e.g. 10)                      [default: " + str(DEFAULT_REPETITIONS) + "]")
     print("-t testSequence         list of query-per-sec and duration tests as <qps1>:<t1>,... (e.g. 200:30,400:10)       [default: " + DEFAULT_TEST_SEQUENCE + "]")
     print("-w testWaitInterval     time interval between successive test iterations in sec                                [default: " + str(DEFAULT_WAITING_TIME) + "]")
 
-    print("-d rpcDaemonAddress     Erigon: address of RPCDaemon (e.g. 10.1.1.20)                                          [default: " + DEFAULT_RPCDAEMON_ADDRESS +"]")
-    print("-a erigonAddress        Erigon: address of Core component as <address>:<port> (e.g. localhost:9090)            [default: " + DEFAULT_ERIGON_ADDRESS + "]")
+    print("-d rpcDaemonAddress     address of RPCDaemon/Silkrpc (e.g. 10.1.1.20)                                          [default: " + DEFAULT_RPCDAEMON_ADDRESS +"]")
     print("-g erigonBuildDir       Erigon: path to build folder (e.g. ../../../erigon/build)                              [default: " + DEFAULT_ERIGON_BUILD_DIR + "]")
     print("-s silkrpcBuildDir      Silkrpc: path to build folder (e.g. ../../build/)                                      [default: " + DEFAULT_SILKRPC_BUILD_DIR + "]")
     print("-c daemonVegetaOnCore   cpu list in taskset format for daemon & vegeta (e.g. 0-1:2-3 or 0-2:3-4 or 0,2:3,4...) [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE +"]")
@@ -73,9 +72,8 @@ class Config:
         """ Processes the command line contained in argv """
         self.vegeta_pattern_tar_file = DEFAULT_VEGETA_PATTERN_TAR_FILE
         self.daemon_vegeta_on_core = DEFAULT_DAEMON_VEGETA_ON_CORE
-        self.erigon_addr = DEFAULT_ERIGON_ADDRESS
         self.erigon_builddir = DEFAULT_ERIGON_BUILD_DIR
-        self.silkrpc_build_dir = DEFAULT_SILKRPC_BUILD_DIR
+        self.silkrpc_builddir = DEFAULT_SILKRPC_BUILD_DIR
         self.repetitions = DEFAULT_REPETITIONS
         self.test_sequence = DEFAULT_TEST_SEQUENCE
         self.rpc_daemon_address = DEFAULT_RPCDAEMON_ADDRESS
@@ -102,7 +100,7 @@ class Config:
                     self.test_mode = optarg
                 elif option == "-d":
                     if local_config == 1:
-                        print("ERROR: incompatible option -d with -a -g -s -n")
+                        print("ERROR: incompatible option -d with -g -s")
                         usage(argv)
                     local_config = 2
                     self.rpc_daemon_address = optarg
@@ -110,33 +108,39 @@ class Config:
                     self.vegeta_pattern_tar_file = optarg
                 elif option == "-c":
                     self.daemon_vegeta_on_core = optarg
-                elif option == "-a":
-                    if local_config == 2:
-                        print("ERROR: incompatible option -d with -a -g -s -n")
-                        usage(argv)
-                    local_config = 1
-                    self.erigon_addr = optarg
                 elif option == "-g":
                     if local_config == 2:
-                        print("ERROR: incompatible option -d with -a -g -s -n")
+                        print("ERROR: incompatible option -d with -g -s")
                         usage(argv)
                     local_config = 1
                     self.erigon_builddir = optarg
                 elif option == "-s":
                     if local_config == 2:
-                        print("ERROR: incompatible option -d with -a -g -s -n")
+                        print("ERROR: incompatible option -d with -g -s")
                         usage(argv)
                     local_config = 1
-                    self.silkrpc_build_dir = optarg
+                    self.silkrpc_builddir = optarg
                 elif option == "-r":
                     self.repetitions = int(optarg)
                 elif option == "-t":
                     self.test_sequence = optarg
                 elif option == "-R":
                     self.create_test_report = True
+                    if os.path.exists(self.erigon_builddir) == 0:
+                        print ("ERROR: erigon buildir not specified correctly: ", self.erigon_builddir)
+                        usage(argv)
+                    if os.path.exists(self.silkrpc_builddir) == 0:
+                        print ("ERROR: silkrpc buildir not specified correctly: ", self.silkrpc_builddir)
+                        usage(argv)
                 elif option == "-u":
                     self.create_test_report = True
                     self.versioned_test_report = True
+                    if os.path.exists(self.erigon_builddir) == 0:
+                        print ("ERROR: erigon buildir not specified correctly: ", self.erigon_builddir)
+                        usage(argv)
+                    if os.path.exists(self.silkrpc_builddir) == 0:
+                        print ("ERROR: silkrpc buildir not specified correctly: ", self.silkrpc_builddir)
+                        usage(argv)
                 elif option == "-v":
                     self.verbose = True
                 elif option == "-x":
@@ -180,6 +184,9 @@ class PerfTest:
 
     def copy_and_extract_pattern_file(self):
         """ Copy the vegeta pattern file into /tmp and untar the file """
+        if os.path.exists(self.config.vegeta_pattern_tar_file) == 0:
+            print ("ERROR: invalid pattern file: ", self.config.vegeta_pattern_tar_file)
+            sys.exit(-1)
         cmd = "/bin/cp -f " + self.config.vegeta_pattern_tar_file + " /tmp/" + VEGETA_TAR_FILE_NAME
         if self.config.tracing:
             print(f"Copy Vegeta pattern: {cmd}")
@@ -328,7 +335,7 @@ class TestReport:
         # Build report folder w/ name recalling hw platform and create it if not exists
         csv_folder = Hardware.normalized_vendor() + '_' + Hardware.normalized_product()
         if self.config.versioned_test_report:
-            csv_folder_path = self.config.silkrpc_build_dir + '../tests/perf/reports/goerli/' + csv_folder
+            csv_folder_path = self.config.silkrpc_builddir + '../tests/perf/reports/goerli/' + csv_folder
         else:
             csv_folder_path = '/tmp/goerli/' + csv_folder
         pathlib.Path(csv_folder_path).mkdir(parents=True, exist_ok=True)
@@ -364,10 +371,10 @@ class TestReport:
         silkrpc_branch = ""
         silkrpc_commit = ""
         if self.config.test_mode in ("1", "3"):
-            command = "cd " + self.config.silkrpc_build_dir + " && git branch --show-current"
+            command = "cd " + self.config.silkrpc_builddir + " && git branch --show-current"
             silkrpc_branch = os.popen(command).read().replace('\n', '')
 
-            command = "cd " + self.config.silkrpc_build_dir + " && git rev-parse HEAD"
+            command = "cd " + self.config.silkrpc_builddir + " && git rev-parse HEAD"
             silkrpc_commit = os.popen(command).read().replace('\n', '')
 
         if self.config.test_mode in ("2", "3"):
@@ -383,7 +390,6 @@ class TestReport:
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Bogomips", bogomips])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Kernel", kern_vers])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "DaemonVegetaRunOnCore", self.config.daemon_vegeta_on_core])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Erigon address", self.config.erigon_addr])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "VegetaFile", self.config.vegeta_pattern_tar_file])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "VegetaChecksum", checksum[0]])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "GCC version", gcc_vers[0]])
