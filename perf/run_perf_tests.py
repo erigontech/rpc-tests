@@ -19,8 +19,8 @@ DEFAULT_REPETITIONS = 10
 DEFAULT_VEGETA_PATTERN_TAR_FILE = ""
 DEFAULT_DAEMON_VEGETA_ON_CORE = "-:-"
 DEFAULT_ERIGON_ADDRESS = "localhost:9090"
-DEFAULT_ERIGON_BUILD_DIR = "../../../erigon/build/"
-DEFAULT_SILKRPC_BUILD_DIR = "../../build/"
+DEFAULT_ERIGON_BUILD_DIR = ""
+DEFAULT_SILKRPC_BUILD_DIR = ""
 DEFAULT_RPCDAEMON_ADDRESS = "localhost"
 DEFAULT_TEST_MODE = "3"
 DEFAULT_WAITING_TIME = 5
@@ -44,7 +44,7 @@ def usage(argv):
     print("-u                      generate Report and save test report in Git repo")
     print("-v                      verbose")
     print("-x                      verbose and tracing")
-    print("-b <chain name>         chain name")
+    print("-b <chain name>         mandatory in case of -R or -u")
     print("-y testType             test type: eth_call, eth_getLogs, ...                                                  [default: " + DEFAULT_TEST_TYPE + "]")
     print("-m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: " + str(DEFAULT_TEST_MODE) + "]")
     print("-p <vegetaPattern> path to the request file for Vegeta attack                                                  [default: " + DEFAULT_VEGETA_PATTERN_TAR_FILE +"]")
@@ -53,8 +53,8 @@ def usage(argv):
     print("-w testWaitInterval     time interval between successive test iterations in sec                                [default: " + str(DEFAULT_WAITING_TIME) + "]")
 
     print("-d rpcDaemonAddress     address of RPCDaemon/Silkrpc (e.g. 10.1.1.20)                                          [default: " + DEFAULT_RPCDAEMON_ADDRESS +"]")
-    print("-g erigonBuildDir       Erigon: path to build folder (e.g. ../../../erigon/build)                              [default: " + DEFAULT_ERIGON_BUILD_DIR + "]")
-    print("-s silkrpcBuildDir      Silkrpc: path to build folder (e.g. ../../build/)                                      [default: " + DEFAULT_SILKRPC_BUILD_DIR + "]")
+    print("-g erigonBuildDir       Erigon: path to erigon folder (e.g. /home/erigon)                                      [default: " + DEFAULT_ERIGON_BUILD_DIR + "]")
+    print("-s silkrpcBuildDir      Silkrpc: path to silk folder (e.g. /home/silkworm)                                     [default: " + DEFAULT_SILKRPC_BUILD_DIR + "]")
     print("-c daemonVegetaOnCore   cpu list in taskset format for daemon & vegeta (e.g. 0-1:2-3 or 0-2:3-4 or 0,2:3,4...) [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE +"]")
     sys.exit(-1)
 
@@ -92,6 +92,7 @@ class Config:
     def __parse_args(self, argv):
         try:
             local_config = 0
+            specified_chain = 0
             opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:")
 
             for option, optarg in opts:
@@ -133,8 +134,12 @@ class Config:
                     if os.path.exists(self.silkrpc_dir) == 0:
                         print ("ERROR: silkrpc buildir not specified correctly: ", self.silkrpc_dir)
                         usage(argv)
+                    if specified_chain == 0:
+                        print ("ERROR: chain not specified ")
+                        usage(argv)
                 elif option == "-b":
                     self.chain_name = optarg
+                    specified_chain = 1
                 elif option == "-u":
                     self.create_test_report = True
                     self.versioned_test_report = True
@@ -143,6 +148,9 @@ class Config:
                         usage(argv)
                     if os.path.exists(self.silkrpc_dir) == 0:
                         print ("ERROR: silkrpc buildir not specified correctly: ", self.silkrpc_dir)
+                        usage(argv)
+                    if specified_chain == 0:
+                        print ("ERROR: chain not specified ")
                         usage(argv)
                 elif option == "-v":
                     self.verbose = True
@@ -344,7 +352,7 @@ class TestReport:
         pathlib.Path(csv_folder_path).mkdir(parents=True, exist_ok=True)
 
         # Generate unique CSV file name w/ date-time and open it
-        csv_filename = datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_perf.csv"
+        csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_perf.csv"
         csv_filepath = csv_folder_path + '/' + csv_filename
         self.csv_file = open(csv_filepath, 'w', newline='', encoding='utf8')
         self.writer = csv.writer(self.csv_file)
