@@ -83,7 +83,7 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 -h                      print this help
 -Z                      doesn't verify server is still active
 -R                      generate Report
--u                      generate Report and save test report in Git repo
+-u                      generate Report in reports area read to be inserted into Git repo
 -v                      verbose
 -x                      verbose and tracing
 -b <chain name>         mandatory in case of -R or -u
@@ -100,22 +100,26 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 
 ```
 Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<test_type><date_time>_perf.csv`
-Results are written on output and in case -u option is specified also in a CSV file and saved in git `./reports/<network>/<machine>/<test_type><date_time>_perf.csv`
+Results are written on output and in case -u option is specified also in a CSV file in ./reports area  `./reports/<network>/<machine>/<test_type><date_time>_perf.csv`
 
 
 Invokation examples
 ./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  
 
-Runs perf eth_call test according input pattern making a default tests sequence (50:30,1000:30,2500:20,10000:30) each sequence is repeted default times (10)
+Runs perf eth_call test according input pattern making a default tests sequence (50:30,1000:30,2500:20,10000:30) each sequence is repeated default times (10)
 
 ./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  -r 5 -t 50:30,1000:30,2500:20,5000:20
 
-Runs perf eth_call test according input pattern making a tests sequence according the input (50 qps: 20 seconds, ...) each sequence is repetated 5 times
+Runs perf eth_call test according input pattern making a tests sequence according the input (50 qps: 30 seconds, ...) each sequence is repeated 5 times
 
-./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  -s /project/silkworm -g /project/erigon -r 5 -u -b mainnet -t 50:30,1000:30,2500:20,5000:20
+./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  -s /project/silkworm -g /project/erigon -r 3 -R -b mainnet -t 50:30,1000:30
+Runs perf eth_call test according input pattern making a tests sequence according the input (50 qps: 30 seconds, ...) each sequence is repeated 3 times 
+the report is generated in tmp area(according: chain_name, machine).
 
-Runs perf eth_call test according input pattern making a tests sequence according the input (50 qps: 20 seconds, ...) each sequence is repetated 5 times 
-the report is saved on git repository (according: chain_name, machine, test_type, date+time)
+./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  -s /project/silkworm -g /project/erigon -r 3 -u -b mainnet -t 50:30,1000:30,2500:20,5000:20
+
+Runs perf eth_call test according input pattern making a tests sequence according the input (50 qps: 30 seconds, ...) each sequence is repeated 3 times 
+the report is generated in reports area(according: chain_name, machine) ready to be saved on git repository 
 
 
 
