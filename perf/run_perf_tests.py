@@ -41,7 +41,7 @@ def usage(argv):
     print("-h                      print this help")
     print("-Z                      doesn't verify server is still active")
     print("-R                      generate Report")
-    print("-u                      generate Report and save test report in Git repo")
+    print("-u                      generate Report in reports area read to be inserted into Git repo")
     print("-v                      verbose")
     print("-x                      verbose and tracing")
     print("-b <chain name>         mandatory in case of -R or -u")
