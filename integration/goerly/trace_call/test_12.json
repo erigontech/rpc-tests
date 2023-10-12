@@ -1,7 +1,9 @@
 [
     {
-        "_comment": "# block 5405095",
-        "_comment": "https://github.com/torquem-ch/silkworm/blob/0cd9fc17411769caf01cd5d354b056747f3b3cf3/core/silkworm/execution/evm_test.cpp#L73",
+        "test": {
+           "reference": "block 5405095",
+           "description": ""
+        },
         "request": {
             "jsonrpc":"2.0",
             "method":"trace_call",

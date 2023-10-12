@@ -1,7 +1,10 @@
 [
-    {
-        "_comment": "# block 4417196 txn 1",
-        "request": {
+  {
+    "test": {
+           "reference": "# block 4417196 txn 1",
+           "description": ""
+    },
+    "request": {
             "jsonrpc":"2.0",
             "method":"trace_call",
             "params":[
@@ -26,6 +29,6 @@
                "message": "intrinsic gas too low: have 6168, want 22020"
             }
        }
-    }
+   }
 ]
 
