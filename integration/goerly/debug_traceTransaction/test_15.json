@@ -1,7 +1,10 @@
 [
    {
+        "test": {
+           "reference": "# block 5415091 #3 TRANSFER",
+           "description": ""
+        },
         "request": {
-            "_comment": "# block 5415091 #3 TRANSFER",
             "jsonrpc":"2.0",
             "method":"debug_traceTransaction",
             "params":[

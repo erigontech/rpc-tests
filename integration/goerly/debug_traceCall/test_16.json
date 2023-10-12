@@ -1,7 +1,10 @@
 [
     {
+        "test": {
+           "reference": "block 4417196 txn 1",
+           "description": ""
+        },
         "request": {
-            "_comment": "block 4417196 txn 1",
             "jsonrpc":"2.0",
             "method":"debug_traceCall",
             "params":[

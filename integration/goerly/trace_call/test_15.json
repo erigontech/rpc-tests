@@ -1,6 +1,9 @@
 [
-    {
-        "_comment": "# block 6257905 txn 8",
+  {
+       "test": {
+           "reference": "# block 6257905 txn 8",
+           "description": ""
+        },
         "request": {
             "jsonrpc":"2.0",
             "method":"trace_call",
@@ -75,6 +78,6 @@
             }
          }
        }
-    }
+   }
 ]
 
