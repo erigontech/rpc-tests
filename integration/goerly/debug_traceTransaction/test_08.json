@@ -1,7 +1,10 @@
 [
    {
+        "test": {
+           "reference": "# block 5405095 #5 RELIEF (con SLOAD)",
+           "description": ""
+        },
         "request": {
-            "_comment": " # block 5405095 #5 RELIEF (con SLOAD)",
             "jsonrpc":"2.0",
             "method":"debug_traceTransaction",
             "params":[
