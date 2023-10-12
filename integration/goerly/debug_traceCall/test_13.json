@@ -1,7 +1,10 @@
 [
     {
+         "test": {
+           "reference": "# block 6257905",
+           "description": ""
+        },
         "request": {
-            "_comment": "block 5405095",
             "jsonrpc":"2.0",
             "method":"debug_traceCall",
             "params":[
