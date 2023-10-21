@@ -1,0 +1,31 @@
+,,,,,,,,,,,,Vendor,Dell Inc.
+,,,,,,,,,,,,Product,G5 5587
+,,,,,,,,,,,,CPU, Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz 
+,,,,,,,,,,,,Bogomips,4399.99
+,,,,,,,,,,,,Kernel,6.2.0-34-generic
+,,,,,,,,,,,,DaemonVegetaRunOnCore,-:-
+,,,,,,,,,,,,VegetaFile,pattern/mainnet/stress_test_eth_getBlockByNumber_13M.tar
+,,,,,,,,,,,,VegetaChecksum,59204    38
+,,,,,,,,,,,,GCC version,"gcc (Ubuntu 12.3.0-1ubuntu1~22.04) 12.3.0
+Copyright (C) 2022 Free Software Foundation"
+,,,,,,,,,,,,Go version,go version go1.20.5 linux/amd64
+,,,,,,,,,,,,Silkrpc version,glaze_getBlockByNumber 4a7f78961773c0115428335746be8da47d43ce5e
+,,,,,,,,,,,,Erigon version, 
+
+
+Daemon,TestNo,TG-Threads,Qps,Time,Min,Mean,50,90,95,99,Max,Ratio,Error
+silkrpc,[1. 1] ,37 ,50,30,  184.307µs, 4.05ms, 2.061ms, 4.878ms, 6.158ms, 47.582ms, 51.168ms ,100.00%,
+silkrpc,[1. 2] ,37 ,50,30,  169.524µs, 4.087ms, 2.066ms, 4.763ms, 6.575ms, 47.394ms, 50.148ms ,100.00%,
+silkrpc,[1. 3] ,37 ,50,30,  164.588µs, 4.221ms, 2.059ms, 4.875ms, 8.77ms, 46.209ms, 50.503ms ,100.00%,
+silkrpc,[1. 4] ,37 ,50,30,  203.183µs, 4.013ms, 2.027ms, 4.765ms, 6.209ms, 46.409ms, 49.998ms ,100.00%,
+silkrpc,[1. 5] ,37 ,50,30,  199.865µs, 4.194ms, 2.057ms, 4.851ms, 7.11ms, 47.447ms, 52.49ms ,100.00%,
+silkrpc,[2. 1] ,37 ,400,20,  114.962µs, 4.467ms, 2.22ms, 5.446ms, 10.333ms, 48.128ms, 51.722ms ,100.00%,
+silkrpc,[2. 2] ,37 ,400,20,  108.7µs, 4.403ms, 2.213ms, 5.659ms, 9.444ms, 47.843ms, 56.916ms ,100.00%,
+silkrpc,[2. 3] ,37 ,400,20,  106.782µs, 4.536ms, 2.148ms, 5.321ms, 22.842ms, 48.243ms, 51.962ms ,100.00%,
+silkrpc,[2. 4] ,37 ,400,20,  111.681µs, 4.249ms, 2.03ms, 4.838ms, 8.273ms, 47.752ms, 58.767ms ,100.00%,
+silkrpc,[2. 5] ,37 ,400,20,  113.613µs, 4.18ms, 2.001ms, 4.707ms, 8.259ms, 47.4ms, 51.291ms ,100.00%,
+silkrpc,[3. 1] ,37 ,800,20,  117.791µs, 4.31ms, 2.369ms, 5.418ms, 7.602ms, 47.653ms, 52.822ms ,100.00%,
+silkrpc,[3. 2] ,37 ,800,20,  111.035µs, 4.335ms, 2.474ms, 5.666ms, 8.162ms, 47.278ms, 54.67ms ,100.00%,
+silkrpc,[3. 3] ,37 ,800,20,  117.521µs, 4.418ms, 2.483ms, 5.774ms, 8.55ms, 47.757ms, 55.673ms ,100.00%,
+silkrpc,[3. 4] ,37 ,800,20,  115.574µs, 4.466ms, 2.618ms, 6.136ms, 9.046ms, 47.528ms, 65.819ms ,100.00%,
+silkrpc,[3. 5] ,37 ,800,20,  120.975µs, 4.345ms, 2.506ms, 5.804ms, 8.512ms, 47.775ms, 66.004ms ,100.00%,
