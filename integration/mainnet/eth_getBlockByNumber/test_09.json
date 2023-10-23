@@ -1,0 +1,20 @@
+[
+    {
+      "test": {
+           "reference": "",
+           "description": "retrieve save block" 
+        },
+        "request":{
+            "jsonrpc":"2.0",
+            "method":"eth_getBlockByNumber",
+            "params":["safe", false],
+            "id":1
+        },
+        "response":{
+            "jsonrpc":"2.0",
+            "id":1,
+            "result":  null
+      }
+    }
+]
+
