@@ -1,0 +1,21 @@
+[
+    {
+      "test": {
+           "reference": "",
+           "description": "invalid block hash"
+        },
+        "request":{
+            "jsonrpc":"2.0",
+            "method":"eth_getBlockByHash",
+            "params":["0xfffc6b9794874d7011767777a2a0a640e1db201c2d677d01b2b3b19e7ad427c7" , false],
+            "id":1
+        },
+        "response":{
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": null
+
+      }
+    }
+]
+
