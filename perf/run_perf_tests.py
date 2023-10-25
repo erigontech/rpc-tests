@@ -457,7 +457,7 @@ def main(argv):
             print("--------------------------------------------------------------------------------------------\n")
 
     if config.test_mode in ("2", "3"):
-        result = perf_test.execute_sequence(current_sequence, 'rpcdaemon')
+        result = perf_test.execute_sequence(current_sequence, 'daemon')
         if result == 0:
             print("Server dead test Aborted!")
             if config.create_test_report:
