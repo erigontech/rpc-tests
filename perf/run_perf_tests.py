@@ -44,6 +44,7 @@ def usage(argv):
     print("-u                      generate Report in reports area read to be inserted into Git repo")
     print("-v                      verbose")
     print("-x                      verbose and tracing")
+    print("-S <server name>        silk/rpcdaemon")
     print("-b <chain name>         mandatory in case of -R or -u")
     print("-y testType             test type: eth_call, eth_getLogs, ...                                                  [default: " + DEFAULT_TEST_TYPE + "]")
     print("-m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: " + str(DEFAULT_TEST_MODE) + "]")
@@ -80,6 +81,7 @@ class Config:
         self.rpc_daemon_address = DEFAULT_RPCDAEMON_ADDRESS
         self.test_mode = DEFAULT_TEST_MODE
         self.test_type = DEFAULT_TEST_TYPE
+        self.server_name = ""
         self.waiting_time = DEFAULT_WAITING_TIME
         self.versioned_test_report = False
         self.verbose = False
@@ -93,7 +95,7 @@ class Config:
         try:
             local_config = 0
             specified_chain = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:")
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:S:")
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -108,6 +110,8 @@ class Config:
                     self.rpc_daemon_address = optarg
                 elif option == "-p":
                     self.vegeta_pattern_tar_file = optarg
+                elif option == "-S":
+                    self.server_name = optarg
                 elif option == "-c":
                     self.daemon_vegeta_on_core = optarg
                 elif option == "-g":
@@ -352,7 +356,10 @@ class TestReport:
         pathlib.Path(csv_folder_path).mkdir(parents=True, exist_ok=True)
 
         # Generate unique CSV file name w/ date-time and open it
-        csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_perf.csv"
+        if self.config.server_name != "":
+            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_" + self.config.server_name + "_perf.csv"
+        else:
+            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_perf.csv"
         csv_filepath = csv_folder_path + '/' + csv_filename
         self.csv_file = open(csv_filepath, 'w', newline='', encoding='utf8')
         self.writer = csv.writer(self.csv_file)
@@ -440,7 +447,7 @@ def main(argv):
     current_sequence = str(config.test_sequence).split(',')
 
     if config.test_mode in ("1", "3"):
-        result = perf_test.execute_sequence(current_sequence, 'silkrpc')
+        result = perf_test.execute_sequence(current_sequence, 'daemon')
         if result == 0:
             print("Server dead test Aborted!")
             if config.create_test_report:
@@ -450,7 +457,7 @@ def main(argv):
             print("--------------------------------------------------------------------------------------------\n")
 
     if config.test_mode in ("2", "3"):
-        result = perf_test.execute_sequence(current_sequence, 'rpcdaemon')
+        result = perf_test.execute_sequence(current_sequence, 'daemon')
         if result == 0:
             print("Server dead test Aborted!")
             if config.create_test_report:
