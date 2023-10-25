@@ -447,7 +447,7 @@ def main(argv):
     current_sequence = str(config.test_sequence).split(',')
 
     if config.test_mode in ("1", "3"):
-        result = perf_test.execute_sequence(current_sequence, 'silkrpc')
+        result = perf_test.execute_sequence(current_sequence, 'daemon')
         if result == 0:
             print("Server dead test Aborted!")
             if config.create_test_report:
