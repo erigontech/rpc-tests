@@ -345,7 +345,7 @@ class Hardware:
     @classmethod
     def normalized_board(cls):
         """ Return the board name as lowercase w/o whitespaces """
-        return cls.board().replace(' ', '').lower()
+        return cls.board().split('/')[0].replace(' ', '').lower()
 
 class TestReport:
     """ The Comma-Separated Values (CSV) test report """
