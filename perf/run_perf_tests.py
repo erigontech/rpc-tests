@@ -416,7 +416,11 @@ class TestReport:
             erigon_commit = os.popen(command).read().replace('\n', '')
 
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Vendor", Hardware.vendor()])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Product", Hardware.product()])
+        product = Hardware.product()
+        if product != "System Product Name":
+            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Product", product])
+        else:
+            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Board", Hardware.board()])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "CPU", model[1]])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Bogomips", bogomips])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Kernel", kern_vers])
