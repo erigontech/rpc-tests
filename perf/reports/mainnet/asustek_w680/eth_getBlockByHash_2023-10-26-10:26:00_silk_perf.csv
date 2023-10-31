@@ -1,0 +1,41 @@
+,,,,,,,,,,,,Vendor,ASUSTeK COMPUTER INC.
+,,,,,,,,,,,,Board,W680/MB DC
+,,,,,,,,,,,,CPU, 13th Gen Intel(R) Core(TM) i9-13900 
+,,,,,,,,,,,,Bogomips,3993.60
+,,,,,,,,,,,,Kernel,5.15.0-75-generic
+,,,,,,,,,,,,DaemonVegetaRunOnCore,-:-
+,,,,,,,,,,,,VegetaFile,pattern/mainnet/stress_test_eth_getBlockByHash_14M.tar
+,,,,,,,,,,,,VegetaChecksum,11574   249
+,,,,,,,,,,,,GCC version,"gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+Copyright (C) 2021 Free Software Foundation"
+,,,,,,,,,,,,Go version,go version go1.20.5 linux/amd64
+,,,,,,,,,,,,Silkrpc version, 
+,,,,,,,,,,,,Erigon version,master f1a496375b16167442166c2d5c3a9c8425d47d4a
+
+
+Daemon,TestNo,TG-Threads,Qps,Time,Min,Mean,50,90,95,99,Max,Ratio,Error
+daemon,[1. 1] ,94 ,100,30,  127.195µs, 1.571ms, 1.088ms, 2.283ms, 2.499ms, 4.171ms, 47.813ms ,100.00%,
+daemon,[1. 2] ,94 ,100,30,  56.05µs, 1.614ms, 1.091ms, 2.216ms, 2.45ms, 19.763ms, 48.28ms ,100.00%,
+daemon,[1. 3] ,94 ,100,30,  48.556µs, 1.533ms, 1.063ms, 2.247ms, 2.422ms, 4.733ms, 48.996ms ,100.00%,
+daemon,[1. 4] ,94 ,100,30,  72.54µs, 1.888ms, 1.079ms, 2.321ms, 2.63ms, 43.625ms, 47.947ms ,100.00%,
+daemon,[1. 5] ,94 ,100,30,  56.984µs, 1.546ms, 1.08ms, 2.236ms, 2.463ms, 4.417ms, 48.121ms ,100.00%,
+daemon,[2. 1] ,94 ,1000,20,  54.333µs, 2.65ms, 1.21ms, 2.767ms, 3.603ms, 45.471ms, 52.146ms ,100.00%,
+daemon,[2. 2] ,94 ,1000,20,  53.269µs, 2.504ms, 1.184ms, 2.632ms, 3.298ms, 44.99ms, 51.261ms ,100.00%,
+daemon,[2. 3] ,94 ,1000,20,  39.13µs, 2.58ms, 1.197ms, 2.752ms, 3.547ms, 45.163ms, 51.7ms ,100.00%,
+daemon,[2. 4] ,94 ,1000,20,  47.795µs, 2.521ms, 1.192ms, 2.688ms, 3.39ms, 44.844ms, 50.221ms ,100.00%,
+daemon,[2. 5] ,94 ,1000,20,  52.605µs, 2.528ms, 1.192ms, 2.699ms, 3.422ms, 45.048ms, 50.076ms ,100.00%,
+daemon,[3. 1] ,94 ,5000,20,  48.973µs, 7.182ms, 3.746ms, 16.691ms, 28.112ms, 52.159ms, 107.68ms ,100.00%,
+daemon,[3. 2] ,94 ,5000,20,  61.624µs, 7.174ms, 3.824ms, 16.448ms, 28.378ms, 51.538ms, 100.488ms ,100.00%,
+daemon,[3. 3] ,94 ,5000,20,  61.454µs, 19.141ms, 10.241ms, 49.249ms, 63.501ms, 101.609ms, 390.466ms ,100.00%,
+daemon,[3. 4] ,94 ,5000,20,  61.28µs, 5.886ms, 3.253ms, 11.612ms, 20.789ms, 50.169ms, 94.578ms ,100.00%,
+daemon,[3. 5] ,94 ,5000,20,  54.541µs, 6.126ms, 3.328ms, 12.365ms, 22.421ms, 50.654ms, 88.383ms ,100.00%,
+daemon,[4. 1] ,94 ,9000,20,  450.867µs, 3.517s, 278.335ms, 17.36s, 18.043s, 18.828s, 19.594s ,61.41%,"Post ""http://localhost:8545"": dial tcp 0.0.0.0:0->127.0.0.1:8545: bind: address already in use
+"
+daemon,[4. 2] ,94 ,9000,20,  248.422µs, 23.678ms, 2.622ms, 74.781ms, 122.159ms, 258.443ms, 847.454ms ,27.15%,"Post ""http://localhost:8545"": dial tcp 0.0.0.0:0->127.0.0.1:8545: bind: address already in use
+"
+daemon,[4. 3] ,94 ,9000,20,  382.4µs, 605.151ms, 3.156ms, 1.433s, 5.776s, 6.346s, 6.779s ,40.78%,"Post ""http://localhost:8545"": dial tcp 0.0.0.0:0->127.0.0.1:8545: bind: address already in use
+"
+daemon,[4. 4] ,94 ,9000,20,  1.105ms, 1.072s, 2.959ms, 1.86s, 2.557s, 18.813s, 19.709s ,34.25%,"Post ""http://localhost:8545"": dial tcp 0.0.0.0:0->127.0.0.1:8545: bind: address already in use
+"
+daemon,[4. 5] ,94 ,9000,20,  348.096µs, 322.781ms, 2.695ms, 374.103ms, 1.3s, 7.219s, 7.497s ,26.29%,"Post ""http://localhost:8545"": dial tcp 0.0.0.0:0->127.0.0.1:8545: bind: address already in use
+"

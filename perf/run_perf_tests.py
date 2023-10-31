@@ -332,9 +332,20 @@ class Hardware:
         return os.popen(command).readline().replace('\n', '')
 
     @classmethod
+    def board(cls):
+        """ Return the system board name """
+        command = "cat /sys/devices/virtual/dmi/id/board_name"
+        return os.popen(command).readline().replace('\n', '')
+
+    @classmethod
     def normalized_product(cls):
         """ Return the system product name as lowercase w/o whitespaces """
         return cls.product().replace(' ', '').lower()
+
+    @classmethod
+    def normalized_board(cls):
+        """ Return the board name as lowercase w/o whitespaces """
+        return cls.board().split('/')[0].replace(' ', '').lower()
 
 class TestReport:
     """ The Comma-Separated Values (CSV) test report """
@@ -347,8 +358,10 @@ class TestReport:
 
     def open(self):
         """ Writes on CSV file the header """
-        # Build report folder w/ name recalling hw platform and create it if not exists
-        csv_folder = Hardware.normalized_vendor() + '_' + Hardware.normalized_product()
+        estension = Hardware.normalized_product()
+        if estension == "systemproductname":
+            estension = Hardware.normalized_board()
+        csv_folder = Hardware.normalized_vendor() + '_' + estension
         if self.config.versioned_test_report:
             csv_folder_path = './reports/' + self.config.chain_name + '/' + csv_folder
         else:
@@ -403,7 +416,11 @@ class TestReport:
             erigon_commit = os.popen(command).read().replace('\n', '')
 
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Vendor", Hardware.vendor()])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Product", Hardware.product()])
+        product = Hardware.product()
+        if product != "System Product Name":
+            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Product", product])
+        else:
+            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Board", Hardware.board()])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "CPU", model[1]])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Bogomips", bogomips])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Kernel", kern_vers])
