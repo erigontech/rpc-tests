@@ -24,6 +24,7 @@ DEFAULT_SILKRPC_BUILD_DIR = ""
 DEFAULT_RPCDAEMON_ADDRESS = "localhost"
 DEFAULT_TEST_MODE = "3"
 DEFAULT_WAITING_TIME = 5
+DEFAULT_MAX_CONN = "9000"
 DEFAULT_TEST_TYPE = "eth_getLogs"
 
 VEGETA_PATTERN_DIRNAME = "erigon_stress_test"
@@ -44,7 +45,8 @@ def usage(argv):
     print("-u                      generate Report in reports area read to be inserted into Git repo")
     print("-v                      verbose")
     print("-x                      verbose and tracing")
-    print("-S <server name>        silk/rpcdaemon")
+    print("-C <max number of vegeta conn>                                                                                 [default: " + DEFAULT_MAX_CONN + "]")
+    print("-A <additional string>  ")
     print("-b <chain name>         mandatory in case of -R or -u")
     print("-y testType             test type: eth_call, eth_getLogs, ...                                                  [default: " + DEFAULT_TEST_TYPE + "]")
     print("-m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: " + str(DEFAULT_TEST_MODE) + "]")
@@ -81,13 +83,15 @@ class Config:
         self.rpc_daemon_address = DEFAULT_RPCDAEMON_ADDRESS
         self.test_mode = DEFAULT_TEST_MODE
         self.test_type = DEFAULT_TEST_TYPE
-        self.server_name = ""
+        self.additional_string = ""
         self.waiting_time = DEFAULT_WAITING_TIME
         self.versioned_test_report = False
         self.verbose = False
+        self.mac_connection = False
         self.check_server_alive = True
         self.tracing = False
         self.create_test_report = False
+        self.max_connection = DEFAULT_MAX_CONN
 
         self.__parse_args(argv)
 
@@ -95,7 +99,7 @@ class Config:
         try:
             local_config = 0
             specified_chain = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:S:")
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:")
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -110,8 +114,10 @@ class Config:
                     self.rpc_daemon_address = optarg
                 elif option == "-p":
                     self.vegeta_pattern_tar_file = optarg
-                elif option == "-S":
-                    self.server_name = optarg
+                elif option == "-A":
+                    self.additional_string = optarg
+                elif option == "-C":
+                    self.max_connection = optarg
                 elif option == "-c":
                     self.daemon_vegeta_on_core = optarg
                 elif option == "-g":
@@ -232,13 +238,15 @@ class PerfTest:
         else:
             pattern = VEGETA_PATTERN_RPCDAEMON_BASE + self.config.test_type + ".txt"
         on_core = self.config.daemon_vegeta_on_core.split(':')
+        if self.config.max_connection == "0":
+            vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=300s  "
+        else:
+            vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=300s -max-connections=" + self.config.max_connection + " "
         if on_core[1] == "-":
-            cmd = "cat " + pattern + " | " \
-                  "vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=300s | " \
-                  "vegeta report -type=text > " + VEGETA_REPORT + " &"
+            cmd = "cat " + pattern + " | " + vegeta_cmd + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
         else:
             cmd = "taskset -c " + on_core[1] + " cat " + pattern + " | " \
-                  "taskset -c " + on_core[1] + " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=300s | " \
+                  "taskset -c " + on_core[1] + vegeta_cmd + " | " \
                   "taskset -c " + on_core[1] + " vegeta report -type=text > " + VEGETA_REPORT + " &"
         print(f"{test_number} {name}: executes test qps: {qps_value} time: {duration} -> ", end="")
         sys.stdout.flush()
@@ -369,8 +377,8 @@ class TestReport:
         pathlib.Path(csv_folder_path).mkdir(parents=True, exist_ok=True)
 
         # Generate unique CSV file name w/ date-time and open it
-        if self.config.server_name != "":
-            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_" + self.config.server_name + "_perf.csv"
+        if self.config.additional_string != "":
+            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_" + self.config.additional_string + "_perf.csv"
         else:
             csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_perf.csv"
         csv_filepath = csv_folder_path + '/' + csv_filename

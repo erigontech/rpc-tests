@@ -86,6 +86,8 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 -u                      generate Report in reports area read to be inserted into Git repo
 -v                      verbose
 -x                      verbose and tracing
+-C <max number of vegeta conn>                                                                                 [default: 9000]
+-A <addional string>  
 -b <chain name>         mandatory in case of -R or -u
 -y testType             test type: eth_call, eth_getLogs, ...                                                  [default: eth_getLogs]
 -m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: 3]
@@ -99,8 +101,8 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 -c daemonVegetaOnCore   cpu list in taskset format for daemon & vegeta (e.g. 0-1:2-3 or 0-2:3-4 or 0,2:3,4...) [default: -:-]
 
 ```
-Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<test_type><date_time>_perf.csv`
-Results are written on output and in case -u option is specified also in a CSV file in ./reports area  `./reports/<network>/<machine>/<test_type><date_time>_perf.csv`
+Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`
+Results are written on output and in case -u option is specified also in a CSV file in ./reports area  `./reports/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`
 
 
 Invokation examples
