@@ -46,7 +46,7 @@ def usage(argv):
     print("-v                      verbose")
     print("-x                      verbose and tracing")
     print("-C <max number of vegeta conn>                                                                                 [default: " + DEFAULT_MAX_CONN + "]")
-    print("-A <addional string>  ")
+    print("-A <additional string>  ")
     print("-b <chain name>         mandatory in case of -R or -u")
     print("-y testType             test type: eth_call, eth_getLogs, ...                                                  [default: " + DEFAULT_TEST_TYPE + "]")
     print("-m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: " + str(DEFAULT_TEST_MODE) + "]")
