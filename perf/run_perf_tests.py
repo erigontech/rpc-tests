@@ -10,6 +10,7 @@ import pathlib
 import sys
 import time
 import getopt
+import getpass
 from datetime import datetime
 
 import psutil
@@ -45,6 +46,7 @@ def usage(argv):
     print("-u                      generate Report in reports area read to be inserted into Git repo")
     print("-v                      verbose")
     print("-x                      verbose and tracing")
+    print("-e                      empty cache")
     print("-C <max number of vegeta conn>                                                                                 [default: " + DEFAULT_MAX_CONN + "]")
     print("-A <additional string>  ")
     print("-b <chain name>         mandatory in case of -R or -u")
@@ -90,6 +92,7 @@ class Config:
         self.mac_connection = False
         self.check_server_alive = True
         self.tracing = False
+        self.empty_cache = False
         self.create_test_report = False
         self.max_connection = DEFAULT_MAX_CONN
 
@@ -99,7 +102,7 @@ class Config:
         try:
             local_config = 0
             specified_chain = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:")
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:e")
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -120,6 +123,11 @@ class Config:
                     self.max_connection = optarg
                 elif option == "-c":
                     self.daemon_vegeta_on_core = optarg
+                elif option == "-e":
+                    if getpass.getuser() != "root":
+                        print("ERROR: this option can be used only by root")
+                        usage(argv)
+                    self.empty_cache = True
                 elif option == "-g":
                     if local_config == 2:
                         print("ERROR: incompatible option -d with -g -s")
@@ -233,6 +241,11 @@ class PerfTest:
 
     def execute(self, test_number, name, qps_value, duration):
         """ Execute the tests using specified queries-per-second (QPS) and duration """
+        if self.config.empty_cache:
+            if "linux" in sys.platform or "linux2" in sys.platform: #linux
+                status = os.system("sync && sudo sysctl vm.drop_caches=3 > /dev/null")
+            elif sys.platform == "darwin": # OS X
+                status = os.system("sync && sudo purge > /dev/null")
         if name == "silkrpc":
             pattern = VEGETA_PATTERN_SILKRPC_BASE + self.config.test_type + ".txt"
         else:
