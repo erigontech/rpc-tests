@@ -1,0 +1,22 @@
+,,,,,,,,,,,,Vendor,Dell Inc.
+,,,,,,,,,,,,Product,XPS 9320
+,,,,,,,,,,,,CPU, 12th Gen Intel(R) Core(TM) i7-1260P 
+,,,,,,,,,,,,Bogomips,4992.00
+,,,,,,,,,,,,Kernel,6.2.0-35-generic
+,,,,,,,,,,,,DaemonVegetaRunOnCore,-:-
+,,,,,,,,,,,,VegetaFile,/home/dario/Works/silk/rpc-tests/perf/pattern/goerly/stress_test_ots_getBlockTransactions_001.tar
+,,,,,,,,,,,,VegetaChecksum,36374   110
+,,,,,,,,,,,,GCC version,"gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+Copyright (C) 2021 Free Software Foundation"
+,,,,,,,,,,,,Go version,go version go1.21.1 linux/amd64
+,,,,,,,,,,,,Silkrpc version,master ff0e36e158110e96bb9fb835885aec62666a1e19
+,,,,,,,,,,,,Erigon version,devel 106e880442c5e77b15638f4aaf6c995f6d8c38c8
+
+
+Daemon,TestNo,TG-Threads,Qps,Time,Min,Mean,50,90,95,99,Max,Ratio,Error
+silkrpc,[1. 1] ,45 ,50,30,  275.235µs, 1.056ms, 1.029ms, 1.422ms, 1.553ms, 1.727ms, 2.259ms ,100.00%,
+silkrpc,[2. 1] ,45 ,200,30,  179.919µs, 859.348µs, 856.421µs, 1.123ms, 1.319ms, 1.508ms, 1.911ms ,100.00%,
+silkrpc,[3. 1] ,45 ,1000,30,  107.25µs, 765.599µs, 753.782µs, 1.039ms, 1.229ms, 1.42ms, 2.338ms ,100.00%,
+rpcdaemon,[1. 1] ,45 ,50,30,  419.193µs, 2.229ms, 2.136ms, 2.996ms, 3.258ms, 3.868ms, 12.207ms ,100.00%,
+rpcdaemon,[2. 1] ,45 ,200,30,  271.012µs, 2.071ms, 1.992ms, 2.803ms, 3.126ms, 3.766ms, 5.233ms ,100.00%,
+rpcdaemon,[3. 1] ,45 ,1000,30,  280.335µs, 2.395ms, 2.302ms, 3.417ms, 3.747ms, 4.602ms, 11.88ms ,100.00%,
