@@ -320,8 +320,10 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
         if exp_rsp_file != "":
             with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
                 json_file_ptr.write(json.dumps(expected_response, indent=5))
-        to_lower_case(exp_rsp_file)
-        to_lower_case(silk_file)
+
+        if "error" in response:
+            to_lower_case(exp_rsp_file)
+            to_lower_case(silk_file)
 
         temp_file1 = "/tmp/file1"
         temp_file2 = "/tmp/file2"
