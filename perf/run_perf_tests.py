@@ -28,6 +28,8 @@ DEFAULT_WAITING_TIME = 5
 DEFAULT_MAX_CONN = "9000"
 DEFAULT_TEST_TYPE = "eth_getLogs"
 
+SILKRPC_NAME="silkrpc"
+RPCDAEMON_NAME="rpcdaemon"
 VEGETA_PATTERN_DIRNAME = "erigon_stress_test"
 VEGETA_REPORT = "vegeta_report.hrd"
 VEGETA_TAR_FILE_NAME = "vegeta_TAR_File"
@@ -246,7 +248,7 @@ class PerfTest:
                 status = os.system("sync && sudo sysctl vm.drop_caches=3 > /dev/null")
             elif sys.platform == "darwin": # OS X
                 status = os.system("sync && sudo purge > /dev/null")
-        if name == "silkrpc":
+        if name == SILKRPC_NAME:
             pattern = VEGETA_PATTERN_SILKRPC_BASE + self.config.test_type + ".txt"
         else:
             pattern = VEGETA_PATTERN_RPCDAEMON_BASE + self.config.test_type + ".txt"
@@ -261,7 +263,7 @@ class PerfTest:
             cmd = "taskset -c " + on_core[1] + " cat " + pattern + " | " \
                   "taskset -c " + on_core[1] + vegeta_cmd + " | " \
                   "taskset -c " + on_core[1] + " vegeta report -type=text > " + VEGETA_REPORT + " &"
-        print(f"{test_number} {name}: executes test qps: {qps_value} time: {duration} -> ", end="")
+        print(f"{test_number} daemon: executes test qps: {qps_value} time: {duration} -> ", end="")
         sys.stdout.flush()
         status = os.system(cmd)
         if int(status) != 0:
@@ -271,7 +273,7 @@ class PerfTest:
         while 1:
             time.sleep(3)
             if self.config.check_server_alive:
-                if name == "silkrpc":
+                if name == SILKRPC_NAME:
                     pid = os.popen("ps aux | grep 'silkrpc' | grep -v 'grep' | awk '{print $2}'").read()
                 else:
                     pid = os.popen("ps aux | grep 'rpcdaemon' | grep -v 'grep' | awk '{print $2}'").read()
@@ -485,7 +487,7 @@ def main(argv):
     current_sequence = str(config.test_sequence).split(',')
 
     if config.test_mode in ("1", "3"):
-        result = perf_test.execute_sequence(current_sequence, 'daemon')
+        result = perf_test.execute_sequence(current_sequence, SILKRPC_NAME)
         if result == 0:
             print("Server dead test Aborted!")
             if config.create_test_report:
@@ -495,7 +497,7 @@ def main(argv):
             print("--------------------------------------------------------------------------------------------\n")
 
     if config.test_mode in ("2", "3"):
-        result = perf_test.execute_sequence(current_sequence, 'daemon')
+        result = perf_test.execute_sequence(current_sequence, RPCDAEMON_NAME)
         if result == 0:
             print("Server dead test Aborted!")
             if config.create_test_report:
