@@ -322,8 +322,14 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
         temp_file1 = "/tmp/silk_lower_case"
         temp_file2 = "/tmp/rpc_lower_case"
 
-        to_lower_case(exp_rsp_file, temp_file2)
-        to_lower_case(silk_file, temp_file1)
+        if "error" in response:
+            to_lower_case(exp_rsp_file, temp_file2)
+            to_lower_case(silk_file, temp_file1)
+        else:
+            cmd = "cp " +  silk_file  + " " + temp_file1;
+            os.system(cmd)
+            cmd = "cp " +  exp_rsp_file  + " " + temp_file2;
+            os.system(cmd)
 
         if is_not_compared_result(json_file):
             removed_line_string = "error"
