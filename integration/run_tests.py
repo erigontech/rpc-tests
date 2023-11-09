@@ -129,13 +129,11 @@ def get_jwt_secret(name):
         return ""
 
 
-def to_lower_case(file):
+def to_lower_case(file, dest_file):
     """ converts input string into lower case
     """
     lowercase_file = "/tmp/lowercase"
-    cmd = "tr '[:upper:]' '[:lower:]' < " + file + " > " + lowercase_file
-    os.system(cmd)
-    cmd = "cp " + lowercase_file + " " + file
+    cmd = "tr '[:upper:]' '[:lower:]' < " + file + " > " + dest_file
     os.system(cmd)
 
 
@@ -320,30 +318,38 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
         if exp_rsp_file != "":
             with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
                 json_file_ptr.write(json.dumps(expected_response, indent=5))
-        to_lower_case(exp_rsp_file)
-        to_lower_case(silk_file)
 
-        temp_file1 = "/tmp/file1"
-        temp_file2 = "/tmp/file2"
+        temp_file1 = "/tmp/silk_lower_case"
+        temp_file2 = "/tmp/rpc_lower_case"
+
+        if "error" in response:
+            to_lower_case(exp_rsp_file, temp_file2)
+            to_lower_case(silk_file, temp_file1)
+        else:
+            cmd = "cp " +  silk_file  + " " + temp_file1;
+            os.system(cmd)
+            cmd = "cp " +  exp_rsp_file  + " " + temp_file2;
+            os.system(cmd)
+
         if is_not_compared_result(json_file):
             removed_line_string = "error"
             replace_str_from_file(exp_rsp_file, temp_file1, removed_line_string)
             replace_str_from_file(silk_file, temp_file2, removed_line_string)
-            cmd = "json-diff -s /tmp/file1 /tmp/file2 " + " > " + diff_file
+            cmd = "json-diff -s temp_file2 temp_file1 " + " > " + diff_file
         elif is_not_compared_message(json_file):
             removed_line_string = "message"
             replace_message(exp_rsp_file, temp_file1, removed_line_string)
             replace_message(silk_file, temp_file2, removed_line_string)
-            cmd = "json-diff -s /tmp/file1 /tmp/file2 " + " > " + diff_file
+            cmd = "json-diff -s temp_file2 temp_file1 " + " > " + diff_file
         elif is_message_to_be_converted(json_file):
             modified_string = "message"
             modified_str_from_file(exp_rsp_file, temp_file1, modified_string)
             modified_str_from_file(silk_file, temp_file2, modified_string)
-            cmd = "json-diff -s /tmp/file1 /tmp/file2 " + " > " + diff_file
+            cmd = "json-diff -s temp_file2 temp_file1 " + " > " + diff_file
         elif is_big_json(json_file):
-            cmd = "json-patch-jsondiff --indent 4 " + exp_rsp_file + " " + silk_file + " > " + diff_file
+            cmd = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file
         else:
-            cmd = "json-diff -s " + exp_rsp_file + " " + silk_file + " > " + diff_file
+            cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
         os.system(cmd)
         diff_file_size = os.stat(diff_file).st_size
         if diff_file_size != 0:
