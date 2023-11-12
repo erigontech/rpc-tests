@@ -86,8 +86,9 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 -u                      generate Report in reports area read to be inserted into Git repo
 -v                      verbose
 -x                      verbose and tracing
+-e                      empty cache
 -C <max number of vegeta conn>                                                                                 [default: 9000]
--A <addional string>  
+-A <additional string>  
 -b <chain name>         mandatory in case of -R or -u
 -y testType             test type: eth_call, eth_getLogs, ...                                                  [default: eth_getLogs]
 -m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: 3]
