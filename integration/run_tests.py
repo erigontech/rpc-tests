@@ -335,17 +335,17 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
             removed_line_string = "error"
             replace_str_from_file(exp_rsp_file, temp_file1, removed_line_string)
             replace_str_from_file(silk_file, temp_file2, removed_line_string)
-            cmd = "json-diff -s temp_file2 temp_file1 " + " > " + diff_file
+            cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
         elif is_not_compared_message(json_file):
             removed_line_string = "message"
             replace_message(exp_rsp_file, temp_file1, removed_line_string)
             replace_message(silk_file, temp_file2, removed_line_string)
-            cmd = "json-diff -s temp_file2 temp_file1 " + " > " + diff_file
+            cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
         elif is_message_to_be_converted(json_file):
             modified_string = "message"
             modified_str_from_file(exp_rsp_file, temp_file1, modified_string)
             modified_str_from_file(silk_file, temp_file2, modified_string)
-            cmd = "json-diff -s temp_file2 temp_file1 " + " > " + diff_file
+            cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
         elif is_big_json(json_file):
             cmd = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file
         else:
