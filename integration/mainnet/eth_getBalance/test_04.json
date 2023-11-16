@@ -1,0 +1,20 @@
+[
+  {
+        "test": {
+           "reference": "",
+           "description": "invoke getBalance on account 0x0...0 on earliest block"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getBalance",
+            "params":["0x0000000000000000000000000000000000000000", "earliest"],
+            "id":3
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":3,
+            "result": null
+        }
+    }
+]
+

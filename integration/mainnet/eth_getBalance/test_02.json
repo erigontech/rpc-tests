@@ -1,0 +1,21 @@
+[
+  {
+       "test": {
+           "reference": "",
+           "description": "invoke getBalance on account 0x0..0 on valid block "
+        },
+
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getBalance",
+            "params":["0x0000000000000000000000000000000000000000", "0x1036649"],
+            "id":3
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":3,
+            "result": "0x272319756fe18f2cdfc"
+        }
+    }
+]
+
