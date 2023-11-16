@@ -1,0 +1,20 @@
+[
+   {
+         "test": {
+           "reference": "",
+           "description": "transactions receipt on invalid hash"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getTransactionReceipt",
+            "params":["0xffffffffffff53cc6a15761c9d2da43a628d0ca713bfad5a1e311b531c294b77"],
+            "id":1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null 
+        }
+    }
+]
+
