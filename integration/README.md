@@ -8,18 +8,20 @@ These integration tests currently available for Goerli testnet must run as non-r
 % pip3 install -r requirements.txt
 ```
 
-Currently, `json-diff` is also required:
+Currently, `json-diff` and `json-patch-jsondiff` are also required:
 
 ```
 % sudo apt update
 % sudo apt install npm
 % npm install -g json-diff
+
+% sudo apt install python3-jsonpatch
 ```
 
 # Run tests
 
 ```
-% python3 ./run_tests.py -c -k jwt.hex
+% python3 ./run_tests.py -c -k jwt.hex -b <chain>
 ```
 
 # Synopsis

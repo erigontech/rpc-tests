@@ -16,9 +16,10 @@ Collection of JSON RPC black-box testing tools
 Using `rpc-tests` requires installing:
 * [`Vegeta`](https://github.com/tsenart/vegeta) >= 12.8.4
 * [`Python`](https://python.org/) >= 3.10
+* [`python3-jsonpatch`] >= 1.32 (see README on integration subfolder)
+* [`json-diff`] using npm (see README on integration subfolder)
 
-After installation, make sure `vegeta` command is available at your shell prompt by running `vegeta -h`.
-If it is not, you may need to add `go` binary folder to your system `PATH`.
+After installation, make sure `vegeta`, `json-diff` and `json-patch-jsondiff ` commands are available at your shell prompt.
 
 After installation, make sure `python3` and `pip3` commands are available at your shell prompt by running `python3 -h` and `pip3 -h`.
 
