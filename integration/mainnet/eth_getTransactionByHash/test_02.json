@@ -1,8 +1,8 @@
 [
    {
         "test": {
-           "reference": "https://etherscan.io/tx/0x45102190bcfd53cc6a15761c9d2da43a628d0ca713bfad5a1e311b531c294b77",
-           "description": "transactions details on specific hash"
+           "reference": "",
+           "description": "transactions details on invalid hash"
         },
         "request": {
             "jsonrpc":"2.0",
@@ -13,27 +13,7 @@
         "response": {
             "id": 1,
             "jsonrpc": "2.0",
-            "result": {
-               "accessList": [],
-               "blockHash": "0xa2acb9a957dfb3b8877d534d411980166a6a5ba33358ce133652d29a3719aa56",
-               "blockNumber": "0xfbc520",
-               "chainId": "0x1",
-               "from": "0xdafea492d9c6733ae3d56b7ed1adb60692c98bc5",
-               "gas": "0x5208",
-               "gasPrice": "0x4d6b73721",
-               "hash": "0x45102190bcfd53cc6a15761c9d2da43a628d0ca713bfad5a1e311b531c294b77",
-               "input": "0x",
-               "maxFeePerGas": "0x4d6b73721",
-               "maxPriorityFeePerGas": "0x0",
-               "nonce": "0x310b5",
-               "r": "0x231991058d1e89345ac5f21ce2f809e9788e84a3fb3ae882be5f733eb9886c91",
-               "s": "0x338ba9ae799ca069daa8e36c7144b0883b956baf4f7e3f36a4862a634fc0e408",
-               "to": "0xe688b84b23f322a994a53dbf8e15fa82cdb71127",
-               "transactionIndex": "0x97",
-               "type": "0x2",
-               "v": "0x1",
-               "value": "0x94051eb25734f4"
-           }
+            "result": null 
         }
     }
 ]
