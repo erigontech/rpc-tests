@@ -277,10 +277,10 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
                     os.mkdir(output_dir)
                 if silk_file != "":
                     with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(response, indent=6))
+                        json_file_ptr.write(json.dumps(response, indent=6, sort_keys=True))
                 if exp_rsp_file != "":
                     with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(expected_response, indent=5))
+                        json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
             return 0
         if "error" in response and "error" in expected_response and expected_response["error"] is None:
             # response and expected_response are different but don't care
@@ -291,10 +291,10 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
                     os.mkdir(output_dir)
                 if silk_file != "":
                     with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(response, indent=6))
+                        json_file_ptr.write(json.dumps(response, indent=6, sort_keys=True))
                 if exp_rsp_file != "":
                     with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(expected_response, indent=5))
+                        json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
             return 0
         if "error" not in expected_response and "result" not in expected_response:
             # response and expected_response are different but don't care
@@ -305,19 +305,19 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
                     os.mkdir(output_dir)
                 if silk_file != "":
                     with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(response, indent=6))
+                        json_file_ptr.write(json.dumps(response, indent=6, sort_keys=True))
                 if exp_rsp_file != "":
                     with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(expected_response, indent=5))
+                        json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
             return 0
         if silk_file != "" and os.path.exists(output_dir) == 0:
             os.mkdir(output_dir)
         if silk_file != "":
             with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                json_file_ptr.write(json.dumps(response, indent=5))
+                json_file_ptr.write(json.dumps(response, indent=5, sort_keys=True))
         if exp_rsp_file != "":
             with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                json_file_ptr.write(json.dumps(expected_response, indent=5))
+                json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
 
         temp_file1 = "/tmp/silk_lower_case"
         temp_file2 = "/tmp/rpc_lower_case"
@@ -382,10 +382,10 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
             os.mkdir(output_dir)
         if silk_file != "":
             with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                json_file_ptr.write(json.dumps(response, indent=6))
+                json_file_ptr.write(json.dumps(response, indent=6, sort_keys=True))
         if exp_rsp_file != "":
             with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                json_file_ptr.write(json.dumps(expected_response, indent=5))
+                json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
     return 0
 
 
