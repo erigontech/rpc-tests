@@ -1,0 +1,22 @@
+[
+   {
+        "test": {
+           "reference": "https://etherscan.io/tx/0xe9ebfecc2fa10100db51a4408d18193b3ac504584b51a4e55bdef1318f0a30f9",
+           "description": "getCode using unknown hash"
+        },
+
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getCode",
+            "params":["0xfB9bc244D798123fDe783fCc1C72d3Bb8C189413", "0x15CD13"],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": "0x"
+
+        }
+    }
+]
+
