@@ -1,0 +1,26 @@
+,,,,,,,,,,,,Vendor,TUXEDO
+,,,,,,,,,,,,Product,TUXEDO Gemini Gen2
+,,,,,,,,,,,,CPU, 13th Gen Intel(R) Core(TM) i9-13900HX 
+,,,,,,,,,,,,Bogomips,4838.40
+,,,,,,,,,,,,Kernel,6.5.0-10008-tuxedo
+,,,,,,,,,,,,DaemonVegetaRunOnCore,-:-
+,,,,,,,,,,,,VegetaFile,/home/giacomo/develop/rpc-tests/perf/pattern/goerly/stress_test_debug_traceBlockByNumber_3210K_2200.tar
+,,,,,,,,,,,,VegetaChecksum,42479  8830
+,,,,,,,,,,,,GCC version,"gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+Copyright (C) 2021 Free Software Foundation"
+,,,,,,,,,,,,Go version,go version go1.20.5 linux/amd64
+,,,,,,,,,,,,Silkrpc version,master ed29f7cc0bdeb68b6208dc34d6a52cd2f974641d
+,,,,,,,,,,,,Erigon version,devel 9623b7cefe9a5d5332747f7c8de995187e057035
+
+
+Daemon,TestNo,TG-Threads,Qps,Time,Min,Mean,50,90,95,99,Max,Ratio,Error
+silkrpc,[1. 1] ,38 ,1,30,  828.188µs, 240.151ms, 146.387ms, 555.752ms, 751.84ms, 852.815ms, 852.815ms ,100.00%,
+silkrpc,[2. 1] ,38 ,5,30,  142.454µs, 2.567s, 481.268ms, 11.822s, 14.334s, 21.596s, 21.799s ,100.00%,
+silkrpc,[3. 1] ,38 ,10,30,  136.695µs, 22.349s, 19.104s, 51.926s, 59.715s, 1m10s, 1m22s ,100.00%,
+silkrpc,[4. 1] ,38 ,20,20,  150.115µs, 39.154s, 42.126s, 1m14s, 1m20s, 1m37s, 1m44s ,100.00%,
+silkrpc,[5. 1] ,38 ,40,20,  138.774µs, 1m25s, 1m25s, 2m29s, 2m41s, 3m12s, 3m21s ,100.00%,
+rpcdaemon,[1. 1] ,39 ,1,30,  923.523µs, 443.485ms, 166.482ms, 1.186s, 1.251s, 1.431s, 1.431s ,100.00%,
+rpcdaemon,[2. 1] ,40 ,5,30,  277.476µs, 764.906ms, 180.98ms, 1.835s, 2.072s, 15.368s, 15.466s ,100.00%,
+rpcdaemon,[3. 1] ,41 ,10,30,  356.564µs, 982.878ms, 232.365ms, 2.306s, 3.123s, 17.234s, 19.181s ,100.00%,
+rpcdaemon,[4. 1] ,41 ,20,20,  439.439µs, 1.425s, 219.955ms, 3.62s, 5.298s, 19.76s, 24.182s ,100.00%,
+rpcdaemon,[5. 1] ,41 ,40,20,  455.314µs, 4.833s, 738.878ms, 13.143s, 16.356s, 35.737s, 44.102s ,100.00%,
