@@ -1,0 +1,43 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_getModifiedAccountsByNumber",
+      "params": [
+        "0x5B96E5",
+        "0x5B96E5"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        "0x0f007aa14325f3d477e19fbe8a022ce2418c12d5",
+        "0x1082c6ebb8f30c4c8c0cb9a411f7390dae08e896",
+        "0x12373bc8aff9122430a63aa68e1ad1b30734456e",
+        "0x3192765e7dfdf327736ab5f12ce63a5ad36dd468",
+        "0x331d077518216c07c87f4f18ba64cd384c411f84",
+        "0x34364bee11607b1963d66bca665fde93fca666a8",
+        "0x429bf8ec3330e02401d72beade86000d9a2e19eb",
+        "0x52e44f279f4203dcf680395379e5f9990a69f13c",
+        "0x549ae20c624676a580fa278c651e6426b2b23f15",
+        "0x5e032243d507c743b061ef021e2ec7fcc6d3ab89",
+        "0x6ae988e7af3d61e957c34099b9fd904ae6241a98",
+        "0x7d20c01d3036a0cd9f961a823cf2192b65d88579",
+        "0x7f3d397286d277b19250f9ef642f44069602365d",
+        "0x85e076361cc813a908ff672f9bad1541474402b2",
+        "0x9d357d43d9733a1e59e5eb1432f2527e66e2cd43",
+        "0xb3775fb83f7d12a36e0475abdd1fca35c091efbe",
+        "0xb6bd3ce9b406937434a98886d406160cc2dcd876",
+        "0xc7029ed9eba97a096e72607f4340c34049c7af48",
+        "0xdde8fcb76e0796b6d2f2ffa450573f02bb32ff4c",
+        "0xea8b30b0bf4aefb965a8fdf0ccacafd17ad740ad",
+        "0xee512df7daf13f281184841027cc9c9d9da3f3a7",
+        "0xf13f3728d11f269c67429cc0fc98c886573d501f",
+        "0xf73c3c65bde10bf26c2e1763104e609a41702efe",
+        "0xfb5fea8f0a93ce09334bfc2ce0df5f7b6c559eb1"
+      ]
+    }
+  }
+]
