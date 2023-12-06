@@ -27,6 +27,8 @@ DEFAULT_TEST_MODE = "3"
 DEFAULT_WAITING_TIME = 5
 DEFAULT_MAX_CONN = "9000"
 DEFAULT_TEST_TYPE = "eth_getLogs"
+DEFAULT_VEGETA_RESPONSE_TIMEOUT = "300"
+DEFAULT_MAX_BODY_RSP = "1500"
 
 SILKRPC_NAME="silkrpc"
 RPCDAEMON_NAME="rpcdaemon"
@@ -63,6 +65,8 @@ def usage(argv):
     print("-g erigonBuildDir       Erigon: path to erigon folder (e.g. /home/erigon)                                      [default: " + DEFAULT_ERIGON_BUILD_DIR + "]")
     print("-s silkrpcBuildDir      Silkrpc: path to silk folder (e.g. /home/silkworm)                                     [default: " + DEFAULT_SILKRPC_BUILD_DIR + "]")
     print("-c daemonVegetaOnCore   cpu list in taskset format for daemon & vegeta (e.g. 0-1:2-3 or 0-2:3-4 or 0,2:3,4...) [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE +"]")
+    print("-T <timeout>            vegeta response timeout                                                                [default: " + DEFAULT_VEGETA_RESPONSE_TIMEOUT + "]")
+    print("-M <maximum body size>  maximum number of bytes in response body                                               [default: " + DEFAULT_MAX_BODY_RSP + "]")
     sys.exit(-1)
 
 def get_process(process_name: str):
@@ -97,6 +101,8 @@ class Config:
         self.empty_cache = False
         self.create_test_report = False
         self.max_connection = DEFAULT_MAX_CONN
+        self.vegeta_response_timeout = DEFAULT_VEGETA_RESPONSE_TIMEOUT
+        self.max_body_rsp = DEFAULT_MAX_BODY_RSP
 
         self.__parse_args(argv)
 
@@ -104,7 +110,7 @@ class Config:
         try:
             local_config = 0
             specified_chain = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:e")
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:")
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -183,6 +189,10 @@ class Config:
                     self.test_type = optarg
                 elif option == "-Z":
                     self.check_server_alive = False
+                elif option == "-T":
+                    self.vegeta_response_timeout = optarg
+                elif option == "-M":
+                    self.max_body_rsp = optarg
                 else:
                     usage(argv)
         except getopt.GetoptError as err:
@@ -254,9 +264,13 @@ class PerfTest:
             pattern = VEGETA_PATTERN_RPCDAEMON_BASE + self.config.test_type + ".txt"
         on_core = self.config.daemon_vegeta_on_core.split(':')
         if self.config.max_connection == "0":
-            vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=300s  "
+            vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=" + \
+                           self.config.vegeta_response_timeout + "s -max-body=" + self.config.max_body_rsp
         else:
-            vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=300s -max-connections=" + self.config.max_connection + " "
+            vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=" + \
+                          self.config.vegeta_response_timeout + "s -max-connections=" + self.config.max_connection + " -max-body=" + \
+                          self.config.max_body_rsp
+        print (vegeta_cmd)
         if on_core[1] == "-":
             cmd = "cat " + pattern + " | " + vegeta_cmd + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
         else:
