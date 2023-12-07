@@ -1,0 +1,57 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_getModifiedAccountsByNumber",
+      "params": [
+        "0x1875B8",
+        "0x1875B9"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        "0x12e57d6f935869638057bf37457ddc4973399317",
+        "0x1365cef2f79c0ac0e60f05f10f9422527acb47d8",
+        "0x2a65aca4d5fc5b5c859090a6c34d164135398226",
+        "0x2ea342c516b52f5b16015c1c4095653f934836b7",
+        "0x2f477765d75f03ebb8ab76fa5ce60e2d3ba5fc3f",
+        "0x316be9efffb07fb6ac0f0fa05489a7786b819535",
+        "0x353765840d98943d116912997e3039afb16a0ea5",
+        "0x375203d21e61b477b4577840ec538c008c12e2ec",
+        "0x43c0a04a58290d7e2da48ab2e08c46f38f23a87c",
+        "0x4a3563e8ce0fd39e3b04168dd8072b6378b5a362",
+        "0x4ae264076cace45bc59e71d85a82cbb89f63c7b7",
+        "0x4dadc30238466e57c6d88e5a9339dda06b352bc2",
+        "0x56e4de776277ec38c29833d3db3a7c7e28f6534c",
+        "0x63ea6d075900cd229cd096f9978a16e4a915d08a",
+        "0x674a170c35d7cf58a2165805dc3463daeb216913",
+        "0x743999b7eda1107da55cced79a77754806b134dc",
+        "0x7f6dbfdb618bb6bed9b9396a6a0cc9310386c811",
+        "0x808e9ada0f5c38b7a1b8fc1965951a5e1efd08a7",
+        "0x811fdcb0a0d87c953a307e196ae1c2e6e099fc7a",
+        "0x839df56cbfa86e271b2eb595af599254fa246ef3",
+        "0x91337a300e0361bddb2e377dd4e88ccb7796663d",
+        "0x934dbed949716505ec55adda97c9601d5905dbd4",
+        "0x96aa366d0e8de9f6c1693aafe86565831f157e56",
+        "0x9ba391859c1199dfd01fe256d68588756969f560",
+        "0xa5e606bd6760ed5f82eaa953236a2c980b75dc0e",
+        "0xa5ed89106ad81162f185e13b624838c693305a78",
+        "0xb64b76f9e9d788f49fa34726c89fbeaf982a7cd1",
+        "0xcbf223a6c32c3629e37e9ace852cef86d16b0986",
+        "0xd1e56c2e765180aa0371928fd4d1e41fbcda34d4",
+        "0xd5de7c4abd7896af7d7f95b753243eed8289710a",
+        "0xe1759a07235400163cb23d50f4449040a16a108e",
+        "0xe57ce8d3f7f753e45d2923d81546f9f36a6a2685",
+        "0xe5cdc0a856c6d57ea278af160d77c423bbf6ecf9",
+        "0xe60fbaa6ccdf92d0056b7a1a0a5bfab00903826a",
+        "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+        "0xed6e4a1b1e5ab4501b445fd734f352c6b2dc87b0",
+        "0xfbb1b73c4f0bda4f67dca266ce6ef42f520fbb98",
+        "0xfd4b217e7ab6c61bd881125546e52c3ae95abe56"
+      ]
+    }
+  }
+]
