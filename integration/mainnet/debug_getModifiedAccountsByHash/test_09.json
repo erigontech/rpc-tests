@@ -1,0 +1,22 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_getModifiedAccountsByHash",
+      "params": [
+        "0x181f842e1c3c07cde36c8bd7d22deba938fb7e117f05e6d86a953b6fe2239833",
+        "0x70286a813d03ad3fc6e0041eb58879bf97538e1fef5d71c7a4a900db1d2f1956"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        "0x2a65aca4d5fc5b5c859090a6c34d164135398226",
+        "0x56a79f84fe85d8e04062dc29e0a088bdbcfc3d18",
+        "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+      ]
+    }
+  }
+]

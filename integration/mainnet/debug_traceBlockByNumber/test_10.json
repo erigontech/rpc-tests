@@ -1,0 +1,22 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceBlockByNumber",
+      "params": [
+        6371578,
+        {
+          "disableMemory": false,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": []
+    }
+  }
+]
