@@ -20,74 +20,74 @@ RPCDAEMON = "rpcdaemon"
 INFURA = "infura"
 
 tests_with_big_json = [
-    "debug_traceBlockByHash/test_02.tar",
-    "debug_traceBlockByHash/test_03.tar",
-    "debug_traceBlockByHash/test_04.tar",
-    "debug_traceBlockByNumber/test_02.tar",
-    "trace_replayBlockTransactions/test_01.tar",
-    "trace_replayBlockTransactions/test_02.tar",
-    "trace_replayTransaction/test_16.tar",
-    "trace_replayTransaction/test_23.tar",
-    "erigon_getLatestLogs/test_12.json"
+    "goerly/debug_traceBlockByHash/test_02.tar",
+    "goerly/debug_traceBlockByHash/test_03.tar",
+    "goerly/debug_traceBlockByHash/test_04.tar",
+    "goerly/debug_traceBlockByNumber/test_02.tar",
+    "goerly/trace_replayBlockTransactions/test_01.tar",
+    "goerly/trace_replayBlockTransactions/test_02.tar",
+    "goerly/trace_replayTransaction/test_16.tar",
+    "goerly/trace_replayTransaction/test_23.tar",
+    "goerly/erigon_getLatestLogs/test_12.json"
 ]
 
 api_not_compared = [
-    "trace_rawTransaction",
-    "parity_getBlockReceipts",
-    "erigon_watchTheBurn",
-    "txpool_content"
+    "goerly/trace_rawTransaction",
+    "goerly/parity_getBlockReceipts",
+    "goerly/erigon_watchTheBurn",
+    "goerly/txpool_content"
 ]
 
 tests_not_compared = [
-    "debug_accountAt/test_04.json",
-    "debug_accountAt/test_05.json",
-    "debug_accountAt/test_06.json",
-    "debug_accountAt/test_07.json",
-    "debug_accountAt/test_10.json",
-    "debug_accountAt/test_11.json",
-    "debug_traceBlockByHash/test_02.tar",
-    "debug_traceBlockByHash/test_03.tar",
-    "debug_traceBlockByHash/test_04.tar",
-    "debug_traceBlockByNumber/test_02.tar",
-    "debug_traceCall/test_10.json",
-    "debug_traceCall/test_14.json",
-    "debug_traceCall/test_17.json",
-    "eth_callMany/test_01.json",
-    "eth_callMany/test_02.json",
-    "eth_callMany/test_04.json",
-    "eth_callMany/test_05.json",
-    "eth_callMany/test_06.json",
-    "eth_callMany/test_09.json",
-    "eth_callMany/test_10.json",
-    "eth_maxPriorityFeePerGas/test_1.json",
-    "eth_feeHistory/test_1.json",
-    "engine_getPayloadBodiesByHashV1/test_1.json",
-    "engine_getPayloadBodiesByRangeV1/test_1.json"
+    "goerly/debug_accountAt/test_04.json",
+    "goerly/debug_accountAt/test_05.json",
+    "goerly/debug_accountAt/test_06.json",
+    "goerly/debug_accountAt/test_07.json",
+    "goerly/debug_accountAt/test_10.json",
+    "goerly/debug_accountAt/test_11.json",
+    "goerly/debug_traceBlockByHash/test_02.tar",
+    "goerly/debug_traceBlockByHash/test_03.tar",
+    "goerly/debug_traceBlockByHash/test_04.tar",
+    "goerly/debug_traceBlockByNumber/test_02.tar",
+    "goerly/debug_traceCall/test_10.json",
+    "goerly/debug_traceCall/test_14.json",
+    "goerly/debug_traceCall/test_17.json",
+    "goerly/eth_callMany/test_01.json",
+    "goerly/eth_callMany/test_02.json",
+    "goerly/eth_callMany/test_04.json",
+    "goerly/eth_callMany/test_05.json",
+    "goerly/eth_callMany/test_06.json",
+    "goerly/eth_callMany/test_09.json",
+    "goerly/eth_callMany/test_10.json",
+    "goerly/eth_maxPriorityFeePerGas/test_1.json",
+    "goerly/eth_feeHistory/test_1.json",
+    "goerly/engine_getPayloadBodiesByHashV1/test_1.json",
+    "goerly/engine_getPayloadBodiesByRangeV1/test_1.json"
 ]
 
 tests_not_compared_result = [
-    "trace_call/test_04.json",
-    "trace_call/test_11.json",
-    "trace_call/test_15.json",
-    "trace_call/test_17.json",
-    "trace_callMany/test_04.json",
-    "trace_callMany/test_05.json",
-    "trace_callMany/test_13.json",
-    "trace_callMany/test_14.tar",
-    "trace_callMany/test_15.json"
+    "goerly/trace_call/test_04.json",
+    "goerly/trace_call/test_11.json",
+    "goerly/trace_call/test_15.json",
+    "goerly/trace_call/test_17.json",
+    "goerly/trace_callMany/test_04.json",
+    "goerly/trace_callMany/test_05.json",
+    "goerly/trace_callMany/test_13.json",
+    "goerly/trace_callMany/test_14.tar",
+    "goerly/trace_callMany/test_15.json"
 ]
 
 tests_not_compared_message = [
-    "trace_callMany/test_10.json",
-    "trace_callMany/test_11.json",
-    "eth_callMany/test_08.json",
-    "trace_call/test_12.json",
-    "trace_call/test_16.json"
+    "goerly/trace_callMany/test_10.json",
+    "goerly/trace_callMany/test_11.json",
+    "goerly/eth_callMany/test_08.json",
+    "goerly/trace_call/test_12.json",
+    "goerly/trace_call/test_16.json"
 ]
 
 tests_message_lower_case = [
-    "eth_callBundle/test_8.json",
-    "eth_createAccessList/test_4.json"
+    "goerly/eth_callBundle/test_8.json",
+    "goerly/eth_createAccessList/test_4.json"
 ]
 
 
@@ -175,22 +175,23 @@ def modified_str_from_file(filer, filew, matched_string):
                     output_file.write(line)
 
 
-def is_skipped(api_name, exclude_api_list, exclude_test_list, api_file: str, req_test, verify_with_daemon,
+def is_skipped(api_name, net, exclude_api_list, exclude_test_list, api_file: str, req_test, verify_with_daemon,
                global_test_number):
     """ determine if test must be skipped
     """
+    api_full_name = net + "/" + api_file 
     if req_test == -1 and verify_with_daemon == 1:
         for curr_test_name in api_not_compared:
-            if curr_test_name == api_name:
+            if curr_test_name == api_full_name:
                 return 1
     if req_test == -1 and verify_with_daemon == 1:
         for curr_test in tests_not_compared:
-            if curr_test == api_file:
+            if curr_test == api_full_name:
                 return 1
     if exclude_api_list != "":  # scans exclude api list (-x)
         tokenize_exclude_api_list = exclude_api_list.split(",")
         for exclude_api in tokenize_exclude_api_list:
-            if exclude_api in api_name:
+            if exclude_api in api_full_name:
                 return 1
     if exclude_test_list != "":  # scans exclude test list (-X)
         tokenize_exclude_test_list = exclude_test_list.split(",")
@@ -200,41 +201,45 @@ def is_skipped(api_name, exclude_api_list, exclude_test_list, api_file: str, req
     return 0
 
 
-def is_big_json(test_name: str):
+def is_big_json(test_name, net: str,):
     """ determine if json is in the big list
     """
+    test_full_name = net + "/" + test_name 
     for curr_test_name in tests_with_big_json:
-        if curr_test_name == test_name:
+        if curr_test_name == test_full_name:
             return 1
     return 0
 
 
-def is_not_compared_result(test_name: str):
+def is_not_compared_result(test_name, net: str):
     """ determine if test not compared result
     """
+    test_full_name = net + "/" + test_name 
     for curr_test_name in tests_not_compared_result:
-        if curr_test_name == test_name:
+        if curr_test_name == test_full_name:
             return 1
     return 0
 
-def is_not_compared_message(test_name: str):
+def is_not_compared_message(test_name, net: str):
     """ determine if test not compared result
     """
+    test_full_name = net + "/" + test_name 
     for curr_test_name in tests_not_compared_message:
-        if curr_test_name == test_name:
+        if curr_test_name == test_full_name:
             return 1
     return 0
 
-def is_message_to_be_converted(test_name: str):
+def is_message_to_be_converted(test_name, net: str):
     """ determine if test not compared result
     """
+    test_full_name = net + "/" + test_name 
     for curr_test_name in tests_message_lower_case:
-        if curr_test_name == test_name:
+        if curr_test_name == test_full_name:
             return 1
     return 0
 
 
-def run_shell_command(command: str, command1: str, expected_response: str, verbose_level: int, exit_on_fail: bool,
+def run_shell_command(net: str, command: str, command1: str, expected_response: str, verbose_level: int, exit_on_fail: bool,
                       output_dir: str, silk_file: str,
                       exp_rsp_file: str, diff_file: str, dump_output, json_file: str, test_number):
     """ Run the specified command as shell. If exact result or error don't care, they are null but present in expected_response. """
@@ -331,22 +336,22 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
             cmd = "cp " +  exp_rsp_file  + " " + temp_file2;
             os.system(cmd)
 
-        if is_not_compared_result(json_file):
+        if is_not_compared_result(json_file, net):
             removed_line_string = "error"
             replace_str_from_file(exp_rsp_file, temp_file1, removed_line_string)
             replace_str_from_file(silk_file, temp_file2, removed_line_string)
             cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-        elif is_not_compared_message(json_file):
+        elif is_not_compared_message(json_file, net):
             removed_line_string = "message"
             replace_message(exp_rsp_file, temp_file1, removed_line_string)
             replace_message(silk_file, temp_file2, removed_line_string)
             cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-        elif is_message_to_be_converted(json_file):
+        elif is_message_to_be_converted(json_file, net):
             modified_string = "message"
             modified_str_from_file(exp_rsp_file, temp_file1, modified_string)
             modified_str_from_file(silk_file, temp_file2, modified_string)
             cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-        elif is_big_json(json_file):
+        elif is_big_json(json_file, net):
             cmd = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file
         else:
             cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
@@ -389,7 +394,7 @@ def run_shell_command(command: str, command1: str, expected_response: str, verbo
     return 0
 
 
-def run_tests(test_dir: str, output_dir: str, json_file: str, verbose_level: int, daemon_under_test: str, exit_on_fail: bool,
+def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_level: int, daemon_under_test: str, exit_on_fail: bool,
               verify_with_daemon: bool, daemon_as_reference: str,
               dump_output: bool, test_number, infura_url: str, daemon_on_host: str, daemon_on_port: int,
               jwt_secret: str):
@@ -453,6 +458,7 @@ def run_tests(test_dir: str, output_dir: str, json_file: str, verbose_level: int
             diff_file = output_api_filename + "-diff.json"
 
         return run_shell_command(
+            net,
             cmd,
             cmd1,
             response,
@@ -515,7 +521,8 @@ def main(argv):
     daemon_on_port = 0
     requested_api = ""
     verify_with_daemon = False
-    json_dir = "./goerly/"
+    net = "goerly"
+    json_dir = "./" + net + "/"
     results_dir = "results"
     output_dir = json_dir + results_dir + "/"
     exclude_api_list = ""
@@ -558,7 +565,8 @@ def main(argv):
             elif option == "-o":
                 dump_output = 1
             elif option == "-b":
-                json_dir = "./" + optarg + "/"
+                net = optarg
+                json_dir = "./" + net + "/"
                 output_dir = json_dir + results_dir + "/"
             elif option == "-x":
                 exclude_api_list = optarg
@@ -604,7 +612,7 @@ def main(argv):
             for test_name in test_lists:
                 if requested_api in api_file or requested_api == "":  # -a
                     test_file = api_file + "/" + test_name
-                    if is_skipped(api_file, exclude_api_list, exclude_test_list, test_file, req_test,
+                    if is_skipped(api_file, net, exclude_api_list, exclude_test_list, test_file, req_test,
                                   verify_with_daemon, global_test_number) == 1:
                         if start_test == "" or global_test_number >= int(start_test):
                             if display_only_fail == 0:
@@ -622,7 +630,7 @@ def main(argv):
                                     print(f"{global_test_number:03d}. {file} ", end='', flush=True)
                                 else:
                                     print(f"{global_test_number:03d}. {file}\r", end='', flush=True)
-                                ret = run_tests(json_dir, output_dir, test_file, verbose_level, daemon_under_test,
+                                ret = run_tests(net, json_dir, output_dir, test_file, verbose_level, daemon_under_test,
                                                 exit_on_fail, verify_with_daemon, daemon_as_reference,
                                                 dump_output, global_test_number, infura_url, daemon_on_host,
                                                 daemon_on_port, jwt_secret)
