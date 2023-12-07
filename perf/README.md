@@ -100,6 +100,8 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 -g erigonBuildDir       Erigon: path to erigon folder (e.g. /home/erigon)                                      [default: ]
 -s silkrpcBuildDir      Silkrpc: path to silk folder (e.g. /home/silkworm)                                     [default: ]
 -c daemonVegetaOnCore   cpu list in taskset format for daemon & vegeta (e.g. 0-1:2-3 or 0-2:3-4 or 0,2:3,4...) [default: -:-]
+-T <timeout>            vegeta response timeout                                                                [default: 300]
+-M <maximum body size>  Maximum number of bytes to read from response bodies                                   [default: 1500]
 
 ```
 Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`
