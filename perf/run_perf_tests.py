@@ -66,7 +66,7 @@ def usage(argv):
     print("-s silkrpcBuildDir      Silkrpc: path to silk folder (e.g. /home/silkworm)                                     [default: " + DEFAULT_SILKRPC_BUILD_DIR + "]")
     print("-c daemonVegetaOnCore   cpu list in taskset format for daemon & vegeta (e.g. 0-1:2-3 or 0-2:3-4 or 0,2:3,4...) [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE +"]")
     print("-T <timeout>            vegeta response timeout                                                                [default: " + DEFAULT_VEGETA_RESPONSE_TIMEOUT + "]")
-    print("-M <maximum body size>  maximum number of bytes in response body                                               [default: " + DEFAULT_MAX_BODY_RSP + "]")
+    print("-M <maximum body size>  Maximum number of bytes to read from response bodies                                   [default: " + DEFAULT_MAX_BODY_RSP + "]")
     sys.exit(-1)
 
 def get_process(process_name: str):
