@@ -132,7 +132,6 @@ def get_jwt_secret(name):
 def to_lower_case(file, dest_file):
     """ converts input string into lower case
     """
-    lowercase_file = "/tmp/lowercase"
     cmd = "tr '[:upper:]' '[:lower:]' < " + file + " > " + dest_file
     os.system(cmd)
 
@@ -179,14 +178,15 @@ def is_skipped(api_name, net, exclude_api_list, exclude_test_list, api_file: str
                global_test_number):
     """ determine if test must be skipped
     """
-    api_full_name = net + "/" + api_file 
+    api_full_name = net + "/" + api_name
+    api_full_test_name = net + "/" + api_file
     if req_test == -1 and verify_with_daemon == 1:
         for curr_test_name in api_not_compared:
             if curr_test_name == api_full_name:
                 return 1
     if req_test == -1 and verify_with_daemon == 1:
         for curr_test in tests_not_compared:
-            if curr_test == api_full_name:
+            if curr_test == api_full_test_name:
                 return 1
     if exclude_api_list != "":  # scans exclude api list (-x)
         tokenize_exclude_api_list = exclude_api_list.split(",")
@@ -204,7 +204,7 @@ def is_skipped(api_name, net, exclude_api_list, exclude_test_list, api_file: str
 def is_big_json(test_name, net: str,):
     """ determine if json is in the big list
     """
-    test_full_name = net + "/" + test_name 
+    test_full_name = net + "/" + test_name
     for curr_test_name in tests_with_big_json:
         if curr_test_name == test_full_name:
             return 1
@@ -214,7 +214,7 @@ def is_big_json(test_name, net: str,):
 def is_not_compared_result(test_name, net: str):
     """ determine if test not compared result
     """
-    test_full_name = net + "/" + test_name 
+    test_full_name = net + "/" + test_name
     for curr_test_name in tests_not_compared_result:
         if curr_test_name == test_full_name:
             return 1
@@ -223,7 +223,7 @@ def is_not_compared_result(test_name, net: str):
 def is_not_compared_message(test_name, net: str):
     """ determine if test not compared result
     """
-    test_full_name = net + "/" + test_name 
+    test_full_name = net + "/" + test_name
     for curr_test_name in tests_not_compared_message:
         if curr_test_name == test_full_name:
             return 1
@@ -232,7 +232,7 @@ def is_not_compared_message(test_name, net: str):
 def is_message_to_be_converted(test_name, net: str):
     """ determine if test not compared result
     """
-    test_full_name = net + "/" + test_name 
+    test_full_name = net + "/" + test_name
     for curr_test_name in tests_message_lower_case:
         if curr_test_name == test_full_name:
             return 1
@@ -331,9 +331,9 @@ def run_shell_command(net: str, command: str, command1: str, expected_response: 
             to_lower_case(exp_rsp_file, temp_file2)
             to_lower_case(silk_file, temp_file1)
         else:
-            cmd = "cp " +  silk_file  + " " + temp_file1;
+            cmd = "cp " +  silk_file  + " " + temp_file1
             os.system(cmd)
-            cmd = "cp " +  exp_rsp_file  + " " + temp_file2;
+            cmd = "cp " +  exp_rsp_file  + " " + temp_file2
             os.system(cmd)
 
         if is_not_compared_result(json_file, net):
