@@ -7,10 +7,6 @@
             "id": 1
         },
         "response": {
-            "error": {
-                "code": -38001,
-                "message": "Unknown payload"
-            },
             "id": 1,
             "jsonrpc": "2.0"
         }
