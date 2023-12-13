@@ -7,10 +7,6 @@
             "id": 1
         },
         "response": {
-            "error": {
-              "code": -32602,
-              "message": "invalid engine_getpayloadbodiesbyhashv1 params: []"
-            },
             "id": 1,
             "jsonrpc": "2.0"
         }

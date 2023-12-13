@@ -25,10 +25,7 @@
         },
         "response": {
             "id": 1,
-            "jsonrpc": "2.0",
-            "result": {
-               "status": "SYNCING"
-             }
+            "jsonrpc": "2.0"
         }
     }
 ]
