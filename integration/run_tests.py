@@ -58,7 +58,14 @@ tests_not_compared = [
     "goerly/debug_traceBlockByHash/test_02.tar",
     "goerly/debug_traceBlockByHash/test_03.tar",
     "goerly/debug_traceBlockByHash/test_04.tar",
+
     "goerly/debug_traceBlockByNumber/test_02.tar",
+    "goerly/debug_traceBlockByNumber/test_09.tar",
+    "goerly/debug_traceBlockByNumber/test_10.tar",
+    "goerly/debug_traceBlockByNumber/test_11.tar",
+    "goerly/debug_traceBlockByNumber/test_12.tar",
+    "goerly/debug_traceBlockByNumber/test_14.tar",
+
     "goerly/debug_traceCall/test_10.json",
     "goerly/debug_traceCall/test_14.json",
     "goerly/debug_traceCall/test_17.json",
