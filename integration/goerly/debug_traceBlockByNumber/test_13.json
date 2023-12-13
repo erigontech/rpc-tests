@@ -5,7 +5,7 @@
       "jsonrpc": "2.0",
       "method": "debug_traceBlockByNumber",
       "params": [
-        2000044,
+        600001,
         {
           "disableMemory": false,
           "disableStack": false,
@@ -16,16 +16,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": [
-        {
-          "result": {
-            "failed": false,
-            "gas": 21000,
-            "returnValue": "",
-            "structLogs": []
-          }
-        }
-      ]
+      "result": []
     }
   }
 ]
