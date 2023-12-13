@@ -37,15 +37,15 @@ api_not_compared = [
     "goerly/erigon_watchTheBurn", # not supported by rpcdaemon
     "goerly/erigon_cumulativeChainTraffic", # not supported by rpcdaemon
     "goerly/txpool_content",
-    "goerly/engine_exchangeCapabilities", # not supported on ethbackend int
-    "goerly/engine_forkchoiceUpdatedV1", # not supported on ethbackend int
-    "goerly/engine_forkchoiceUpdatedV2", # not supported on ethbackend int
-    "goerly/engine_getPayloadBodiesByHashV1", # not supported on ethbackend int
-    "goerly/engine_getPayloadBodiesByRangeV1", # not supported on ethbackend int
-    "goerly/engine_getPayloadV1", # not supported on ethbackend int
-    "goerly/engine_getPayloadV2", # not supported on ethbackend int
-    "goerly/engine_newPayloadV1", # not supported on ethbackend int
-    "goerly/engine_newPayloadV2" # not supported on ethbackend int
+    "goerly/engine_exchangeCapabilities", # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_forkchoiceUpdatedV1", # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_forkchoiceUpdatedV2", # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_getPayloadBodiesByHashV1", # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_getPayloadBodiesByRangeV1", # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_getPayloadV1", # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_getPayloadV2", # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_newPayloadV1", # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_newPayloadV2" # not supported by silkrpc removed from ethbackend i/f
 ]
 
 tests_not_compared = [
