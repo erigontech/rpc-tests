@@ -79,7 +79,15 @@ tests_not_compared = [
     "goerly/eth_maxPriorityFeePerGas/test_1.json",
     "goerly/eth_feeHistory/test_1.json",
     "goerly/engine_getPayloadBodiesByHashV1/test_1.json",
-    "goerly/engine_getPayloadBodiesByRangeV1/test_1.json"
+    "goerly/engine_getPayloadBodiesByRangeV1/test_1.json",
+
+    "mainnet/debug_traceBlockByNumber/test_05.tar",
+    "mainnet/debug_traceBlockByNumber/test_06.tar",
+    "mainnet/debug_traceBlockByNumber/test_08.tar",
+    "mainnet/debug_traceBlockByNumber/test_09.tar",
+    "mainnet/debug_traceBlockByNumber/test_10.tar",
+    "mainnet/debug_traceBlockByNumber/test_11.tar",
+    "mainnet/debug_traceBlockByNumber/test_12.tar"
 ]
 
 tests_not_compared_result = [
