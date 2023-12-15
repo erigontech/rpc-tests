@@ -19,7 +19,7 @@
             "id":1,
             "jsonrpc":"2.0",
             "result":{
-                "accessList":[{"address":"0x900c8c0a1b609533762390254b58c5760e4d7405","storageKeys":["0x0000000000000000000000000000000000000000000000000000000000000000"]}],
+                "accessList":[],
                 "error":"execution reverted",
                 "gasUsed":"0x6968"
             }
