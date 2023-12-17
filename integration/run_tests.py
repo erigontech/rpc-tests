@@ -20,11 +20,11 @@ RPCDAEMON = "rpcdaemon"
 INFURA = "infura"
 
 tests_with_big_json = [
-    "goerly/erigon_getLatestLogs/test_12.json" # To be debug
+    "goerly/erigon_getLatestLogs/test_12.json" # debug
 ]
 
 api_not_compared = [
-    "goerly/trace_rawTransaction", # erigon doesn not support raw tx but hash of tx
+    "goerly/trace_rawTransaction", # erigon does not support raw tx but hash of tx
     "goerly/parity_getBlockReceipts", # not supported by rpcdaemon
     "goerly/erigon_watchTheBurn", # not supported by rpcdaemon
     "goerly/erigon_cumulativeChainTraffic", # not supported by rpcdaemon
@@ -40,33 +40,33 @@ api_not_compared = [
 ]
 
 tests_not_compared = [
-    "goerly/debug_accountAt/test_04.json", # To be debug
-    "goerly/debug_accountAt/test_05.json", # To be debug
-    "goerly/debug_accountAt/test_06.json", # To be debug
-    "goerly/debug_accountAt/test_07.json", # To be debug
-    "goerly/debug_accountAt/test_10.json", # To be debug
-    "goerly/debug_accountAt/test_11.json", # To be debug
-    "goerly/debug_traceBlockByHash/test_02.tar", #diff on gasCost
-    "goerly/debug_traceBlockByHash/test_03.tar", #diff on gasCost
-    "goerly/debug_traceBlockByHash/test_04.tar", #diff on gasCost
+    "goerly/debug_accountAt/test_04.json", # debug
+    "goerly/debug_accountAt/test_05.json", # debug
+    "goerly/debug_accountAt/test_06.json", # debug
+    "goerly/debug_accountAt/test_07.json", # debug
+    "goerly/debug_accountAt/test_10.json", # debug
+    "goerly/debug_accountAt/test_11.json", # debug
+    "goerly/debug_traceBlockByHash/test_02.tar", # diff on gasCost
+    "goerly/debug_traceBlockByHash/test_03.tar", # diff on gasCost
+    "goerly/debug_traceBlockByHash/test_04.tar", # diff on gasCost
 
-    "goerly/debug_traceBlockByNumber/test_02.tar", #diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_09.tar", #diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_10.tar", #diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_11.tar", #diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_12.tar", #diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_14.tar", #diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_02.tar", # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_09.tar", # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_10.tar", # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_11.tar", # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_12.tar", # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_14.tar", # diff on gasCost
 
-    "goerly/debug_traceCall/test_10.json", #diff on gasCost
-    "goerly/debug_traceCall/test_14.json", #diff on gasCost
-    "goerly/debug_traceCall/test_17.json", #diff on gasCost
-    "goerly/eth_callMany/test_01.json", # To be debug bad Value format
-    "goerly/eth_callMany/test_02.json", # To be debug bad Value format
-    "goerly/eth_callMany/test_05.json", # To be debug bad error format
-    "goerly/eth_callMany/test_06.json", # To be debug bad error format
-    "goerly/eth_callMany/test_09.json", # To be debug silk return ok rpcdaemon error 
-    "goerly/eth_callMany/test_10.json", # To be debug silk return ok rpcdaemon error
-    "goerly/eth_feeHistory/test_1.json", # To be debug values are different
+    "goerly/debug_traceCall/test_10.json", # diff on gasCost
+    "goerly/debug_traceCall/test_14.json", # diff on gasCost
+    "goerly/debug_traceCall/test_17.json", # diff on gasCost
+    "goerly/eth_callMany/test_01.json", # debug bad value format
+    "goerly/eth_callMany/test_02.json", # debug bad value format
+    "goerly/eth_callMany/test_05.json", # debug bad error format
+    "goerly/eth_callMany/test_06.json", # debug bad error format
+    "goerly/eth_callMany/test_09.json", # debug silkrpc return ok rpcdaemon error 
+    "goerly/eth_callMany/test_10.json", # debug silkrpc return ok rpcdaemon error
+    "goerly/eth_feeHistory/test_1.json", # debug values are different
 ]
 
 tests_not_compared_result = [
@@ -83,11 +83,11 @@ tests_not_compared_result = [
 ]
 
 tests_not_compared_message = [
-    "goerly/trace_callMany/test_10.json", # silk message contains also address
-    "goerly/trace_callMany/test_11.json", # silk message contains also address
-    "goerly/eth_callMany/test_08.json",  # silk message contains few chr
-    "goerly/trace_call/test_12.json", # silk message contains also address
-    "goerly/trace_call/test_16.json" # silk message contains also address
+    "goerly/trace_callMany/test_10.json", # silkrpc message contains also address
+    "goerly/trace_callMany/test_11.json", # silkrpc message contains also address
+    "goerly/eth_callMany/test_08.json",  # silkrpc message contains few chars
+    "goerly/trace_call/test_12.json", # silkrpc message contains also address
+    "goerly/trace_call/test_16.json" # silkrpc message contains also address
 ]
 
 tests_message_lower_case = [
