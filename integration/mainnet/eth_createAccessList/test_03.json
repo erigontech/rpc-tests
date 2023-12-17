@@ -15,38 +15,13 @@
                   "gasPrice": "0x512C2C504",
                   "data": "0x1cff79cd0000000000000000000000004f91ad1a0397b763fc653b4cfe4f836915bfcd8400000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000064f5537ede0000000000000000000000007fc66500c84a76ad7e9c93437bfc5ac33e2ddae9000000000000000000000000a69babef1ca67a37ffaf7a485dfff3382056e78c0000000000000000000000000000000000000000000000179f3efc4c2c77000000000000000000000000000000000000000000000000000000000000"
                 },
-                "0x112A880"
+                "0x112A87f"
             ],
             "id":1
         },
         "response": {
             "id":1,
-            "jsonrpc":"2.0",
-            "result": {
-        "accessList": [
-               {
-                    "address": "0x4f91ad1a0397b763fc653b4cfe4f836915bfcd84",
-                    "storageKeys": []
-               },
-               {
-                    "address": "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9",
-                    "storageKeys": [
-                         "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103",
-                         "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
-                         "0xa2840571b6f0d9c1e2008ce8e652fb9b0634a32a16a646f0d4ce67d90f1ebc57",
-                         "0x61704d914e1d8e9a019dc7b028839318694db06b83357b82e86322f377d2fd9e",
-                         "0x95e0cad3bf71f17c9cca9d01349074de459d6c4fffe2ef8e339b5100d7f22f0d",
-                         "0x2ffc33b93a06860fb2120cd046cdd7c9ada7be850c1ed07b53b543bb4e9d9f22"
-                    ]
-               },
-               {
-                    "address": "0x96f68837877fd0414b55050c9e794aecdbcfca59",
-                    "storageKeys": []
-               }
-          ],
-          "error": "execution reverted",
-          "gasUsed": "0xc803"
-           }
+            "jsonrpc":"2.0"
         }
     }
 ]
