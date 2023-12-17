@@ -2,7 +2,7 @@
     {
         "test": {
            "reference": "https://etherscan.io/tx/0x430b358b2bd7a7aa05d789d3026464868f24796f15831700e263d1ddb8a29636",
-           "description": "access list without to address filtered " 
+           "description": "access list no entry, without to address filtered " 
         },
         "request": {
             "jsonrpc":"2.0",

@@ -2,7 +2,7 @@
     {
         "test": {
            "reference": "https://etherscan.io/tx/0x430b358b2bd7a7aa05d789d3026464868f24796f15831700e263d1ddb8a29636",
-           "description": "access list with to address filtered " 
+           "description": "access list, 3 access list entries, with to address filtered " 
         },
         "request": {
             "jsonrpc":"2.0",
@@ -36,7 +36,7 @@
                          "0xa2840571b6f0d9c1e2008ce8e652fb9b0634a32a16a646f0d4ce67d90f1ebc57",
                          "0x61704d914e1d8e9a019dc7b028839318694db06b83357b82e86322f377d2fd9e",
                          "0x95e0cad3bf71f17c9cca9d01349074de459d6c4fffe2ef8e339b5100d7f22f0d",
-                         "0x720a6c3f7f1f0089096ca0d60f6dda63f764484815006ce1f1206693c3885266"
+                         "0x2ffc33b93a06860fb2120cd046cdd7c9ada7be850c1ed07b53b543bb4e9d9f22"
                     ]
                },
                {
