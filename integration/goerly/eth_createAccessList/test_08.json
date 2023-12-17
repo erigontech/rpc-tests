@@ -1,0 +1,26 @@
+[
+  {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_createAccessList",
+            "params":[
+                {
+                  "data": "0xdaa6d5560000000000000000000000000000000000000000000000000000000000000000",
+                  "from": "0x52c24586c31cff0485a6208bb63859290fba5bce",
+                  "to": "0x0715a7794a1dc8e42615f059dd6e406a6594651a",
+                  "gas": "0xF4240",
+                  "gasPrice": "0x10C388C00"
+                },
+                "0x3D0900"],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result":{"accessList":[{"address":"0x326c977e6efc84e512bb9c30f76e30c160ed06fb",
+                                         "storageKeys":["0xbcfd5bdc97f2f5d7a2fd300f7bf665f36c2ae38dd583884752966a074848bf8c"]}],"error":"execution reverted","gasUsed":"0xf0a83"
+            }
+        }
+    }
+]
+
