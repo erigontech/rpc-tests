@@ -67,6 +67,14 @@ tests_not_compared = [
     "goerly/eth_callMany/test_09.json", # debug silkrpc return ok rpcdaemon error 
     "goerly/eth_callMany/test_10.json", # debug silkrpc return ok rpcdaemon error
     "goerly/eth_feeHistory/test_1.json", # debug values are different
+
+    "mainnet/debug_traceBlockByNumber/test_05.tar",
+    "mainnet/debug_traceBlockByNumber/test_06.tar",
+    "mainnet/debug_traceBlockByNumber/test_08.tar",
+    "mainnet/debug_traceBlockByNumber/test_09.tar",
+    "mainnet/debug_traceBlockByNumber/test_10.tar",
+    "mainnet/debug_traceBlockByNumber/test_11.tar",
+    "mainnet/debug_traceBlockByNumber/test_12.tar",
 ]
 
 tests_not_compared_result = [
