@@ -1,0 +1,29 @@
+[
+    {
+        "test": {
+           "reference": "https://etherscan.io/tx/0xdea8cf208ab5a75e25d168115f85ed5e612ad978b9b8ccc462f69feca5a9a6db",
+           "description": "1 access list entry" 
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_call",
+            "params":[
+                {
+                  "from": "0xdb534BAB6b7d0690f412395B18bD3df078ECfe2d",
+                  "to":  "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                  "gas": "0xC2A5",
+                  "gasPrice": "0x80BEFC0",
+                  "data": "0x095ea7b3000000000000000000000000a87eaf82f287a2c67cb74130906d5ac01f2f925100000000000000000000000000000000000000000000000000000000126af740"
+                },
+                "0xB71B00" 
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": "0x0000000000000000000000000000000000000000000000000000000000000001"
+        }
+    }
+]
+

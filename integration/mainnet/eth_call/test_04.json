@@ -1,0 +1,32 @@
+[
+    {
+        "test": {
+           "reference": "https://etherscan.io/tx/0x430b358b2bd7a7aa05d789d3026464868f24796f15831700e263d1ddb8a29636",
+           "description": "access list with 4 entries,  without to address filtered " 
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_call",
+            "params":[
+                {
+                  "from": "0x7b98421B9314E3Ffc0B7a593DBa2FBBd3b789c7D",
+                  "to":  "0xFA103c21ea2DF71DFb92B0652F8B1D795e51cdEf",
+                  "gas": "0x407E3",
+                  "gasPrice": "0x512C2C504",
+                  "data": "0x1cff79cd0000000000000000000000004f91ad1a0397b763fc653b4cfe4f836915bfcd8400000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000064f5537ede0000000000000000000000007fc66500c84a76ad7e9c93437bfc5ac33e2ddae9000000000000000000000000a69babef1ca67a37ffaf7a485dfff3382056e78c0000000000000000000000000000000000000000000000179f3efc4c2c77000000000000000000000000000000000000000000000000000000000000"
+                },
+                "0x112A880"
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "error": {
+               "code": -32000,
+               "message": "execution reverted"
+            }  
+        }
+    }
+]
+
