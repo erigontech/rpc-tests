@@ -20,7 +20,6 @@ RPCDAEMON = "rpcdaemon"
 INFURA = "infura"
 
 tests_with_big_json = [
-    "goerly/erigon_getLatestLogs/test_12.json" # debug
 ]
 
 api_not_compared = [
@@ -74,13 +73,13 @@ tests_not_compared = [
     "goerly/eth_callMany/test_10.json", # debug silkrpc return ok rpcdaemon error
     "goerly/eth_feeHistory/test_1.json", # debug values are different
 
-    "mainnet/debug_traceBlockByNumber/test_05.tar",
-    "mainnet/debug_traceBlockByNumber/test_06.tar",
-    "mainnet/debug_traceBlockByNumber/test_08.tar",
-    "mainnet/debug_traceBlockByNumber/test_09.tar",
-    "mainnet/debug_traceBlockByNumber/test_10.tar",
-    "mainnet/debug_traceBlockByNumber/test_11.tar",
-    "mainnet/debug_traceBlockByNumber/test_12.tar",
+    "mainnet/debug_traceBlockByNumber/test_05.tar", # json too big
+    "mainnet/debug_traceBlockByNumber/test_06.tar", # json too big
+    "mainnet/debug_traceBlockByNumber/test_08.tar", # json too big
+    "mainnet/debug_traceBlockByNumber/test_09.tar", # json too big
+    "mainnet/debug_traceBlockByNumber/test_10.tar", # json too big
+    "mainnet/debug_traceBlockByNumber/test_11.tar", # json too big
+    "mainnet/debug_traceBlockByNumber/test_12.tar", # json too big
 ]
 
 tests_not_compared_result = [
