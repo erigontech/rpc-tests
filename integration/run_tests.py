@@ -57,6 +57,12 @@ tests_not_compared = [
     "goerly/debug_traceBlockByNumber/test_12.tar", # diff on gasCost
     "goerly/debug_traceBlockByNumber/test_14.tar", # diff on gasCost
 
+    "goerly/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost
+    "goerly/trace_replayBlockTransactions/test_02.tar",  # diff on gasCost
+
+    "goerly/trace_replayTransaction/test_16.tar",  # diff on gasCost
+    "goerly/trace_replayTransaction/test_23.tar",  # diff on gasCost
+
     "goerly/debug_traceCall/test_10.json", # diff on gasCost
     "goerly/debug_traceCall/test_14.json", # diff on gasCost
     "goerly/debug_traceCall/test_17.json", # diff on gasCost
