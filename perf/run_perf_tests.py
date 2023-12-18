@@ -30,7 +30,7 @@ DEFAULT_TEST_TYPE = "eth_getLogs"
 DEFAULT_VEGETA_RESPONSE_TIMEOUT = "300"
 DEFAULT_MAX_BODY_RSP = "1500"
 
-SILKRPC_NAME="silkrpc"
+SILKRPC_NAME="rpcdaemon"
 RPCDAEMON_NAME="rpcdaemon"
 VEGETA_PATTERN_DIRNAME = "erigon_stress_test"
 VEGETA_REPORT = "vegeta_report.hrd"
@@ -270,7 +270,6 @@ class PerfTest:
             vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=" + \
                           self.config.vegeta_response_timeout + "s -max-connections=" + self.config.max_connection + " -max-body=" + \
                           self.config.max_body_rsp
-        print (vegeta_cmd)
         if on_core[1] == "-":
             cmd = "cat " + pattern + " | " + vegeta_cmd + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
         else:
@@ -288,7 +287,7 @@ class PerfTest:
             time.sleep(3)
             if self.config.check_server_alive:
                 if name == SILKRPC_NAME:
-                    pid = os.popen("ps aux | grep 'silkrpc' | grep -v 'grep' | awk '{print $2}'").read()
+                    pid = os.popen("ps aux | grep 'rpcdaemon' | grep -v 'grep' | awk '{print $2}'").read()
                 else:
                     pid = os.popen("ps aux | grep 'rpcdaemon' | grep -v 'grep' | awk '{print $2}'").read()
                 if pid == "" :
