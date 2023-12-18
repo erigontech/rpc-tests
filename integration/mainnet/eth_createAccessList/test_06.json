@@ -1,0 +1,46 @@
+[
+    {
+        "test": {
+           "reference": "https://etherscan.io/tx/0x3d63e943b1d979968db3da08a9a0d355f71af46ec3481ce313afbad733f77776",
+           "description": "2 access list entries" 
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_createAccessList",
+            "params":[
+                {
+                  "from": "0xC920bB401bF1dAb5f1e49B2fD1BcF5198Ff98768",
+                  "to":  "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+                  "gas": "0x3C5FD",
+                  "gasPrice": "0x6B8AB7333",
+                  "data": "0xb6f9de95000000000000000000000000000000000000000000000000000063f6afbfd67a0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000c920bb401bf1dab5f1e49b2fd1bcf5198ff987680000000000000000000000000000000000000000000000000000000064ea27290000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc20000000000000000000000002de6b0e3947a35aa897d0cb7e4e5c25aba89c6b7"
+                },
+                "0x112A883" 
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": { 
+               "accessList": [
+               {
+                    "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                    "storageKeys": [
+                         "0xfb19a963956c9cb662dd3ae48988c4b90766df71ea130109840abe0a1b23dba8",
+                         "0xb78cb5168a6135f7b143feb4172cde98209b391517a6c9c4624ccb20a40c6bd8"
+                    ]
+               },
+               {
+                    "address": "0x2de6b0e3947a35aa897d0cb7e4e5c25aba89c6b7",
+                    "storageKeys": []
+               }
+          ],
+          "error": "execution reverted",
+          "gasUsed": "0x98fe"
+     }
+
+        }
+    }
+]
+

@@ -1,0 +1,32 @@
+[
+    {
+        "test": {
+           "reference": "https://etherscan.io/tx/0x1ae5f96a8b446ddd51e96019472f7a31fcad3d2e774373ecfbb2ba94ff72fc04",
+           "description": "with precompile contract"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_createAccessList",
+            "params":[
+                {
+                  "from": "0xA1E4380A3B1f749673E270229993eE55F35663b4",
+                  "to":  "0xCde4DE4d3baa9f2CB0253DE1b86271152fBf7864",
+                  "gas": "0x15F90",
+                  "gasPrice": "0xDA9079780",
+                  "data": "0xcfae3217"
+                },
+                "0xC11F" 
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": {
+               "accessList": [],
+                "gasUsed": "0x6687"
+            }
+        }
+    }
+]
+

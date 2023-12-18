@@ -1,0 +1,31 @@
+[
+    {
+        "test": {
+           "reference": "https://etherscan.io/tx/0x84eac3162e731088b7276cca885aa916fc5b8c11dfef13b9df2729806bbbaf57",
+           "description": "no eth transfer, no accessList" 
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_createAccessList",
+            "params":[
+                {
+                  "from": "0x9E61cCD162172Ae8f209549E13660b1d6d9786fc",
+                  "to":  "0x4E841622b6b31ccddb31a1C19918174a69e997Ad",
+                  "gas": "0x5208",
+                  "gasPrice": "0x514A36F39"
+                },
+                "0x112A880"
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": {
+                "accessList": [],
+                "gasUsed": "0x5208"
+           }
+        }
+    }
+]
+
