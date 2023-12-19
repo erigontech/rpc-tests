@@ -1,0 +1,169 @@
+[
+    {
+        "test": {
+           "reference": "https://etherscan.io/tx/0x6b4e7729836a85851cf5c5206f3d36faa240747ec7cc042efbeda88d41c2b641",
+           "description": "with many access-list entries"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_createAccessList",
+            "params":[
+                {
+                  "from": "0xf661e21b71a9ca331e251e51a412857d2b61d8f8",
+                  "to":  "0x109c4f2ccc82c4d77bde15f306707320294aea3f",
+                  "gas": "0x7a120",
+                  "gasPrice": "0xd7d40ace3",
+                  "value": "0xde0b6b3a7640000"
+                },
+                "0x11573" 
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+     "result": {
+          "accessList": [
+               {
+                    "address": "0x109c4f2ccc82c4d77bde15f306707320294aea3f",
+                    "storageKeys": [
+                         "0x0000000000000000000000000000000000000000000000000000000000000001",
+                         "0x0000000000000000000000000000000000000000000000000000000000000003",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f8a8",
+                         "0x0000000000000000000000000000000000000000000000000000000000000000",
+                         "0x0000000000000000000000000000000000000000000000000000000000000002",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f888",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f889",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f88a",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f88b",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f88c",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f88d",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f88e",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f88f",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f890",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f891",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f892",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f893",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f894",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f895",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f896",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f897",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f898",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f899",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f89a",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f89b",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f89c",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85b",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85c",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85d",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85e",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85f",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f860",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f861",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f862",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f863",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f864",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f865",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f866",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f867",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f868",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f869",
+                         "0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f86a"
+                    ]
+               },
+               {
+                    "address": "0x17e4a0e52bac3ee44efe0954e753d4b85d644e05",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x0785a86be9c2d68dbaebaf1db72641680529e2fd",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x07ee995122a8d766d236bc1030c924a1626db1a9",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x2d11763b4999fb3b61ca8d19c8c77a743079f7bd",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x8be48706740cfb8bc229aae498cfdbcde1b93deb",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0xc151a0473225ae2768cf864f30ef38ac4b36c06c",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x378ea1dc8edc19bae82638029ea8752ce98bcfcd",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0xc1132878235c5ddba5d9f3228b5236e47020dc6f",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x9b2c46642caf6b936dc0633da521f1e946b7e18f",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x0ae3f81a67725a8a7758feb8684c6c17da20755d",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0xc70ba22fe446a85a247bf85bad1addf3ddaf62e9",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x881b0a4e9c55d08e31d8d3c022144d75a454211c",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0xfd2605a2bf58fdbb90db1da55df61628b47f9e8c",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x834e9b529ac9fa63b39a06f8d8c9b0d6791fa5df",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x17580b766f7453525ca4c6a88b01b50570ea088c",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0xf88a65846c19d8fc76fff545feaa7bbc7114f667",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x073f70b5bfade6409e4951ef72bc8f4157677729",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x288e4356f12d0d3d0f8df3506e457e7cfd5f4ab0",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0xa14cf6cec1c6aae4b608458f6e14692863a937aa",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0x475351efe1d9cf36276ff2b7ae1d38bdb072e22c",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0xa7247c53d059eb7c9310f628d7fc6c6a0a773f08",
+                    "storageKeys": []
+               },
+               {
+                    "address": "0xeab290b146d9fc82589a817012aa157d5963aa61",
+                    "storageKeys": []
+               }
+          ],
+          "error": "out of gas",
+          "gasUsed": "0x7a120"
+     }
+        }
+    }
+]
+
