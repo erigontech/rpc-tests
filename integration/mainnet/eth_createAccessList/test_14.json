@@ -1,0 +1,38 @@
+[
+    {
+        "test": {
+           "reference": "",
+           "description": "with EXTCOPY op-code"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_createAccessList",
+            "params":[
+                {
+                  "from": "0x6ed5a435495480774dfc44cc5bc85333f1b0646a",
+                  "to":  "0x5ff1863753c1920c38c7bae94576f2831ef99695",
+                  "gas": "0xBB42",
+                  "gasPrice": "0x2f0d4d499",
+                  "data": "0x42842e0e0000000000000000000000006ed5a435495480774dfc44cc5bc85333f1b0646a0000000000000000000000008411a8ba27d7f582c2860758bf2f901b851c30d300000000000000000000000000000000000000000000000000000000000001b1"
+                },
+                "0xf423ff" 
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": {
+               "accessList": [
+                  {
+                    "address": "0x8411a8ba27d7f582c2860758bf2f901b851c30d3",
+                    "storageKeys": []
+                  }
+               ],
+               "error": "out of gas",
+               "gasUsed": "0xbb42"
+            }
+        }
+    }
+]
+
