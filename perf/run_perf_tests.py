@@ -30,8 +30,10 @@ DEFAULT_TEST_TYPE = "eth_getLogs"
 DEFAULT_VEGETA_RESPONSE_TIMEOUT = "300"
 DEFAULT_MAX_BODY_RSP = "1500"
 
-SILKRPC_NAME="rpcdaemon"
-RPCDAEMON_NAME="rpcdaemon"
+SILKRPC="silk"
+RPCDAEMON="rpcdaemon"
+SILKRPC_SERVER_NAME="rpcdaemon"
+RPCDAEMON_SERVER_NAME="rpcdaemon"
 VEGETA_PATTERN_DIRNAME = "erigon_stress_test"
 VEGETA_REPORT = "vegeta_report.hrd"
 VEGETA_TAR_FILE_NAME = "vegeta_TAR_File"
@@ -258,7 +260,7 @@ class PerfTest:
                 status = os.system("sync && sudo sysctl vm.drop_caches=3 > /dev/null")
             elif sys.platform == "darwin": # OS X
                 status = os.system("sync && sudo purge > /dev/null")
-        if name == SILKRPC_NAME:
+        if name == SILKRPC:
             pattern = VEGETA_PATTERN_SILKRPC_BASE + self.config.test_type + ".txt"
         else:
             pattern = VEGETA_PATTERN_RPCDAEMON_BASE + self.config.test_type + ".txt"
@@ -286,10 +288,11 @@ class PerfTest:
         while 1:
             time.sleep(3)
             if self.config.check_server_alive:
-                if name == SILKRPC_NAME:
-                    pid = os.popen("ps aux | grep 'rpcdaemon' | grep -v 'grep' | awk '{print $2}'").read()
+                if name == SILKRPC:
+                    cmd = "ps aux | grep '" + SILKRPC_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
                 else:
-                    pid = os.popen("ps aux | grep 'rpcdaemon' | grep -v 'grep' | awk '{print $2}'").read()
+                    cmd = "ps aux | grep '" + RPCDAEMON_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
+                pid = os.popen(cmd).read();
                 if pid == "" :
                     # the server is dead; kill vegeta and returns fails
                     os.system("kill -2 $(ps aux | grep 'vegeta' | grep -v 'grep' | grep -v 'python' | awk '{print $2}') 2> /dev/null")
@@ -500,7 +503,7 @@ def main(argv):
     current_sequence = str(config.test_sequence).split(',')
 
     if config.test_mode in ("1", "3"):
-        result = perf_test.execute_sequence(current_sequence, SILKRPC_NAME)
+        result = perf_test.execute_sequence(current_sequence, SILKRPC)
         if result == 0:
             print("Server dead test Aborted!")
             if config.create_test_report:
@@ -510,7 +513,7 @@ def main(argv):
             print("--------------------------------------------------------------------------------------------\n")
 
     if config.test_mode in ("2", "3"):
-        result = perf_test.execute_sequence(current_sequence, RPCDAEMON_NAME)
+        result = perf_test.execute_sequence(current_sequence, RPCDAEMON)
         if result == 0:
             print("Server dead test Aborted!")
             if config.create_test_report:
