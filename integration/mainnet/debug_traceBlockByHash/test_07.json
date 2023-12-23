@@ -1,0 +1,47 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceBlockByHash",
+      "params": [
+        "0x9d0c56b2748ed146c4e96232af5dca991368df76c630f029cff2517d920b1cfe",
+        {
+          "disableMemory": false,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        },
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        },
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        }
+      ]
+    }
+  }
+]
