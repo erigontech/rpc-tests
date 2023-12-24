@@ -1,0 +1,16 @@
+,,,,,,,,,,,,Vendor,Dell Inc.
+,,,,,,,,,,,,Product,G5 5587
+,,,,,,,,,,,,CPU, Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz 
+,,,,,,,,,,,,Bogomips,4399.99
+,,,,,,,,,,,,Kernel,6.2.0-34-generic
+,,,,,,,,,,,,DaemonVegetaRunOnCore,-:-
+,,,,,,,,,,,,VegetaFile,pattern/mainnet/stress_test_eth_getTransactionByHash_13M.tar
+,,,,,,,,,,,,VegetaChecksum,04125  1681
+,,,,,,,,,,,,GCC version,"gcc (Ubuntu 12.3.0-1ubuntu1~22.04) 12.3.0
+Copyright (C) 2022 Free Software Foundation"
+,,,,,,,,,,,,Go version,go version go1.20.5 linux/amd64
+,,,,,,,,,,,,Silkrpc version,increase_max_data_size_glaze 35378ed83bfd384c9c8ccd73c09da74a55850920
+,,,,,,,,,,,,Erigon version, b39f3245d48055627e06e2c508362e77ab766409
+
+
+Daemon,TestNo,TG-Threads,Qps,Time,Min,Mean,50,90,95,99,Max,Ratio,Error

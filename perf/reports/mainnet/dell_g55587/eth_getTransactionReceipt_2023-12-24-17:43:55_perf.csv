@@ -1,0 +1,60 @@
+,,,,,,,,,,,,Vendor,Dell Inc.
+,,,,,,,,,,,,Product,G5 5587
+,,,,,,,,,,,,CPU, Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz 
+,,,,,,,,,,,,Bogomips,4399.99
+,,,,,,,,,,,,Kernel,6.2.0-34-generic
+,,,,,,,,,,,,DaemonVegetaRunOnCore,-:-
+,,,,,,,,,,,,VegetaFile,pattern/mainnet/stress_test_eth_getTransactionReceipt_14M.tar
+,,,,,,,,,,,,VegetaChecksum,63504  2365
+,,,,,,,,,,,,GCC version,"gcc (Ubuntu 12.3.0-1ubuntu1~22.04) 12.3.0
+Copyright (C) 2022 Free Software Foundation"
+,,,,,,,,,,,,Go version,go version go1.20.5 linux/amd64
+,,,,,,,,,,,,Silkrpc version,increase_max_data_size_glaze 35378ed83bfd384c9c8ccd73c09da74a55850920
+,,,,,,,,,,,,Erigon version, b39f3245d48055627e06e2c508362e77ab766409
+
+
+Daemon,TestNo,TG-Threads,Qps,Time,Min,Mean,50,90,95,99,Max,Ratio,Error
+silk,[1. 1] ,797 ,1,1,  164.85ms, 164.85ms, 164.85ms, 164.85ms, 164.85ms, 164.85ms, 164.85ms ,100.00%,
+silk,[1. 2] ,797 ,1,1,  4.814ms, 4.814ms, 4.814ms, 4.814ms, 4.814ms, 4.814ms, 4.814ms ,100.00%,
+silk,[1. 3] ,797 ,1,1,  20.697ms, 20.697ms, 20.697ms, 20.697ms, 20.697ms, 20.697ms, 20.697ms ,100.00%,
+silk,[1. 4] ,797 ,1,1,  18.52ms, 18.52ms, 18.52ms, 18.52ms, 18.52ms, 18.52ms, 18.52ms ,100.00%,
+silk,[1. 5] ,797 ,1,1,  19.632ms, 19.632ms, 19.632ms, 19.632ms, 19.632ms, 19.632ms, 19.632ms ,100.00%,
+silk,[2. 1] ,797 ,50,30,  3.903ms, 17.461ms, 11.302ms, 43.548ms, 49.152ms, 61.878ms, 90.936ms ,100.00%,
+silk,[2. 2] ,797 ,50,30,  290.48µs, 1.636ms, 1.609ms, 2.221ms, 3.987ms, 4.456ms, 12.384ms ,100.00%,
+silk,[2. 3] ,797 ,50,30,  279.26µs, 1.544ms, 1.627ms, 1.98ms, 2.046ms, 5.816ms, 16.639ms ,100.00%,
+silk,[2. 4] ,797 ,50,30,  308.126µs, 1.534ms, 1.584ms, 2.11ms, 2.164ms, 2.514ms, 11.878ms ,100.00%,
+silk,[2. 5] ,797 ,50,30,  293.396µs, 1.497ms, 1.582ms, 2.005ms, 2.17ms, 2.523ms, 9.867ms ,100.00%,
+silk,[3. 1] ,797 ,1000,20,  219.86µs, 805.62ms, 158.561ms, 407.565ms, 8.104s, 11.032s, 13.505s ,100.00%,
+silk,[3. 2] ,797 ,1000,20,  169.393µs, 1.077ms, 922.166µs, 1.809ms, 1.932ms, 2.234ms, 5.737ms ,100.00%,
+silk,[3. 3] ,797 ,1000,20,  167.625µs, 1.069ms, 903.099µs, 1.799ms, 1.932ms, 2.596ms, 51.539ms ,100.00%,
+silk,[3. 4] ,797 ,1000,20,  166.527µs, 1.078ms, 908.466µs, 1.786ms, 1.928ms, 2.521ms, 7.656ms ,100.00%,
+silk,[3. 5] ,797 ,1000,20,  162.577µs, 1.104ms, 923.546µs, 1.862ms, 2.077ms, 2.961ms, 53.337ms ,100.00%,
+silk,[4. 1] ,797 ,2000,20,  166.624µs, 2.117s, 36.101ms, 9.4s, 10.046s, 10.87s, 11.019s ,100.00%,
+silk,[4. 2] ,797 ,2000,20,  186.218µs, 1.801ms, 1.306ms, 3.607ms, 4.856ms, 8.428ms, 14.446ms ,100.00%,
+silk,[4. 3] ,797 ,2000,20,  163.714µs, 1.549ms, 1.237ms, 2.731ms, 3.552ms, 5.533ms, 50.308ms ,100.00%,
+silk,[4. 4] ,797 ,2000,20,  169.069µs, 2.034ms, 1.335ms, 4.305ms, 6.017ms, 10.327ms, 18.3ms ,100.00%,
+silk,[4. 5] ,797 ,2000,20,  162.136µs, 1.954ms, 1.367ms, 4.103ms, 6.034ms, 8.964ms, 14.421ms ,100.00%,
+rpcdaemon,[1. 1] ,797 ,1,1,  1.293s, 1.293s, 1.293s, 1.293s, 1.293s, 1.293s, 1.293s ,100.00%,
+rpcdaemon,[1. 2] ,797 ,1,1,  14.73ms, 14.73ms, 14.73ms, 14.73ms, 14.73ms, 14.73ms, 14.73ms ,100.00%,
+rpcdaemon,[1. 3] ,797 ,1,1,  8.301ms, 8.301ms, 8.301ms, 8.301ms, 8.301ms, 8.301ms, 8.301ms ,100.00%,
+rpcdaemon,[1. 4] ,797 ,1,1,  8.84ms, 8.84ms, 8.84ms, 8.84ms, 8.84ms, 8.84ms, 8.84ms ,100.00%,
+rpcdaemon,[1. 5] ,797 ,1,1,  11.524ms, 11.524ms, 11.524ms, 11.524ms, 11.524ms, 11.524ms, 11.524ms ,100.00%,
+rpcdaemon,[2. 1] ,797 ,50,30,  4.403ms, 8.764ms, 7.603ms, 13.565ms, 14.745ms, 17.536ms, 30.926ms ,100.00%,
+rpcdaemon,[2. 2] ,797 ,50,30,  490.199µs, 1.602ms, 1.385ms, 2.109ms, 2.605ms, 9.143ms, 10.501ms ,100.00%,
+rpcdaemon,[2. 3] ,797 ,50,30,  502.65µs, 1.625ms, 1.456ms, 1.817ms, 2.009ms, 8.902ms, 9.632ms ,100.00%,
+rpcdaemon,[2. 4] ,797 ,50,30,  579.905µs, 4.584ms, 1.775ms, 8.66ms, 21.825ms, 61.896ms, 381.686ms ,100.00%,
+rpcdaemon,[2. 5] ,797 ,50,30,  592.792µs, 24.024ms, 1.626ms, 7.863ms, 15.181ms, 811.49ms, 1.173s ,100.00%,
+rpcdaemon,[3. 1] ,798 ,1000,20,  415.307µs, 2.561s, 1.385s, 8.219s, 9.478s, 12.481s, 20.436s ,100.00%,
+rpcdaemon,[3. 2] ,797 ,1000,20,  1.262s, 47.566s, 40.334s, 1m17s, 1m19s, 1m22s, 1m27s ,100.00%,
+rpcdaemon,[3. 3] ,797 ,1000,20,  1m3s, 2m19s, 2m20s, 3m8s, 3m10s, 3m11s, 3m14s ,100.00%,
+rpcdaemon,[3. 4] ,797 ,1000,20,  1m23s, 2m19s, 2m27s, 3m2s, 3m4s, 3m5s, 3m7s ,100.00%,
+rpcdaemon,[3. 5] ,797 ,1000,20,  1m43s, 2m23s, 2m30s, 3m6s, 3m8s, 3m11s, 3m13s ,100.00%,
+rpcdaemon,[4. 1] ,797 ,2000,20,  26.166s, 2m32s, 2m20s, 4m48s, 4m56s, 4m57s, 4m58s ,100.00%,
+rpcdaemon,[4. 2] ,797 ,2000,20,  55.659s, 3m31s, 3m44s, 5m6s, 5m6s, 5m10s, 5m10s ,74.12%,"Post ""http://localhost:8545"": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+"
+rpcdaemon,[4. 3] ,797 ,2000,20,  37.288s, 3m41s, 3m42s, 5m0s, 5m1s, 5m2s, 5m4s ,68.92%,"Post ""http://localhost:8545"": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+"
+rpcdaemon,[4. 4] ,797 ,2000,20,  49.548s, 3m36s, 4m8s, 5m0s, 5m0s, 5m1s, 5m1s ,66.88%,"Post ""http://localhost:8545"": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+"
+rpcdaemon,[4. 5] ,797 ,2000,20,  38.819s, 3m13s, 3m12s, 5m0s, 5m0s, 5m1s, 5m2s ,81.17%,"Post ""http://localhost:8545"": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+"
