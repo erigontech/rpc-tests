@@ -23,7 +23,7 @@
             "id":1,
             "jsonrpc":"2.0",
             "result": { 
-               "accessList": [
+        "accessList": [
                {
                     "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
                     "storageKeys": [
@@ -33,11 +33,20 @@
                },
                {
                     "address": "0x2de6b0e3947a35aa897d0cb7e4e5c25aba89c6b7",
-                    "storageKeys": []
+                    "storageKeys": [
+                         "0x87f98d472c242c161d5019b2bcff856be80ae69192d57edeb34c0279e0972a4c"
+                    ]
+               },
+               {
+                    "address": "0xd24eb8d3a20a60170a34ebcc120779a425d4c5b6",
+                    "storageKeys": [
+                         "0x0000000000000000000000000000000000000000000000000000000000000008"
+                    ]
                }
           ],
+
           "error": "execution reverted",
-          "gasUsed": "0x98fe"
+          "gasUsed": "0xc2af"
      }
 
         }
