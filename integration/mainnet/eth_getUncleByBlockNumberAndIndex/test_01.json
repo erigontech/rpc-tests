@@ -1,0 +1,21 @@
+[
+    {
+        "test": {
+           "reference": "https://etherscan.io/txs?block=18000000",
+           "description": "" 
+        },
+
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getUncleByBlockNumberAndIndex",
+            "params":["0x112a880", "0x0"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result":null
+        }
+    }
+]
+
