@@ -1,0 +1,27 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0x5b68647fe0243381dbeb1b7a30cbf2112c8919a293ea4437e2f23007592a0b4a",
+        {
+          "disableMemory": false,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "failed": false,
+        "gas": 21000,
+        "returnValue": "",
+        "structLogs": []
+      }
+    }
+  }
+]
