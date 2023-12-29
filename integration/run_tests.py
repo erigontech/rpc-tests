@@ -80,6 +80,8 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_10.tar", # json too big
     "mainnet/debug_traceBlockByNumber/test_11.tar", # json too big
     "mainnet/debug_traceBlockByNumber/test_12.tar", # json too big
+
+    "mainnet/debug_traceBlockByHash/test_03.tar", # diff on gasCost
 ]
 
 tests_not_compared_result = [

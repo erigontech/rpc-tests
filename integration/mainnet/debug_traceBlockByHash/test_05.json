@@ -1,0 +1,79 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceBlockByHash",
+      "params": [
+        "0xcdda6558876388493a61ba0ad63cdb1018dc364eb16bc085cdf77767f692d278",
+        {
+          "disableMemory": false,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        },
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        },
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        },
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        },
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        },
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        },
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,31 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceBlockByHash",
+      "params": [
+        "0xe1d15a58f7af830e076c88ffa5b6f9e804e2cebff0dfa1f9d7407ca375a3727a",
+        {
+          "disableMemory": false,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "result": {
+            "failed": false,
+            "gas": 21000,
+            "returnValue": "",
+            "structLogs": []
+          }
+        }
+      ]
+    }
+  }
+]
