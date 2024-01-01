@@ -220,7 +220,7 @@ def is_skipped(api_name, net, exclude_api_list, exclude_test_list, api_file: str
     return 0
 
 def is_testing_apis(api_name, requested_apis: str):
-    """ determine if api_name is  in requested_apis
+    """ determine if api_name is in requested_apis
     """
     if requested_apis == "":
         return 1
