@@ -69,7 +69,7 @@ tests_not_compared = [
     "goerly/eth_callMany/test_02.json", # debug bad value format
     "goerly/eth_callMany/test_05.json", # debug bad error format
     "goerly/eth_callMany/test_06.json", # debug bad error format
-    "goerly/eth_callMany/test_09.json", # debug silkrpc return ok rpcdaemon error 
+    "goerly/eth_callMany/test_09.json", # debug silkrpc return ok rpcdaemon error
     "goerly/eth_callMany/test_10.json", # debug silkrpc return ok rpcdaemon error
     "goerly/eth_feeHistory/test_1.json", # debug values are different
 
@@ -219,6 +219,16 @@ def is_skipped(api_name, net, exclude_api_list, exclude_test_list, api_file: str
                 return 1
     return 0
 
+def is_testing_apis(api_name, requested_apis: str):
+    """ determine if api_name is in requested_apis
+    """
+    if requested_apis == "":
+        return 1
+    tokenize_list = requested_apis.split(",")
+    for test in tokenize_list:
+        if test in api_name:
+            return 1
+    return 0
 
 def is_big_json(test_name, net: str,):
     """ determine if json is in the big list
@@ -507,19 +517,19 @@ def usage(argv):
     print("-c runs all tests even if one test fails [default: exit at first test fail]")
     print("-r connect to Erigon RpcDaemon [default: connect to Silkrpc] ")
     print("-l <number of loops>")
-    print("-a <test_api>: run all tests of the specified API")
+    print("-a <test_apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)")
     print("-s <start_test_number>: run tests starting from input")
     print("-t <test_number>: run single test")
-    print("-d send requests also to the reference daemon i.e. Erigon RpcDaemon")
+    print("-d send requests also to the reference daemon e.g.: Erigon RpcDaemon")
     print("-i <infura_url> send any request also to the Infura API endpoint as reference")
     print("-b blockchain [default: goerly]")
     print("-v <verbose_level>")
     print("-o dump response")
     print("-k authentication token file")
-    print("-x exclude API list (i.e. txpool_content,txpool_status,engine_")
-    print("-X exclude test list (i.e. 18,22")
-    print("-H host where the RpcDaemon is located (e.g. 10.10.2.3)")
-    print("-p port where the RpcDaemon is located (e.g. 8545)")
+    print("-x exclude API list (e.g.: txpool_content,txpool_status,engine_)")
+    print("-X exclude test list (e.g.: 18,22)")
+    print("-H host where the RpcDaemon is located (e.g.: 10.10.2.3)")
+    print("-p port where the RpcDaemon is located (e.g.: 8545)")
 
 
 #
@@ -538,7 +548,7 @@ def main(argv):
     infura_url = ""
     daemon_on_host = "localhost"
     daemon_on_port = 0
-    requested_api = ""
+    requested_apis = ""
     verify_with_daemon = False
     net = "goerly"
     json_dir = "./" + net + "/"
@@ -576,7 +586,7 @@ def main(argv):
             elif option == "-s":
                 start_test = int(optarg)
             elif option == "-a":
-                requested_api = optarg
+                requested_apis = optarg
             elif option == "-l":
                 loop_number = int(optarg)
             elif option == "-d":
@@ -629,7 +639,7 @@ def main(argv):
             test_lists = sorted(os.listdir(test_dir))
             test_number = 1
             for test_name in test_lists:
-                if requested_api in api_file or requested_api == "":  # -a
+                if is_testing_apis(api_file, requested_apis):  # -a
                     test_file = api_file + "/" + test_name
                     if is_skipped(api_file, net, exclude_api_list, exclude_test_list, test_file, req_test,
                                   verify_with_daemon, global_test_number) == 1:
@@ -641,8 +651,8 @@ def main(argv):
                     else:
                         # runs all tests req_test refers global test number or
                         # runs only tests on specific api req_test refers all test on specific api
-                        if ((requested_api == "" and req_test in (-1, global_test_number)) or
-                                (requested_api != "" and req_test in (-1, test_number))):
+                        if ((requested_apis == "" and req_test in (-1, global_test_number)) or
+                                (requested_apis != "" and req_test in (-1, test_number))):
                             if (start_test == "") or (start_test != "" and global_test_number >= int(start_test)):
                                 file = test_file.ljust(60)
                                 if verbose_level:
@@ -658,13 +668,13 @@ def main(argv):
                                 else:
                                     failed_tests = failed_tests + 1
                                 executed_tests = executed_tests + 1
-                                if req_test != -1 or requested_api != "":
+                                if req_test != -1 or requested_apis != "":
                                     match = 1
 
                 global_test_number = global_test_number + 1
                 test_number = test_number + 1
 
-    if (req_test != -1 or requested_api != "") and match == 0:
+    if (req_test != -1 or requested_apis != "") and match == 0:
         print("ERROR: api or testNumber not found")
     else:
         end_time = time.time()
