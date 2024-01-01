@@ -2,7 +2,7 @@
    {
         "test": {
            "reference": "https://etherscan.io/tx/0x45102190bcfd53cc6a15761c9d2da43a628d0ca713bfad5a1e311b531c294b77",
-           "description": "transactions details on specific hash"
+           "description": "transactions details on specific hash type=0x2"
         },
         "request": {
             "jsonrpc":"2.0",
