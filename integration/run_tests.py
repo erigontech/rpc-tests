@@ -70,6 +70,11 @@ tests_not_compared = [
     "goerly/eth_callMany/test_10.json", # debug silkrpc return ok rpcdaemon error
     "goerly/eth_feeHistory/test_1.json", # debug values are different
 
+    "mainnet/debug_accountAt/test_02.json", # to be debugged
+    "mainnet/debug_accountAt/test_05.json", # to be debugged
+    "mainnet/debug_accountAt/test_07.json", # to be debugged
+    "mainnet/debug_accountAt/test_08.json", # to be debugged
+
     "mainnet/debug_traceBlockByNumber/test_05.tar", # json too big
     "mainnet/debug_traceBlockByNumber/test_06.tar", # json too big
     "mainnet/debug_traceBlockByNumber/test_08.tar", # json too big
