@@ -1,0 +1,20 @@
+[
+   {
+     "test": {
+           "reference": "https://etherscan.io/block/18299999",
+           "description": "bigger than last local block, without txs"
+      },
+      "request": {
+            "jsonrpc":"2.0",
+            "method":"erigon_getBlockByTimestamp",
+            "params":["3272722465", false],
+            "id":1
+      },
+      "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": null
+      }
+   }
+]
+
