@@ -39,11 +39,8 @@ api_not_compared = [
 ]
 
 tests_not_compared = [
-    "goerly/debug_accountAt/test_04.json", # debug
-    "goerly/debug_accountAt/test_05.json", # debug
     "goerly/debug_accountAt/test_06.json", # debug
     "goerly/debug_accountAt/test_07.json", # debug
-    "goerly/debug_accountAt/test_10.json", # debug
     "goerly/debug_accountAt/test_11.json", # debug
     "goerly/debug_traceBlockByHash/test_02.tar", # diff on gasCost
     "goerly/debug_traceBlockByHash/test_03.tar", # diff on gasCost
