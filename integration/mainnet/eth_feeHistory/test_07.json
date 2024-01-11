@@ -1,0 +1,23 @@
+[
+    {
+        "test": {
+         "reference": "",
+         "description": "with latest block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_feeHistory",
+            "params": [
+                2,
+                "latest",
+                [1,5,95,100]
+            ],
+            "id": 1
+        },
+        "response": {
+         "id": 1,
+         "jsonrpc": "2.0",
+         "result": null 
+    }
+  }
+]
