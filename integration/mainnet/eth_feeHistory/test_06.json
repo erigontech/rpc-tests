@@ -1,0 +1,44 @@
+[
+    {
+        "test": {
+         "reference": "https://etherscan.io/block/9",
+         "description": "with oldest block without tx"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_feeHistory",
+            "params": [
+                2,
+                "0x9",
+                [5,95]
+            ],
+            "id": 1
+        },
+        "response": {
+         "id": 1,
+         "jsonrpc": "2.0",
+         "result": {
+          "baseFeePerGas": [
+               "0x0",
+               "0x0",
+               "0x0"
+          ],
+          "gasUsedRatio": [
+               0,
+               0
+          ],
+          "oldestBlock": "0x8",
+          "reward": [
+               [
+                    "0x0",
+                    "0x0"
+               ],
+               [
+                    "0x0",
+                    "0x0"
+               ]
+          ]
+        }
+    }
+  }
+]
