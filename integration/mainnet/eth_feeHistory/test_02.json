@@ -1,0 +1,47 @@
+[
+    {
+        "test": {
+           "reference": "https://etherscan.io/block/7568000",
+           "description": "with two blocks count"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_feeHistory",
+            "params": [
+                2,
+                "0x737A80",
+                [10, 50, 90]
+            ],
+            "id": 1
+        },
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+             "baseFeePerGas": [
+                  "0x0",
+                  "0x0",
+                  "0x0"
+             ],
+             "gasUsedRatio": [
+                  0.399316875,
+                  0.243054875
+             ],
+             "oldestBlock": "0x737a7f",
+             "reward": [
+                  [
+                       "0x3b9aca00",
+                       "0x77359400",
+                       "0x4a817c800"
+                  ],
+                  [
+                       "0x3b9aca00",
+                       "0x77359400",
+                       "0x2540be400"
+                  ]
+             ]
+        }
+
+      }
+    }
+]

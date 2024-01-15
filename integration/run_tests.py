@@ -68,7 +68,6 @@ tests_not_compared = [
     "goerly/eth_callMany/test_06.json", # debug bad error format
     "goerly/eth_callMany/test_09.json", # debug silkrpc return ok rpcdaemon error
     "goerly/eth_callMany/test_10.json", # debug silkrpc return ok rpcdaemon error
-    "goerly/eth_feeHistory/test_1.json", # debug values are different
 
     "mainnet/debug_accountAt/test_02.json", # to be debugged
     "mainnet/debug_accountAt/test_05.json", # to be debugged
