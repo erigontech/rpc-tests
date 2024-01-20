@@ -12,6 +12,7 @@ import time
 import getopt
 import getpass
 from datetime import datetime
+from random import randint
 
 import psutil
 
@@ -34,11 +35,13 @@ SILKRPC="silk"
 RPCDAEMON="rpcdaemon"
 SILKRPC_SERVER_NAME="rpcdaemon"
 RPCDAEMON_SERVER_NAME="rpcdaemon"
-VEGETA_PATTERN_DIRNAME = "erigon_stress_test"
-VEGETA_REPORT = "vegeta_report.hrd"
-VEGETA_TAR_FILE_NAME = "vegeta_TAR_File"
-VEGETA_PATTERN_SILKRPC_BASE = "/tmp/" + VEGETA_PATTERN_DIRNAME + "/vegeta_geth_"
-VEGETA_PATTERN_RPCDAEMON_BASE = "/tmp/" + VEGETA_PATTERN_DIRNAME + "/vegeta_erigon_"
+RAND_NUM = randint(0, 100000)
+RUN_TEST_DIRNAME = "/tmp/run_tests_" + str(RAND_NUM)
+VEGETA_PATTERN_DIRNAME = RUN_TEST_DIRNAME + "/erigon_stress_test"
+VEGETA_REPORT = RUN_TEST_DIRNAME + "/vegeta_report.hrd"
+VEGETA_TAR_FILE_NAME = RUN_TEST_DIRNAME + "/vegeta_TAR_File"
+VEGETA_PATTERN_SILKRPC_BASE = VEGETA_PATTERN_DIRNAME + "/vegeta_geth_"
+VEGETA_PATTERN_RPCDAEMON_BASE = VEGETA_PATTERN_DIRNAME + "/vegeta_erigon_"
 
 def usage(argv):
     """ Print script usage """
@@ -211,26 +214,33 @@ class PerfTest:
         """ The initialization routine stop any previos server """
         self.test_report = test_report
         self.config = config
-        self.cleanup()
+        self.cleanup(1)
         self.copy_and_extract_pattern_file()
 
-    def cleanup(self):
+    def cleanup(self, initial):
         """ Cleanup temporary files """
         self.silk_daemon = 0
         self.rpc_daemon = 0
-        cmd = "/bin/rm -f " +  " /tmp/" + VEGETA_TAR_FILE_NAME
+        cmd = "/bin/rm -f " + VEGETA_TAR_FILE_NAME
         os.system(cmd)
-        cmd = "/bin/rm -f -rf /tmp/" + VEGETA_PATTERN_DIRNAME
+        cmd = "/bin/rm -rf " + VEGETA_PATTERN_DIRNAME
         os.system(cmd)
         cmd = "/bin/rm -f perf.data.old perf.data"
         os.system(cmd)
+        if initial:
+            cmd = "/bin/rm -rf " + RUN_TEST_DIRNAME
+        else:
+            cmd = "rmdir --ignore-fail-on-non-empty " + RUN_TEST_DIRNAME
+        os.system(cmd)
 
     def copy_and_extract_pattern_file(self):
-        """ Copy the vegeta pattern file into /tmp and untar the file """
+        """ Copy the vegeta pattern file into /tmp/run_tests_xyz/ and untar the file """
         if os.path.exists(self.config.vegeta_pattern_tar_file) == 0:
             print ("ERROR: invalid pattern file: ", self.config.vegeta_pattern_tar_file)
             sys.exit(-1)
-        cmd = "/bin/cp -f " + self.config.vegeta_pattern_tar_file + " /tmp/" + VEGETA_TAR_FILE_NAME
+        cmd = "mkdir " +  RUN_TEST_DIRNAME
+        status = os.system(cmd)
+        cmd = "/bin/cp -f " + self.config.vegeta_pattern_tar_file + " " + VEGETA_TAR_FILE_NAME
         if self.config.tracing:
             print(f"Copy Vegeta pattern: {cmd}")
         status = os.system(cmd)
@@ -238,7 +248,7 @@ class PerfTest:
             print("Vegeta pattern copy failed. Test Aborted!")
             sys.exit(-1)
 
-        cmd = "cd /tmp; tar xvf " + VEGETA_TAR_FILE_NAME + " > /dev/null"
+        cmd = "cd " + RUN_TEST_DIRNAME + "; tar xvf " + VEGETA_TAR_FILE_NAME + " > /dev/null"
         if self.config.tracing:
             print(f"Extracting Vegeta pattern: {cmd}")
         status = os.system(cmd)
@@ -292,7 +302,7 @@ class PerfTest:
                     cmd = "ps aux | grep '" + SILKRPC_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
                 else:
                     cmd = "ps aux | grep '" + RPCDAEMON_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
-                pid = os.popen(cmd).read();
+                pid = os.popen(cmd).read()
                 if pid == "" :
                     # the server is dead; kill vegeta and returns fails
                     os.system("kill -2 $(ps aux | grep 'vegeta' | grep -v 'grep' | grep -v 'python' | awk '{print $2}') 2> /dev/null")
@@ -404,7 +414,7 @@ class TestReport:
         if self.config.versioned_test_report:
             csv_folder_path = './reports/' + self.config.chain_name + '/' + csv_folder
         else:
-            csv_folder_path = '/tmp/' + self.config.chain_name + '/' + csv_folder
+            csv_folder_path = RUN_TEST_DIRNAME + "/" + self.config.chain_name + '/' + csv_folder
         pathlib.Path(csv_folder_path).mkdir(parents=True, exist_ok=True)
 
         # Generate unique CSV file name w/ date-time and open it
@@ -522,6 +532,7 @@ def main(argv):
 
     if config.create_test_report:
         test_report.close()
+    perf_test.cleanup(0)
     print("Performance Test completed successfully.")
 
 
