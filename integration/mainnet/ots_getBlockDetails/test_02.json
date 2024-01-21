@@ -13,7 +13,8 @@
         "response":{
           "jsonrpc":"2.0",
           "id":1,
-          "block": {
+          "result": {
+             "block": {
                "baseFeePerGas": "0x2976ca599",
                "difficulty": "0x0",
                "extraData": "0x4d616465206f6e20746865206d6f6f6e20627920426c6f636b6e6174697665",
@@ -38,7 +39,7 @@
           },
           "issuance": {},
           "totalFees": "0x3fcc8f706ebb74d"
-
+         }
         }
     }
 ]

@@ -13,7 +13,8 @@
         "response":{
           "jsonrpc":"2.0",
           "id":1,
-          "block": {
+          "result": {
+            "block": {
                "baseFeePerGas": "0x4114a606b",
                "difficulty": "0x2b3179315e9b6c",
                "extraData": "0x6575726f70652d6e6f727468312d34",
@@ -35,14 +36,14 @@
                "transactionCount": 285,
                "transactionsRoot": "0x6f8003a1f501e1d46019d9d58cdcefe85529a6d236a9cdce4725acaf47520e4f",
                "uncles": []
-          },
+            },
           "issuance": {
                "blockReward": "0x1bc16d674ec80000",
                "issuance": "0x1bc16d674ec80000",
                "uncleReward": "0x0"
           },
           "totalFees": "0x6046fb3ca4285ed"
-
+          }
         }
     }
 ]
