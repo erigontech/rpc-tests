@@ -274,26 +274,32 @@ def run_shell_command(net: str, command: str, command1: str, expected_response: 
                       exp_rsp_file: str, diff_file: str, dump_output, json_file: str, test_number):
     """ Run the specified command as shell. If exact result or error don't care, they are null but present in expected_response. """
 
-    command_and_args = shlex.split(command)
-    process = subprocess.run(command_and_args, stdout=subprocess.PIPE, universal_newlines=True, check=True)
-    if process.returncode != 0:
-        sys.exit(process.returncode)
-    process.stdout = process.stdout.strip('\n')
+    result = os.popen(command).read()
+    result= result.strip('\n')
     if verbose_level > 1:
-        print(process.stdout)
-    response = json.loads(process.stdout)
+        print(result)
+    try:
+        response = json.loads(result)
+    except json.decoder.JSONDecodeError:
+        if verbose_level:
+            print("Failed (bad json format on expected rsp)")
+            return 1
+        file = json_file.ljust(60)
+        print(f"{test_number:03d}. {file} Failed (bad json format on expected rsp)")
+        if exit_on_fail:
+            print("TEST ABORTED!")
+            sys.exit(1)
+        return 1
+
     if command1 != "":
-        command_and_args = shlex.split(command1)
-        process = subprocess.run(command_and_args, stdout=subprocess.PIPE, universal_newlines=True, check=True)
-        if process.returncode != 0:
-            sys.exit(process.returncode)
-        process.stdout = process.stdout.strip('\n')
+        result = os.popen(command1).read()
+        result = result.strip('\n')
         try:
-            expected_response = json.loads(process.stdout)
+            expected_response = json.loads(result)
         except json.decoder.JSONDecodeError:
             if verbose_level:
                 print("Failed (bad json format on expected rsp)")
-                print(process.stdout)
+                print(result)
                 return 1
             file = json_file.ljust(60)
             print(f"{test_number:03d}. {file} Failed (bad json format on expected rsp)")
@@ -427,7 +433,7 @@ def run_shell_command(net: str, command: str, command1: str, expected_response: 
 def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_level: int, daemon_under_test: str, exit_on_fail: bool,
               verify_with_daemon: bool, daemon_as_reference: str,
               dump_output: bool, test_number, infura_url: str, daemon_on_host: str, daemon_on_port: int,
-              jwt_secret: str):
+              jwt_secret: str, websocket_as_signalling: bool):
     """ Run integration tests. """
     json_filename = test_dir + json_file
     ext = os.path.splitext(json_file)[1]
@@ -467,7 +473,10 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
             encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
             jwt_auth = "-H \"Authorization: Bearer " + str(encoded) + "\" "
         if verify_with_daemon == 0:
-            cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
+            if websocket_as_signalling == 0:
+                cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
+            else:
+                cmd = "echo '" + request_dumps + "' | websocat -B 1000000000 ws://" + target
             cmd1 = ""
             output_api_filename = output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
@@ -478,8 +487,14 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
         else:
             target = get_target(SILK, method, infura_url, daemon_on_host, daemon_on_port)
             target1 = get_target(daemon_as_reference, method, infura_url, daemon_on_host, daemon_on_port)
-            cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
-            cmd1 = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target1
+            if websocket_as_signalling == 0:
+                cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
+            else:
+                cmd = "echo '" + request_dumps + "' | websocat -B 1000000000 ws://" + target
+            if websocket_as_signalling == 0:
+                cmd1 = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target1
+            else:
+                cmd = "echo '" + request_dumps + "' | websocat -B 1000000000 ws://" + target1
             output_api_filename = output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
             response = ""
@@ -528,6 +543,7 @@ def usage(argv):
     print("-o dump response")
     print("-k authentication token file")
     print("-x exclude API list (e.g.: txpool_content,txpool_status,engine_)")
+    print("-w using web-socket as signalling)")
     print("-X exclude test list (e.g.: 18,22)")
     print("-H host where the RpcDaemon is located (e.g.: 10.10.2.3)")
     print("-p port where the RpcDaemon is located (e.g.: 8545)")
@@ -560,9 +576,10 @@ def main(argv):
     start_test = ""
     jwt_secret = ""
     display_only_fail = 0
+    websocket_as_signalling = 0
 
     try:
-        opts, _ = getopt.getopt(argv[1:], "hfrcv:t:l:a:di:b:ox:X:H:k:s:p:")
+        opts, _ = getopt.getopt(argv[1:], "whfrcv:t:l:a:di:b:ox:X:H:k:s:p:")
         for option, optarg in opts:
             if option in ("-h", "--help"):
                 usage(argv)
@@ -594,6 +611,8 @@ def main(argv):
                 verify_with_daemon = 1
             elif option == "-o":
                 dump_output = 1
+            elif option == "-w":
+                websocket_as_signalling = 1
             elif option == "-b":
                 net = optarg
                 json_dir = "./" + net + "/"
@@ -663,7 +682,7 @@ def main(argv):
                                 ret = run_tests(net, json_dir, output_dir, test_file, verbose_level, daemon_under_test,
                                                 exit_on_fail, verify_with_daemon, daemon_as_reference,
                                                 dump_output, global_test_number, infura_url, daemon_on_host,
-                                                daemon_on_port, jwt_secret)
+                                                daemon_on_port, jwt_secret, websocket_as_signalling)
                                 if ret == 0:
                                     success_tests = success_tests + 1
                                 else:
