@@ -8,7 +8,7 @@ These integration tests currently available for Goerli testnet must run as non-r
 % pip3 install -r requirements.txt
 ```
 
-Currently, `json-diff` and `json-patch-jsondiff` are also required:
+Currently, `websocat`, `json-diff` and `json-patch-jsondiff` are also required:
 
 ```
 % sudo apt update
@@ -16,6 +16,9 @@ Currently, `json-diff` and `json-patch-jsondiff` are also required:
 % npm install -g json-diff
 
 % sudo apt install python3-jsonpatch
+
+% sudo wget -qO /usr/local/bin/websocat https://github.com/vi/websocat/releases/latest/download/websocat.x86_64-unknown-linux-musl
+% sudo chmod a+x /usr/local/bin/websocat
 ```
 
 # Run tests
