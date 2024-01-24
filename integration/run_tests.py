@@ -526,7 +526,7 @@ def usage(argv):
     """
     print("Usage: " + argv[0] + ":")
     print("")
-    print("Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon")
+    print("Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon)
     print("")
     print("-h print this help")
     print("-f shows only failed tests (not Skipped)")
@@ -543,7 +543,7 @@ def usage(argv):
     print("-o dump response")
     print("-k authentication token file")
     print("-x exclude API list (e.g.: txpool_content,txpool_status,engine_)")
-    print("-w using web-socket as signalling)")
+    print("-w use web-socket")
     print("-X exclude test list (e.g.: 18,22)")
     print("-H host where the RpcDaemon is located (e.g.: 10.10.2.3)")
     print("-p port where the RpcDaemon is located (e.g.: 8545)")
