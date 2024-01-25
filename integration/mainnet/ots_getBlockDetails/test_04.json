@@ -1,0 +1,50 @@
+[
+    {
+        "test": {
+           "reference": "https://etherscan.io/block/12500000",
+           "description": "get_block_details before the merge"
+        },
+        "request":{
+            "jsonrpc":"2.0",
+            "method":"ots_getBlockDetails",
+            "params":["0xBEBC20"],
+            "id":1
+        },
+        "response":{
+          "jsonrpc":"2.0",
+          "id":1,
+         "result": {
+           "block": {
+               "difficulty": "0x1c768984b0fd5f",
+               "extraData": "0x65746865726d696e652d6575726f70652d7765737433",
+               "gasLimit": "0xe4a824",
+               "gasUsed": "0xe49123",
+               "hash": "0x707c29059852a04af20fb58ffc58404d426ad2bce3dcd583f6a5fef1750c11c0",
+               "logsBloom": null,
+               "miner": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+               "mixHash": "0xdd18cd7f495c6084fe4ac49626ff06481a9b9e693e10fabaff7c3337cd309c79",
+               "nonce": "0xf2ff08440a19cae5",
+               "number": "0xbebc20",
+               "parentHash": "0xea82ec4ef42f45c3ce4ae350f75c96a889ab7d1384dfb051ef4de83e6d585872",
+               "receiptsRoot": "0x8ca33b5c260262f20f33e9fa7309f3857b343802af4b804ee514d7fb30ca6782",
+               "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+               "size": "0xb8fb",
+               "stateRoot": "0x023aef224c6652843a84dfe302645e7315e6681e31dc1d702b90f53f3050f1a9",
+               "timestamp": "0x60ac3416",
+               "totalDifficulty": "0x556c5825ec9cc39d0c0",
+               "transactionCount": 130,
+               "transactionsRoot": "0xb3960f0483b3e4d3614213f3e694eafdad8d35979a7457a600668223c19947b8",
+               "uncles": []
+          },
+          "issuance": {
+               "blockReward": "0x1bc16d674ec80000",
+               "issuance": "0x1bc16d674ec80000",
+               "uncleReward": "0x0"
+          },
+          "totalFees": "0x898e14b078e3440"
+        }
+
+        }
+    }
+]
+

@@ -1,0 +1,50 @@
+[
+    {
+        "test": {
+           "reference": "https://etherscan.io/block/15500000",
+           "description": "get_block_details before the merge"
+        },
+        "request":{
+            "jsonrpc":"2.0",
+            "method":"ots_getBlockDetails",
+            "params":["0xEC82E0"],
+            "id":1
+        },
+        "response":{
+          "jsonrpc":"2.0",
+          "id":1,
+          "result": {
+            "block": {
+               "baseFeePerGas": "0x4114a606b",
+               "difficulty": "0x2b3179315e9b6c",
+               "extraData": "0x6575726f70652d6e6f727468312d34",
+               "gasLimit": "0x1ca35b5",
+               "gasUsed": "0x14e311d",
+               "hash": "0xf83fa3181ce8653a2c171b9d6c41329aa8a9a6faeeb589b9b58e54fffb8a7722",
+               "logsBloom": null,
+               "miner": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+               "mixHash": "0xa2c1299da603332ac401b23b43c200af94c3f6813145e0034475667a07ba7012",
+               "nonce": "0x2261d80138792f6a",
+               "number": "0xec82e0",
+               "parentHash": "0xf1c6c4b4c58b24e520c263e9b10df6b2d5588ab037500ae4cf175e4607340163",
+               "receiptsRoot": "0x2f7b1c73638345f440607f74fc0a5b61fe34c1cbaf347600bf783297b882c956",
+               "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+               "size": "0xec34",
+               "stateRoot": "0x0f153d9ab70102c6c8a32ea4205f4df036a60c53507e5f5976d61a73f3975789",
+               "timestamp": "0x631a995e",
+               "totalDifficulty": "0xc5807a11c56f7d41a6b",
+               "transactionCount": 285,
+               "transactionsRoot": "0x6f8003a1f501e1d46019d9d58cdcefe85529a6d236a9cdce4725acaf47520e4f",
+               "uncles": []
+            },
+          "issuance": {
+               "blockReward": "0x1bc16d674ec80000",
+               "issuance": "0x1bc16d674ec80000",
+               "uncleReward": "0x0"
+          },
+          "totalFees": "0x6046fb3ca4285ed"
+          }
+        }
+    }
+]
+
