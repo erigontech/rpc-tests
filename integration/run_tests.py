@@ -12,6 +12,7 @@ import tarfile
 import time
 import pytz
 import jwt
+from websocket import create_connection
 
 SILK = "silk"
 RPCDAEMON = "rpcdaemon"
@@ -267,17 +268,18 @@ def is_message_to_be_converted(test_name, net: str):
     return 0
 
 
-def run_shell_command(net: str, command: str, command1: str, expected_response: str, verbose_level: int, exit_on_fail: bool,
+def run_shell_command(net: str, result, command, result1, command1: str, expected_response: str, verbose_level: int, exit_on_fail: bool,
                       output_dir: str, silk_file: str,
                       exp_rsp_file: str, diff_file: str, dump_output, json_file: str, test_number):
     """ Run the specified command as shell. If exact result or error don't care, they are null but present in expected_response. """
 
-    result = os.popen(command).read()
-    if verbose_level > 1:
-        print("First request/response:")
-        print(command)
-        print(len(result))
-        print(result)
+    if len(result) == 0:    # if result not provided execute command and retrive it
+        result = os.popen(command).read()
+        if verbose_level > 1:
+            print("First request/response:")
+            print(command)
+            print(len(result))
+            print(result)
 
     if len(result) == 0:
         if verbose_level:
@@ -304,15 +306,16 @@ def run_shell_command(net: str, command: str, command1: str, expected_response: 
             sys.exit(1)
         return 1
 
-    if command1 != "":
-        result1 = os.popen(command1).read()
+    if command1 != "" or result1 != "":
+        if result1 == "":   # if result is not provided retrive it
+            result1 = os.popen(command1).read()
         if verbose_level > 1:
             print("Second request/response:")
             print(command1)
             print(len(result1))
             print(result1)
 
-        if len(result1) == 0:
+        if len(result1) == 0:   # is error
             if verbose_level:
                 print("Failed (json1 response zero length)")
                 return 1
@@ -463,7 +466,7 @@ def run_shell_command(net: str, command: str, command1: str, expected_response: 
 def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_level: int, daemon_under_test: str, exit_on_fail: bool,
               verify_with_daemon: bool, daemon_as_reference: str,
               dump_output: bool, test_number, infura_url: str, daemon_on_host: str, daemon_on_port: int,
-              jwt_secret: str, websocket_as_signalling: bool):
+              jwt_secret: str, websocket_as_transport: bool):
     """ Run integration tests. """
     json_filename = test_dir + json_file
     ext = os.path.splitext(json_file)[1]
@@ -503,11 +506,18 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
             encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
             jwt_auth = "-H \"Authorization: Bearer " + str(encoded) + "\" "
         if verify_with_daemon == 0:
-            if websocket_as_signalling == 0:
+            if websocket_as_transport == 0:
+                result = ""
                 cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
             else:
-                cmd = "echo '" + request_dumps + "' | websocat -B 1000000000 ws://" + target
+                ws_target = "ws://" + target
+                http_header=["Authorization: Bearer " + str(encoded)]
+                web_service = create_connection(ws_target, header=http_header)
+                web_service.send(request_dumps)
+                result = web_service.recv()
+                cmd = ""
             cmd1 = ""
+            result1=""
             output_api_filename = output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
             response = json_rpc["response"]
@@ -517,14 +527,26 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
         else:
             target = get_target(SILK, method, infura_url, daemon_on_host, daemon_on_port)
             target1 = get_target(daemon_as_reference, method, infura_url, daemon_on_host, daemon_on_port)
-            if websocket_as_signalling == 0:
+            if websocket_as_transport == 0:
+                result = ""
                 cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
             else:
-                cmd = "echo '" + request_dumps + "' | websocat -B 1000000000 ws://" + target
-            if websocket_as_signalling == 0:
+                cmd=""
+                ws_target = "ws://" + target
+                http_header=["Authorization: Bearer " + str(encoded)]
+                web_service = create_connection(ws_target, header=http_header)
+                web_service.send(request_dumps)
+                result = web_service.recv()
+            if websocket_as_transport == 0:
+                result1 = ""
                 cmd1 = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target1
             else:
-                cmd1 = "echo '" + request_dumps + "' | websocat -B 1000000000 ws://" + target1
+                cmd1=""
+                ws_target = "ws://" + target1
+                http_header=["Authorization: Bearer " + str(encoded)]
+                web_service = create_connection(ws_target, header=http_header)
+                web_service.send(request_dumps)
+                result1 = web_service.recv()
             output_api_filename = output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
             response = ""
@@ -534,7 +556,9 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
 
         return run_shell_command(
             net,
+            result,
             cmd,
+            result1,
             cmd1,
             response,
             verbose_level,
@@ -606,7 +630,7 @@ def main(argv):
     start_test = ""
     jwt_secret = ""
     display_only_fail = 0
-    websocket_as_signalling = 0
+    websocket_as_transport = 0
 
     try:
         opts, _ = getopt.getopt(argv[1:], "whfrcv:t:l:a:di:b:ox:X:H:k:s:p:")
@@ -642,7 +666,7 @@ def main(argv):
             elif option == "-o":
                 dump_output = 1
             elif option == "-w":
-                websocket_as_signalling = 1
+                websocket_as_transport = 1
             elif option == "-b":
                 net = optarg
                 json_dir = "./" + net + "/"
@@ -712,7 +736,7 @@ def main(argv):
                                 ret = run_tests(net, json_dir, output_dir, test_file, verbose_level, daemon_under_test,
                                                 exit_on_fail, verify_with_daemon, daemon_as_reference,
                                                 dump_output, global_test_number, infura_url, daemon_on_host,
-                                                daemon_on_port, jwt_secret, websocket_as_signalling)
+                                                daemon_on_port, jwt_secret, websocket_as_transport)
                                 if ret == 0:
                                     success_tests = success_tests + 1
                                 else:
