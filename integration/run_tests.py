@@ -6,9 +6,7 @@ import getopt
 import gzip
 import json
 import os
-import shlex
 import shutil
-import subprocess
 import sys
 import tarfile
 import time
@@ -275,9 +273,24 @@ def run_shell_command(net: str, command: str, command1: str, expected_response: 
     """ Run the specified command as shell. If exact result or error don't care, they are null but present in expected_response. """
 
     result = os.popen(command).read()
-    result= result.strip('\n')
     if verbose_level > 1:
+        print("First request/response:")
+        print(command)
+        print(len(result))
         print(result)
+
+    if len(result) == 0:
+        if verbose_level:
+            print("Failed (json response zero length)")
+            return 1
+        file = json_file.ljust(60)
+        print(f"{test_number:03d}. {file} Failed (json response is zero length)")
+        if exit_on_fail:
+            print("TEST ABORTED!")
+            sys.exit(1)
+        return 1
+    result= result.strip('\n')
+
     try:
         response = json.loads(result)
     except json.decoder.JSONDecodeError:
@@ -292,17 +305,34 @@ def run_shell_command(net: str, command: str, command1: str, expected_response: 
         return 1
 
     if command1 != "":
-        result = os.popen(command1).read()
-        result = result.strip('\n')
-        try:
-            expected_response = json.loads(result)
-        except json.decoder.JSONDecodeError:
+        result1 = os.popen(command1).read()
+        if verbose_level > 1:
+            print("Second request/response:")
+            print(command1)
+            print(len(result1))
+            print(result1)
+
+        if len(result1) == 0:
             if verbose_level:
-                print("Failed (bad json format on expected rsp)")
-                print(result)
+                print("Failed (json1 response zero length)")
                 return 1
             file = json_file.ljust(60)
-            print(f"{test_number:03d}. {file} Failed (bad json format on expected rsp)")
+            print(f"{test_number:03d}. {file} Failed (json1 response is zero length)")
+            if exit_on_fail:
+                print("TEST ABORTED!")
+                sys.exit(1)
+            return 1
+
+        result1 = result1.strip('\n')
+        try:
+            expected_response = json.loads(result1)
+        except json.decoder.JSONDecodeError:
+            if verbose_level:
+                print("Failed (bad json1 format on expected rsp)")
+                print(result1)
+                return 1
+            file = json_file.ljust(60)
+            print(f"{test_number:03d}. {file} Failed (bad json1 format on expected rsp)")
             if exit_on_fail:
                 print("TEST ABORTED!")
                 sys.exit(1)
@@ -494,7 +524,7 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
             if websocket_as_signalling == 0:
                 cmd1 = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target1
             else:
-                cmd = "echo '" + request_dumps + "' | websocat -B 1000000000 ws://" + target1
+                cmd1 = "echo '" + request_dumps + "' | websocat -B 1000000000 ws://" + target1
             output_api_filename = output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
             response = ""
@@ -526,7 +556,7 @@ def usage(argv):
     """
     print("Usage: " + argv[0] + ":")
     print("")
-    print("Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon)
+    print("Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon")
     print("")
     print("-h print this help")
     print("-f shows only failed tests (not Skipped)")
