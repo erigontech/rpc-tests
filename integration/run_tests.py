@@ -512,7 +512,12 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
             else:
                 ws_target = "ws://" + target
                 http_header=["Authorization: Bearer " + str(encoded)]
-                web_service = create_connection(ws_target, header=http_header)
+                try:
+                    web_service = create_connection(ws_target, header=http_header)
+                except ConnectionRefusedError:
+                    print("\nConnection to server failed")
+                    print("TEST ABORTED!")
+                    sys.exit(1)
                 web_service.send(request_dumps)
                 result = web_service.recv()
                 cmd = ""
@@ -534,7 +539,12 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
                 cmd=""
                 ws_target = "ws://" + target
                 http_header=["Authorization: Bearer " + str(encoded)]
-                web_service = create_connection(ws_target, header=http_header)
+                try:
+                    web_service = create_connection(ws_target, header=http_header)
+                except ConnectionRefusedError:
+                    print("\nConnection to server failed")
+                    print("TEST ABORTED!")
+                    sys.exit(1)
                 web_service.send(request_dumps)
                 result = web_service.recv()
             if websocket_as_transport == 0:
@@ -544,7 +554,12 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
                 cmd1=""
                 ws_target = "ws://" + target1
                 http_header=["Authorization: Bearer " + str(encoded)]
-                web_service = create_connection(ws_target, header=http_header)
+                try:
+                    web_service = create_connection(ws_target, header=http_header)
+                except ConnectionRefusedError:
+                    print("\nConnection to server failed")
+                    print("TEST ABORTED!")
+                    sys.exit(1)
                 web_service.send(request_dumps)
                 result1 = web_service.recv()
             output_api_filename = output_dir + json_file[:-4]
