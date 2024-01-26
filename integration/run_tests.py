@@ -501,6 +501,7 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
         target = get_target(daemon_under_test, method, infura_url, daemon_on_host, daemon_on_port)
         if jwt_secret == "":
             jwt_auth = ""
+            encoded = ""
         else:
             byte_array_secret = bytes.fromhex(jwt_secret)
             encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
@@ -511,10 +512,11 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
                 cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
             else:
                 ws_target = "ws://" + target
-                http_header=["Authorization: Bearer " + str(encoded)]
+                if encoded != "":
+                    http_header=["Authorization: Bearer " + str(encoded)]
                 try:
                     web_service = create_connection(ws_target, header=http_header)
-                except ConnectionRefusedError:
+                except:
                     print("\nConnection to server failed")
                     print("TEST ABORTED!")
                     sys.exit(1)
@@ -537,11 +539,13 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
                 cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
             else:
                 cmd=""
+                http_header=""
                 ws_target = "ws://" + target
-                http_header=["Authorization: Bearer " + str(encoded)]
+                if encoded != "":
+                    http_header=["Authorization: Bearer " + str(encoded)]
                 try:
                     web_service = create_connection(ws_target, header=http_header)
-                except ConnectionRefusedError:
+                except:
                     print("\nConnection to server failed")
                     print("TEST ABORTED!")
                     sys.exit(1)
@@ -553,10 +557,11 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
             else:
                 cmd1=""
                 ws_target = "ws://" + target1
-                http_header=["Authorization: Bearer " + str(encoded)]
+                if encoded != "":
+                    http_header=["Authorization: Bearer " + str(encoded)]
                 try:
                     web_service = create_connection(ws_target, header=http_header)
-                except ConnectionRefusedError:
+                except:
                     print("\nConnection to server failed")
                     print("TEST ABORTED!")
                     sys.exit(1)
