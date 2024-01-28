@@ -109,6 +109,45 @@ tests_message_lower_case = [
 ]
 
 
+#
+# usage
+#
+def usage(argv):
+    """ Print script usage
+    """
+    print("Usage: " + argv[0] + ":")
+    print("")
+    print("Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon")
+    print("")
+    print("-h,--help: print this help")
+    print("-f,--displayOnlyFail: shows only failed tests (not Skipped)")
+    print("-v,--verbose: <verbose_level>")
+    print("-c,--continue: runs all tests even if one test fails [default: exit at first test fail]")
+    print("-l,--runLoop: <number of loops>")
+    print("-b,--blockchain: [default: goerly]")
+    print("-s,--startTest: <start_test_number>: run tests starting from input")
+    print("-t,--runTest: <test_number>: run single test")
+    print("-d,--compareServer: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
+    print("-w,--websocket: use websocket")
+    print("-k,--authToken: authentication token file")
+    print("-a,--testApi: <test_apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)")
+    print("-x,--excludeApi: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
+    print("-X,--excludeTest: exclude test list (e.g.: 18,22)")
+    print("-o,--dumpJson: dump response")
+    print("-H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)")
+    print("-p,--port: port where the RpcDaemon is located (e.g.: 8545)")
+    print("-r,--testRpcdaemon: connect to Erigon/RpcDaemon [default: connect to Silkrpc] ")
+    print("-i,--verifyWithInfura: <infura_url> send any request also to the Infura API endpoint as reference")
+
+def get_target_name(target_type: str):
+    """ Return name server """
+    if target_type == SILK:
+        return "Silk"
+    if target_type == RPCDAEMON:
+        return "RpcDaemon"
+    if target_type == INFURA:
+        return "Infura"
+    return "Undef"
 
 def get_target(target_type: str, method: str, infura_url: str, host: str, port: int = 0):
     """ determine target
@@ -193,17 +232,17 @@ def modified_str_from_file(filer, filew, matched_string):
                     output_file.write(line)
 
 
-def is_skipped(api_name, net, exclude_api_list, exclude_test_list, api_file: str, req_test, verify_with_daemon,
+def is_skipped(api_name, net, exclude_api_list, exclude_test_list, test_name: str, req_test_number, verify_with_daemon,
                global_test_number):
     """ determine if test must be skipped
     """
     api_full_name = net + "/" + api_name
-    api_full_test_name = net + "/" + api_file
-    if req_test == -1 and verify_with_daemon == 1:
+    api_full_test_name = net + "/" + test_name
+    if req_test_number == -1 and verify_with_daemon == 1:
         for curr_test_name in api_not_compared:
             if curr_test_name == api_full_name:
                 return 1
-    if req_test == -1 and verify_with_daemon == 1:
+    if req_test_number == -1 and verify_with_daemon == 1:
         for curr_test in tests_not_compared:
             if curr_test == api_full_test_name:
                 return 1
@@ -219,12 +258,12 @@ def is_skipped(api_name, net, exclude_api_list, exclude_test_list, api_file: str
                 return 1
     return 0
 
-def is_testing_apis(api_name, requested_apis: str):
-    """ determine if api_name is in requested_apis
+def is_testing_apis(api_name, testing_apis: str):
+    """ determine if api_name is in testing_apis
     """
-    if requested_apis == "":
+    if testing_apis == "":
         return 1
-    tokenize_list = requested_apis.split(",")
+    tokenize_list = testing_apis.split(",")
     for test in tokenize_list:
         if test in api_name:
             return 1
@@ -267,191 +306,161 @@ def is_message_to_be_converted(test_name, net: str):
             return 1
     return 0
 
+class Config:
+    # pylint: disable=too-many-instance-attributes
+    """ This class manage User options params """
 
-def run_shell_command(net: str, result, command, result1, command1: str, expected_response: str, verbose_level: int, exit_on_fail: bool,
-                      output_dir: str, silk_file: str,
-                      exp_rsp_file: str, diff_file: str, dump_output, json_file: str, test_number):
-    """ Run the specified command as shell. If exact result or error don't care, they are null but present in expected_response. """
+    def __init__(self):
+        """ init the configuration params """
+        self.exit_on_fail = True
+        self.daemon_under_test = SILK
+        self.daemon_as_reference = RPCDAEMON
+        self.loop_number = 1
+        self.verbose_level = 0
+        self.req_test_number = -1
+        self.force_dump_jsons = False
+        self.infura_url = ""
+        self.daemon_on_host = "localhost"
+        self.daemon_on_port = 0
+        self.testing_apis = ""
+        self.verify_with_daemon = False
+        self.net = "goerly"
+        self.json_dir = "./" + self.net + "/"
+        self.results_dir = "results"
+        self.output_dir = self.json_dir + self.results_dir + "/"
+        self.exclude_api_list = ""
+        self.exclude_test_list = ""
+        self.start_test = ""
+        self.jwt_secret = ""
+        self.display_only_fail = 0
+        self.websocket_as_transport = 0
 
-    if len(result) == 0:    # if result not provided execute command and retrive it
-        result = os.popen(command).read()
-        if verbose_level > 1:
-            print("First request/response:")
-            print(command)
-            print(len(result))
-            print(result)
+    def select_user_options(self, argv):
+        """ process user command """
+        try:
+            opts, _ = getopt.getopt(argv[1:], "whfrcv:t:l:a:di:b:ox:X:H:k:s:p:",
+                      ['help', 'continue', 'testRpcdaemon', 'verifyWithInfura', 'host=',
+                       'port=', 'displayOnlyFail', 'verbose=', 'runTest=', 'startTest=',
+                       'testApi=', 'runLoop=', 'compareServer', 'authToken=', 'blockchain=',
+                       'websocket', 'excludeApi=', 'excludeTest=', 'dumpJson'])
+            for option, optarg in opts:
+                if option in ("-h", "--help"):
+                    usage(argv)
+                    sys.exit(-1)
+                elif option in ("-c", "--continue"):
+                    self.exit_on_fail = 0
+                elif option in ("-r", "--testRpcdaemon"):
+                    if self.verify_with_daemon == 1:
+                        print ("Error on options: -r is not compatible with -d")
+                        usage(argv)
+                        sys.exit(-1)
+                    self.daemon_under_test = RPCDAEMON
+                elif option in ("-i", "--verifyWithInfura"):
+                    self.daemon_as_reference = INFURA
+                    self.infura_url = optarg
+                elif option in ("-H", "--host"):
+                    self.daemon_on_host = optarg
+                elif option in ("-p", "--port"):
+                    self.daemon_on_port = int(optarg)
+                elif option in ("-f", "--displayOnlyFail"):
+                    self.display_only_fail = 1
+                elif option in ("-v", "--verbose"):
+                    self.verbose_level = int(optarg)
+                elif option in ("-t", "--runTest"):
+                    if self.exclude_test_list != "" or self.exclude_api_list != "":
+                        print ("Error on options: -t is not compatible with -x or -X")
+                        usage(argv)
+                        sys.exit(-1)
+                    self.req_test_number = int(optarg)
+                elif option in ("-s", "--startTest"):
+                    self.start_test = int(optarg)
+                elif option in ("-a", "--testApi"):
+                    if self.exclude_test_list != "" or self.exclude_api_list != "":
+                        print ("Error in options: -a is not compatible with -x or -X")
+                        usage(argv)
+                        sys.exit(-1)
+                    self.testing_apis = optarg
+                elif option in ("-l", "--runLoop"):
+                    self.loop_number = int(optarg)
+                elif option in ("-d", "--compareServer"):
+                    if self.daemon_under_test != SILK:
+                        print ("Error in options: -d is not compatible with -r")
+                        usage(argv)
+                        sys.exit(-1)
+                    self.verify_with_daemon = 1
+                elif option in ("-o", "--dumpJson"):
+                    self.force_dump_jsons = 1
+                elif option in ("-w", "--websocket"):
+                    self.websocket_as_transport = 1
+                elif option in ("-b", "--blockchain"):
+                    self.net = optarg
+                    self.json_dir = "./" + self.net + "/"
+                    self.output_dir = self.json_dir + self.results_dir + "/"
+                elif option in ("-x", "--excludeApi"):
+                    if self.req_test_number != -1 or self.testing_apis != "":
+                        print ("Error in options: -x is not compatible with -a or -t")
+                        usage(argv)
+                        sys.exit(-1)
+                    self.exclude_api_list = optarg
+                elif option in ("-X", "--excludeTest"):
+                    if self.req_test_number != -1 or self.testing_apis != "":
+                        print ("Error in options: -X is not compatible with -a or -t")
+                        usage(argv)
+                        sys.exit(-1)
+                    self.exclude_test_list = optarg
+                elif option in ("-k", "--authToken"):
+                    self.jwt_secret = get_jwt_secret(optarg)
+                    if self.jwt_secret == "":
+                        print("secret file not found")
+                        sys.exit(-1)
+                else:
+                    print ("Error option not managed:",option)
+                    usage(argv)
+                    sys.exit(-1)
+
+        except getopt.GetoptError as err:
+            # print help information and exit:
+            print(err)
+            usage(argv)
+            sys.exit(-1)
+
+        if os.path.exists(self.output_dir):
+            shutil.rmtree(self.output_dir)
+
+def get_json_from_response(msg, verbose_level: int, json_file, result: str, test_number, exit_on_fail: int):
+    """ retrieve json from response """
+    if verbose_level > 1:
+        print(msg + " :[" + result + "]")
 
     if len(result) == 0:
-        if verbose_level:
-            print("Failed (json response zero length)")
-            return 1
         file = json_file.ljust(60)
-        print(f"{test_number:03d}. {file} Failed (json response is zero length)")
+        print(f"{test_number:03d}. {file} Failed [" + msg + "]  (json response is zero length)")
+        if verbose_level:
+            print (msg)
+            print("Failed (json response zero length)")
+            print (result)
         if exit_on_fail:
             print("TEST ABORTED!")
             sys.exit(1)
-        return 1
-    result= result.strip('\n')
-
+        return None
     try:
         response = json.loads(result)
     except json.decoder.JSONDecodeError:
-        if verbose_level:
-            print("Failed (bad json format on expected rsp)")
-            return 1
         file = json_file.ljust(60)
-        print(f"{test_number:03d}. {file} Failed (bad json format on expected rsp)")
+        print(f"{test_number:03d}. {file} Failed [" + msg + "]  (bad json format)")
+        if verbose_level:
+            print (msg)
+            print("Failed (bad json format)")
+            print (result)
         if exit_on_fail:
             print("TEST ABORTED!")
             sys.exit(1)
-        return 1
+        return None
+    return response
 
-    if command1 != "" or result1 != "":
-        if result1 == "":   # if result is not provided retrive it
-            result1 = os.popen(command1).read()
-        if verbose_level > 1:
-            print("Second request/response:")
-            print(command1)
-            print(len(result1))
-            print(result1)
-
-        if len(result1) == 0:   # is error
-            if verbose_level:
-                print("Failed (json1 response zero length)")
-                return 1
-            file = json_file.ljust(60)
-            print(f"{test_number:03d}. {file} Failed (json1 response is zero length)")
-            if exit_on_fail:
-                print("TEST ABORTED!")
-                sys.exit(1)
-            return 1
-
-        result1 = result1.strip('\n')
-        try:
-            expected_response = json.loads(result1)
-        except json.decoder.JSONDecodeError:
-            if verbose_level:
-                print("Failed (bad json1 format on expected rsp)")
-                print(result1)
-                return 1
-            file = json_file.ljust(60)
-            print(f"{test_number:03d}. {file} Failed (bad json1 format on expected rsp)")
-            if exit_on_fail:
-                print("TEST ABORTED!")
-                sys.exit(1)
-            return 1
-
-    if response != expected_response:
-        if "result" in response and "result" in expected_response and expected_response["result"] is None:
-            # response and expected_response are different but don't care
-            if verbose_level:
-                print("OK")
-            if dump_output:
-                if silk_file != "" and os.path.exists(output_dir) == 0:
-                    os.mkdir(output_dir)
-                if silk_file != "":
-                    with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(response, indent=6, sort_keys=True))
-                if exp_rsp_file != "":
-                    with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
-            return 0
-        if "error" in response and "error" in expected_response and expected_response["error"] is None:
-            # response and expected_response are different but don't care
-            if verbose_level:
-                print("OK")
-            if dump_output:
-                if silk_file != "" and os.path.exists(output_dir) == 0:
-                    os.mkdir(output_dir)
-                if silk_file != "":
-                    with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(response, indent=6, sort_keys=True))
-                if exp_rsp_file != "":
-                    with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
-            return 0
-        if "error" not in expected_response and "result" not in expected_response:
-            # response and expected_response are different but don't care
-            if verbose_level:
-                print("OK")
-            if dump_output:
-                if silk_file != "" and os.path.exists(output_dir) == 0:
-                    os.mkdir(output_dir)
-                if silk_file != "":
-                    with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(response, indent=6, sort_keys=True))
-                if exp_rsp_file != "":
-                    with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                        json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
-            return 0
-        if silk_file != "" and os.path.exists(output_dir) == 0:
-            os.mkdir(output_dir)
-        if silk_file != "":
-            with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                json_file_ptr.write(json.dumps(response, indent=5, sort_keys=True))
-        if exp_rsp_file != "":
-            with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
-
-        temp_file1 = "/tmp/silk_lower_case"
-        temp_file2 = "/tmp/rpc_lower_case"
-
-        if "error" in response:
-            to_lower_case(exp_rsp_file, temp_file2)
-            to_lower_case(silk_file, temp_file1)
-        else:
-            cmd = "cp " +  silk_file  + " " + temp_file1
-            os.system(cmd)
-            cmd = "cp " +  exp_rsp_file  + " " + temp_file2
-            os.system(cmd)
-
-        if is_not_compared_result(json_file, net):
-            removed_line_string = "error"
-            replace_str_from_file(exp_rsp_file, temp_file1, removed_line_string)
-            replace_str_from_file(silk_file, temp_file2, removed_line_string)
-            cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-        elif is_not_compared_message(json_file, net):
-            removed_line_string = "message"
-            replace_message(exp_rsp_file, temp_file1, removed_line_string)
-            replace_message(silk_file, temp_file2, removed_line_string)
-            cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-        elif is_message_to_be_converted(json_file, net):
-            modified_string = "message"
-            modified_str_from_file(exp_rsp_file, temp_file1, modified_string)
-            modified_str_from_file(silk_file, temp_file2, modified_string)
-            cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-        elif is_big_json(json_file, net):
-            cmd = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file
-        else:
-            cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-        os.system(cmd)
-        diff_file_size = os.stat(diff_file).st_size
-        if diff_file_size != 0:
-            if verbose_level:
-                print("Failed")
-            else:
-                file = json_file.ljust(60)
-                print(f"{test_number:03d}. {file} Failed")
-            if exit_on_fail:
-                print("TEST ABORTED!")
-                sys.exit(1)
-            return 1
-        if verbose_level:
-            print("OK")
-        if os.path.exists(temp_file1):
-            os.remove(temp_file1)
-        if os.path.exists(temp_file2):
-            os.remove(temp_file2)
-        os.remove(silk_file)
-        os.remove(exp_rsp_file)
-        os.remove(diff_file)
-        if not os.listdir(output_dir):
-            os.rmdir(output_dir)
-    else:
-        if verbose_level:
-            print("OK")
-
-    if dump_output:
+def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expected_response: str):
+    """ dump jsons on result dir """
+    if dump_json:
         if silk_file != "" and os.path.exists(output_dir) == 0:
             os.mkdir(output_dir)
         if silk_file != "":
@@ -460,12 +469,137 @@ def run_shell_command(net: str, result, command, result1, command1: str, expecte
         if exp_rsp_file != "":
             with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
                 json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
+
+def execute_request (websocket_as_transport: bool, jwt_auth, encoded, request_dumps, target: str):
+    """ execute request on server identified by target """
+    if websocket_as_transport == 0: # use http
+        cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
+        result = os.popen(cmd).read()
+    else:
+        ws_target = "ws://" + target # use websocket
+        if encoded != "":
+            http_header=["Authorization: Bearer " + str(encoded)]
+        try:
+            web_service = create_connection(ws_target, header=http_header)
+            web_service.send(request_dumps)
+            result = web_service.recv()
+        except:
+            print("\nConnection to server failed")
+            print("TEST ABORTED!")
+            sys.exit(1)
+    return result
+
+def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: str, verbose_level, test_number, exit_on_fail: int):
+    """ Compare jsos response. """
+    temp_file1 = "/tmp/silk_lower_case"
+    temp_file2 = "/tmp/rpc_lower_case"
+
+    if "error" in response:
+        to_lower_case(silk_file, temp_file1)
+        to_lower_case(exp_rsp_file, temp_file2)
+    else:
+        cmd = "cp " +  silk_file  + " " + temp_file1
+        os.system(cmd)
+        cmd = "cp " +  exp_rsp_file  + " " + temp_file2
+        os.system(cmd)
+
+    if is_not_compared_result(json_file, net):
+        removed_line_string = "error"
+        replace_str_from_file(exp_rsp_file, temp_file1, removed_line_string)
+        replace_str_from_file(silk_file, temp_file2, removed_line_string)
+        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
+    elif is_not_compared_message(json_file, net):
+        removed_line_string = "message"
+        replace_message(exp_rsp_file, temp_file1, removed_line_string)
+        replace_message(silk_file, temp_file2, removed_line_string)
+        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
+    elif is_message_to_be_converted(json_file, net):
+        modified_string = "message"
+        modified_str_from_file(exp_rsp_file, temp_file1, modified_string)
+        modified_str_from_file(silk_file, temp_file2, modified_string)
+        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
+#        elif is_big_json(json_file, net):
+#            cmd = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file
+    else:
+        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
+    os.system(cmd)
+    diff_file_size = os.stat(diff_file).st_size
+    if diff_file_size != 0:
+        file = json_file.ljust(60)
+        print(f"{test_number:03d}. {file} Failed")
+        if verbose_level:
+            print("Failed")
+        if exit_on_fail:
+            print("TEST ABORTED!")
+            sys.exit(1)
+        return 1
+    if verbose_level:
+        print("OK")
+
+    # cleanup
+    if os.path.exists(temp_file1):
+        os.remove(temp_file1)
+    if os.path.exists(temp_file2):
+        os.remove(temp_file2)
+    return 1
+
+def process_response(net, result, result1, response_in_file: str, verbose_level: int, exit_on_fail: bool,
+                      output_dir: str, silk_file: str,
+                      exp_rsp_file: str, diff_file: str, force_dump_jsons, json_file: str, test_number: int, daemon_under_test, daemon_as_reference: str):
+    """ Process the response If exact result or error don't care, they are null but present in expected_response. """
+
+    response = get_json_from_response(daemon_under_test, verbose_level, json_file, result, test_number, exit_on_fail)
+    if response is None:
+        return 0
+
+    if response_in_file is None:
+        expected_response = get_json_from_response(daemon_as_reference, verbose_level, json_file, result1, test_number, exit_on_fail)
+        if expected_response is None:
+            return 0
+    else:
+        expected_response = response_in_file
+
+    if response != expected_response:
+        if "result" in response and "result" in expected_response and expected_response["result"] is None:
+            # response and expected_response are different but don't care
+            if verbose_level:
+                print("OK")
+            dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
+            return 0
+        if "error" in response and "error" in expected_response and expected_response["error"] is None:
+            # response and expected_response are different but don't care
+            if verbose_level:
+                print("OK")
+            dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir,
+                       response, expected_response)
+            return 0
+        if "error" not in expected_response and "result" not in expected_response:
+            # response and expected_response are different but don't care
+            if verbose_level:
+                print("OK")
+            dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir,
+                       response, expected_response)
+            return 0
+        dump_jsons(True, silk_file, exp_rsp_file, output_dir, response, expected_response)
+
+        compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file, verbose_level, test_number, exit_on_fail)
+        #cleanup
+        os.remove(silk_file)
+        os.remove(exp_rsp_file)
+        os.remove(diff_file)
+        if not os.listdir(output_dir):
+            os.rmdir(output_dir)
+
+    else:
+        if verbose_level:
+            print("OK")
+
+    dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
     return 0
 
-
-def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_level: int, daemon_under_test: str, exit_on_fail: bool,
+def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_level: int, daemon_under_test: str, exit_on_fail: bool,
               verify_with_daemon: bool, daemon_as_reference: str,
-              dump_output: bool, test_number, infura_url: str, daemon_on_host: str, daemon_on_port: int,
+              force_dump_jsons: bool, test_number, infura_url: str, daemon_on_host: str, daemon_on_port: int,
               jwt_secret: str, websocket_as_transport: bool):
     """ Run integration tests. """
     json_filename = test_dir + json_file
@@ -504,124 +638,51 @@ def run_tests(net: str, test_dir: str, output_dir: str, json_file: str, verbose_
             encoded = ""
         else:
             byte_array_secret = bytes.fromhex(jwt_secret)
-            encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
+            encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret,
+                                      algorithm="HS256")
             jwt_auth = "-H \"Authorization: Bearer " + str(encoded) + "\" "
-        if verify_with_daemon == 0:
-            if websocket_as_transport == 0:
-                result = ""
-                cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
-            else:
-                ws_target = "ws://" + target
-                if encoded != "":
-                    http_header=["Authorization: Bearer " + str(encoded)]
-                try:
-                    web_service = create_connection(ws_target, header=http_header)
-                except:
-                    print("\nConnection to server failed")
-                    print("TEST ABORTED!")
-                    sys.exit(1)
-                web_service.send(request_dumps)
-                result = web_service.recv()
-                cmd = ""
-            cmd1 = ""
-            result1=""
+        if verify_with_daemon == 0: # compare daemon result with file
+            result = execute_request (websocket_as_transport, jwt_auth, encoded,
+                                      request_dumps, target)
+            result1 = ""
+            response_in_file = json_rpc["response"]
+
             output_api_filename = output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
-            response = json_rpc["response"]
-            silk_file = output_api_filename + "-response.json"
-            exp_rsp_file = output_api_filename + "-expResponse.json"
-            diff_file = output_api_filename + "-diff.json"
-        else:
-            target = get_target(SILK, method, infura_url, daemon_on_host, daemon_on_port)
-            target1 = get_target(daemon_as_reference, method, infura_url, daemon_on_host, daemon_on_port)
-            if websocket_as_transport == 0:
-                result = ""
-                cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
-            else:
-                cmd=""
-                http_header=""
-                ws_target = "ws://" + target
-                if encoded != "":
-                    http_header=["Authorization: Bearer " + str(encoded)]
-                try:
-                    web_service = create_connection(ws_target, header=http_header)
-                except:
-                    print("\nConnection to server failed")
-                    print("TEST ABORTED!")
-                    sys.exit(1)
-                web_service.send(request_dumps)
-                result = web_service.recv()
-            if websocket_as_transport == 0:
-                result1 = ""
-                cmd1 = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target1
-            else:
-                cmd1=""
-                ws_target = "ws://" + target1
-                if encoded != "":
-                    http_header=["Authorization: Bearer " + str(encoded)]
-                try:
-                    web_service = create_connection(ws_target, header=http_header)
-                except:
-                    print("\nConnection to server failed")
-                    print("TEST ABORTED!")
-                    sys.exit(1)
-                web_service.send(request_dumps)
-                result1 = web_service.recv()
-            output_api_filename = output_dir + json_file[:-4]
-            output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
-            response = ""
-            silk_file = output_api_filename + get_json_filename_ext(SILK)
-            exp_rsp_file = output_api_filename + get_json_filename_ext(daemon_as_reference)
             diff_file = output_api_filename + "-diff.json"
 
-        return run_shell_command(
+            silk_file = output_api_filename + ".response.json"
+            exp_rsp_file = output_api_filename + ".expResponse.json"
+        else: # run tests with both servers
+            target = get_target(SILK, method, infura_url, daemon_on_host, daemon_on_port)
+            result = execute_request (websocket_as_transport, jwt_auth, encoded, request_dumps, target)
+            target1 = get_target(daemon_as_reference, method, infura_url, daemon_on_host, daemon_on_port)
+            result1 = execute_request (websocket_as_transport, jwt_auth, encoded, request_dumps, target1)
+            response_in_file = None
+
+            output_api_filename = output_dir + json_file[:-4]
+            output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
+            diff_file = output_api_filename + "diff.json"
+
+            silk_file = output_api_filename + get_json_filename_ext(SILK)
+            exp_rsp_file = output_api_filename + get_json_filename_ext(daemon_as_reference)
+
+        return process_response(
             net,
             result,
-            cmd,
             result1,
-            cmd1,
-            response,
+            response_in_file,
             verbose_level,
             exit_on_fail,
             output_dir_name,
             silk_file,
             exp_rsp_file,
             diff_file,
-            dump_output,
+            force_dump_jsons,
             json_file,
-            test_number)
-
-
-#
-# usage
-#
-def usage(argv):
-    """ Print script usage
-    """
-    print("Usage: " + argv[0] + ":")
-    print("")
-    print("Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon")
-    print("")
-    print("-h print this help")
-    print("-f shows only failed tests (not Skipped)")
-    print("-c runs all tests even if one test fails [default: exit at first test fail]")
-    print("-r connect to Erigon RpcDaemon [default: connect to Silkrpc] ")
-    print("-l <number of loops>")
-    print("-a <test_apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)")
-    print("-s <start_test_number>: run tests starting from input")
-    print("-t <test_number>: run single test")
-    print("-d send requests also to the reference daemon e.g.: Erigon RpcDaemon")
-    print("-i <infura_url> send any request also to the Infura API endpoint as reference")
-    print("-b blockchain [default: goerly]")
-    print("-v <verbose_level>")
-    print("-o dump response")
-    print("-k authentication token file")
-    print("-x exclude API list (e.g.: txpool_content,txpool_status,engine_)")
-    print("-w use web-socket")
-    print("-X exclude test list (e.g.: 18,22)")
-    print("-H host where the RpcDaemon is located (e.g.: 10.10.2.3)")
-    print("-p port where the RpcDaemon is located (e.g.: 8545)")
-
+            test_number,
+            daemon_under_test,
+            daemon_as_reference)
 
 #
 # main
@@ -629,146 +690,78 @@ def usage(argv):
 def main(argv):
     """ parse command line and execute tests
     """
-    exit_on_fail = True
-    daemon_under_test = SILK
-    daemon_as_reference = RPCDAEMON
-    loop_number = 1
-    verbose_level = 0
-    req_test = -1
-    dump_output = False
-    infura_url = ""
-    daemon_on_host = "localhost"
-    daemon_on_port = 0
-    requested_apis = ""
-    verify_with_daemon = False
-    net = "goerly"
-    json_dir = "./" + net + "/"
-    results_dir = "results"
-    output_dir = json_dir + results_dir + "/"
-    exclude_api_list = ""
-    exclude_test_list = ""
-    start_test = ""
-    jwt_secret = ""
-    display_only_fail = 0
-    websocket_as_transport = 0
-
-    try:
-        opts, _ = getopt.getopt(argv[1:], "whfrcv:t:l:a:di:b:ox:X:H:k:s:p:")
-        for option, optarg in opts:
-            if option in ("-h", "--help"):
-                usage(argv)
-                sys.exit(-1)
-            elif option == "-c":
-                exit_on_fail = 0
-            elif option == "-r":
-                daemon_under_test = RPCDAEMON
-            elif option == "-i":
-                daemon_as_reference = INFURA
-                infura_url = optarg
-            elif option == "-H":
-                daemon_on_host = optarg
-            elif option == "-p":
-                daemon_on_port = int(optarg)
-            elif option == "-f":
-                display_only_fail = 1
-            elif option == "-v":
-                verbose_level = int(optarg)
-            elif option == "-t":
-                req_test = int(optarg)
-            elif option == "-s":
-                start_test = int(optarg)
-            elif option == "-a":
-                requested_apis = optarg
-            elif option == "-l":
-                loop_number = int(optarg)
-            elif option == "-d":
-                verify_with_daemon = 1
-            elif option == "-o":
-                dump_output = 1
-            elif option == "-w":
-                websocket_as_transport = 1
-            elif option == "-b":
-                net = optarg
-                json_dir = "./" + net + "/"
-                output_dir = json_dir + results_dir + "/"
-            elif option == "-x":
-                exclude_api_list = optarg
-            elif option == "-X":
-                exclude_test_list = optarg
-            elif option == "-k":
-                jwt_secret = get_jwt_secret(optarg)
-                if jwt_secret == "":
-                    print("secret file not found")
-                    sys.exit(-1)
-            else:
-                usage(argv)
-                sys.exit(-1)
-
-    except getopt.GetoptError as err:
-        # print help information and exit:
-        print(err)
-        usage(argv)
-        sys.exit(-1)
-
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
+    config = Config()
+    config.select_user_options(argv)
 
     start_time = time.time()
-    os.mkdir(output_dir)
+    os.mkdir(config.output_dir)
     match = 0
     executed_tests = 0
     failed_tests = 0
     success_tests = 0
     tests_not_executed = 0
     global_test_number = 1
-    for test_rep in range(0, loop_number):
-        if verbose_level:
+    for test_rep in range(0, config.loop_number): # makes tests more times
+        if config.verbose_level:
             print("Test iteration: ", test_rep + 1)
-        dirs = sorted(os.listdir(json_dir))
-        for api_file in dirs:
-            # jump result_dir
-            if api_file == results_dir:
+        dirs = sorted(os.listdir(config.json_dir))
+        for api_name in dirs: # scans all api present in dir
+            # jump results_dir
+            if (api_name in [".", "..", config.results_dir]):
                 continue
-            test_dir = json_dir + api_file
+            test_dir = config.json_dir + api_name
+            if os.path.isdir(test_dir) == 0: # jump if not dir
+                continue
             test_lists = sorted(os.listdir(test_dir))
             test_number = 1
-            for test_name in test_lists:
-                if is_testing_apis(api_file, requested_apis):  # -a
-                    test_file = api_file + "/" + test_name
-                    if is_skipped(api_file, net, exclude_api_list, exclude_test_list, test_file, req_test,
-                                  verify_with_daemon, global_test_number) == 1:
-                        if start_test == "" or global_test_number >= int(start_test):
-                            if display_only_fail == 0:
+            for test_name in test_lists: # scan all json test present in the dir
+                if (test_name in ["json","zip","gzip"] == 0): # if file doesn't terminate with .json, .gzip, .tar jump it
+                    continue
+                if is_testing_apis(api_name, config.testing_apis):  # -a or all
+                    test_file = api_name + "/" + test_name
+                    if is_skipped(api_name, config.net, config.exclude_api_list, config.exclude_test_list, test_file, config.req_test_number,
+                                  config.verify_with_daemon, global_test_number) == 1:
+                        if config.start_test == "" or global_test_number >= int(config.start_test):
+                            if config.display_only_fail == 0 and config.req_test_number != "":
                                 file = test_file.ljust(60)
                                 print(f"{global_test_number:03d}. {file} Skipped")
                                 tests_not_executed = tests_not_executed + 1
                     else:
-                        # runs all tests req_test refers global test number or
-                        # runs only tests on specific api req_test refers all test on specific api
-                        if ((requested_apis == "" and req_test in (-1, global_test_number)) or
-                                (requested_apis != "" and req_test in (-1, test_number))):
-                            if (start_test == "") or (start_test != "" and global_test_number >= int(start_test)):
+                        # runs all tests or
+                        # runs single global test
+                        # runs only tests a specific test_number in the testing_apis list
+                        if ((config.testing_apis == "" and
+                             config.req_test_number in (-1, global_test_number)) or
+                             (config.testing_apis != "" and
+                              config.req_test_number in (-1, test_number))):
+                            if (config.start_test == "") or (config.start_test != ""
+                                            and global_test_number >= int(config.start_test)): # start from specific test
                                 file = test_file.ljust(60)
-                                if verbose_level:
+                                if config.verbose_level:
                                     print(f"{global_test_number:03d}. {file} ", end='', flush=True)
                                 else:
                                     print(f"{global_test_number:03d}. {file}\r", end='', flush=True)
-                                ret = run_tests(net, json_dir, output_dir, test_file, verbose_level, daemon_under_test,
-                                                exit_on_fail, verify_with_daemon, daemon_as_reference,
-                                                dump_output, global_test_number, infura_url, daemon_on_host,
-                                                daemon_on_port, jwt_secret, websocket_as_transport)
+                                ret = run_test(config.net, config.json_dir, config.output_dir,
+                                                test_file,
+                                                config.verbose_level, config.daemon_under_test,
+                                                config.exit_on_fail, config.verify_with_daemon,
+                                                config.daemon_as_reference,
+                                                config.force_dump_jsons, global_test_number,
+                                                config.infura_url,
+                                                config.daemon_on_host, config.daemon_on_port,
+                                                config.jwt_secret, config.websocket_as_transport)
                                 if ret == 0:
                                     success_tests = success_tests + 1
                                 else:
                                     failed_tests = failed_tests + 1
                                 executed_tests = executed_tests + 1
-                                if req_test != -1 or requested_apis != "":
+                                if config.req_test_number != -1 or config.testing_apis != "":
                                     match = 1
 
                 global_test_number = global_test_number + 1
                 test_number = test_number + 1
 
-    if (req_test != -1 or requested_apis != "") and match == 0:
+    if (config.req_test_number != -1 or config.testing_apis != "") and match == 0:
         print("ERROR: api or testNumber not found")
     else:
         end_time = time.time()

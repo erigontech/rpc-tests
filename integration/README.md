@@ -33,24 +33,25 @@ Usage: ./run_tests.py:
 
 Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon
 
--h print this help
--f shows only failed tests (not Skipped)
--c runs all tests even if one test fails [default: exit at first test fail]
--r connect to Erigon RpcDaemon [default: connect to Silkrpc] 
--l <number of loops>
--a <test_api>: run all tests of the specified API
--s <start_test_number>: run tests starting from input
--t <test_number>: run single test
--d send requests also to the reference daemon i.e. Erigon RpcDaemon
--i <infura_url> send any request also to the Infura API endpoint as reference
--b blockchain [default: goerly]
--v <verbose_level>
--o dump response
--k authentication token file
--x exclude API list (i.e. txpool_content,txpool_status,engine_
--X exclude test list (i.e. 18,22
--H host where the RpcDaemon is located (e.g. 10.10.2.3)
--p port where the RpcDaemon is located (e.g. 8545)
+-h,--help: print this help
+-f,--displayOnlyFail: shows only failed tests (not Skipped)
+-v,--verbose: <verbose_level>
+-c,--continue: runs all tests even if one test fails [default: exit at first test fail]
+-l,--runLoop: <number of loops>
+-b,--blockchain: [default: goerly]
+-s,--startTest: <start_test_number>: run tests starting from input
+-t,--runTest: <test_number>: run single test
+-d,--compareServer: send requests also to the reference daemon e.g.: Erigon RpcDaemon
+-w,--websocket: use websocket
+-k,--authToken: authentication token file
+-a,--testApi: <test_apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)
+-x,--excludeApi: exclude API list (e.g.: txpool_content,txpool_status,engine_)
+-X,--excludeTest: exclude test list (e.g.: 18,22)
+-o,--dumpJson: dump response
+-H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)
+-p,--port: port where the RpcDaemon is located (e.g.: 8545)
+-r,--testRpcdaemon: connect to Erigon/RpcDaemon [default: connect to Silkrpc]
+-i,--verifyWithInfura: <infura_url> send any request also to the Infura API endpoint as reference
 
 ```
 
