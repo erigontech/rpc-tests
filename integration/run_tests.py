@@ -532,7 +532,7 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
         if exit_on_fail:
             print("TEST ABORTED!")
             sys.exit(1)
-        return 1
+        return 0
     if verbose_level:
         print("OK")
 
@@ -582,11 +582,12 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
             return 0
         dump_jsons(True, silk_file, exp_rsp_file, output_dir, response, expected_response)
 
-        compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file, verbose_level, test_number, exit_on_fail)
+        same=compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file, verbose_level, test_number, exit_on_fail)
         #cleanup
-        os.remove(silk_file)
-        os.remove(exp_rsp_file)
-        os.remove(diff_file)
+        if same:
+            os.remove(silk_file)
+            os.remove(exp_rsp_file)
+            os.remove(diff_file)
         if not os.listdir(output_dir):
             os.rmdir(output_dir)
 
