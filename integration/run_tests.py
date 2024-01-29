@@ -22,35 +22,35 @@ tests_with_big_json = [
 ]
 
 api_not_compared = [
-    "goerly/trace_rawTransaction", # erigon does not support raw tx but hash of tx
-    "goerly/parity_getBlockReceipts", # not supported by rpcdaemon
-    "goerly/erigon_watchTheBurn", # not supported by rpcdaemon
-    "goerly/erigon_cumulativeChainTraffic", # not supported by rpcdaemon
-    "goerly/engine_exchangeCapabilities", # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_forkchoiceUpdatedV1", # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_forkchoiceUpdatedV2", # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_getPayloadBodiesByHashV1", # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_getPayloadBodiesByRangeV1", # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_getPayloadV1", # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_getPayloadV2", # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_newPayloadV1", # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_newPayloadV2" # not supported by silkrpc removed from ethbackend i/f
+    "goerly/trace_rawTransaction",  # erigon does not support raw tx but hash of tx
+    "goerly/parity_getBlockReceipts",  # not supported by rpcdaemon
+    "goerly/erigon_watchTheBurn",  # not supported by rpcdaemon
+    "goerly/erigon_cumulativeChainTraffic",  # not supported by rpcdaemon
+    "goerly/engine_exchangeCapabilities",  # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_forkchoiceUpdatedV1",  # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_forkchoiceUpdatedV2",  # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_getPayloadBodiesByHashV1",  # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_getPayloadBodiesByRangeV1",  # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_getPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_getPayloadV2",  # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_newPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
+    "goerly/engine_newPayloadV2"  # not supported by silkrpc removed from ethbackend i/f
 ]
 
 tests_not_compared = [
-    "goerly/debug_accountAt/test_06.json", # debug
-    "goerly/debug_accountAt/test_07.json", # debug
-    "goerly/debug_accountAt/test_11.json", # debug
-    "goerly/debug_traceBlockByHash/test_02.tar", # diff on gasCost
-    "goerly/debug_traceBlockByHash/test_03.tar", # diff on gasCost
-    "goerly/debug_traceBlockByHash/test_04.tar", # diff on gasCost
+    "goerly/debug_accountAt/test_06.json",  # debug
+    "goerly/debug_accountAt/test_07.json",  # debug
+    "goerly/debug_accountAt/test_11.json",  # debug
+    "goerly/debug_traceBlockByHash/test_02.tar",  # diff on gasCost
+    "goerly/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
+    "goerly/debug_traceBlockByHash/test_04.tar",  # diff on gasCost
 
-    "goerly/debug_traceBlockByNumber/test_02.tar", # diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_09.tar", # diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_10.tar", # diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_11.tar", # diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_12.tar", # diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_14.tar", # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_02.tar",  # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_09.tar",  # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_10.tar",  # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_11.tar",  # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_12.tar",  # diff on gasCost
+    "goerly/debug_traceBlockByNumber/test_14.tar",  # diff on gasCost
 
     "goerly/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost
     "goerly/trace_replayBlockTransactions/test_02.tar",  # diff on gasCost
@@ -58,51 +58,51 @@ tests_not_compared = [
     "goerly/trace_replayTransaction/test_16.tar",  # diff on gasCost
     "goerly/trace_replayTransaction/test_23.tar",  # diff on gasCost
 
-    "goerly/debug_traceCall/test_10.json", # diff on gasCost
-    "goerly/debug_traceCall/test_14.json", # diff on gasCost
-    "goerly/debug_traceCall/test_17.json", # diff on gasCost
-    "goerly/eth_callMany/test_01.json", # debug bad value format
-    "goerly/eth_callMany/test_02.json", # debug bad value format
-    "goerly/eth_callMany/test_05.json", # debug bad error format
-    "goerly/eth_callMany/test_06.json", # debug bad error format
-    "goerly/eth_callMany/test_09.json", # debug silkrpc return ok rpcdaemon error
-    "goerly/eth_callMany/test_10.json", # debug silkrpc return ok rpcdaemon error
+    "goerly/debug_traceCall/test_10.json",  # diff on gasCost
+    "goerly/debug_traceCall/test_14.json",  # diff on gasCost
+    "goerly/debug_traceCall/test_17.json",  # diff on gasCost
+    "goerly/eth_callMany/test_01.json",  # debug bad value format
+    "goerly/eth_callMany/test_02.json",  # debug bad value format
+    "goerly/eth_callMany/test_05.json",  # debug bad error format
+    "goerly/eth_callMany/test_06.json",  # debug bad error format
+    "goerly/eth_callMany/test_09.json",  # debug silkrpc return ok rpcdaemon error
+    "goerly/eth_callMany/test_10.json",  # debug silkrpc return ok rpcdaemon error
 
-    "mainnet/debug_accountAt/test_02.json", # to be debugged
-    "mainnet/debug_accountAt/test_05.json", # to be debugged
-    "mainnet/debug_accountAt/test_07.json", # to be debugged
-    "mainnet/debug_accountAt/test_08.json", # to be debugged
+    "mainnet/debug_accountAt/test_02.json",  # to be debugged
+    "mainnet/debug_accountAt/test_05.json",  # to be debugged
+    "mainnet/debug_accountAt/test_07.json",  # to be debugged
+    "mainnet/debug_accountAt/test_08.json",  # to be debugged
 
-    "mainnet/debug_traceBlockByNumber/test_05.tar", # json too big
-    "mainnet/debug_traceBlockByNumber/test_06.tar", # json too big
-    "mainnet/debug_traceBlockByNumber/test_08.tar", # json too big
-    "mainnet/debug_traceBlockByNumber/test_09.tar", # json too big
-    "mainnet/debug_traceBlockByNumber/test_10.tar", # json too big
-    "mainnet/debug_traceBlockByNumber/test_11.tar", # json too big
-    "mainnet/debug_traceBlockByNumber/test_12.tar", # json too big
+    "mainnet/debug_traceBlockByNumber/test_05.tar",  # json too big
+    "mainnet/debug_traceBlockByNumber/test_06.tar",  # json too big
+    "mainnet/debug_traceBlockByNumber/test_08.tar",  # json too big
+    "mainnet/debug_traceBlockByNumber/test_09.tar",  # json too big
+    "mainnet/debug_traceBlockByNumber/test_10.tar",  # json too big
+    "mainnet/debug_traceBlockByNumber/test_11.tar",  # json too big
+    "mainnet/debug_traceBlockByNumber/test_12.tar",  # json too big
 
-    "mainnet/debug_traceBlockByHash/test_03.tar", # diff on gasCost
+    "mainnet/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
 ]
 
 tests_not_compared_result = [
-    "goerly/trace_call/test_04.json", # error message different invalidOpcode vs badInstructions
-    "goerly/trace_call/test_11.json", # error message different invalidOpcode vs badInstructions
-    "goerly/trace_call/test_15.json", # error message different invalidOpcode vs badInstructions
-    "goerly/trace_call/test_17.json", # error message different invalidOpcode vs badInstructions
-    "goerly/trace_callMany/test_04.json", # error message different invalidOpcode vs badInstructions
-    "goerly/eth_callMany/test_04.json", # error message different invalidOpcode vs badInstructions
-    "goerly/trace_callMany/test_05.json", # error message different invalidOpcode vs badInstructions
-    "goerly/trace_callMany/test_13.json", # error message different invalidOpcode vs badInstructions
-    "goerly/trace_callMany/test_14.tar", # error message different invalidOpcode vs badInstructions
-    "goerly/trace_callMany/test_15.json" # error message different invalidOpcode vs badInstructions
+    "goerly/trace_call/test_04.json",  # error message different invalidOpcode vs badInstructions
+    "goerly/trace_call/test_11.json",  # error message different invalidOpcode vs badInstructions
+    "goerly/trace_call/test_15.json",  # error message different invalidOpcode vs badInstructions
+    "goerly/trace_call/test_17.json",  # error message different invalidOpcode vs badInstructions
+    "goerly/trace_callMany/test_04.json",  # error message different invalidOpcode vs badInstructions
+    "goerly/eth_callMany/test_04.json",  # error message different invalidOpcode vs badInstructions
+    "goerly/trace_callMany/test_05.json",  # error message different invalidOpcode vs badInstructions
+    "goerly/trace_callMany/test_13.json",  # error message different invalidOpcode vs badInstructions
+    "goerly/trace_callMany/test_14.tar",  # error message different invalidOpcode vs badInstructions
+    "goerly/trace_callMany/test_15.json"  # error message different invalidOpcode vs badInstructions
 ]
 
 tests_not_compared_message = [
-    "goerly/trace_callMany/test_10.json", # silkrpc message contains also address
-    "goerly/trace_callMany/test_11.json", # silkrpc message contains also address
+    "goerly/trace_callMany/test_10.json",  # silkrpc message contains also address
+    "goerly/trace_callMany/test_11.json",  # silkrpc message contains also address
     "goerly/eth_callMany/test_08.json",  # silkrpc message contains few chars
-    "goerly/trace_call/test_12.json", # silkrpc message contains also address
-    "goerly/trace_call/test_16.json" # silkrpc message contains also address
+    "goerly/trace_call/test_12.json",  # silkrpc message contains also address
+    "goerly/trace_call/test_16.json"  # silkrpc message contains also address
 ]
 
 tests_message_lower_case = [
@@ -120,24 +120,25 @@ def usage(argv):
     print("Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon")
     print("")
     print("-h,--help: print this help")
-    print("-f,--displayOnlyFail: shows only failed tests (not Skipped)")
+    print("-f,--display-only-fail: shows only failed tests (not Skipped)")
     print("-v,--verbose: <verbose_level>")
     print("-c,--continue: runs all tests even if one test fails [default: exit at first test fail]")
-    print("-l,--runLoop: <number of loops>")
+    print("-l,--loops: <number of loops>")
     print("-b,--blockchain: [default: goerly]")
-    print("-s,--startTest: <start_test_number>: run tests starting from input")
-    print("-t,--runTest: <test_number>: run single test")
-    print("-d,--compareServer: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
+    print("-s,--start-from-test: <test_number>: run tests starting from input")
+    print("-t,--run-single-test: <test_number>: run single test")
+    print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
     print("-w,--websocket: use websocket")
-    print("-k,--authToken: authentication token file")
-    print("-a,--testApi: <test_apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)")
-    print("-x,--excludeApi: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
-    print("-X,--excludeTest: exclude test list (e.g.: 18,22)")
-    print("-o,--dumpJson: dump response")
+    print("-k,--auth-token: authentication token file")
+    print("-a,--api-list: <apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)")
+    print("-x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
+    print("-X,--exclude-test-list: exclude test list (e.g.: 18,22)")
+    print("-o,--dump-response: dump JSON RPC response")
     print("-H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)")
     print("-p,--port: port where the RpcDaemon is located (e.g.: 8545)")
-    print("-r,--testRpcdaemon: connect to Erigon/RpcDaemon [default: connect to Silkrpc] ")
-    print("-i,--verifyWithInfura: <infura_url> send any request also to the Infura API endpoint as reference")
+    print("-r,--erigon-rpcdaemon: connect to Erigon RpcDaemon [default: connect to Silkrpc] ")
+    print("-i,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
+
 
 def get_target_name(target_type: str):
     """ Return name server """
@@ -148,6 +149,7 @@ def get_target_name(target_type: str):
     if target_type == INFURA:
         return "Infura"
     return "Undef"
+
 
 def get_target(target_type: str, method: str, infura_url: str, host: str, port: int = 0):
     """ determine target
@@ -175,6 +177,7 @@ def get_json_filename_ext(target_type: str):
     if target_type == INFURA:
         return "-infura.json"
     return "-rpcdaemon.json"
+
 
 def get_jwt_secret(name):
     """ parse secret file
@@ -205,6 +208,7 @@ def replace_str_from_file(filer, filew, matched_string):
                 if (matched_string in line) == 0:
                     output_file.write(line)
 
+
 def replace_message(filer, filew, matched_string):
     """ parse file and replace string
     """
@@ -217,6 +221,7 @@ def replace_message(filer, filew, matched_string):
                     output_file.write(line)
                 else:
                     output_file.write("     \"message\": \"\"\n")
+
 
 def modified_str_from_file(filer, filew, matched_string):
     """ parse file and convert string
@@ -258,6 +263,7 @@ def is_skipped(api_name, net, exclude_api_list, exclude_test_list, test_name: st
                 return 1
     return 0
 
+
 def is_testing_apis(api_name, testing_apis: str):
     """ determine if api_name is in testing_apis
     """
@@ -269,7 +275,8 @@ def is_testing_apis(api_name, testing_apis: str):
             return 1
     return 0
 
-def is_big_json(test_name, net: str,):
+
+def is_big_json(test_name, net: str, ):
     """ determine if json is in the big list
     """
     test_full_name = net + "/" + test_name
@@ -288,6 +295,7 @@ def is_not_compared_result(test_name, net: str):
             return 1
     return 0
 
+
 def is_not_compared_message(test_name, net: str):
     """ determine if test not compared result
     """
@@ -297,6 +305,7 @@ def is_not_compared_message(test_name, net: str):
             return 1
     return 0
 
+
 def is_message_to_be_converted(test_name, net: str):
     """ determine if test not compared result
     """
@@ -305,6 +314,7 @@ def is_message_to_be_converted(test_name, net: str):
         if curr_test_name == test_full_name:
             return 1
     return 0
+
 
 class Config:
     # pylint: disable=too-many-instance-attributes
@@ -333,62 +343,62 @@ class Config:
         self.start_test = ""
         self.jwt_secret = ""
         self.display_only_fail = 0
-        self.websocket_as_transport = 0
+        self.websocket_as_transport = False
 
     def select_user_options(self, argv):
         """ process user command """
         try:
             opts, _ = getopt.getopt(argv[1:], "whfrcv:t:l:a:di:b:ox:X:H:k:s:p:",
-                      ['help', 'continue', 'testRpcdaemon', 'verifyWithInfura', 'host=',
-                       'port=', 'displayOnlyFail', 'verbose=', 'runTest=', 'startTest=',
-                       'testApi=', 'runLoop=', 'compareServer', 'authToken=', 'blockchain=',
-                       'websocket', 'excludeApi=', 'excludeTest=', 'dumpJson'])
+                                    ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
+                                     'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
+                                     'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'auth-token=', 'blockchain=',
+                                     'websocket', 'exclude-api-list=', 'exclude-test-list=', 'dump-response'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
                     sys.exit(-1)
                 elif option in ("-c", "--continue"):
                     self.exit_on_fail = 0
-                elif option in ("-r", "--testRpcdaemon"):
+                elif option in ("-r", "--erigon-rpcdaemon"):
                     if self.verify_with_daemon == 1:
-                        print ("Error on options: -r is not compatible with -d")
+                        print("Error on options: -r is not compatible with -d")
                         usage(argv)
                         sys.exit(-1)
                     self.daemon_under_test = RPCDAEMON
-                elif option in ("-i", "--verifyWithInfura"):
+                elif option in ("-i", "--verify-external-provider"):
                     self.daemon_as_reference = INFURA
                     self.infura_url = optarg
                 elif option in ("-H", "--host"):
                     self.daemon_on_host = optarg
                 elif option in ("-p", "--port"):
                     self.daemon_on_port = int(optarg)
-                elif option in ("-f", "--displayOnlyFail"):
+                elif option in ("-f", "--display-only-fail"):
                     self.display_only_fail = 1
                 elif option in ("-v", "--verbose"):
                     self.verbose_level = int(optarg)
-                elif option in ("-t", "--runTest"):
+                elif option in ("-t", "--run-single-test"):
                     if self.exclude_test_list != "" or self.exclude_api_list != "":
-                        print ("Error on options: -t is not compatible with -x or -X")
+                        print("Error on options: -t is not compatible with -x or -X")
                         usage(argv)
                         sys.exit(-1)
                     self.req_test_number = int(optarg)
-                elif option in ("-s", "--startTest"):
+                elif option in ("-s", "--start-from-test"):
                     self.start_test = int(optarg)
-                elif option in ("-a", "--testApi"):
+                elif option in ("-a", "--api-list"):
                     if self.exclude_test_list != "" or self.exclude_api_list != "":
-                        print ("Error in options: -a is not compatible with -x or -X")
+                        print("Error in options: -a is not compatible with -x or -X")
                         usage(argv)
                         sys.exit(-1)
                     self.testing_apis = optarg
-                elif option in ("-l", "--runLoop"):
+                elif option in ("-l", "--loops"):
                     self.loop_number = int(optarg)
-                elif option in ("-d", "--compareServer"):
+                elif option in ("-d", "--compare-erigon-rpcdaemon"):
                     if self.daemon_under_test != SILK:
-                        print ("Error in options: -d is not compatible with -r")
+                        print("Error in options: -d is not compatible with -r")
                         usage(argv)
                         sys.exit(-1)
                     self.verify_with_daemon = 1
-                elif option in ("-o", "--dumpJson"):
+                elif option in ("-o", "--dump-response"):
                     self.force_dump_jsons = 1
                 elif option in ("-w", "--websocket"):
                     self.websocket_as_transport = 1
@@ -396,25 +406,25 @@ class Config:
                     self.net = optarg
                     self.json_dir = "./" + self.net + "/"
                     self.output_dir = self.json_dir + self.results_dir + "/"
-                elif option in ("-x", "--excludeApi"):
+                elif option in ("-x", "--exclude-api-list"):
                     if self.req_test_number != -1 or self.testing_apis != "":
-                        print ("Error in options: -x is not compatible with -a or -t")
+                        print("Error in options: -x is not compatible with -a or -t")
                         usage(argv)
                         sys.exit(-1)
                     self.exclude_api_list = optarg
-                elif option in ("-X", "--excludeTest"):
+                elif option in ("-X", "--exclude-test-list"):
                     if self.req_test_number != -1 or self.testing_apis != "":
-                        print ("Error in options: -X is not compatible with -a or -t")
+                        print("Error in options: -X is not compatible with -a or -t")
                         usage(argv)
                         sys.exit(-1)
                     self.exclude_test_list = optarg
-                elif option in ("-k", "--authToken"):
+                elif option in ("-k", "--auth-token"):
                     self.jwt_secret = get_jwt_secret(optarg)
                     if self.jwt_secret == "":
                         print("secret file not found")
                         sys.exit(-1)
                 else:
-                    print ("Error option not managed:",option)
+                    print("Error option not managed:", option)
                     usage(argv)
                     sys.exit(-1)
 
@@ -427,6 +437,7 @@ class Config:
         if os.path.exists(self.output_dir):
             shutil.rmtree(self.output_dir)
 
+
 def get_json_from_response(msg, verbose_level: int, json_file, result: str, test_number, exit_on_fail: int):
     """ retrieve json from response """
     if verbose_level > 1:
@@ -436,27 +447,28 @@ def get_json_from_response(msg, verbose_level: int, json_file, result: str, test
         file = json_file.ljust(60)
         print(f"{test_number:03d}. {file} Failed [" + msg + "]  (json response is zero length)")
         if verbose_level:
-            print (msg)
+            print(msg)
             print("Failed (json response zero length)")
-            print (result)
+            print(result)
         if exit_on_fail:
             print("TEST ABORTED!")
             sys.exit(1)
         return None
     try:
         response = json.loads(result)
+        return response
     except json.decoder.JSONDecodeError:
         file = json_file.ljust(60)
         print(f"{test_number:03d}. {file} Failed [" + msg + "]  (bad json format)")
         if verbose_level:
-            print (msg)
+            print(msg)
             print("Failed (bad json format)")
-            print (result)
+            print(result)
         if exit_on_fail:
             print("TEST ABORTED!")
             sys.exit(1)
         return None
-    return response
+
 
 def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expected_response: str):
     """ dump jsons on result dir """
@@ -470,26 +482,31 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
             with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
                 json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
 
-def execute_request (websocket_as_transport: bool, jwt_auth, encoded, request_dumps, target: str):
+
+def execute_request(websocket_as_transport: bool, jwt_auth, encoded, request_dumps, target: str):
     """ execute request on server identified by target """
-    if websocket_as_transport == 0: # use http
+    if not websocket_as_transport:  # use http
         cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
         result = os.popen(cmd).read()
     else:
-        ws_target = "ws://" + target # use websocket
+        ws_target = "ws://" + target  # use websocket
         if encoded != "":
-            http_header=["Authorization: Bearer " + str(encoded)]
+            http_header = ["Authorization: Bearer " + str(encoded)]
+        else:
+            http_header = []
         try:
             web_service = create_connection(ws_target, header=http_header)
             web_service.send(request_dumps)
             result = web_service.recv()
-        except:
+        except (Exception,):
             print("\nConnection to server failed")
             print("TEST ABORTED!")
             sys.exit(1)
     return result
 
-def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: str, verbose_level, test_number, exit_on_fail: int):
+
+def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: str, verbose_level, test_number,
+                 exit_on_fail: int):
     """ Compare jsos response. """
     temp_file1 = "/tmp/silk_lower_case"
     temp_file2 = "/tmp/rpc_lower_case"
@@ -498,9 +515,9 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
         to_lower_case(silk_file, temp_file1)
         to_lower_case(exp_rsp_file, temp_file2)
     else:
-        cmd = "cp " +  silk_file  + " " + temp_file1
+        cmd = "cp " + silk_file + " " + temp_file1
         os.system(cmd)
-        cmd = "cp " +  exp_rsp_file  + " " + temp_file2
+        cmd = "cp " + exp_rsp_file + " " + temp_file2
         os.system(cmd)
 
     if is_not_compared_result(json_file, net):
@@ -518,8 +535,8 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
         modified_str_from_file(exp_rsp_file, temp_file1, modified_string)
         modified_str_from_file(silk_file, temp_file2, modified_string)
         cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-#        elif is_big_json(json_file, net):
-#            cmd = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file
+    #        elif is_big_json(json_file, net):
+    #            cmd = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file
     else:
         cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
     os.system(cmd)
@@ -543,9 +560,11 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
         os.remove(temp_file2)
     return 1
 
+
 def process_response(net, result, result1, response_in_file: str, verbose_level: int, exit_on_fail: bool,
-                      output_dir: str, silk_file: str,
-                      exp_rsp_file: str, diff_file: str, force_dump_jsons, json_file: str, test_number: int, daemon_under_test, daemon_as_reference: str):
+                     output_dir: str, silk_file: str,
+                     exp_rsp_file: str, diff_file: str, force_dump_jsons, json_file: str, test_number: int,
+                     daemon_under_test, daemon_as_reference: str):
     """ Process the response If exact result or error don't care, they are null but present in expected_response. """
 
     response = get_json_from_response(daemon_under_test, verbose_level, json_file, result, test_number, exit_on_fail)
@@ -553,7 +572,8 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
         return 0
 
     if response_in_file is None:
-        expected_response = get_json_from_response(daemon_as_reference, verbose_level, json_file, result1, test_number, exit_on_fail)
+        expected_response = get_json_from_response(daemon_as_reference, verbose_level, json_file, result1, test_number,
+                                                   exit_on_fail)
         if expected_response is None:
             return 0
     else:
@@ -570,20 +590,19 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
             # response and expected_response are different but don't care
             if verbose_level:
                 print("OK")
-            dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir,
-                       response, expected_response)
+            dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
             return 0
         if "error" not in expected_response and "result" not in expected_response:
             # response and expected_response are different but don't care
             if verbose_level:
                 print("OK")
-            dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir,
-                       response, expected_response)
+            dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
             return 0
         dump_jsons(True, silk_file, exp_rsp_file, output_dir, response, expected_response)
 
-        same=compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file, verbose_level, test_number, exit_on_fail)
-        #cleanup
+        same = compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file, verbose_level, test_number,
+                            exit_on_fail)
+        # cleanup
         if same:
             os.remove(silk_file)
             os.remove(exp_rsp_file)
@@ -598,10 +617,12 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
     dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
     return 0
 
-def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_level: int, daemon_under_test: str, exit_on_fail: bool,
-              verify_with_daemon: bool, daemon_as_reference: str,
-              force_dump_jsons: bool, test_number, infura_url: str, daemon_on_host: str, daemon_on_port: int,
-              jwt_secret: str, websocket_as_transport: bool):
+
+def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_level: int, daemon_under_test: str,
+             exit_on_fail: bool,
+             verify_with_daemon: bool, daemon_as_reference: str,
+             force_dump_jsons: bool, test_number, infura_url: str, daemon_on_host: str, daemon_on_port: int,
+             jwt_secret: str, websocket_as_transport: bool):
     """ Run integration tests. """
     json_filename = test_dir + json_file
     ext = os.path.splitext(json_file)[1]
@@ -616,7 +637,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             buff = file.read()
             tar.close()
             jsonrpc_commands = json.loads(buff)
-    elif ext in (".gzip"):
+    elif ext in ".gzip":
         with gzip.open(json_filename, 'rb') as zipped_file:
             buff = zipped_file.read()
             jsonrpc_commands = json.loads(buff)
@@ -639,12 +660,10 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             encoded = ""
         else:
             byte_array_secret = bytes.fromhex(jwt_secret)
-            encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret,
-                                      algorithm="HS256")
+            encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
             jwt_auth = "-H \"Authorization: Bearer " + str(encoded) + "\" "
-        if verify_with_daemon == 0: # compare daemon result with file
-            result = execute_request (websocket_as_transport, jwt_auth, encoded,
-                                      request_dumps, target)
+        if verify_with_daemon == 0:  # compare daemon result with file
+            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target)
             result1 = ""
             response_in_file = json_rpc["response"]
 
@@ -654,11 +673,11 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
 
             silk_file = output_api_filename + ".response.json"
             exp_rsp_file = output_api_filename + ".expResponse.json"
-        else: # run tests with both servers
+        else:  # run tests with both servers
             target = get_target(SILK, method, infura_url, daemon_on_host, daemon_on_port)
-            result = execute_request (websocket_as_transport, jwt_auth, encoded, request_dumps, target)
+            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target)
             target1 = get_target(daemon_as_reference, method, infura_url, daemon_on_host, daemon_on_port)
-            result1 = execute_request (websocket_as_transport, jwt_auth, encoded, request_dumps, target1)
+            result1 = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target1)
             response_in_file = None
 
             output_api_filename = output_dir + json_file[:-4]
@@ -685,6 +704,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             daemon_under_test,
             daemon_as_reference)
 
+
 #
 # main
 #
@@ -702,25 +722,27 @@ def main(argv):
     success_tests = 0
     tests_not_executed = 0
     global_test_number = 1
-    for test_rep in range(0, config.loop_number): # makes tests more times
+    for test_rep in range(0, config.loop_number):  # makes tests more times
         if config.verbose_level:
             print("Test iteration: ", test_rep + 1)
         dirs = sorted(os.listdir(config.json_dir))
-        for api_name in dirs: # scans all api present in dir
-            # jump results_dir
-            if (api_name in [".", "..", config.results_dir]):
+        for api_name in dirs:  # scans all api present in dir
+            # jump results folder or any hidden OS-specific folder
+            if api_name == config.results_dir or api_name.startswith("."):
                 continue
             test_dir = config.json_dir + api_name
-            if os.path.isdir(test_dir) == 0: # jump if not dir
+            if not os.path.isdir(test_dir):  # jump if not dir
                 continue
             test_lists = sorted(os.listdir(test_dir))
             test_number = 1
-            for test_name in test_lists: # scan all json test present in the dir
-                if (test_name in ["json","zip","gzip"] == 0): # if file doesn't terminate with .json, .gzip, .tar jump it
+            for test_name in test_lists:  # scan all json test present in the dir
+                if (test_name in ["json", "zip",
+                                  "gzip"] == 0):  # if file doesn't terminate with .json, .gzip, .tar jump it
                     continue
                 if is_testing_apis(api_name, config.testing_apis):  # -a or all
                     test_file = api_name + "/" + test_name
-                    if is_skipped(api_name, config.net, config.exclude_api_list, config.exclude_test_list, test_file, config.req_test_number,
+                    if is_skipped(api_name, config.net, config.exclude_api_list, config.exclude_test_list, test_file,
+                                  config.req_test_number,
                                   config.verify_with_daemon, global_test_number) == 1:
                         if config.start_test == "" or global_test_number >= int(config.start_test):
                             if config.display_only_fail == 0 and config.req_test_number != "":
@@ -733,24 +755,25 @@ def main(argv):
                         # runs only tests a specific test_number in the testing_apis list
                         if ((config.testing_apis == "" and
                              config.req_test_number in (-1, global_test_number)) or
-                             (config.testing_apis != "" and
-                              config.req_test_number in (-1, test_number))):
-                            if (config.start_test == "") or (config.start_test != ""
-                                            and global_test_number >= int(config.start_test)): # start from specific test
+                                (config.testing_apis != "" and
+                                 config.req_test_number in (-1, test_number))):
+                            if (config.start_test == "" or
+                                    # start from specific test
+                                    (config.start_test != "" and global_test_number >= int(config.start_test))):
                                 file = test_file.ljust(60)
                                 if config.verbose_level:
                                     print(f"{global_test_number:03d}. {file} ", end='', flush=True)
                                 else:
                                     print(f"{global_test_number:03d}. {file}\r", end='', flush=True)
                                 ret = run_test(config.net, config.json_dir, config.output_dir,
-                                                test_file,
-                                                config.verbose_level, config.daemon_under_test,
-                                                config.exit_on_fail, config.verify_with_daemon,
-                                                config.daemon_as_reference,
-                                                config.force_dump_jsons, global_test_number,
-                                                config.infura_url,
-                                                config.daemon_on_host, config.daemon_on_port,
-                                                config.jwt_secret, config.websocket_as_transport)
+                                               test_file,
+                                               config.verbose_level, config.daemon_under_test,
+                                               config.exit_on_fail, config.verify_with_daemon,
+                                               config.daemon_as_reference,
+                                               config.force_dump_jsons, global_test_number,
+                                               config.infura_url,
+                                               config.daemon_on_host, config.daemon_on_port,
+                                               config.jwt_secret, config.websocket_as_transport)
                                 if ret == 0:
                                     success_tests = success_tests + 1
                                 else:
