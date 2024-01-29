@@ -16,7 +16,7 @@ from websocket import create_connection
 
 SILK = "silk"
 RPCDAEMON = "rpcdaemon"
-INFURA = "infura"
+EXTERNAL_PROVIDER = "external-provider"
 
 tests_with_big_json = [
 ]
@@ -137,7 +137,7 @@ def usage(argv):
     print("-H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)")
     print("-p,--port: port where the RpcDaemon is located (e.g.: 8545)")
     print("-r,--erigon-rpcdaemon: connect to Erigon RpcDaemon [default: connect to Silkrpc] ")
-    print("-i,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
+    print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
 
 
 def get_target_name(target_type: str):
@@ -146,12 +146,12 @@ def get_target_name(target_type: str):
         return "Silk"
     if target_type == RPCDAEMON:
         return "RpcDaemon"
-    if target_type == INFURA:
+    if target_type == EXTERNAL_PROVIDER:
         return "Infura"
     return "Undef"
 
 
-def get_target(target_type: str, method: str, infura_url: str, host: str, port: int = 0):
+def get_target(target_type: str, method: str, external_provider_url: str, host: str, port: int = 0):
     """ determine target
     """
     if "engine_" in method and target_type == SILK:
@@ -163,8 +163,8 @@ def get_target(target_type: str, method: str, infura_url: str, host: str, port: 
     if target_type == SILK:
         return host + ":" + str(port if port > 0 else 51515)
 
-    if target_type == INFURA:
-        return infura_url
+    if target_type == EXTERNAL_PROVIDER:
+        return external_provider_url
 
     return host + ":" + str(port if port > 0 else 8545)
 
@@ -174,8 +174,8 @@ def get_json_filename_ext(target_type: str):
     """
     if target_type == SILK:
         return "-silk.json"
-    if target_type == INFURA:
-        return "-infura.json"
+    if target_type == EXTERNAL_PROVIDER:
+        return "-external_provider_url.json"
     return "-rpcdaemon.json"
 
 
@@ -237,7 +237,8 @@ def modified_str_from_file(filer, filew, matched_string):
                     output_file.write(line)
 
 
-def is_skipped(api_name, net, exclude_api_list, exclude_test_list, test_name: str, req_test_number, verify_with_daemon,
+def is_skipped(api_name, net, exclude_api_list, exclude_test_list,
+               test_name: str, req_test_number, verify_with_daemon,
                global_test_number):
     """ determine if test must be skipped
     """
@@ -329,7 +330,7 @@ class Config:
         self.verbose_level = 0
         self.req_test_number = -1
         self.force_dump_jsons = False
-        self.infura_url = ""
+        self.external_provider_url = ""
         self.daemon_on_host = "localhost"
         self.daemon_on_port = 0
         self.testing_apis = ""
@@ -348,11 +349,11 @@ class Config:
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "whfrcv:t:l:a:di:b:ox:X:H:k:s:p:",
-                                    ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
-                                     'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
-                                     'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'auth-token=', 'blockchain=',
-                                     'websocket', 'exclude-api-list=', 'exclude-test-list=', 'dump-response'])
+            opts, _ = getopt.getopt(argv[1:], "whfrcv:t:l:a:de:b:ox:X:H:k:s:p:",
+                   ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
+                   'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
+                   'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'auth-token=', 'blockchain=',
+                   'websocket', 'exclude-api-list=', 'exclude-test-list=', 'dump-response'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
@@ -365,9 +366,9 @@ class Config:
                         usage(argv)
                         sys.exit(-1)
                     self.daemon_under_test = RPCDAEMON
-                elif option in ("-i", "--verify-external-provider"):
-                    self.daemon_as_reference = INFURA
-                    self.infura_url = optarg
+                elif option in ("-e", "--verify-external-provider"):
+                    self.daemon_as_reference = EXTERNAL_PROVIDER
+                    self.external_provider_url = optarg
                 elif option in ("-H", "--host"):
                     self.daemon_on_host = optarg
                 elif option in ("-p", "--port"):
@@ -601,8 +602,8 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
             return 0
         dump_jsons(True, silk_file, exp_rsp_file, output_dir, response, expected_response)
 
-        same = compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file, verbose_level, test_number,
-                            exit_on_fail)
+        same = compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file,
+                            verbose_level, test_number, exit_on_fail)
         # cleanup
         if same:
             os.remove(silk_file)
@@ -619,10 +620,10 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
     return 0
 
 
-def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_level: int, daemon_under_test: str,
-             exit_on_fail: bool,
-             verify_with_daemon: bool, daemon_as_reference: str,
-             force_dump_jsons: bool, test_number, infura_url: str, daemon_on_host: str, daemon_on_port: int,
+def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_level: int,
+             daemon_under_test: str, exit_on_fail: bool, verify_with_daemon: bool,
+             daemon_as_reference: str, force_dump_jsons: bool, test_number, external_provider_url: str,
+             daemon_on_host: str, daemon_on_port: int,
              jwt_secret: str, websocket_as_transport: bool):
     """ Run integration tests. """
     json_filename = test_dir + json_file
@@ -655,7 +656,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
         except KeyError:
             method = ""
         request_dumps = json.dumps(request)
-        target = get_target(daemon_under_test, method, infura_url, daemon_on_host, daemon_on_port)
+        target = get_target(daemon_under_test, method, external_provider_url, daemon_on_host, daemon_on_port)
         if jwt_secret == "":
             jwt_auth = ""
             encoded = ""
@@ -675,9 +676,9 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             silk_file = output_api_filename + ".response.json"
             exp_rsp_file = output_api_filename + ".expResponse.json"
         else:  # run tests with both servers
-            target = get_target(SILK, method, infura_url, daemon_on_host, daemon_on_port)
+            target = get_target(SILK, method, external_provider_url, daemon_on_host, daemon_on_port)
             result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target)
-            target1 = get_target(daemon_as_reference, method, infura_url, daemon_on_host, daemon_on_port)
+            target1 = get_target(daemon_as_reference, method, external_provider_url, daemon_on_host, daemon_on_port)
             result1 = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target1)
             response_in_file = None
 
@@ -772,7 +773,7 @@ def main(argv):
                                                config.exit_on_fail, config.verify_with_daemon,
                                                config.daemon_as_reference,
                                                config.force_dump_jsons, global_test_number,
-                                               config.infura_url,
+                                               config.external_provider_url,
                                                config.daemon_on_host, config.daemon_on_port,
                                                config.jwt_secret, config.websocket_as_transport)
                                 if ret == 0:

@@ -59,7 +59,7 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)
 -p,--port: port where the RpcDaemon is located (e.g.: 8545)
 -r,--erigon-rpcdaemon: connect to Erigon RpcDaemon [default: connect to Silkrpc]
--i,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference
+-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference
 
 ```
 
