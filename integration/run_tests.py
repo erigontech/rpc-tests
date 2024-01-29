@@ -361,7 +361,7 @@ class Config:
                     self.exit_on_fail = 0
                 elif option in ("-r", "--erigon-rpcdaemon"):
                     if self.verify_with_daemon == 1:
-                        print("Error on options: -r is not compatible with -d")
+                        print("Error on options: -r/--erigon-rpcdaemon is not compatible with -d/--compare-erigon-rpcdaemon")
                         usage(argv)
                         sys.exit(-1)
                     self.daemon_under_test = RPCDAEMON
@@ -378,7 +378,7 @@ class Config:
                     self.verbose_level = int(optarg)
                 elif option in ("-t", "--run-single-test"):
                     if self.exclude_test_list != "" or self.exclude_api_list != "":
-                        print("Error on options: -t is not compatible with -x or -X")
+                        print("Error on options: -t/--run-single-test is not compatible with -x/--exclude-api-list or -X/--exclude-test-list")
                         usage(argv)
                         sys.exit(-1)
                     self.req_test_number = int(optarg)
@@ -386,7 +386,7 @@ class Config:
                     self.start_test = int(optarg)
                 elif option in ("-a", "--api-list"):
                     if self.exclude_test_list != "" or self.exclude_api_list != "":
-                        print("Error in options: -a is not compatible with -x or -X")
+                        print("Error on options: -a/--api-list is not compatible with -x/--exclude-api-list or -X/--exclude-test-list")
                         usage(argv)
                         sys.exit(-1)
                     self.testing_apis = optarg
@@ -394,7 +394,7 @@ class Config:
                     self.loop_number = int(optarg)
                 elif option in ("-d", "--compare-erigon-rpcdaemon"):
                     if self.daemon_under_test != SILK:
-                        print("Error in options: -d is not compatible with -r")
+                        print("Error in options: -d/--compare-erigon-rpcdaemon is not compatible with -r/--erigon-rpcdaemon")
                         usage(argv)
                         sys.exit(-1)
                     self.verify_with_daemon = 1
@@ -408,13 +408,13 @@ class Config:
                     self.output_dir = self.json_dir + self.results_dir + "/"
                 elif option in ("-x", "--exclude-api-list"):
                     if self.req_test_number != -1 or self.testing_apis != "":
-                        print("Error in options: -x is not compatible with -a or -t")
+                        print("Error in options: -x/--exclude-api-list is not compatible with -a/--api-list or -t/--run-single-test")
                         usage(argv)
                         sys.exit(-1)
                     self.exclude_api_list = optarg
                 elif option in ("-X", "--exclude-test-list"):
                     if self.req_test_number != -1 or self.testing_apis != "":
-                        print("Error in options: -X is not compatible with -a or -t")
+                        print("Error in options: -X/--exclude-test-list is not compatible with -a/--api-list or -t/--run-single-test")
                         usage(argv)
                         sys.exit(-1)
                     self.exclude_test_list = optarg
@@ -422,6 +422,7 @@ class Config:
                     self.jwt_secret = get_jwt_secret(optarg)
                     if self.jwt_secret == "":
                         print("secret file not found")
+                        usage(argv)
                         sys.exit(-1)
                 else:
                     print("Error option not managed:", option)
