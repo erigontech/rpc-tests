@@ -10,12 +10,20 @@ These integration tests currently available for Goerli testnet must run as non-r
 
 Currently, `json-diff` and `json-patch-jsondiff` are also required:
 
+## Linux
 ```
 % sudo apt update
 % sudo apt install npm
 % npm install -g json-diff
 
 % sudo apt install python3-jsonpatch
+```
+
+## macOS
+```
+% brew update
+% brew install node
+% npm install -g json-diff
 ```
 
 # Run tests
@@ -33,42 +41,51 @@ Usage: ./run_tests.py:
 
 Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon
 
--h print this help
--f shows only failed tests (not Skipped)
--c runs all tests even if one test fails [default: exit at first test fail]
--r connect to Erigon RpcDaemon [default: connect to Silkrpc] 
--l <number of loops>
--a <test_api>: run all tests of the specified API
--s <start_test_number>: run tests starting from input
--t <test_number>: run single test
--d send requests also to the reference daemon i.e. Erigon RpcDaemon
--i <infura_url> send any request also to the Infura API endpoint as reference
--b blockchain [default: goerly]
--v <verbose_level>
--o dump response
--k authentication token file
--x exclude API list (i.e. txpool_content,txpool_status,engine_
--X exclude test list (i.e. 18,22
--H host where the RpcDaemon is located (e.g. 10.10.2.3)
--p port where the RpcDaemon is located (e.g. 8545)
+-h,--help: print this help
+-f,--display-only-fail: shows only failed tests (not Skipped)
+-v,--verbose: <verbose_level>
+-c,--continue: runs all tests even if one test fails [default: exit at first test fail]
+-l,--loops: <number of loops>
+-b,--blockchain: [default: goerly]
+-s,--start-from-test: <test_number>: run tests starting from input
+-t,--run-single-test: <test_number>: run single test
+-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon
+-w,--websocket: use websocket
+-k,--auth-token: authentication token file
+-a,--api-list: <apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)
+-x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)
+-X,--exclude-test-list: exclude test list (e.g.: 18,22)
+-o,--dump-response: dump JSON RPC response
+-H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)
+-p,--port: port where the RpcDaemon is located (e.g.: 8545)
+-r,--erigon-rpcdaemon: connect to Erigon RpcDaemon [default: connect to Silkrpc]
+-i,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference
 
 ```
 
 # Invoke examples
 
+```
 % ./run_tests.py -b mainnet -d -c -v 1
+```
 
-Runs all tests on main net chain comparing silkrpc response with rpcdaemon response, printing each test result
+Runs all tests on main net chain comparing Silkrpc response with rpcdaemon response, printing each test result
 
+```
 % ./run_tests.py -b mainnet -c -v 1
+```
 
 Runs all tests on main net chain comparing silkrpc response to response saved on json file, printing each test result
 
+```
 % ./run_tests.py -b mainnet -c -a eth_call
+```
 
 Runs all tests of eth_call on main net chain comparing silkrpc response with saved json file, printing only failed tests
 
+```
 % ./run_tests.py -b mainnet -r -c -a eth_call -t 1
+```
 
 Runs test 1 of eth_call on main net chain comparing rpcdaemon response to saved json file, printing only failed tests
 
