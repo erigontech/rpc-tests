@@ -9,7 +9,6 @@ import os
 import shutil
 import sys
 import tarfile
-import time
 import pytz
 import jwt
 from websocket import create_connection
@@ -138,6 +137,7 @@ def usage(argv):
     print("-p,--port: port where the RpcDaemon is located (e.g.: 8545)")
     print("-r,--erigon-rpcdaemon: connect to Erigon RpcDaemon [default: connect to Silkrpc] ")
     print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
+    print("-i,--without-compare-results: send request without compare results")
 
 
 def get_target_name(target_type: str):
@@ -345,15 +345,17 @@ class Config:
         self.jwt_secret = ""
         self.display_only_fail = 0
         self.websocket_as_transport = False
+        self.without_compare_results = False
 
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "whfrcv:t:l:a:de:b:ox:X:H:k:s:p:",
+            opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:",
                    ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                    'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                    'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'auth-token=', 'blockchain=',
-                   'websocket', 'exclude-api-list=', 'exclude-test-list=', 'dump-response'])
+                   'websocket', 'exclude-api-list=', 'exclude-test-list=', 'dump-response',
+                   'without-compare-results'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
@@ -398,6 +400,10 @@ class Config:
                         print("Error in options: -d/--compare-erigon-rpcdaemon is not compatible with -r/--erigon-rpcdaemon")
                         usage(argv)
                         sys.exit(-1)
+                    if self.without_compare_results is True:
+                        print("Error in options: -d/--compare-erigon-rpcdaemon is not compatible with -i/--without_compare_results")
+                        usage(argv)
+                        sys.exit(-1)
                     self.verify_with_daemon = 1
                 elif option in ("-o", "--dump-response"):
                     self.force_dump_jsons = 1
@@ -425,6 +431,12 @@ class Config:
                         print("secret file not found")
                         usage(argv)
                         sys.exit(-1)
+                elif option in ("-i", "--without-compare-results"):
+                    if self.verify_with_daemon == 1:
+                        print("Error on options: -i/--without-compare-results is not compatible with -d/--compare-erigon-rpcdaemon")
+                        usage(argv)
+                        sys.exit(-1)
+                    self.without_compare_results = True
                 else:
                     print("Error option not managed:", option)
                     usage(argv)
@@ -566,14 +578,19 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
 def process_response(net, result, result1, response_in_file: str, verbose_level: int, exit_on_fail: bool,
                      output_dir: str, silk_file: str,
                      exp_rsp_file: str, diff_file: str, force_dump_jsons, json_file: str, test_number: int,
-                     daemon_under_test, daemon_as_reference: str):
+                     daemon_under_test, daemon_as_reference: str, without_compare_results):
     """ Process the response If exact result or error don't care, they are null but present in expected_response. """
 
     response = get_json_from_response(daemon_under_test, verbose_level, json_file, result, test_number, exit_on_fail)
     if response is None:
         return 0
 
-    if response_in_file is None:
+    if without_compare_results is True:
+        if verbose_level:
+            print("OK")
+        return 1
+
+    if result1 == "":
         expected_response = get_json_from_response(daemon_as_reference, verbose_level, json_file, result1, test_number,
                                                    exit_on_fail)
         if expected_response is None:
@@ -612,19 +629,20 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
         if not os.listdir(output_dir):
             os.rmdir(output_dir)
 
-    else:
-        if verbose_level:
-            print("OK")
+        return 0
+
+    if verbose_level:
+        print("OK")
 
     dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
-    return 0
+    return 1
 
 
 def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_level: int,
              daemon_under_test: str, exit_on_fail: bool, verify_with_daemon: bool,
              daemon_as_reference: str, force_dump_jsons: bool, test_number, external_provider_url: str,
              daemon_on_host: str, daemon_on_port: int,
-             jwt_secret: str, websocket_as_transport: bool):
+             jwt_secret: str, websocket_as_transport, without_compare_results: bool):
     """ Run integration tests. """
     json_filename = test_dir + json_file
     ext = os.path.splitext(json_file)[1]
@@ -704,7 +722,8 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             json_file,
             test_number,
             daemon_under_test,
-            daemon_as_reference)
+            daemon_as_reference,
+            without_compare_results)
 
 
 #
@@ -716,7 +735,7 @@ def main(argv):
     config = Config()
     config.select_user_options(argv)
 
-    start_time = time.time()
+    tstart = datetime.now()
     os.mkdir(config.output_dir)
     match = 0
     executed_tests = 0
@@ -775,7 +794,8 @@ def main(argv):
                                                config.force_dump_jsons, global_test_number,
                                                config.external_provider_url,
                                                config.daemon_on_host, config.daemon_on_port,
-                                               config.jwt_secret, config.websocket_as_transport)
+                                               config.jwt_secret, config.websocket_as_transport,
+                                               config.without_compare_results)
                                 if ret == 0:
                                     success_tests = success_tests + 1
                                 else:
@@ -790,10 +810,10 @@ def main(argv):
     if (config.req_test_number != -1 or config.testing_apis != "") and match == 0:
         print("ERROR: api or testNumber not found")
     else:
-        end_time = time.time()
-        elapsed = end_time - start_time
+        tend = datetime.now()
+        elapsed = tend - tstart
         print("                                                                                    \r")
-        print(f"Test time-elapsed (secs):     {int(elapsed)}")
+        print(f"Test time-elapsed:            {str(elapsed)}")
         print(f"Number of executed tests:     {executed_tests}/{global_test_number - 1}")
         print(f"Number of NOT executed tests: {tests_not_executed}")
         print(f"Number of success tests:      {success_tests}")
