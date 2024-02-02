@@ -9,7 +9,6 @@ import os
 import shutil
 import sys
 import tarfile
-import time
 import pytz
 import jwt
 from websocket import create_connection
@@ -401,7 +400,7 @@ class Config:
                         print("Error in options: -d/--compare-erigon-rpcdaemon is not compatible with -r/--erigon-rpcdaemon")
                         usage(argv)
                         sys.exit(-1)
-                    if self.without_compare_results == True:
+                    if self.without_compare_results is True:
                         print("Error in options: -d/--compare-erigon-rpcdaemon is not compatible with -i/--without_compare_results")
                         usage(argv)
                         sys.exit(-1)
@@ -586,7 +585,7 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
     if response is None:
         return 0
 
-    if without_compare_results == True:
+    if without_compare_results is True:
         if verbose_level:
             print("OK")
         return 1
@@ -632,9 +631,8 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
 
         return 0
 
-    else:
-        if verbose_level:
-            print("OK")
+    if verbose_level:
+        print("OK")
 
     dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
     return 1
@@ -737,7 +735,7 @@ def main(argv):
     config = Config()
     config.select_user_options(argv)
 
-    start_time = time.time()
+    tstart = datetime.now()
     os.mkdir(config.output_dir)
     match = 0
     executed_tests = 0
@@ -812,10 +810,10 @@ def main(argv):
     if (config.req_test_number != -1 or config.testing_apis != "") and match == 0:
         print("ERROR: api or testNumber not found")
     else:
-        end_time = time.time()
-        elapsed = end_time - start_time
+        tend = datetime.now()
+        elapsed = tend - tstart
         print("                                                                                    \r")
-        print(f"Test time-elapsed (secs):     {int(elapsed)}")
+        print(f"Test time-elapsed:            {str(elapsed)}")
         print(f"Number of executed tests:     {executed_tests}/{global_test_number - 1}")
         print(f"Number of NOT executed tests: {tests_not_executed}")
         print(f"Number of success tests:      {success_tests}")
