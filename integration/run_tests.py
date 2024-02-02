@@ -21,51 +21,51 @@ tests_with_big_json = [
 ]
 
 api_not_compared = [
-    "goerly/trace_rawTransaction",  # erigon does not support raw tx but hash of tx
-    "goerly/parity_getBlockReceipts",  # not supported by rpcdaemon
-    "goerly/erigon_watchTheBurn",  # not supported by rpcdaemon
-    "goerly/erigon_cumulativeChainTraffic",  # not supported by rpcdaemon
-    "goerly/engine_exchangeCapabilities",  # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_forkchoiceUpdatedV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_forkchoiceUpdatedV2",  # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_getPayloadBodiesByHashV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_getPayloadBodiesByRangeV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_getPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_getPayloadV2",  # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_newPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerly/engine_newPayloadV2"  # not supported by silkrpc removed from ethbackend i/f
+    "goerli/trace_rawTransaction",  # erigon does not support raw tx but hash of tx
+    "goerli/parity_getBlockReceipts",  # not supported by rpcdaemon
+    "goerli/erigon_watchTheBurn",  # not supported by rpcdaemon
+    "goerli/erigon_cumulativeChainTraffic",  # not supported by rpcdaemon
+    "goerli/engine_exchangeCapabilities",  # not supported by silkrpc removed from ethbackend i/f
+    "goerli/engine_forkchoiceUpdatedV1",  # not supported by silkrpc removed from ethbackend i/f
+    "goerli/engine_forkchoiceUpdatedV2",  # not supported by silkrpc removed from ethbackend i/f
+    "goerli/engine_getPayloadBodiesByHashV1",  # not supported by silkrpc removed from ethbackend i/f
+    "goerli/engine_getPayloadBodiesByRangeV1",  # not supported by silkrpc removed from ethbackend i/f
+    "goerli/engine_getPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
+    "goerli/engine_getPayloadV2",  # not supported by silkrpc removed from ethbackend i/f
+    "goerli/engine_newPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
+    "goerli/engine_newPayloadV2"  # not supported by silkrpc removed from ethbackend i/f
 ]
 
 tests_not_compared = [
-    "goerly/debug_accountAt/test_06.json",  # debug
-    "goerly/debug_accountAt/test_07.json",  # debug
-    "goerly/debug_accountAt/test_11.json",  # debug
-    "goerly/debug_traceBlockByHash/test_02.tar",  # diff on gasCost
-    "goerly/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
-    "goerly/debug_traceBlockByHash/test_04.tar",  # diff on gasCost
+    "goerli/debug_accountAt/test_06.json",  # debug
+    "goerli/debug_accountAt/test_07.json",  # debug
+    "goerli/debug_accountAt/test_11.json",  # debug
+    "goerli/debug_traceBlockByHash/test_02.tar",  # diff on gasCost
+    "goerli/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
+    "goerli/debug_traceBlockByHash/test_04.tar",  # diff on gasCost
 
-    "goerly/debug_traceBlockByNumber/test_02.tar",  # diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_09.tar",  # diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_10.tar",  # diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_11.tar",  # diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_12.tar",  # diff on gasCost
-    "goerly/debug_traceBlockByNumber/test_14.tar",  # diff on gasCost
+    "goerli/debug_traceBlockByNumber/test_02.tar",  # diff on gasCost
+    "goerli/debug_traceBlockByNumber/test_09.tar",  # diff on gasCost
+    "goerli/debug_traceBlockByNumber/test_10.tar",  # diff on gasCost
+    "goerli/debug_traceBlockByNumber/test_11.tar",  # diff on gasCost
+    "goerli/debug_traceBlockByNumber/test_12.tar",  # diff on gasCost
+    "goerli/debug_traceBlockByNumber/test_14.tar",  # diff on gasCost
 
-    "goerly/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost
-    "goerly/trace_replayBlockTransactions/test_02.tar",  # diff on gasCost
+    "goerli/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost
+    "goerli/trace_replayBlockTransactions/test_02.tar",  # diff on gasCost
 
-    "goerly/trace_replayTransaction/test_16.tar",  # diff on gasCost
-    "goerly/trace_replayTransaction/test_23.tar",  # diff on gasCost
+    "goerli/trace_replayTransaction/test_16.tar",  # diff on gasCost
+    "goerli/trace_replayTransaction/test_23.tar",  # diff on gasCost
 
-    "goerly/debug_traceCall/test_10.json",  # diff on gasCost
-    "goerly/debug_traceCall/test_14.json",  # diff on gasCost
-    "goerly/debug_traceCall/test_17.json",  # diff on gasCost
-    "goerly/eth_callMany/test_01.json",  # debug bad value format
-    "goerly/eth_callMany/test_02.json",  # debug bad value format
-    "goerly/eth_callMany/test_05.json",  # debug bad error format
-    "goerly/eth_callMany/test_06.json",  # debug bad error format
-    "goerly/eth_callMany/test_09.json",  # debug silkrpc return ok rpcdaemon error
-    "goerly/eth_callMany/test_10.json",  # debug silkrpc return ok rpcdaemon error
+    "goerli/debug_traceCall/test_10.json",  # diff on gasCost
+    "goerli/debug_traceCall/test_14.json",  # diff on gasCost
+    "goerli/debug_traceCall/test_17.json",  # diff on gasCost
+    "goerli/eth_callMany/test_01.json",  # debug bad value format
+    "goerli/eth_callMany/test_02.json",  # debug bad value format
+    "goerli/eth_callMany/test_05.json",  # debug bad error format
+    "goerli/eth_callMany/test_06.json",  # debug bad error format
+    "goerli/eth_callMany/test_09.json",  # debug silkrpc return ok rpcdaemon error
+    "goerli/eth_callMany/test_10.json",  # debug silkrpc return ok rpcdaemon error
 
     "mainnet/debug_accountAt/test_02.json",  # to be debugged
     "mainnet/debug_accountAt/test_05.json",  # to be debugged
@@ -84,24 +84,24 @@ tests_not_compared = [
 ]
 
 tests_not_compared_result = [
-    "goerly/trace_call/test_04.json",  # error message different invalidOpcode vs badInstructions
-    "goerly/trace_call/test_11.json",  # error message different invalidOpcode vs badInstructions
-    "goerly/trace_call/test_15.json",  # error message different invalidOpcode vs badInstructions
-    "goerly/trace_call/test_17.json",  # error message different invalidOpcode vs badInstructions
-    "goerly/trace_callMany/test_04.json",  # error message different invalidOpcode vs badInstructions
-    "goerly/eth_callMany/test_04.json",  # error message different invalidOpcode vs badInstructions
-    "goerly/trace_callMany/test_05.json",  # error message different invalidOpcode vs badInstructions
-    "goerly/trace_callMany/test_13.json",  # error message different invalidOpcode vs badInstructions
-    "goerly/trace_callMany/test_14.tar",  # error message different invalidOpcode vs badInstructions
-    "goerly/trace_callMany/test_15.json"  # error message different invalidOpcode vs badInstructions
+    "goerli/trace_call/test_04.json",  # error message different invalidOpcode vs badInstructions
+    "goerli/trace_call/test_11.json",  # error message different invalidOpcode vs badInstructions
+    "goerli/trace_call/test_15.json",  # error message different invalidOpcode vs badInstructions
+    "goerli/trace_call/test_17.json",  # error message different invalidOpcode vs badInstructions
+    "goerli/trace_callMany/test_04.json",  # error message different invalidOpcode vs badInstructions
+    "goerli/eth_callMany/test_04.json",  # error message different invalidOpcode vs badInstructions
+    "goerli/trace_callMany/test_05.json",  # error message different invalidOpcode vs badInstructions
+    "goerli/trace_callMany/test_13.json",  # error message different invalidOpcode vs badInstructions
+    "goerli/trace_callMany/test_14.tar",  # error message different invalidOpcode vs badInstructions
+    "goerli/trace_callMany/test_15.json"  # error message different invalidOpcode vs badInstructions
 ]
 
 tests_not_compared_message = [
-    "goerly/trace_callMany/test_10.json",  # silkrpc message contains also address
-    "goerly/trace_callMany/test_11.json",  # silkrpc message contains also address
-    "goerly/eth_callMany/test_08.json",  # silkrpc message contains few chars
-    "goerly/trace_call/test_12.json",  # silkrpc message contains also address
-    "goerly/trace_call/test_16.json"  # silkrpc message contains also address
+    "goerli/trace_callMany/test_10.json",  # silkrpc message contains also address
+    "goerli/trace_callMany/test_11.json",  # silkrpc message contains also address
+    "goerli/eth_callMany/test_08.json",  # silkrpc message contains few chars
+    "goerli/trace_call/test_12.json",  # silkrpc message contains also address
+    "goerli/trace_call/test_16.json"  # silkrpc message contains also address
 ]
 
 tests_message_lower_case = [
@@ -123,12 +123,12 @@ def usage(argv):
     print("-v,--verbose: <verbose_level>")
     print("-c,--continue: runs all tests even if one test fails [default: exit at first test fail]")
     print("-l,--loops: <number of loops>")
-    print("-b,--blockchain: [default: goerly]")
+    print("-b,--blockchain: [default: goerli]")
     print("-s,--start-from-test: <test_number>: run tests starting from input")
     print("-t,--run-single-test: <test_number>: run single test")
     print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
     print("-w,--websocket: use websocket")
-    print("-k,--auth-token: authentication token file")
+    print("-k,--jwt: authentication token file")
     print("-a,--api-list: <apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)")
     print("-x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
     print("-X,--exclude-test-list: exclude test list (e.g.: 18,22)")
@@ -335,7 +335,7 @@ class Config:
         self.daemon_on_port = 0
         self.testing_apis = ""
         self.verify_with_daemon = False
-        self.net = "goerly"
+        self.net = "goerli"
         self.json_dir = "./" + self.net + "/"
         self.results_dir = "results"
         self.output_dir = self.json_dir + self.results_dir + "/"
@@ -353,7 +353,7 @@ class Config:
             opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:",
                    ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                    'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
-                   'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'auth-token=', 'blockchain=',
+                   'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
                    'websocket', 'exclude-api-list=', 'exclude-test-list=', 'dump-response',
                    'without-compare-results'])
             for option, optarg in opts:
@@ -425,7 +425,7 @@ class Config:
                         usage(argv)
                         sys.exit(-1)
                     self.exclude_test_list = optarg
-                elif option in ("-k", "--auth-token"):
+                elif option in ("-k", "--jwt"):
                     self.jwt_secret = get_jwt_secret(optarg)
                     if self.jwt_secret == "":
                         print("secret file not found")
@@ -590,7 +590,7 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
             print("OK")
         return 1
 
-    if result1 == "":
+    if result1 != "":
         expected_response = get_json_from_response(daemon_as_reference, verbose_level, json_file, result1, test_number,
                                                    exit_on_fail)
         if expected_response is None:
