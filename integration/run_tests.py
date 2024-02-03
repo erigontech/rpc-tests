@@ -255,7 +255,7 @@ def is_skipped(api_name, net, exclude_api_list, exclude_test_list,
     if exclude_api_list != "":  # scans exclude api list (-x)
         tokenize_exclude_api_list = exclude_api_list.split(",")
         for exclude_api in tokenize_exclude_api_list:
-            if exclude_api in api_full_name:
+            if exclude_api in api_full_name or exclude_api in api_full_test_name:
                 return 1
     if exclude_test_list != "":  # scans exclude test list (-X)
         tokenize_exclude_test_list = exclude_test_list.split(",")
@@ -510,10 +510,16 @@ def execute_request(websocket_as_transport: bool, jwt_auth, encoded, request_dum
             http_header = []
         try:
             web_service = create_connection(ws_target, header=http_header)
+        except:
+            print("\nConnection to server failed")
+            print("TEST ABORTED!")
+            sys.exit(1)
+
+        try:
             web_service.send(request_dumps)
             result = web_service.recv()
-        except (Exception,):
-            print("\nConnection to server failed")
+        except:
+            print("\read/write on websocket fail")
             print("TEST ABORTED!")
             sys.exit(1)
     return result
