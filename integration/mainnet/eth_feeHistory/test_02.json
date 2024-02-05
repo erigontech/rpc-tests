@@ -8,7 +8,7 @@
             "jsonrpc": "2.0",
             "method": "eth_feeHistory",
             "params": [
-                2,
+               "0x2",
                 "0x737A80",
                 [10, 50, 90]
             ],
