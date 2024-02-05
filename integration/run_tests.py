@@ -735,7 +735,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
 #
 # main
 #
-def main(argv):
+def main(argv) -> int:
     """ parse command line and execute tests
     """
     config = Config()
@@ -825,10 +825,11 @@ def main(argv):
         print(f"Number of success tests:      {success_tests}")
         print(f"Number of failed tests:       {failed_tests}")
 
+    return failed_tests
+
 
 #
 # module as main
 #
 if __name__ == "__main__":
-    main(sys.argv)
-    sys.exit(0)
+    sys.exit(main(sys.argv))
