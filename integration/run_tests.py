@@ -815,6 +815,7 @@ def main(argv) -> int:
 
     if (config.req_test_number != -1 or config.testing_apis != "") and match == 0:
         print("ERROR: api or testNumber not found")
+        return 1
     else:
         tend = datetime.now()
         elapsed = tend - tstart
