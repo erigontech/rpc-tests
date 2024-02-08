@@ -1,6 +1,7 @@
 [
    {
         "request":{
+            "jsonrpc":"2.0",
             "method": "eth_getRawTransactionByHash",
             "params": ["0xa00504c64d3b12f2f06ef142efc5ef9abe2a8c5814326ac99644d26f4cc65d3a"],
             "id": 1
