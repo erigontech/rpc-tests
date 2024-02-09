@@ -9,8 +9,8 @@
             "id":1,
             "jsonrpc":"2.0",
              "error": {
-                 "code": -32602,
-                 "message": "missing value for required argument 0"
+                 "code": -32600,
+                 "message": "invalid request"
              }
         }
     }

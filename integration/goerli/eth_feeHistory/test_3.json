@@ -4,7 +4,7 @@
             "jsonrpc": "2.0",
             "method": "eth_feeHistory",
             "params": [
-                5,
+                "0x5",
                 "0x685A80",
                 [25, 50, 75]
             ],

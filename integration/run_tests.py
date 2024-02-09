@@ -610,19 +610,19 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
             if verbose_level:
                 print("OK")
             dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
-            return 0
+            return 1
         if "error" in response and "error" in expected_response and expected_response["error"] is None:
             # response and expected_response are different but don't care
             if verbose_level:
                 print("OK")
             dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
-            return 0
+            return 1
         if "error" not in expected_response and "result" not in expected_response:
             # response and expected_response are different but don't care
             if verbose_level:
                 print("OK")
             dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
-            return 0
+            return 1
         dump_jsons(True, silk_file, exp_rsp_file, output_dir, response, expected_response)
 
         same = compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file,
@@ -635,7 +635,7 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
         if not os.listdir(output_dir):
             os.rmdir(output_dir)
 
-        return 0
+        return same
 
     if verbose_level:
         print("OK")
@@ -695,10 +695,10 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
 
             output_api_filename = output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
-            diff_file = output_api_filename + "-diff.json"
+            diff_file = output_api_filename + "diff.json"
 
-            silk_file = output_api_filename + ".response.json"
-            exp_rsp_file = output_api_filename + ".expResponse.json"
+            silk_file = output_api_filename + "response.json"
+            exp_rsp_file = output_api_filename + "expResponse.json"
         else:  # run tests with both servers
             target = get_target(SILK, method, external_provider_url, daemon_on_host, daemon_on_port)
             result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target)
@@ -735,7 +735,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
 #
 # main
 #
-def main(argv):
+def main(argv) -> int:
     """ parse command line and execute tests
     """
     config = Config()
@@ -802,7 +802,7 @@ def main(argv):
                                                config.daemon_on_host, config.daemon_on_port,
                                                config.jwt_secret, config.websocket_as_transport,
                                                config.without_compare_results)
-                                if ret == 0:
+                                if ret == 1:
                                     success_tests = success_tests + 1
                                 else:
                                     failed_tests = failed_tests + 1
@@ -815,6 +815,7 @@ def main(argv):
 
     if (config.req_test_number != -1 or config.testing_apis != "") and match == 0:
         print("ERROR: api or testNumber not found")
+        return 1
     else:
         tend = datetime.now()
         elapsed = tend - tstart
@@ -825,10 +826,11 @@ def main(argv):
         print(f"Number of success tests:      {success_tests}")
         print(f"Number of failed tests:       {failed_tests}")
 
+    return failed_tests
+
 
 #
 # module as main
 #
 if __name__ == "__main__":
-    main(sys.argv)
-    sys.exit(0)
+    sys.exit(main(sys.argv))
