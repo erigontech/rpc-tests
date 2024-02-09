@@ -37,8 +37,8 @@ api_not_compared = [
 ]
 
 tests_not_compared = [
-    "goerli/debug_accountAt/test_06.json",  # debug
-    "goerli/debug_accountAt/test_07.json",  # debug
+    "goerli/debug_accountAt/test_06.json",  # debug diff on balance
+    "goerli/debug_accountAt/test_07.json",  # debug diff on balance
     "goerli/debug_accountAt/test_11.json",  # debug
     "goerli/debug_traceBlockByHash/test_02.tar",  # diff on gasCost
     "goerli/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
@@ -60,12 +60,8 @@ tests_not_compared = [
     "goerli/debug_traceCall/test_10.json",  # diff on gasCost
     "goerli/debug_traceCall/test_14.json",  # diff on gasCost
     "goerli/debug_traceCall/test_17.json",  # diff on gasCost
-    "goerli/eth_callMany/test_01.json",  # debug bad value format
-    "goerli/eth_callMany/test_02.json",  # debug bad value format
-    "goerli/eth_callMany/test_05.json",  # debug bad error format
-    "goerli/eth_callMany/test_06.json",  # debug bad error format
-    "goerli/eth_callMany/test_09.json",  # debug silkrpc return ok rpcdaemon error
-    "goerli/eth_callMany/test_10.json",  # debug silkrpc return ok rpcdaemon error
+
+    "goerli/eth_callMany/test_09.jsono",  # debug silkrpc return ok rpcdaemon error
 
     "mainnet/debug_accountAt/test_02.json",  # to be debugged
     "mainnet/debug_accountAt/test_05.json",  # to be debugged
