@@ -2,8 +2,8 @@
     {
         "request": {
             "jsonrpc": "2.0",
-            "method": "engine_getPayloadBodiesByHashV1",
-            "params": [],
+            "method": "engine_getPayloadBodiesByRangeV1",
+            "params": ["0x1", "0x1"],
             "id": 1
         },
         "response": {
