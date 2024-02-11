@@ -2,6 +2,7 @@
 """ Run the JSON RPC API curl commands as integration tests """
 
 from datetime import datetime
+import socket
 import getopt
 import gzip
 import json
@@ -359,14 +360,14 @@ class Config:
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
-                    sys.exit(-1)
+                    sys.exit(1)
                 elif option in ("-c", "--continue"):
                     self.exit_on_fail = 0
                 elif option in ("-r", "--erigon-rpcdaemon"):
                     if self.verify_with_daemon == 1:
                         print("Error on options: -r/--erigon-rpcdaemon is not compatible with -d/--compare-erigon-rpcdaemon")
                         usage(argv)
-                        sys.exit(-1)
+                        sys.exit(1)
                     self.daemon_under_test = RPCDAEMON
                 elif option in ("-e", "--verify-external-provider"):
                     self.daemon_as_reference = EXTERNAL_PROVIDER
@@ -383,15 +384,15 @@ class Config:
                     if self.exclude_test_list != "" or self.exclude_api_list != "":
                         print("Error on options: -t/--run-single-test is not compatible with -x/--exclude-api-list or -X/--exclude-test-list")
                         usage(argv)
-                        sys.exit(-1)
+                        sys.exit(1)
                     self.req_test_number = int(optarg)
                 elif option in ("-s", "--start-from-test"):
                     self.start_test = int(optarg)
                 elif option in ("-a", "--api-list"):
-                    if self.exclude_test_list != "" or self.exclude_api_list != "":
-                        print("Error on options: -a/--api-list is not compatible with -x/--exclude-api-list or -X/--exclude-test-list")
+                    if self.exclude_api_list != "":
+                        print("Error on options: -a/--api-list is not compatible with -X/--exclude-test-list")
                         usage(argv)
-                        sys.exit(-1)
+                        sys.exit(1)
                     self.testing_apis = optarg
                 elif option in ("-l", "--loops"):
                     self.loop_number = int(optarg)
@@ -399,11 +400,11 @@ class Config:
                     if self.daemon_under_test != SILK:
                         print("Error in options: -d/--compare-erigon-rpcdaemon is not compatible with -r/--erigon-rpcdaemon")
                         usage(argv)
-                        sys.exit(-1)
+                        sys.exit(1)
                     if self.without_compare_results is True:
                         print("Error in options: -d/--compare-erigon-rpcdaemon is not compatible with -i/--without_compare_results")
                         usage(argv)
-                        sys.exit(-1)
+                        sys.exit(1)
                     self.verify_with_daemon = 1
                 elif option in ("-o", "--dump-response"):
                     self.force_dump_jsons = 1
@@ -417,36 +418,36 @@ class Config:
                     if self.req_test_number != -1 or self.testing_apis != "":
                         print("Error in options: -x/--exclude-api-list is not compatible with -a/--api-list or -t/--run-single-test")
                         usage(argv)
-                        sys.exit(-1)
+                        sys.exit(1)
                     self.exclude_api_list = optarg
                 elif option in ("-X", "--exclude-test-list"):
-                    if self.req_test_number != -1 or self.testing_apis != "":
-                        print("Error in options: -X/--exclude-test-list is not compatible with -a/--api-list or -t/--run-single-test")
+                    if self.req_test_number != -1:
+                        print("Error in options: -X/--exclude-test-list is not compatible with -t/--run-single-test")
                         usage(argv)
-                        sys.exit(-1)
+                        sys.exit(1)
                     self.exclude_test_list = optarg
                 elif option in ("-k", "--jwt"):
                     self.jwt_secret = get_jwt_secret(optarg)
                     if self.jwt_secret == "":
                         print("secret file not found")
                         usage(argv)
-                        sys.exit(-1)
+                        sys.exit(1)
                 elif option in ("-i", "--without-compare-results"):
                     if self.verify_with_daemon == 1:
                         print("Error on options: -i/--without-compare-results is not compatible with -d/--compare-erigon-rpcdaemon")
                         usage(argv)
-                        sys.exit(-1)
+                        sys.exit(1)
                     self.without_compare_results = True
                 else:
                     print("Error option not managed:", option)
                     usage(argv)
-                    sys.exit(-1)
+                    sys.exit(1)
 
         except getopt.GetoptError as err:
             # print help information and exit:
             print(err)
             usage(argv)
-            sys.exit(-1)
+            sys.exit(1)
 
         if os.path.exists(self.output_dir):
             shutil.rmtree(self.output_dir)
@@ -454,7 +455,7 @@ class Config:
 
 def get_json_from_response(msg, verbose_level: int, json_file, result: str, test_number, exit_on_fail: int):
     """ retrieve json from response """
-    if verbose_level > 1:
+    if verbose_level > 2:
         print(msg + " :[" + result + "]")
 
     if len(result) == 0:
@@ -463,7 +464,6 @@ def get_json_from_response(msg, verbose_level: int, json_file, result: str, test
         if verbose_level:
             print(msg)
             print("Failed (json response zero length)")
-            print(result)
         if exit_on_fail:
             print("TEST ABORTED!")
             sys.exit(1)
@@ -497,7 +497,7 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
                 json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
 
 
-def execute_request(websocket_as_transport: bool, jwt_auth, encoded, request_dumps, target: str):
+def execute_request(websocket_as_transport: bool, jwt_auth, encoded, request_dumps, target: str, verbose_level: int):
     """ execute request on server identified by target """
     if not websocket_as_transport:  # use http
         cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
@@ -509,7 +509,8 @@ def execute_request(websocket_as_transport: bool, jwt_auth, encoded, request_dum
         else:
             http_header = []
         try:
-            web_service = create_connection(ws_target, header=http_header)
+            my_sockopt = [(socket.SOL_SOCKET, socket.SO_RCVBUF, 65536)]
+            web_service = create_connection(ws_target, header=http_header, skip_utf8_validation=True, sockopt=my_sockopt)
         except:
             print("\nConnection to server failed")
             print("TEST ABORTED!")
@@ -517,11 +518,20 @@ def execute_request(websocket_as_transport: bool, jwt_auth, encoded, request_dum
 
         try:
             web_service.send(request_dumps)
-            result = web_service.recv()
         except:
-            print("\read/write on websocket fail")
+            print("\nsend on websocket fail")
             print("TEST ABORTED!")
             sys.exit(1)
+
+        try:
+            result = web_service.recv()
+        except:
+            print("\nrecv on websocket fail")
+            print("TEST ABORTED!")
+            sys.exit(1)
+
+    if verbose_level > 1:
+        print ("\nResponse.len:",len(result))
     return result
 
 
@@ -689,7 +699,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
             jwt_auth = "-H \"Authorization: Bearer " + str(encoded) + "\" "
         if verify_with_daemon == 0:  # compare daemon result with file
-            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target)
+            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target, verbose_level)
             result1 = ""
             response_in_file = json_rpc["response"]
 
@@ -701,9 +711,9 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             exp_rsp_file = output_api_filename + "expResponse.json"
         else:  # run tests with both servers
             target = get_target(SILK, method, external_provider_url, daemon_on_host, daemon_on_port)
-            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target)
+            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target, verbose_level)
             target1 = get_target(daemon_as_reference, method, external_provider_url, daemon_on_host, daemon_on_port)
-            result1 = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target1)
+            result1 = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target1, verbose_level)
             response_in_file = None
 
             output_api_filename = output_dir + json_file[:-4]
@@ -816,15 +826,15 @@ def main(argv) -> int:
     if (config.req_test_number != -1 or config.testing_apis != "") and match == 0:
         print("ERROR: api or testNumber not found")
         return 1
-    else:
-        tend = datetime.now()
-        elapsed = tend - tstart
-        print("                                                                                    \r")
-        print(f"Test time-elapsed:            {str(elapsed)}")
-        print(f"Number of executed tests:     {executed_tests}/{global_test_number - 1}")
-        print(f"Number of NOT executed tests: {tests_not_executed}")
-        print(f"Number of success tests:      {success_tests}")
-        print(f"Number of failed tests:       {failed_tests}")
+
+    tend = datetime.now()
+    elapsed = tend - tstart
+    print("                                                                                    \r")
+    print(f"Test time-elapsed:            {str(elapsed)}")
+    print(f"Number of executed tests:     {executed_tests}/{global_test_number - 1}")
+    print(f"Number of NOT executed tests: {tests_not_executed}")
+    print(f"Number of success tests:      {success_tests}")
+    print(f"Number of failed tests:       {failed_tests}")
 
     return failed_tests
 
