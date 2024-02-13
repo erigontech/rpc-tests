@@ -15,7 +15,10 @@
         "response": {
             "jsonrpc":"2.0",
             "id":3,
-            "result": null
+            "error": {
+              "code": -32600,
+              "message": "invalid request"
+            }
       }
     }
 ]

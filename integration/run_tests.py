@@ -63,6 +63,9 @@ tests_not_compared = [
 
     "goerli/eth_callMany/test_09.jsono",  # debug silkrpc return ok rpcdaemon error
 
+    "goerli/eth_getLogs/test_14.json",  # validator doesn't support earlist and latest
+    "goerli/eth_getLogs/test_15.json",  # validator doesn't support earlist and latest
+
     "mainnet/debug_accountAt/test_02.json",  # to be debugged
     "mainnet/debug_accountAt/test_05.json",  # to be debugged
     "mainnet/debug_accountAt/test_07.json",  # to be debugged
