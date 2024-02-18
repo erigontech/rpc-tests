@@ -62,8 +62,6 @@ tests_not_compared = [
     "goerli/debug_traceCall/test_14.json",  # diff on gasCost
     "goerli/debug_traceCall/test_17.json",  # diff on gasCost
 
-    "goerli/eth_callMany/test_09.jsono",  # debug silkrpc return ok rpcdaemon error
-
     "goerli/eth_getLogs/test_14.json",  # validator doesn't support earlist and latest
     "goerli/eth_getLogs/test_15.json",  # validator doesn't support earlist and latest
 
