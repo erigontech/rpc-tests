@@ -35,14 +35,14 @@
       ]
     },
     "response": {
-     "id": 1,
-     "jsonrpc": "2.0",
-     "result": [
-            [
-                  {
-                        "value": ""
-                  }
-            ]
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        [
+          {
+            "value": ""
+          }
+        ]
       ]
     }
   }
