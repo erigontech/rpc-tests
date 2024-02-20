@@ -1,0 +1,43 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_callMany",
+      "params": [
+        [
+          {
+            "blockOverride": {
+              "blockNumber": "0x5279A7"
+            },
+            "transactions": [
+              {
+                "data": "0xa9059cbb000000000000000000000000fc9dd1f314dbb6b95c6b5386e00f662ee8e123780000000000000000000000000000000000000000000000004563918244f40000",
+                "from": "0x3FAA17384CBab39B316b017EAD3DE7E47fE99A2b",
+                "gas": "0xC350",
+                "gasPrice": "0x1",
+                "value": "0x0"
+              }
+            ]
+          }
+        ],
+        {
+          "blockNumber": "0x5279A7",
+          "transactionIndex": -1
+        },
+        {
+          "0x3FAA17384CBab39B316b017EAD3DE7E47fE99A2b": {}
+        },
+        -1
+      ]
+    },
+    "response": {
+      "error": {
+        "code": -32000,
+        "message": "intrinsic gas too low: have 50000, want 55192"
+      },
+      "id": 1,
+      "jsonrpc": "2.0"
+    }
+  }
+]

@@ -79,6 +79,11 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # json too big
 
     "mainnet/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
+
+    "mainnet/eth_callMany/test_04.json",  # diff on check order (precheck after check on have/want)
+    "mainnet/eth_callMany/test_06.json",  # diff on opcode not defined (erigon print opcode in error message)
+    "mainnet/eth_callMany/test_13.json",  # diff on opcode not defined (erigon print opcode in error message)
+    "mainnet/eth_callMany/test_14.json",  # diff on stack underflow message (erigon print depth)
 ]
 
 tests_not_compared_result = [

@@ -1,0 +1,43 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_callMany",
+      "params": [
+        [
+          {
+            "blockOverride": {
+              "blockNumber": "0x4366AC"
+            },
+            "transactions": [
+              {
+                "data": "0x",
+                "from": "0xB5772B3A6Be702D0387770C64bf17e36a4D38188",
+                "gas": "0xF208",
+                "gasPrice": "0x14",
+                "value": "0x16E"
+              }
+            ]
+          }
+        ],
+        {
+          "blockNumber": "0x4366AC",
+          "transactionIndex": -1
+        },
+        {
+          "0xB5772B3A6Be702D0387770C64bf17e36a4D38188": {}
+        },
+        -1
+      ]
+    },
+    "response": {
+      "error": {
+        "code": -32000,
+        "message": "insufficient funds for gas * price + value: address 0xb5772b3a6be702d0387770c64bf17e36a4d38188 have 5120 want 1239566"
+      },
+      "id": 1,
+      "jsonrpc": "2.0"
+    }
+  }
+]
