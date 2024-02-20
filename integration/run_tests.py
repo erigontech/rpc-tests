@@ -2,7 +2,6 @@
 """ Run the JSON RPC API curl commands as integration tests """
 
 from datetime import datetime
-import socket
 import getopt
 import gzip
 import json
@@ -12,7 +11,9 @@ import sys
 import tarfile
 import pytz
 import jwt
-from websocket import create_connection
+from websockets.sync.client import connect
+from websockets.extensions import permessage_deflate
+
 
 SILK = "silk"
 RPCDAEMON = "rpcdaemon"
@@ -136,6 +137,7 @@ def usage(argv):
     print("-r,--erigon-rpcdaemon: connect to Erigon RpcDaemon [default: connect to Silkrpc] ")
     print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
     print("-i,--without-compare-results: send request without compare results")
+    print("-C,--compression: enable compression")
 
 
 def get_target_name(target_type: str):
@@ -344,14 +346,15 @@ class Config:
         self.display_only_fail = 0
         self.websocket_as_transport = False
         self.without_compare_results = False
+        self.compression = False
 
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:",
+            opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:C",
                    ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                    'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
-                   'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
+                   'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=', 'compression',
                    'websocket', 'exclude-api-list=', 'exclude-test-list=', 'dump-response',
                    'without-compare-results'])
             for option, optarg in opts:
@@ -435,6 +438,8 @@ class Config:
                         usage(argv)
                         sys.exit(1)
                     self.without_compare_results = True
+                elif option in ("-C", "--compression"):
+                    self.compression = True
                 else:
                     print("Error option not managed:", option)
                     usage(argv)
@@ -494,36 +499,29 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
                 json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
 
 
-def execute_request(websocket_as_transport: bool, jwt_auth, encoded, request_dumps, target: str, verbose_level: int):
+def execute_request(websocket_as_transport: bool, jwt_auth, encoded, request_dumps, target: str, verbose_level: int, compression: bool):
     """ execute request on server identified by target """
     if not websocket_as_transport:  # use http
         cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
         result = os.popen(cmd).read()
     else:
         ws_target = "ws://" + target  # use websocket
-        if encoded != "":
-            http_header = ["Authorization: Bearer " + str(encoded)]
+        curr_extensions=[
+             permessage_deflate.ClientPerMessageDeflateFactory(
+                 client_max_window_bits=15,
+                 compress_settings={"memLevel": 7},
+             ),
+        ]
+        if compression:
+            selected_compression='deflate'
         else:
-            http_header = []
+            selected_compression=None
         try:
-            my_sockopt = [(socket.SOL_SOCKET, socket.SO_RCVBUF, 65536)]
-            web_service = create_connection(ws_target, header=http_header, skip_utf8_validation=True, sockopt=my_sockopt)
+            with connect(ws_target, max_size=1000048576, compression=selected_compression) as websocket:
+                websocket.send(request_dumps)
+                result = websocket.recv(None)
         except:
-            print("\nConnection to server failed")
-            print("TEST ABORTED!")
-            sys.exit(1)
-
-        try:
-            web_service.send(request_dumps)
-        except:
-            print("\nsend on websocket fail")
-            print("TEST ABORTED!")
-            sys.exit(1)
-
-        try:
-            result = web_service.recv()
-        except:
-            print("\nrecv on websocket fail")
+            print("\nwebsocket connection fail")
             print("TEST ABORTED!")
             sys.exit(1)
 
@@ -655,7 +653,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
              daemon_under_test: str, exit_on_fail: bool, verify_with_daemon: bool,
              daemon_as_reference: str, force_dump_jsons: bool, test_number, external_provider_url: str,
              daemon_on_host: str, daemon_on_port: int,
-             jwt_secret: str, websocket_as_transport, without_compare_results: bool):
+             jwt_secret: str, websocket_as_transport, without_compare_results: bool, compression: bool):
     """ Run integration tests. """
     json_filename = test_dir + json_file
     ext = os.path.splitext(json_file)[1]
@@ -696,7 +694,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
             jwt_auth = "-H \"Authorization: Bearer " + str(encoded) + "\" "
         if verify_with_daemon == 0:  # compare daemon result with file
-            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target, verbose_level)
+            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target, verbose_level, compression)
             result1 = ""
             response_in_file = json_rpc["response"]
 
@@ -708,9 +706,9 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             exp_rsp_file = output_api_filename + "expResponse.json"
         else:  # run tests with both servers
             target = get_target(SILK, method, external_provider_url, daemon_on_host, daemon_on_port)
-            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target, verbose_level)
+            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target, verbose_level, compression)
             target1 = get_target(daemon_as_reference, method, external_provider_url, daemon_on_host, daemon_on_port)
-            result1 = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target1, verbose_level)
+            result1 = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target1, verbose_level, compression)
             response_in_file = None
 
             output_api_filename = output_dir + json_file[:-4]
@@ -808,7 +806,8 @@ def main(argv) -> int:
                                                config.external_provider_url,
                                                config.daemon_on_host, config.daemon_on_port,
                                                config.jwt_secret, config.websocket_as_transport,
-                                               config.without_compare_results)
+                                               config.without_compare_results,
+                                               config.compression)
                                 if ret == 1:
                                     success_tests = success_tests + 1
                                 else:
