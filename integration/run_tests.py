@@ -107,7 +107,8 @@ tests_not_compared_message = [
 tests_not_compared_error = [
     "mainnet/eth_callMany/test_06.json",  # diff on opcode not defined (erigon print opcode in error message)
     "mainnet/eth_callMany/test_13.json",  # diff on opcode not defined (erigon print opcode in error message)
-    "mainnet/eth_callMany/test_14.json"  # diff on stack underflow message (erigon print depth)
+    "mainnet/eth_callMany/test_14.json",  # diff on stack underflow message (erigon print depth)
+    "mainnet/eth_callMany/test_15.json"  # diff on opcode not defined (erigon print opcode in error message)
 ]
 
 tests_message_lower_case = [
