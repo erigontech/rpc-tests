@@ -78,12 +78,7 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_11.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # json too big
 
-    "mainnet/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
-
-    "mainnet/eth_callMany/test_04.json",  # diff on check order (precheck after check on have/want)
-    "mainnet/eth_callMany/test_06.json",  # diff on opcode not defined (erigon print opcode in error message)
-    "mainnet/eth_callMany/test_13.json",  # diff on opcode not defined (erigon print opcode in error message)
-    "mainnet/eth_callMany/test_14.json",  # diff on stack underflow message (erigon print depth)
+    "mainnet/debug_traceBlockByHash/test_03.tar"  # diff on gasCost
 ]
 
 tests_not_compared_result = [
@@ -104,7 +99,15 @@ tests_not_compared_message = [
     "goerli/trace_callMany/test_11.json",  # silkrpc message contains also address
     "goerli/eth_callMany/test_08.json",  # silkrpc message contains few chars
     "goerli/trace_call/test_12.json",  # silkrpc message contains also address
-    "goerli/trace_call/test_16.json"  # silkrpc message contains also address
+    "goerli/trace_call/test_16.json",  # silkrpc message contains also address
+
+    "mainnet/eth_callMany/test_04.json"  # diff on check order (precheck after check on have/want)
+]
+
+tests_not_compared_error = [
+    "mainnet/eth_callMany/test_06.json",  # diff on opcode not defined (erigon print opcode in error message)
+    "mainnet/eth_callMany/test_13.json",  # diff on opcode not defined (erigon print opcode in error message)
+    "mainnet/eth_callMany/test_14.json"  # diff on stack underflow message (erigon print depth)
 ]
 
 tests_message_lower_case = [
@@ -301,7 +304,7 @@ def is_not_compared_result(test_name, net: str):
 
 
 def is_not_compared_message(test_name, net: str):
-    """ determine if test not compared result
+    """ determine if test not compared message field
     """
     test_full_name = net + "/" + test_name
     for curr_test_name in tests_not_compared_message:
@@ -309,6 +312,14 @@ def is_not_compared_message(test_name, net: str):
             return 1
     return 0
 
+def is_not_compared_error(test_name, net: str):
+    """ determine if test not compared error field
+    """
+    test_full_name = net + "/" + test_name
+    for curr_test_name in tests_not_compared_error:
+        if curr_test_name == test_full_name:
+            return 1
+    return 0
 
 def is_message_to_be_converted(test_name, net: str):
     """ determine if test not compared result
@@ -559,6 +570,11 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
         cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
     elif is_not_compared_message(json_file, net):
         removed_line_string = "message"
+        replace_message(exp_rsp_file, temp_file1, removed_line_string)
+        replace_message(silk_file, temp_file2, removed_line_string)
+        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
+    elif is_not_compared_error(json_file, net):
+        removed_line_string = "error"
         replace_message(exp_rsp_file, temp_file1, removed_line_string)
         replace_message(silk_file, temp_file2, removed_line_string)
         cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
