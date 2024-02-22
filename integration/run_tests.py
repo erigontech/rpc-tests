@@ -506,18 +506,19 @@ def execute_request(websocket_as_transport: bool, jwt_auth, encoded, request_dum
         result = os.popen(cmd).read()
     else:
         ws_target = "ws://" + target  # use websocket
-        curr_extensions=[
-             permessage_deflate.ClientPerMessageDeflateFactory(
-                 client_max_window_bits=15,
-                 compress_settings={"memLevel": 7},
-             ),
-        ]
         if compression:
             selected_compression='deflate'
+            curr_extensions=[
+                 permessage_deflate.ClientPerMessageDeflateFactory(
+                     client_max_window_bits=15,
+                     compress_settings={"memLevel": 4}
+                 ),
+            ]
         else:
             selected_compression=None
+            curr_extensions=None
         try:
-            with connect(ws_target, max_size=1000048576, compression=selected_compression) as websocket:
+            with connect(ws_target, max_size=1000048576, compression=selected_compression, extensions=curr_extensions) as websocket:
                 websocket.send(request_dumps)
                 result = websocket.recv(None)
         except:
