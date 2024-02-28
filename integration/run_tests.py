@@ -126,7 +126,7 @@ def usage(argv):
     print("-s,--start-from-test: <test_number>: run tests starting from input")
     print("-t,--run-single-test: <test_number>: run single test")
     print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
-    print("-w,--websocket: use websocket")
+    print("-T,--transport_type: http or websocket or both")
     print("-k,--jwt: authentication token file")
     print("-a,--api-list: <apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)")
     print("-x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
@@ -344,18 +344,18 @@ class Config:
         self.start_test = ""
         self.jwt_secret = ""
         self.display_only_fail = 0
-        self.websocket_as_transport = False
+        self.transport_type = "http"
         self.without_compare_results = False
         self.compression = False
 
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:C",
+            opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:CT:",
                    ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                    'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                    'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=', 'compression',
-                   'websocket', 'exclude-api-list=', 'exclude-test-list=', 'dump-response',
+                   'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'dump-response',
                    'without-compare-results'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -408,8 +408,12 @@ class Config:
                     self.verify_with_daemon = 1
                 elif option in ("-o", "--dump-response"):
                     self.force_dump_jsons = 1
-                elif option in ("-w", "--websocket"):
-                    self.websocket_as_transport = 1
+                elif option in ("-T", "--transport_type"):
+                    if optarg not in ('http', 'websocket', 'both'):
+                        print("Error in options: -T/--transport_type http or websocket or both")
+                        usage(argv)
+                        sys.exit(1)
+                    self.transport_type = optarg
                 elif option in ("-b", "--blockchain"):
                     self.net = optarg
                     self.json_dir = "./" + self.net + "/"
@@ -499,9 +503,9 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
                 json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
 
 
-def execute_request(websocket_as_transport: bool, jwt_auth, encoded, request_dumps, target: str, verbose_level: int, compression: bool):
+def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int, compression: bool):
     """ execute request on server identified by target """
-    if not websocket_as_transport:  # use http
+    if transport_type == "http":
         cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
         result = os.popen(cmd).read()
     else:
@@ -654,7 +658,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
              daemon_under_test: str, exit_on_fail: bool, verify_with_daemon: bool,
              daemon_as_reference: str, force_dump_jsons: bool, test_number, external_provider_url: str,
              daemon_on_host: str, daemon_on_port: int,
-             jwt_secret: str, websocket_as_transport, without_compare_results: bool, compression: bool):
+             jwt_secret: str, transport_type, without_compare_results: bool, compression: bool):
     """ Run integration tests. """
     json_filename = test_dir + json_file
     ext = os.path.splitext(json_file)[1]
@@ -695,7 +699,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
             jwt_auth = "-H \"Authorization: Bearer " + str(encoded) + "\" "
         if verify_with_daemon == 0:  # compare daemon result with file
-            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target, verbose_level, compression)
+            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, verbose_level, compression)
             result1 = ""
             response_in_file = json_rpc["response"]
 
@@ -707,9 +711,9 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             exp_rsp_file = output_api_filename + "expResponse.json"
         else:  # run tests with both servers
             target = get_target(SILK, method, external_provider_url, daemon_on_host, daemon_on_port)
-            result = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target, verbose_level, compression)
+            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, verbose_level, compression)
             target1 = get_target(daemon_as_reference, method, external_provider_url, daemon_on_host, daemon_on_port)
-            result1 = execute_request(websocket_as_transport, jwt_auth, encoded, request_dumps, target1, verbose_level, compression)
+            result1 = execute_request(transport_type, jwt_auth, encoded, request_dumps, target1, verbose_level, compression)
             response_in_file = None
 
             output_api_filename = output_dir + json_file[:-4]
@@ -755,50 +759,52 @@ def main(argv) -> int:
     success_tests = 0
     tests_not_executed = 0
     global_test_number = 1
+    if config.transport_type == "websocket":
+        curr_transport_type = "webs"
+    else:
+        curr_transport_type = "http"
     for test_rep in range(0, config.loop_number):  # makes tests more times
         if config.verbose_level:
             print("Test iteration: ", test_rep + 1)
-        dirs = sorted(os.listdir(config.json_dir))
-        for api_name in dirs:  # scans all api present in dir
-            # jump results folder or any hidden OS-specific folder
-            if api_name == config.results_dir or api_name.startswith("."):
-                continue
-            test_dir = config.json_dir + api_name
-            if not os.path.isdir(test_dir):  # jump if not dir
-                continue
-            test_lists = sorted(os.listdir(test_dir))
-            test_number = 1
-            for test_name in test_lists:  # scan all json test present in the dir
-                if (test_name in ["json", "zip",
-                                  "gzip"] == 0):  # if file doesn't terminate with .json, .gzip, .tar jump it
+        for channel_type in range (1,3):
+            dirs = sorted(os.listdir(config.json_dir))
+            for api_name in dirs:  # scans all api present in dir
+                # jump results folder or any hidden OS-specific folder
+                if api_name == config.results_dir or api_name.startswith("."):
                     continue
-                if is_testing_apis(api_name, config.testing_apis):  # -a or all
-                    test_file = api_name + "/" + test_name
-                    if is_skipped(api_name, config.net, config.exclude_api_list, config.exclude_test_list, test_file,
-                                  config.req_test_number,
-                                  config.verify_with_daemon, global_test_number) == 1:
-                        if config.start_test == "" or global_test_number >= int(config.start_test):
-                            if config.display_only_fail == 0 and config.req_test_number != "":
-                                file = test_file.ljust(60)
-                                print(f"{global_test_number:03d}. {file} Skipped")
-                                tests_not_executed = tests_not_executed + 1
-                    else:
-                        # runs all tests or
-                        # runs single global test
-                        # runs only tests a specific test_number in the testing_apis list
-                        if ((config.testing_apis == "" and
-                             config.req_test_number in (-1, global_test_number)) or
-                                (config.testing_apis != "" and
-                                 config.req_test_number in (-1, test_number))):
-                            if (config.start_test == "" or
-                                    # start from specific test
+                test_dir = config.json_dir + api_name
+                if not os.path.isdir(test_dir):  # jump if not dir
+                    continue
+                test_lists = sorted(os.listdir(test_dir))
+                test_number = 1
+                for test_name in test_lists:  # scan all json test present in the dir
+                    if (test_name in ["json", "zip", "gzip"] == 0):  # if file doesn't terminate with .json, .gzip, .tar jump it
+                        continue
+                    if is_testing_apis(api_name, config.testing_apis):  # -a or all
+                        test_file = api_name + "/" + test_name
+                        if is_skipped(api_name, config.net, config.exclude_api_list, config.exclude_test_list, test_file,
+                                      config.req_test_number,
+                                      config.verify_with_daemon, global_test_number) == 1:
+                            if config.start_test == "" or global_test_number >= int(config.start_test):
+                                if config.display_only_fail == 0 and config.req_test_number != "":
+                                    file = test_file.ljust(60)
+                                    print(f"{global_test_number:03d}. {file} Skipped")
+                                    tests_not_executed = tests_not_executed + 1
+                        else:
+                            # runs all tests or
+                            # runs single global test
+                            # runs only tests a specific test_number in the testing_apis list
+                            if ((config.testing_apis == "" and config.req_test_number in (-1, global_test_number)) or
+                                (config.testing_apis != "" and config.req_test_number in (-1, test_number))):
+                                if (config.start_test == "" or # start from specific test
                                     (config.start_test != "" and global_test_number >= int(config.start_test))):
-                                file = test_file.ljust(60)
-                                if config.verbose_level:
-                                    print(f"{global_test_number:03d}. {file} ", end='', flush=True)
-                                else:
-                                    print(f"{global_test_number:03d}. {file}\r", end='', flush=True)
-                                ret = run_test(config.net, config.json_dir, config.output_dir,
+                                    file = test_file.ljust(60)
+                                    curr_tt = curr_transport_type.ljust(4)
+                                    if config.verbose_level:
+                                        print(f"{global_test_number:03d}. {curr_tt}::{file} ", end='', flush=True)
+                                    else:
+                                        print(f"{global_test_number:03d}. {curr_tt}::{file}\r", end='', flush=True)
+                                    ret = run_test(config.net, config.json_dir, config.output_dir,
                                                test_file,
                                                config.verbose_level, config.daemon_under_test,
                                                config.exit_on_fail, config.verify_with_daemon,
@@ -806,19 +812,24 @@ def main(argv) -> int:
                                                config.force_dump_jsons, global_test_number,
                                                config.external_provider_url,
                                                config.daemon_on_host, config.daemon_on_port,
-                                               config.jwt_secret, config.websocket_as_transport,
+                                               config.jwt_secret,
+                                               curr_transport_type,
                                                config.without_compare_results,
                                                config.compression)
-                                if ret == 1:
-                                    success_tests = success_tests + 1
-                                else:
-                                    failed_tests = failed_tests + 1
-                                executed_tests = executed_tests + 1
-                                if config.req_test_number != -1 or config.testing_apis != "":
-                                    match = 1
+                                    if ret == 1:
+                                        success_tests = success_tests + 1
+                                    else:
+                                        failed_tests = failed_tests + 1
+                                    executed_tests = executed_tests + 1
+                                    if config.req_test_number != -1 or config.testing_apis != "":
+                                        match = 1
 
-                global_test_number = global_test_number + 1
-                test_number = test_number + 1
+                    global_test_number = global_test_number + 1
+                    test_number = test_number + 1
+            if config.transport_type == "both":
+                curr_transport_type = "webs"
+                continue
+            break
 
     if (config.req_test_number != -1 or config.testing_apis != "") and match == 0:
         print("ERROR: api or testNumber not found")
