@@ -1,0 +1,46 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_callMany",
+      "params": [
+        [
+          {
+            "blockOverride": {
+              "blockNumber": "0x5279A7"
+            },
+            "transactions": [
+              {
+                "data": "0xc8fea2fb000000000000000000000000e03c23519e18d64f144d2800e30e81b0065c48b5000000000000000000000000139d9397274bb9e2c29a9aa8aa0b5874d30d62e300000000000000000000000000000000000000000000001b1ae4d6e2ef500000",
+                "from": "0x9862D074e33003726fA05c74F0142995f33A3250",
+                "gas": "0x15F90",
+                "gasPrice": "0x15",
+                "value": "0x0"
+              }
+            ]
+          }
+        ],
+        {
+          "blockNumber": "0x5279A7",
+          "transactionIndex": 3
+        },
+        {
+          "0x9862D074e33003726fA05c74F0142995f33A3250": {}
+        },
+        -1
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        [
+          {
+            "error": "invalid opcode"
+          }
+        ]
+      ]
+    }
+  }
+]
