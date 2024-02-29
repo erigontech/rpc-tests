@@ -50,7 +50,7 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -s,--start-from-test: <test_number>: run tests starting from input
 -t,--run-single-test: <test_number>: run single test
 -d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon
--w,--websocket: use websocket
+-T,--transport_type: http or websocket or both
 -k,--jwt: authentication token file
 -a,--api-list: <apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)
 -x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)
