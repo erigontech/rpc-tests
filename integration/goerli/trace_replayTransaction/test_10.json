@@ -18,6 +18,7 @@
       "jsonrpc": "2.0",
       "result": {
           "output": "0x",
+          "transactionHash": "0xcb61243cfd46f53c0354cc7f44725a418b5b07961ba393d7df3f2c6842a1818d",
           "stateDiff": {
                "0x22ea9f6b28db76a7162054c05ed812deb2f519cd": {
                     "balance": {
