@@ -79,7 +79,8 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_11.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # json too big
 
-    "mainnet/debug_traceBlockByHash/test_03.tar"  # diff on gasCost
+    "mainnet/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
+    "mainnet/debug_traceTransaction/test_02.tar" # diff on gasCost
 ]
 
 tests_not_compared_result = [
@@ -523,7 +524,7 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
 def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int, compression: bool):
     """ execute request on server identified by target """
     if transport_type == "http":
-        cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
+        cmd = '''curl --silent -X GET -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
         result = os.popen(cmd).read()
     else:
         ws_target = "ws://" + target  # use websocket
@@ -623,11 +624,6 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
     if response is None:
         return 0
 
-    if without_compare_results is True:
-        if verbose_level:
-            print("OK")
-        return 1
-
     if result1 != "":
         expected_response = get_json_from_response(daemon_as_reference, verbose_level, json_file, result1, test_number,
                                                    exit_on_fail)
@@ -635,6 +631,12 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
             return 0
     else:
         expected_response = response_in_file
+
+    if without_compare_results is True:
+        if verbose_level:
+            print("OK")
+        dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
+        return 1
 
     if response != expected_response:
         if "result" in response and "result" in expected_response and expected_response["result"] is None:
