@@ -135,7 +135,7 @@ def usage(argv):
     print("-s,--start-from-test: <test_number>: run tests starting from input")
     print("-t,--run-single-test: <test_number>: run single test")
     print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
-    print("-T,--transport_type: http or websocket or both")
+    print("-T,--transport_type: <http,websocket>")
     print("-k,--jwt: authentication token file")
     print("-a,--api-list: <apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)")
     print("-x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
@@ -426,10 +426,17 @@ class Config:
                 elif option in ("-o", "--dump-response"):
                     self.force_dump_jsons = 1
                 elif option in ("-T", "--transport_type"):
-                    if optarg not in ('http', 'websocket', 'both'):
-                        print("Error in options: -T/--transport_type http or websocket or both")
+                    if optarg == "":
+                        print("Error in options: -T/--transport_type http,websocket")
                         usage(argv)
                         sys.exit(1)
+                    tokenize_list = optarg.split(",")
+                    for test in tokenize_list:
+                       if test not in ['websocket','http']:
+                          print("Error invalid connection type: ",test)
+                          print("Error in options: -T/--transport_type http,websocket")
+                          usage(argv)
+                          sys.exit(1)
                     self.transport_type = optarg
                 elif option in ("-b", "--blockchain"):
                     self.net = optarg
@@ -548,7 +555,9 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             sys.exit(1)
 
     if verbose_level > 1:
-        print ("\nResponse.len:",len(result))
+        print ("\n",target)
+        print (request_dumps)
+        print ("Response.len:",len(result))
     return result
 
 
@@ -781,14 +790,11 @@ def main(argv) -> int:
     success_tests = 0
     tests_not_executed = 0
     global_test_number = 1
-    if config.transport_type == "websocket":
-        curr_transport_type = "webs"
-    else:
-        curr_transport_type = "http"
     for test_rep in range(0, config.loop_number):  # makes tests more times
         if config.verbose_level:
             print("Test iteration: ", test_rep + 1)
-        for channel_type in range (1,3):
+        tokenize_transport_type = config.transport_type.split(",")
+        for transport_type in tokenize_transport_type:
             dirs = sorted(os.listdir(config.json_dir))
             for api_name in dirs:  # scans all api present in dir
                 # jump results folder or any hidden OS-specific folder
@@ -821,7 +827,7 @@ def main(argv) -> int:
                                 if (config.start_test == "" or # start from specific test
                                     (config.start_test != "" and global_test_number >= int(config.start_test))):
                                     file = test_file.ljust(60)
-                                    curr_tt = curr_transport_type.ljust(4)
+                                    curr_tt = transport_type.ljust(8)
                                     if config.verbose_level:
                                         print(f"{global_test_number:03d}. {curr_tt}::{file} ", end='', flush=True)
                                     else:
@@ -835,7 +841,7 @@ def main(argv) -> int:
                                                config.external_provider_url,
                                                config.daemon_on_host, config.daemon_on_port,
                                                config.jwt_secret,
-                                               curr_transport_type,
+                                               transport_type,
                                                config.without_compare_results,
                                                config.compression)
                                     if ret == 1:
@@ -848,10 +854,6 @@ def main(argv) -> int:
 
                     global_test_number = global_test_number + 1
                     test_number = test_number + 1
-            if config.transport_type == "both":
-                curr_transport_type = "webs"
-                continue
-            break
 
     if (config.req_test_number != -1 or config.testing_apis != "") and match == 0:
         print("ERROR: api or testNumber not found")
