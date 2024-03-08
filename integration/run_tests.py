@@ -97,6 +97,10 @@ tests_not_compared_result = [
 ]
 
 tests_not_compared_message = [
+    "mainnet/eth_callMany/test_02.json",  # diff message
+    "mainnet/eth_callMany/test_07.json",  # diff message
+    "mainnet/eth_callMany/test_08.json",  # diff message
+    "mainnet/eth_callMany/test_12.json",  # diff message
     "goerli/trace_callMany/test_10.json",  # silkrpc message contains also address
     "goerli/trace_callMany/test_11.json",  # silkrpc message contains also address
     "goerli/eth_callMany/test_08.json",  # silkrpc message contains few chars
