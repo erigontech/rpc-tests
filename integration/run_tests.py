@@ -39,9 +39,6 @@ api_not_compared = [
 ]
 
 tests_not_compared = [
-    "goerli/debug_accountAt/test_06.json",  # debug diff on balance
-    "goerli/debug_accountAt/test_07.json",  # debug diff on balance
-    "goerli/debug_accountAt/test_11.json",  # debug
     "goerli/debug_traceBlockByHash/test_02.tar",  # diff on gasCost
     "goerli/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
     "goerli/debug_traceBlockByHash/test_04.tar",  # diff on gasCost
@@ -65,11 +62,6 @@ tests_not_compared = [
 
     "goerli/eth_getLogs/test_14.json",  # validator doesn't support earlist and latest
     "goerli/eth_getLogs/test_15.json",  # validator doesn't support earlist and latest
-
-    "mainnet/debug_accountAt/test_02.json",  # to be debugged
-    "mainnet/debug_accountAt/test_05.json",  # to be debugged
-    "mainnet/debug_accountAt/test_07.json",  # to be debugged
-    "mainnet/debug_accountAt/test_08.json",  # to be debugged
 
     "mainnet/debug_traceBlockByNumber/test_05.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_06.tar",  # json too big
