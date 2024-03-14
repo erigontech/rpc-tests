@@ -429,11 +429,11 @@ class Config:
                         sys.exit(1)
                     tokenize_list = optarg.split(",")
                     for test in tokenize_list:
-                       if test not in ['websocket','http']:
-                          print("Error invalid connection type: ",test)
-                          print("Error in options: -T/--transport_type http,websocket")
-                          usage(argv)
-                          sys.exit(1)
+                        if test not in ['websocket','http']:
+                            print("Error invalid connection type: ",test)
+                            print("Error in options: -T/--transport_type http,websocket")
+                            usage(argv)
+                            sys.exit(1)
                     self.transport_type = optarg
                 elif option in ("-b", "--blockchain"):
                     self.net = optarg
@@ -527,7 +527,10 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
 def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int, compression: bool):
     """ execute request on server identified by target """
     if transport_type == "http":
-        cmd = '''curl --silent -X GET -H "Content-Type: application/json" ''' + jwt_auth + ''' --data \'''' + request_dumps + '''\' ''' + target
+        options = jwt_auth
+        if compression:
+            options = options + " --compressed  "
+        cmd = '''curl --silent -X GET -H "Content-Type: application/json" ''' + options + ''' --data \'''' + request_dumps + '''\' ''' + target
         result = os.popen(cmd).read()
     else:
         ws_target = "ws://" + target  # use websocket
