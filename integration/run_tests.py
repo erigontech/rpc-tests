@@ -792,6 +792,7 @@ def main(argv) -> int:
     tests_not_executed = 0
     global_test_number = 1
     for test_rep in range(0, config.loop_number):  # makes tests more times
+        test_number_in_any_loop = 1
         if config.verbose_level:
             print("Test iteration: ", test_rep + 1)
         tokenize_transport_type = config.transport_type.split(",")
@@ -813,32 +814,32 @@ def main(argv) -> int:
                         test_file = api_name + "/" + test_name
                         if is_skipped(api_name, config.net, config.exclude_api_list, config.exclude_test_list, test_file,
                                       config.req_test_number,
-                                      config.verify_with_daemon, global_test_number) == 1:
-                            if config.start_test == "" or global_test_number >= int(config.start_test):
+                                      config.verify_with_daemon, test_number_in_any_loop) == 1:
+                            if config.start_test == "" or test_number_in_any_loop >= int(config.start_test):
                                 if config.display_only_fail == 0 and config.req_test_number != "":
                                     file = test_file.ljust(60)
-                                    print(f"{global_test_number:03d}. {file} Skipped")
+                                    print(f"{test_number_in_any_loop:03d}. {file} Skipped")
                                     tests_not_executed = tests_not_executed + 1
                         else:
                             # runs all tests or
                             # runs single global test
                             # runs only tests a specific test_number in the testing_apis list
-                            if ((config.testing_apis == "" and config.req_test_number in (-1, global_test_number)) or
+                            if ((config.testing_apis == "" and config.req_test_number in (-1, test_number_in_any_loop)) or
                                 (config.testing_apis != "" and config.req_test_number in (-1, test_number))):
                                 if (config.start_test == "" or # start from specific test
-                                    (config.start_test != "" and global_test_number >= int(config.start_test))):
+                                    (config.start_test != "" and test_number_in_any_loop >= int(config.start_test))):
                                     file = test_file.ljust(60)
                                     curr_tt = transport_type.ljust(8)
                                     if config.verbose_level:
-                                        print(f"{global_test_number:03d}. {curr_tt}::{file} ", end='', flush=True)
+                                        print(f"{test_number_in_any_loop:03d}. {curr_tt}::{file} ", end='', flush=True)
                                     else:
-                                        print(f"{global_test_number:03d}. {curr_tt}::{file}\r", end='', flush=True)
+                                        print(f"{test_number_in_any_loop:03d}. {curr_tt}::{file}\r", end='', flush=True)
                                     ret = run_test(config.net, config.json_dir, config.output_dir,
                                                test_file,
                                                config.verbose_level, config.daemon_under_test,
                                                config.exit_on_fail, config.verify_with_daemon,
                                                config.daemon_as_reference,
-                                               config.force_dump_jsons, global_test_number,
+                                               config.force_dump_jsons, test_number_in_any_loop,
                                                config.external_provider_url,
                                                config.daemon_on_host, config.daemon_on_port,
                                                config.jwt_secret,
@@ -854,6 +855,7 @@ def main(argv) -> int:
                                         match = 1
 
                     global_test_number = global_test_number + 1
+                    test_number_in_any_loop = test_number_in_any_loop + 1
                     test_number = test_number + 1
 
     if (config.req_test_number != -1 or config.testing_apis != "") and match == 0:
