@@ -102,6 +102,7 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 -c,--run-vegeta-on-core <...>         taskset format for vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: -:-]
 -T,--response-timeout <timeout>:      vegeta response timeout                                            [default: 300]
 -M,--max-body-rsp <size>:             max number of bytes to read from response bodies                   [default: 1500]
+-i,--report-file-without-datetime     report file name doesn't contain _date_time
 ```
 Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`
 Results are written on output and in case -u option is specified also in a CSV file in ./reports area  `./reports/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`

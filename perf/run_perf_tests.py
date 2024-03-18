@@ -71,6 +71,7 @@ def usage(argv):
     print("-c,--run-vegeta-on-core <...>         taskset format for vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE +"]")
     print("-T,--response-timeout <timeout>:      vegeta response timeout                                            [default: " + DEFAULT_VEGETA_RESPONSE_TIMEOUT + "]")
     print("-M,--max-body-rsp <size>:             max number of bytes to read from response bodies                   [default: " + DEFAULT_MAX_BODY_RSP + "]")
+    print("-i,--report-file-without-datetime     report file name doesn't contain _date_time")
     sys.exit(-1)
 
 def get_process(process_name: str):
@@ -107,6 +108,7 @@ class Config:
         self.max_connection = DEFAULT_MAX_CONN
         self.vegeta_response_timeout = DEFAULT_VEGETA_RESPONSE_TIMEOUT
         self.max_body_rsp = DEFAULT_MAX_BODY_RSP
+        self.report_file_without_datetime = 0
 
         self.__parse_args(argv)
 
@@ -114,15 +116,17 @@ class Config:
         try:
             local_config = 0
             specified_chain = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:",
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:i",
                    ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'additional-string-name=', 'max-connections=',
                     'run-vegeta-on-core=', 'empty-cache', 'erigon-dir=', 'silk-dir=', 'repetitions=', 'test-sequence=',
                     'tmp-test-report', 'test-report', 'blockchain=', 'verbose', 'tracing', 'wait-after-test-sequence=', 'test-type=',
-                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp='])
+                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'report-file-without-datetime'])
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
+                elif option in ("-i", "--report-file-without-datetime"):
+                    self.report_file_without_datetime = 1
                 elif option in ("-m", "--test-mode"):
                     self.test_mode = optarg
                 elif option in ("-d", "--rpc-daemon-address"):
@@ -421,10 +425,16 @@ class TestReport:
         pathlib.Path(csv_folder_path).mkdir(parents=True, exist_ok=True)
 
         # Generate unique CSV file name w/ date-time and open it
+        csv_filename =  csv_filename = self.config.test_type + "_"
+
+        if self.config.report_file_without_datetime == 0:
+            csv_filename +=   datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_"
+
         if self.config.additional_string != "":
-            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_" + self.config.additional_string + "_perf.csv"
-        else:
-            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_perf.csv"
+            csv_filename += self.config.additional_string + "_"
+
+        csv_filename += "perf.csv"
+
         csv_filepath = csv_folder_path + '/' + csv_filename
         self.csv_file = open(csv_filepath, 'w', newline='', encoding='utf8')
         self.writer = csv.writer(self.csv_file)
