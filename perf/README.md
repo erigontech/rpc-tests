@@ -80,29 +80,28 @@ Usage: ./run_perf_tests.py -p vegetaPatternTarFile -y <api_name>
 
 Launch an automated performance test sequence on Silkrpc and RPCDaemon using Vegeta
 
--h                      print this help
--Z                      doesn't verify server is still active
--R                      generate Report
--u                      generate Report in reports area read to be inserted into Git repo
--v                      verbose
--x                      verbose and tracing
--e                      empty cache
--C <max number of vegeta conn>                                                                                 [default: 9000]
--A <additional string>  
--b <chain name>         mandatory in case of -R or -u
--y testType             test type: eth_call, eth_getLogs, ...                                                  [default: eth_getLogs]
--m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: 3]
--p <vegetaPattern> path to the request file for Vegeta attack                                                  [default: ]
--r testRepetitions      number of repetitions for each element in test sequence (e.g. 10)                      [default: 10]
--t testSequence         list of query-per-sec and duration tests as <qps1>:<t1>,... (e.g. 200:30,400:10)       [default: 50:30,1000:30,2500:20,10000:20]
--w testWaitInterval     time interval between successive test iterations in sec                                [default: 5]
--d rpcDaemonAddress     address of RPCDaemon/Silkrpc (e.g. 10.1.1.20)                                          [default: localhost]
--g erigonBuildDir       Erigon: path to erigon folder (e.g. /home/erigon)                                      [default: ]
--s silkrpcBuildDir      Silkrpc: path to silk folder (e.g. /home/silkworm)                                     [default: ]
--c daemonVegetaOnCore   cpu list in taskset format for daemon & vegeta (e.g. 0-1:2-3 or 0-2:3-4 or 0,2:3,4...) [default: -:-]
--T <timeout>            vegeta response timeout                                                                [default: 300]
--M <maximum body size>  Maximum number of bytes to read from response bodies                                   [default: 1500]
-
+-h,--help:                            print this help
+-Z,--not-verify-server-alive:         doesn't verify server is still active
+-R,--tmp-test-report:                 generate Report on tmp
+-u,--test-report:                     generate Report in reports area ready to be inserted into Git repo
+-v,--verbose:                         verbose
+-x,--tracing:                         verbose and tracing
+-e,--empty-cache:                     empty cache
+-C,--max-connections <conn>:                                                                             [default: 9000]
+-A,--additional-string-name <string>: string to be add in the file name
+-b,--blockchain <chain name>:         mandatory in case of -R or -u
+-y,--test-type <test-type>:           eth_call, eth_getLogs, ...                                         [default: eth_getLogs]
+-m,--test-mode <0,1,2>:               silkrpc(1), rpcdaemon(2), both(3)                                  [default: 3]
+-p,--pattern-file <file-name>:        path to the request file for Vegeta attack                         [default: ]
+-r,--repetitions <number>:            number of repetitions for each element in test sequence (e.g. 10)  [default: 10]
+-t,--test-sequence <seq>:             list of qps/timeas <qps1>:<t1>,... (e.g. 200:30,400:10)            [default: 50:30,1000:30,2500:20,10000:20]
+-w,--wait-after-test-sequence <secs>: time interval between successive test iterations in sec            [default: 5]
+-d,--rpc-daemon-address <addr>:       address of RPCDaemonc (e.g. 192.2.3.1)                             [default: localhost]
+-g,--erigon-dir <path>:               path to erigon folder (e.g. /home/erigon)                          [default: ]
+-s,--silk-dir <path>:                 path to silk folder (e.g. /home/silkworm)                          [default: ]
+-c,--run-vegeta-on-core <...>         taskset format for vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: -:-]
+-T,--response-timeout <timeout>:      vegeta response timeout                                            [default: 300]
+-M,--max-body-rsp <size>:             max number of bytes to read from response bodies                   [default: 1500]
 ```
 Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`
 Results are written on output and in case -u option is specified also in a CSV file in ./reports area  `./reports/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`

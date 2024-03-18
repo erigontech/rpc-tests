@@ -49,29 +49,28 @@ def usage(argv):
     print("")
     print("Launch an automated performance test sequence on Silkrpc and RPCDaemon using Vegeta")
     print("")
-    print("-h                      print this help")
-    print("-Z                      doesn't verify server is still active")
-    print("-R                      generate Report")
-    print("-u                      generate Report in reports area read to be inserted into Git repo")
-    print("-v                      verbose")
-    print("-x                      verbose and tracing")
-    print("-e                      empty cache")
-    print("-C <max number of vegeta conn>                                                                                 [default: " + DEFAULT_MAX_CONN + "]")
-    print("-A <additional string>  ")
-    print("-b <chain name>         mandatory in case of -R or -u")
-    print("-y testType             test type: eth_call, eth_getLogs, ...                                                  [default: " + DEFAULT_TEST_TYPE + "]")
-    print("-m targetMode           target mode: silkrpc(1), rpcdaemon(2), both(3)                                         [default: " + str(DEFAULT_TEST_MODE) + "]")
-    print("-p <vegetaPattern> path to the request file for Vegeta attack                                                  [default: " + DEFAULT_VEGETA_PATTERN_TAR_FILE +"]")
-    print("-r testRepetitions      number of repetitions for each element in test sequence (e.g. 10)                      [default: " + str(DEFAULT_REPETITIONS) + "]")
-    print("-t testSequence         list of query-per-sec and duration tests as <qps1>:<t1>,... (e.g. 200:30,400:10)       [default: " + DEFAULT_TEST_SEQUENCE + "]")
-    print("-w testWaitInterval     time interval between successive test iterations in sec                                [default: " + str(DEFAULT_WAITING_TIME) + "]")
-
-    print("-d rpcDaemonAddress     address of RPCDaemon/Silkrpc (e.g. 10.1.1.20)                                          [default: " + DEFAULT_RPCDAEMON_ADDRESS +"]")
-    print("-g erigonBuildDir       Erigon: path to erigon folder (e.g. /home/erigon)                                      [default: " + DEFAULT_ERIGON_BUILD_DIR + "]")
-    print("-s silkrpcBuildDir      Silkrpc: path to silk folder (e.g. /home/silkworm)                                     [default: " + DEFAULT_SILKRPC_BUILD_DIR + "]")
-    print("-c daemonVegetaOnCore   cpu list in taskset format for daemon & vegeta (e.g. 0-1:2-3 or 0-2:3-4 or 0,2:3,4...) [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE +"]")
-    print("-T <timeout>            vegeta response timeout                                                                [default: " + DEFAULT_VEGETA_RESPONSE_TIMEOUT + "]")
-    print("-M <maximum body size>  Maximum number of bytes to read from response bodies                                   [default: " + DEFAULT_MAX_BODY_RSP + "]")
+    print("-h,--help:                            print this help")
+    print("-Z,--not-verify-server-alive:         doesn't verify server is still active")
+    print("-R,--tmp-test-report:                 generate Report on tmp")
+    print("-u,--test-report:                     generate Report in reports area ready to be inserted into Git repo")
+    print("-v,--verbose:                         verbose")
+    print("-x,--tracing:                         verbose and tracing")
+    print("-e,--empty-cache:                     empty cache")
+    print("-C,--max-connections <conn>:                                                                             [default: " + DEFAULT_MAX_CONN + "]")
+    print("-A,--additional-string-name <string>: string to be add in the file name")
+    print("-b,--blockchain <chain name>:         mandatory in case of -R or -u")
+    print("-y,--test-type <test-type>:           eth_call, eth_getLogs, ...                                         [default: " + DEFAULT_TEST_TYPE + "]")
+    print("-m,--test-mode <0,1,2>:               silkrpc(1), rpcdaemon(2), both(3)                                  [default: " + str(DEFAULT_TEST_MODE) + "]")
+    print("-p,--pattern-file <file-name>:        path to the request file for Vegeta attack                         [default: " + DEFAULT_VEGETA_PATTERN_TAR_FILE +"]")
+    print("-r,--repetitions <number>:            number of repetitions for each element in test sequence (e.g. 10)  [default: " + str(DEFAULT_REPETITIONS) + "]")
+    print("-t,--test-sequence <seq>:             list of qps/timeas <qps1>:<t1>,... (e.g. 200:30,400:10)            [default: " + DEFAULT_TEST_SEQUENCE + "]")
+    print("-w,--wait-after-test-sequence <secs>: time interval between successive test iterations in sec            [default: " + str(DEFAULT_WAITING_TIME) + "]")
+    print("-d,--rpc-daemon-address <addr>:       address of RPCDaemonc (e.g. 192.2.3.1)                             [default: " + DEFAULT_RPCDAEMON_ADDRESS +"]")
+    print("-g,--erigon-dir <path>:               path to erigon folder (e.g. /home/erigon)                          [default: " + DEFAULT_ERIGON_BUILD_DIR + "]")
+    print("-s,--silk-dir <path>:                 path to silk folder (e.g. /home/silkworm)                          [default: " + DEFAULT_SILKRPC_BUILD_DIR + "]")
+    print("-c,--run-vegeta-on-core <...>         taskset format for vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE +"]")
+    print("-T,--response-timeout <timeout>:      vegeta response timeout                                            [default: " + DEFAULT_VEGETA_RESPONSE_TIMEOUT + "]")
+    print("-M,--max-body-rsp <size>:             max number of bytes to read from response bodies                   [default: " + DEFAULT_MAX_BODY_RSP + "]")
     sys.exit(-1)
 
 def get_process(process_name: str):
@@ -115,49 +114,53 @@ class Config:
         try:
             local_config = 0
             specified_chain = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:")
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:",
+                   ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'additional-string-name=', 'max-connections=',
+                    'run-vegeta-on-core=', 'empty-cache', 'erigon-dir=', 'silk-dir=', 'repetitions=', 'test-sequence=',
+                    'tmp-test-report', 'test-report', 'blockchain=', 'verbose', 'tracing', 'wait-after-test-sequence=', 'test-type=',
+                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp='])
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
-                elif option == "-m":
+                elif option in ("-m", "--test-mode"):
                     self.test_mode = optarg
-                elif option == "-d":
+                elif option in ("-d", "--rpc-daemon-address"):
                     if local_config == 1:
-                        print("ERROR: incompatible option -d with -g -s")
+                        print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
                         usage(argv)
                     local_config = 2
                     self.rpc_daemon_address = optarg
-                elif option == "-p":
+                elif option in ("-p", "--pattern-file"):
                     self.vegeta_pattern_tar_file = optarg
-                elif option == "-A":
+                elif option in ("-A", "--additional-string-name"):
                     self.additional_string = optarg
-                elif option == "-C":
+                elif option in ("-C", "--max-connections"):
                     self.max_connection = optarg
-                elif option == "-c":
+                elif option in ("-c", "--run-vegeta-on-core"):
                     self.daemon_vegeta_on_core = optarg
-                elif option == "-e":
+                elif option in ("-e", "--empty-cache"):
                     if getpass.getuser() != "root":
                         print("ERROR: this option can be used only by root")
                         usage(argv)
                     self.empty_cache = True
-                elif option == "-g":
+                elif option in ("-g", "--erigon-dir"):
                     if local_config == 2:
-                        print("ERROR: incompatible option -d with -g -s")
+                        print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
                         usage(argv)
                     local_config = 1
                     self.erigon_dir = optarg
-                elif option == "-s":
+                elif option in ("-s", "--silk-dir"):
                     if local_config == 2:
-                        print("ERROR: incompatible option -d with -g -s")
+                        print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
                         usage(argv)
                     local_config = 1
                     self.silkrpc_dir = optarg
-                elif option == "-r":
+                elif option in ("-r", "--repetitions"):
                     self.repetitions = int(optarg)
-                elif option == "-t":
+                elif option in ("-t", "--test-sequence"):
                     self.test_sequence = optarg
-                elif option == "-R":
+                elif option in ("-R", "--tmp-test-report"):
                     self.create_test_report = True
                     if os.path.exists(self.erigon_dir) == 0:
                         print ("ERROR: erigon buildir not specified correctly: ", self.erigon_dir)
@@ -168,10 +171,10 @@ class Config:
                     if specified_chain == 0:
                         print ("ERROR: chain not specified ")
                         usage(argv)
-                elif option == "-b":
+                elif option in ("-b", "--blockchain"):
                     self.chain_name = optarg
                     specified_chain = 1
-                elif option == "-u":
+                elif option in ("-u", "--test-report"):
                     self.create_test_report = True
                     self.versioned_test_report = True
                     if os.path.exists(self.erigon_dir) == 0:
@@ -183,20 +186,20 @@ class Config:
                     if specified_chain == 0:
                         print ("ERROR: chain not specified ")
                         usage(argv)
-                elif option == "-v":
+                elif option in ("-v", "--verbose"):
                     self.verbose = True
-                elif option == "-x":
+                elif option in ("-x", "--tracing"):
                     self.verbose = True
                     self.tracing = True
-                elif option == "-w":
+                elif option in ("-w", "--wait-after-test-sequence"):
                     self.waiting_time = int(optarg)
-                elif option == "-y":
+                elif option in ("-y", "--test-type"):
                     self.test_type = optarg
-                elif option == "-Z":
+                elif option in ("-Z", "--not-verify-server-alive"):
                     self.check_server_alive = False
-                elif option == "-T":
+                elif option in ("-T", "--response-timeout"):
                     self.vegeta_response_timeout = optarg
-                elif option == "-M":
+                elif option in ("-M", "--max-body-rsp"):
                     self.max_body_rsp = optarg
                 else:
                     usage(argv)
