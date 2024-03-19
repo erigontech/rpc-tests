@@ -4,6 +4,8 @@
 
 # pylint: disable=consider-using-with
 
+import io
+import json
 import os
 import csv
 import pathlib
@@ -71,6 +73,7 @@ def usage(argv):
     print("-c,--run-vegeta-on-core <...>         taskset format for vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE +"]")
     print("-T,--response-timeout <timeout>:      vegeta response timeout                                            [default: " + DEFAULT_VEGETA_RESPONSE_TIMEOUT + "]")
     print("-M,--max-body-rsp <size>:             max number of bytes to read from response bodies                   [default: " + DEFAULT_MAX_BODY_RSP + "]")
+    print("-j,--json-report:                     generate json report")
     sys.exit(-1)
 
 def get_process(process_name: str):
@@ -107,6 +110,7 @@ class Config:
         self.max_connection = DEFAULT_MAX_CONN
         self.vegeta_response_timeout = DEFAULT_VEGETA_RESPONSE_TIMEOUT
         self.max_body_rsp = DEFAULT_MAX_BODY_RSP
+        self.json_report = False
 
         self.__parse_args(argv)
 
@@ -114,17 +118,19 @@ class Config:
         try:
             local_config = 0
             specified_chain = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:",
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j",
                    ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'additional-string-name=', 'max-connections=',
                     'run-vegeta-on-core=', 'empty-cache', 'erigon-dir=', 'silk-dir=', 'repetitions=', 'test-sequence=',
                     'tmp-test-report', 'test-report', 'blockchain=', 'verbose', 'tracing', 'wait-after-test-sequence=', 'test-type=',
-                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp='])
+                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'json-report'])
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
                 elif option in ("-m", "--test-mode"):
                     self.test_mode = optarg
+                elif option in ("-j", "--json-report"):
+                    self.json_report = True
                 elif option in ("-d", "--rpc-daemon-address"):
                     if local_config == 1:
                         print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
@@ -406,10 +412,11 @@ class TestReport:
         """ Create a new TestReport """
         self.csv_file = ''
         self.writer = ''
+        self.json_test_report = ''
         self.config = config
 
-    def open(self):
-        """ Writes on CSV file the header """
+    def create_csv_file(self):
+        """ Creates CSV file """
         estension = Hardware.normalized_product()
         if estension == "systemproductname":
             estension = Hardware.normalized_board()
@@ -428,9 +435,12 @@ class TestReport:
         csv_filepath = csv_folder_path + '/' + csv_filename
         self.csv_file = open(csv_filepath, 'w', newline='', encoding='utf8')
         self.writer = csv.writer(self.csv_file)
-
         print("Perf report file: " + csv_filepath + "\n")
 
+
+    def open(self):
+        """ Writes on CSV file the header """
+        self.create_csv_file()
         command = "sum "+ self.config.vegeta_pattern_tar_file
         checksum = os.popen(command).read().split('\n')
 
@@ -449,55 +459,103 @@ class TestReport:
         tmp = os.popen(command).readline().replace('\n', '').split(':')[1]
         bogomips = tmp.replace(' ', '')
 
-        erigon_branch = ""
         erigon_commit = ""
-        silkrpc_branch = ""
         silkrpc_commit = ""
         if self.config.test_mode in ("1", "3"):
-            command = "cd " + self.config.silkrpc_dir + " && git branch --show-current"
-            silkrpc_branch = os.popen(command).read().replace('\n', '')
-
             command = "cd " + self.config.silkrpc_dir + " && git rev-parse HEAD"
             silkrpc_commit = os.popen(command).read().replace('\n', '')
 
         if self.config.test_mode in ("2", "3"):
-            command = "cd " + self.config.erigon_dir + " && git branch --show-current"
-            erigon_branch = os.popen(command).read().replace('\n', '')
-
             command = "cd " + self.config.erigon_dir + " && git rev-parse HEAD"
             erigon_commit = os.popen(command).read().replace('\n', '')
 
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Vendor", Hardware.vendor()])
+        self.write_test_header(model[1], bogomips, kern_vers, self.config.daemon_vegeta_on_core, self.config.vegeta_pattern_tar_file, 
+                               checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit) 
+
+    def write_test_header_on_json(self, model, bogomips, kern_vers, taskset, vegeta_file, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit):
+        """ Writes test header on json """
+        self.json_test_report = {
+           'platform': {
+               'vendor': Hardware.vendor(),
+               'product': Hardware.product(),
+               'board': Hardware.board(),
+               'cpu': model,
+               'bogomips': bogomips,
+               'kernel': kern_vers,
+               'gccVersion': gcc_vers,
+               'goVersion': go_vers,
+               'silkrpcVersion': silkrpc_commit,
+               'erigonVersion': erigon_commit
+           },
+           "configuration": {
+               "taskset": taskset,
+               "vegetaFile": vegeta_file,
+               "vegetaChecksum": checksum,
+          },
+          'result': list()
+       }
+
+    def write_test_header(self, model, bogomips, kern_vers, taskset, vegeta_file, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit):
+        """ Writes test header """
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "vendor", Hardware.vendor()])
         product = Hardware.product()
         if product != "System Product Name":
-            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Product", product])
+            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "product", product])
         else:
-            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Board", Hardware.board()])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "CPU", model[1]])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Bogomips", bogomips])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Kernel", kern_vers])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "DaemonVegetaRunOnCore", self.config.daemon_vegeta_on_core])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "VegetaFile", self.config.vegeta_pattern_tar_file])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "VegetaChecksum", checksum[0]])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "GCC version", gcc_vers[0]])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Go version", go_vers])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Silkrpc version", silkrpc_branch + " " + silkrpc_commit])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Erigon version", erigon_branch + " " + erigon_commit])
+            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "board", Hardware.board()])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "cpu", model[1]])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "bogomips", bogomips])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "kernel", kern_vers])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "taskset", taskset])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "vegetaFile", vegeta_file])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "vegetaChecksum", checksum])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "gccVersion", gcc_vers])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "goVersion", go_vers])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "silkrpcVersion", silkrpc_commit])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "erigonVersion", erigon_commit])
         self.writer.writerow([])
         self.writer.writerow([])
-        self.writer.writerow(["Daemon", "TestNo", "TG-Threads", "Qps", "Time", "Min", "Mean", "50", "90", "95", "99", "Max", "Ratio", "Error"])
+        self.writer.writerow(["Daemon", "TestNo", "Qps", "Time", "Min", "Mean", "50", "90", "95", "99", "Max", "Ratio", "Error"])
         self.csv_file.flush()
+
+        if self.config.json_report:
+            self.write_test_header_on_json(model, bogomips, kern_vers, taskset, vegeta_file, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit) 
+
 
     def write_test_report(self, daemon, test_number, threads, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine, max_latency, ratio, error):
         """ Writes on CSV the latency data for one completed test """
         self.writer.writerow([daemon, str(test_number), threads, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine, max_latency, ratio, error])
         self.csv_file.flush()
 
+        if self.config.json_report:
+            self.write_test_report_on_json(daemon, str(test_number), qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine, 
+                                           max_latency, ratio, error)
+
+    def write_test_report_on_json(self, daemon, test_number, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine, max_latency, ratio, error):
+        self.json_test_report['result'].append({
+            'daemon': daemon,
+            'test_number': test_number, 
+            'qps': qps_value,
+            'duration': duration,
+            'min': min_latency,
+            'mean': mean,
+            '50%': fifty,
+            '90%': ninty,
+            '95%': nintyfive,
+            '99%': nintynine,
+            'max': max_latency,
+            'ratio': ratio, 
+            'error': error
+        }
+
     def close(self):
         """ Close the report """
         self.csv_file.flush()
         self.csv_file.close()
 
+        if self.config.json_report:
+            with open('/tmp/data.json', 'w', encoding='utf-8') as f:
+                json.dump(self.json_test_report, f, indent=4)
 
 #
 # main
