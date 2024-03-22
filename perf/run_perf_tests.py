@@ -422,9 +422,9 @@ class TestReport:
 
         # Generate unique CSV file name w/ date-time and open it
         if self.config.additional_string != "":
-            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_" + self.config.additional_string + "_perf.csv"
+            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.additional_string + "_perf.csv"
         else:
-            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_perf.csv"
+            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_perf.csv"
         csv_filepath = csv_folder_path + '/' + csv_filename
         self.csv_file = open(csv_filepath, 'w', newline='', encoding='utf8')
         self.writer = csv.writer(self.csv_file)
