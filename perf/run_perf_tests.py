@@ -542,9 +542,9 @@ def main(argv):
     print("Performance Test completed successfully.")
     return 0
 
+
 #
 # module as main
 #
 if __name__ == "__main__":
-    main(sys.argv)
-    sys.exit(0)
+    sys.exit(main(sys.argv))
