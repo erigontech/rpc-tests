@@ -530,7 +530,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
         options = jwt_auth
         if compression:
             options = options + " --compressed  "
-        cmd = '''curl --silent -X GET -H "Content-Type: application/json" ''' + options + ''' --data \'''' + request_dumps + '''\' ''' + target
+        cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + options + ''' --data \'''' + request_dumps + '''\' ''' + target
         result = os.popen(cmd).read()
     else:
         ws_target = "ws://" + target  # use websocket
