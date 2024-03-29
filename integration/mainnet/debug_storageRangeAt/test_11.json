@@ -13,12 +13,12 @@
       ]
     },
     "response": {
-      "error": {
-        "code": -32000,
-        "message": "block not found "
-      },
       "id": 240,
-      "jsonrpc": "2.0"
+      "jsonrpc": "2.0",
+      "result": {
+        "nextKey": null,
+        "storage": null
+      }
     }
   }
 ]
