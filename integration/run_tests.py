@@ -65,7 +65,6 @@ tests_not_compared = [
 
     "mainnet/debug_storageRangeAt/test_09.json",  # diff in storage entries
     "mainnet/debug_storageRangeAt/test_10.json",  # diff in storage entries
-    "mainnet/debug_storageRangeAt/test_11.json",  # diff result as the block hash doesn't exist
 
     "mainnet/debug_traceBlockByNumber/test_05.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_06.tar",  # json too big
