@@ -308,7 +308,7 @@ class PerfTest:
         sys.stdout.flush()
         status = os.system(cmd)
         if int(status) != 0:
-            print("vegeta test fails: Test Aborted!")
+            print("vegeta attach fails: Test Aborted!")
             return 1
 
         while 1:
@@ -322,11 +322,12 @@ class PerfTest:
                 if pid == "" :
                     # the server is dead; kill vegeta and returns fails
                     os.system("kill -2 $(ps aux | grep 'vegeta' | grep -v 'grep' | grep -v 'python' | awk '{print $2}') 2> /dev/null")
-                    return 0
+                    print ("test failed: server is Dead")
+                    return 1
 
             pid = os.popen("ps aux | grep 'vegeta report' | grep -v 'grep' | awk '{print $2}'").read()
             if pid == "":
-                # Vegeta has completed its works, generate report and return OK
+                # Vegeta has completed its works, generate report
                 return self.get_result(test_number, repetition, name, qps_value, duration)
 
     def execute_sequence(self, sequence, tag):
@@ -370,7 +371,7 @@ class PerfTest:
             newline = file_raws[5].replace('\n', ' ')
             ratio = newline.split(' ')[34]
             if len(file_raws) > 8:
-                error = file_raws[8]
+                error = file_raws[8].rstrip()
                 print(" [ Ratio="+ratio+", MaxLatency="+max_latency+ " Error: " + error +"]")
             else:
                 error = ""
@@ -378,10 +379,16 @@ class PerfTest:
         finally:
             file.close()
 
+        if error != "" or ratio != "100.00%":
+            print ("test failed: ratio is not 100.00%")
+            return 1
+
         if self.config.create_test_report:
             self.test_report.write_test_report(daemon_name, test_number, repetition, qps_value, duration, min_latency, mean, fifty,
                                                ninty, nintyfive, nintynine, max_latency, ratio, error)
         os.system("/bin/rm " + test_report_filename)
+        return 0
+
         return 0
 
 
@@ -445,9 +452,9 @@ class TestReport:
 
         # Generate unique CSV file name w/ date-time and open it
         if self.config.additional_string != "":
-            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_" + self.config.additional_string + "_perf.csv"
+            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.additional_string + "_perf.csv"
         else:
-            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y-%m-%d-%H:%M:%S') + "_perf.csv"
+            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_perf.csv"
         csv_filepath = csv_folder_path + '/' + csv_filename
         self.csv_file = open(csv_filepath, 'w', newline='', encoding='utf8')
         self.writer = csv.writer(self.csv_file)

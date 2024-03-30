@@ -1,0 +1,24 @@
+[
+  {
+    "request": {
+      "id": 240,
+      "jsonrpc": "2.0",
+      "method": "debug_storageRangeAt",
+      "params": [
+        "0xc6dcba0aa6e0989f41f1b1197bfe692c3b616d9ef99b1b457f407ab86687a93b",
+        81,
+        "0x4Ec54748ae0b45E3e3399F24e289bF878946EFA3",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        1
+      ]
+    },
+    "response": {
+      "id": 240,
+      "jsonrpc": "2.0",
+      "result": {
+        "nextKey": null,
+        "storage": null
+      }
+    }
+  }
+]

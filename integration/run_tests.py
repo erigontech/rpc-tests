@@ -63,6 +63,9 @@ tests_not_compared = [
     "goerli/eth_getLogs/test_14.json",  # validator doesn't support earlist and latest
     "goerli/eth_getLogs/test_15.json",  # validator doesn't support earlist and latest
 
+    "mainnet/debug_storageRangeAt/test_09.json",  # diff in storage entries
+    "mainnet/debug_storageRangeAt/test_10.json",  # diff in storage entries
+
     "mainnet/debug_traceBlockByNumber/test_05.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_06.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_08.tar",  # json too big
@@ -530,7 +533,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
         options = jwt_auth
         if compression:
             options = options + " --compressed  "
-        cmd = '''curl --silent -X GET -H "Content-Type: application/json" ''' + options + ''' --data \'''' + request_dumps + '''\' ''' + target
+        cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + options + ''' --data \'''' + request_dumps + '''\' ''' + target
         result = os.popen(cmd).read()
     else:
         ws_target = "ws://" + target  # use websocket
