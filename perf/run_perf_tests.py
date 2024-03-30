@@ -288,7 +288,8 @@ class PerfTest:
         else:
             pattern = VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
         on_core = self.config.daemon_vegeta_on_core.split(':')
-        filename = datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.testing_daemon + "_" +  self.config.test_type + "_" + str(repetition+1) + ".bin"
+        filename = datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.testing_daemon + "_" +  self.config.test_type + \
+                                                               "_" + qps_value + "_" + duration + "_" + str(repetition+1) + ".bin"
         if self.config.versioned_test_report:
             dirname = './reports/' + self.config.chain_name + '/' + BINARY + '/'
         else:
