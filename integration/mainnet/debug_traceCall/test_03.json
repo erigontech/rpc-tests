@@ -1,0 +1,35 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceCall",
+      "params": [
+        {
+          "data": "0xa694fc3a00000000000000000000000000000000000000000000010f0cf064dd59200000",
+          "from": "0x56768B032Fc12D2e911eF654B0054e26a58cef74",
+          "gas": "0x147F7",
+          "gasPrice": "0x1",
+          "to": "0xc92047CeC2355293A9e3710e32851F3509e7313E",
+          "value": "0x0"
+        },
+        "0x52a0b3",
+        {
+          "disableMemory": false,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "failed": false,
+        "gas": 21912,
+        "returnValue": "",
+        "structLogs": []
+      }
+    }
+  }
+]
