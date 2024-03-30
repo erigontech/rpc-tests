@@ -142,6 +142,7 @@ class Config:
             if os.path.exists(self.erigon_dir) == 0:
                 print ("ERROR: erigon buildir not specified correctly: ", self.erigon_dir)
                 return 0
+
             if os.path.exists(self.silkworm_dir) == 0:
                 print ("ERROR: silkworm buildir not specified correctly: ", self.silkworm_dir)
                 return 0
@@ -287,12 +288,13 @@ class PerfTest:
         else:
             pattern = VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
         on_core = self.config.daemon_vegeta_on_core.split(':')
-        filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.testing_daemon + "_" + str(repetition+1) + ".bin"
+        filename = datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.testing_daemon + "_" +  self.config.test_type + "_" + str(repetition+1) + ".bin"
         if self.config.versioned_test_report:
-            self.config.binary_file = './reports/' + self.config.chain_name + '/' + BINARY + '/' + filename
+            dirname = './reports/' + self.config.chain_name + '/' + BINARY + '/'
         else:
-            self.config.binary_file = RUN_TEST_DIRNAME + "/" + self.config.chain_name + '/' + BINARY + '/' + filename
-        pathlib.Path(self.config.binary_file).mkdir(parents=True, exist_ok=True)
+            dirname = RUN_TEST_DIRNAME + "/" + self.config.chain_name + '/' + BINARY + '/'
+        pathlib.Path(dirname).mkdir(parents=True, exist_ok=True)
+        self.config.binary_file = dirname + filename
         if self.config.max_connection == "0":
             vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=" + \
                            self.config.vegeta_response_timeout + "s -max-body=" + self.config.max_body_rsp
@@ -301,7 +303,7 @@ class PerfTest:
                           self.config.vegeta_response_timeout + "s -max-connections=" + self.config.max_connection + " -max-body=" + \
                           self.config.max_body_rsp
         if on_core[1] == "-":
-            cmd = "cat " + pattern + " | " + vegeta_cmd + " tee " + self.config.binary_file + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
+            cmd = "cat " + pattern + " | " + vegeta_cmd + " | tee " + self.config.binary_file + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
         else:
             cmd = "taskset -c " + on_core[1] + " cat " + pattern + " | " \
                   "taskset -c " + on_core[1] + vegeta_cmd + " tee " + self.config.binary_file + " | " \
@@ -559,28 +561,26 @@ class TestReport:
         self.csv_file.flush()
 
         if self.config.json_report_file != "":
-            self.write_test_report_on_json(test_number, repetition, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine,
-                                           max_latency, ratio, error)
+            self.write_test_report_on_json(test_number, repetition, qps_value, duration)
 
-    def write_test_report_on_json(self, test_number, repetition, qps_value, duration, min_latency, mean, fifty, ninty,
-                                  nintyfive, nintynine, max_latency, ratio, error):
+    def write_test_report_on_json(self, test_number, repetition, qps_value, duration):
         """ Writes on json the latency data for one completed test """
-        self.json_test_report['result'].append({
-            'test': str(test_number).lstrip().strip(),
-            'qps': qps_value.lstrip().strip(),
-            'duration': duration.lstrip().strip(),
-            'binary-file': self.config.binary_file,
-            'latency' : {
-               'min': min_latency.lstrip().strip(),
-               'mean': mean.lstrip().strip(),
-               '50%': fifty.lstrip().strip(),
-               '90%': ninty.lstrip().strip(),
-               '95%': nintyfive.lstrip().strip(),
-               '99%': nintynine.lstrip().strip(),
-               'max': max_latency.lstrip().strip(),
-               'ratio': ratio.lstrip().strip(),
-               'error': error.lstrip().rstrip()
-           }
+        if repetition == 0:
+            self.json_test_report['result'].append({
+                'qps': qps_value.lstrip().strip(),
+                'time': duration.lstrip().strip(),
+                'repetitions': [],
+            })
+        cmd = "vegeta report --type=json " + self.config.binary_file
+        json_string = os.popen(cmd).read()
+        if json_string == "" :
+            print ("error in vegeta json")
+            sys.exit (1)
+
+        json_object = json.loads(json_string)
+        self.json_test_report['result'][test_number-1]['repetitions'].append({
+               'binary-file': self.config.binary_file,
+               'vegeta-report': json_object
         })
 
     def close(self):
