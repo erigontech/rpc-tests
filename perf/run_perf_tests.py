@@ -122,6 +122,10 @@ class Config:
             print("ERROR: incompatible option -j/--json-report with -m/--test-mode")
             return 0
 
+        if self.test_mode == "3" and self.testing_daemon != "":
+            print("ERROR: incompatible option -m/--test-mode and -D/--testing-daemon")
+            return 0
+
         if self.json_report_file != "" and self.testing_daemon == "":
             print("ERROR: with option -j/--json-report must be set also -D/--testing_daemon")
             return 0
@@ -303,10 +307,13 @@ class PerfTest:
                   "taskset -c " + on_core[1] + vegeta_cmd + " tee " + self.config.binary_file + " | " \
                   "taskset -c " + on_core[1] + " vegeta report -type=text > " + VEGETA_REPORT + " &"
 
-        print ("Created binary file: ", self.config.binary_file)
+        #print ("Created binary file: ", self.config.binary_file)
         test_name = "[{:d}.{:2d}] "
         test_formatted = test_name.format(test_number, repetition+1)
-        print(f"{test_formatted} daemon: executes test qps: {qps_value} time: {duration} -> ", end="")
+        if self.config.testing_daemon != "":
+            print(f"{test_formatted} " + self.config.testing_daemon + f": executes test qps: {qps_value} time: {duration} -> ", end="")
+        else:
+            print(f"{test_formatted} daemon: executes test qps: {qps_value} time: {duration} -> ", end="")
         sys.stdout.flush()
         status = os.system(cmd)
         if int(status) != 0:
