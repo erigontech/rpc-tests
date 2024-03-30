@@ -34,6 +34,7 @@ DEFAULT_MAX_BODY_RSP = "1500"
 
 SILKWORM="silkworm"
 ERIGON="rpcdaemon"
+BINARY="bin"
 SILKWORM_SERVER_NAME="rpcdaemon"
 ERIGON_SERVER_NAME="rpcdaemon"
 RAND_NUM = randint(0, 100000)
@@ -58,10 +59,10 @@ def usage(argv):
     print("-x,--tracing:                         verbose and tracing")
     print("-e,--empty-cache:                     empty cache")
     print("-C,--max-connections <conn>:                                                                             [default: " + DEFAULT_MAX_CONN + "]")
-    print("-A,--additional-string-name <string>: string to be add in the file name")
+    print("-D,--testing-daemon <string>:         name of testing daemon")
     print("-b,--blockchain <chain name>:         mandatory in case of -R or -u")
     print("-y,--test-type <test-type>:           eth_call, eth_getLogs, ...                                         [default: " + DEFAULT_TEST_TYPE + "]")
-    print("-m,--test-mode <0,1,2>:               silkworm(1), erigon(2), both(3)                                  [default: " + str(DEFAULT_TEST_MODE) + "]")
+    print("-m,--test-mode <0,1,2>:               silkworm(1), erigon(2), both(3)                                    [default: " + str(DEFAULT_TEST_MODE) + "]")
     print("-p,--pattern-file <file-name>:        path to the request file for Vegeta attack                         [default: " + DEFAULT_VEGETA_PATTERN_TAR_FILE +"]")
     print("-r,--repetitions <number>:            number of repetitions for each element in test sequence (e.g. 10)  [default: " + str(DEFAULT_REPETITIONS) + "]")
     print("-t,--test-sequence <seq>:             list of qps/timeas <qps1>:<t1>,... (e.g. 200:30,400:10)            [default: " + DEFAULT_TEST_SEQUENCE + "]")
@@ -97,7 +98,7 @@ class Config:
         self.rpc_daemon_address = DEFAULT_ERIGON_ADDRESS
         self.test_mode = DEFAULT_TEST_MODE
         self.test_type = DEFAULT_TEST_TYPE
-        self.additional_string = ""
+        self.testing_daemon = ""
         self.waiting_time = DEFAULT_WAITING_TIME
         self.versioned_test_report = False
         self.verbose = False
@@ -110,15 +111,44 @@ class Config:
         self.vegeta_response_timeout = DEFAULT_VEGETA_RESPONSE_TIMEOUT
         self.max_body_rsp = DEFAULT_MAX_BODY_RSP
         self.json_report_file = ""
+        self.binary_file = ""
+        self.chain_name = "mainnet"
 
         self.__parse_args(argv)
 
+    def validate_input(self):
+        """ This methods validate user input """
+        if self.json_report_file != "" and self.test_mode == "3":
+            print("ERROR: incompatible option -j/--json-report with -m/--test-mode")
+            return 0
+
+        if self.json_report_file != "" and self.testing_daemon == "":
+            print("ERROR: with option -j/--json-report must be set also -D/--testing_daemon")
+            return 0
+
+        if (self.erigon_dir != DEFAULT_ERIGON_BUILD_DIR or self.silkworm_dir != DEFAULT_SILKWORM_BUILD_DIR) and self.rpc_daemon_address != DEFAULT_ERIGON_ADDRESS:
+            print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
+            return 0
+
+        if self.empty_cache and getpass.getuser() != "root":
+            print("ERROR: this option can be used only by root")
+            return 0
+
+        if self.create_test_report:
+            if os.path.exists(self.erigon_dir) == 0:
+                print ("ERROR: erigon buildir not specified correctly: ", self.erigon_dir)
+                return 0
+            if os.path.exists(self.silkworm_dir) == 0:
+                print ("ERROR: silkworm buildir not specified correctly: ", self.silkworm_dir)
+                return 0
+
+        return 1
+
     def __parse_args(self, argv):
+        """ This methods parse input args """
         try:
-            local_config = 0
-            specified_chain = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j:",
-                   ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'additional-string-name=', 'max-connections=',
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:D:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j:",
+                   ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'testing-daemon=', 'max-connections=',
                     'run-vegeta-on-core=', 'empty-cache', 'erigon-dir=', 'silk-dir=', 'repetitions=', 'test-sequence=',
                     'tmp-test-report', 'test-report', 'blockchain=', 'verbose', 'tracing', 'wait-after-test-sequence=', 'test-type=',
                     'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'json-report='])
@@ -127,45 +157,24 @@ class Config:
                 if option in ("-h", "--help"):
                     usage(argv)
                 elif option in ("-m", "--test-mode"):
-                    if self.json_report_file != "":
-                        print("ERROR: incompatible option -m/--test-mode with -j/--json-report")
-                        usage(argv)
                     self.test_mode = optarg
                 elif option in ("-j", "--json-report"):
-                    if self.test_mode == "3":
-                        print("ERROR: incompatible option -j/--json-report with -m/--test-mode")
-                        usage(argv)
                     self.json_report_file = optarg
                 elif option in ("-d", "--rpc-daemon-address"):
-                    if local_config == 1:
-                        print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
-                        usage(argv)
-                    local_config = 2
                     self.rpc_daemon_address = optarg
                 elif option in ("-p", "--pattern-file"):
                     self.vegeta_pattern_tar_file = optarg
-                elif option in ("-A", "--additional-string-name"):
-                    self.additional_string = optarg
+                elif option in ("-D", "--testing-daemon"):
+                    self.testing_daemon = optarg
                 elif option in ("-C", "--max-connections"):
                     self.max_connection = optarg
                 elif option in ("-c", "--run-vegeta-on-core"):
                     self.daemon_vegeta_on_core = optarg
                 elif option in ("-e", "--empty-cache"):
-                    if getpass.getuser() != "root":
-                        print("ERROR: this option can be used only by root")
-                        usage(argv)
                     self.empty_cache = True
                 elif option in ("-g", "--erigon-dir"):
-                    if local_config == 2:
-                        print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
-                        usage(argv)
-                    local_config = 1
                     self.erigon_dir = optarg
                 elif option in ("-s", "--silk-dir"):
-                    if local_config == 2:
-                        print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
-                        usage(argv)
-                    local_config = 1
                     self.silkworm_dir = optarg
                 elif option in ("-r", "--repetitions"):
                     self.repetitions = int(optarg)
@@ -173,30 +182,11 @@ class Config:
                     self.test_sequence = optarg
                 elif option in ("-R", "--tmp-test-report"):
                     self.create_test_report = True
-                    if os.path.exists(self.erigon_dir) == 0:
-                        print ("ERROR: erigon buildir not specified correctly: ", self.erigon_dir)
-                        usage(argv)
-                    if os.path.exists(self.silkworm_dir) == 0:
-                        print ("ERROR: silkrpc buildir not specified correctly: ", self.silkworm_dir)
-                        usage(argv)
-                    if specified_chain == 0:
-                        print ("ERROR: chain not specified ")
-                        usage(argv)
                 elif option in ("-b", "--blockchain"):
                     self.chain_name = optarg
-                    specified_chain = 1
                 elif option in ("-u", "--test-report"):
                     self.create_test_report = True
                     self.versioned_test_report = True
-                    if os.path.exists(self.erigon_dir) == 0:
-                        print ("ERROR: erigon buildir not specified correctly: ", self.erigon_dir)
-                        usage(argv)
-                    if os.path.exists(self.silkworm_dir) == 0:
-                        print ("ERROR: silkrpc buildir not specified correctly: ", self.silkworm_dir)
-                        usage(argv)
-                    if specified_chain == 0:
-                        print ("ERROR: chain not specified ")
-                        usage(argv)
                 elif option in ("-v", "--verbose"):
                     self.verbose = True
                 elif option in ("-x", "--tracing"):
@@ -217,6 +207,10 @@ class Config:
         except getopt.GetoptError as err:
             # print help information and exit:
             print(err)
+            usage(argv)
+            sys.exit(1)
+
+        if self.validate_input() == 0:
             usage(argv)
             sys.exit(1)
 
@@ -289,6 +283,12 @@ class PerfTest:
         else:
             pattern = VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
         on_core = self.config.daemon_vegeta_on_core.split(':')
+        filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.testing_daemon + "_" + str(repetition+1) + ".bin"
+        if self.config.versioned_test_report:
+            self.config.binary_file = './reports/' + self.config.chain_name + '/' + BINARY + '/' + filename
+        else:
+            self.config.binary_file = RUN_TEST_DIRNAME + "/" + self.config.chain_name + '/' + BINARY + '/' + filename
+        pathlib.Path(self.config.binary_file).mkdir(parents=True, exist_ok=True)
         if self.config.max_connection == "0":
             vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=" + \
                            self.config.vegeta_response_timeout + "s -max-body=" + self.config.max_body_rsp
@@ -297,11 +297,13 @@ class PerfTest:
                           self.config.vegeta_response_timeout + "s -max-connections=" + self.config.max_connection + " -max-body=" + \
                           self.config.max_body_rsp
         if on_core[1] == "-":
-            cmd = "cat " + pattern + " | " + vegeta_cmd + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
+            cmd = "cat " + pattern + " | " + vegeta_cmd + " tee " + self.config.binary_file + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
         else:
             cmd = "taskset -c " + on_core[1] + " cat " + pattern + " | " \
-                  "taskset -c " + on_core[1] + vegeta_cmd + " | " \
+                  "taskset -c " + on_core[1] + vegeta_cmd + " tee " + self.config.binary_file + " | " \
                   "taskset -c " + on_core[1] + " vegeta report -type=text > " + VEGETA_REPORT + " &"
+
+        print ("Created binary file: ", self.config.binary_file)
         test_name = "[{:d}.{:2d}] "
         test_formatted = test_name.format(test_number, repetition+1)
         print(f"{test_formatted} daemon: executes test qps: {qps_value} time: {duration} -> ", end="")
@@ -389,9 +391,6 @@ class PerfTest:
         os.system("/bin/rm " + test_report_filename)
         return 0
 
-        return 0
-
-
 class Hardware:
     """ Extract hardware information from the underlying platform. """
 
@@ -451,8 +450,8 @@ class TestReport:
         pathlib.Path(csv_folder_path).mkdir(parents=True, exist_ok=True)
 
         # Generate unique CSV file name w/ date-time and open it
-        if self.config.additional_string != "":
-            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.additional_string + "_perf.csv"
+        if self.config.testing_daemon != "":
+            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.testing_daemon + "_perf.csv"
         else:
             csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_perf.csv"
         csv_filepath = csv_folder_path + '/' + csv_filename
@@ -563,6 +562,7 @@ class TestReport:
             'test': str(test_number).lstrip().strip(),
             'qps': qps_value.lstrip().strip(),
             'duration': duration.lstrip().strip(),
+            'binary-file': self.config.binary_file,
             'latency' : {
                'min': min_latency.lstrip().strip(),
                'mean': mean.lstrip().strip(),
