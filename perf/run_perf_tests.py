@@ -72,8 +72,8 @@ def usage(argv):
     print("-c,--run-vegeta-on-core <...>         taskset format for vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE +"]")
     print("-T,--response-timeout <timeout>:      vegeta response timeout                                            [default: " + DEFAULT_VEGETA_RESPONSE_TIMEOUT + "]")
     print("-M,--max-body-rsp <size>:             max number of bytes to read from response bodies                   [default: " + DEFAULT_MAX_BODY_RSP + "]")
-    print("-j,--json-report:                     generate json report")
-    sys.exit(-1)
+    print("-j,--json-report <file-name>:         generate json report")
+    sys.exit(1)
 
 def get_process(process_name: str):
     """ Return the running process having specified name or None if not exists """
@@ -109,7 +109,7 @@ class Config:
         self.max_connection = DEFAULT_MAX_CONN
         self.vegeta_response_timeout = DEFAULT_VEGETA_RESPONSE_TIMEOUT
         self.max_body_rsp = DEFAULT_MAX_BODY_RSP
-        self.json_report = False
+        self.json_report_file = ""
 
         self.__parse_args(argv)
 
@@ -117,19 +117,25 @@ class Config:
         try:
             local_config = 0
             specified_chain = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j",
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j:",
                    ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'additional-string-name=', 'max-connections=',
                     'run-vegeta-on-core=', 'empty-cache', 'erigon-dir=', 'silk-dir=', 'repetitions=', 'test-sequence=',
                     'tmp-test-report', 'test-report', 'blockchain=', 'verbose', 'tracing', 'wait-after-test-sequence=', 'test-type=',
-                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'json-report'])
+                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'json-report='])
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
                 elif option in ("-m", "--test-mode"):
+                    if self.json_report_file != "":
+                        print("ERROR: incompatible option -m/--test-mode with -j/--json-report")
+                        usage(argv)
                     self.test_mode = optarg
                 elif option in ("-j", "--json-report"):
-                    self.json_report = True
+                    if self.test_mode == "3":
+                        print("ERROR: incompatible option -j/--json-report with -m/--test-mode")
+                        usage(argv)
+                    self.json_report_file = optarg
                 elif option in ("-d", "--rpc-daemon-address"):
                     if local_config == 1:
                         print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
@@ -212,7 +218,7 @@ class Config:
             # print help information and exit:
             print(err)
             usage(argv)
-            sys.exit(-1)
+            sys.exit(1)
 
 
 class PerfTest:
@@ -245,7 +251,7 @@ class PerfTest:
         """ Copy the vegeta pattern file into /tmp/run_tests_xyz/ and untar the file """
         if os.path.exists(self.config.vegeta_pattern_tar_file) == 0:
             print ("ERROR: invalid pattern file: ", self.config.vegeta_pattern_tar_file)
-            sys.exit(-1)
+            sys.exit(1)
         cmd = "mkdir " +  RUN_TEST_DIRNAME
         status = os.system(cmd)
         cmd = "/bin/cp -f " + self.config.vegeta_pattern_tar_file + " " + VEGETA_TAR_FILE_NAME
@@ -254,7 +260,7 @@ class PerfTest:
         status = os.system(cmd)
         if int(status) != 0:
             print("Vegeta pattern copy failed. Test Aborted!")
-            sys.exit(-1)
+            sys.exit(1)
 
         cmd = "cd " + RUN_TEST_DIRNAME + "; tar xvf " + VEGETA_TAR_FILE_NAME + " > /dev/null"
         if self.config.tracing:
@@ -262,7 +268,7 @@ class PerfTest:
         status = os.system(cmd)
         if int(status) != 0:
             print("Vegeta pattern untar failed. Test Aborted!")
-            sys.exit(-1)
+            sys.exit(1)
 
         # If address is provided substitute the address and port of daemon in the vegeta file
         if self.config.rpc_daemon_address != "localhost":
@@ -297,13 +303,13 @@ class PerfTest:
                   "taskset -c " + on_core[1] + vegeta_cmd + " | " \
                   "taskset -c " + on_core[1] + " vegeta report -type=text > " + VEGETA_REPORT + " &"
         test_name = "[{:d}.{:2d}] "
-        test_formatted = test_name.format(test_number, repetition)
+        test_formatted = test_name.format(test_number, repetition+1)
         print(f"{test_formatted} daemon: executes test qps: {qps_value} time: {duration} -> ", end="")
         sys.stdout.flush()
         status = os.system(cmd)
         if int(status) != 0:
             print("vegeta test fails: Test Aborted!")
-            return 0
+            return 1
 
         while 1:
             time.sleep(3)
@@ -321,8 +327,7 @@ class PerfTest:
             pid = os.popen("ps aux | grep 'vegeta report' | grep -v 'grep' | awk '{print $2}'").read()
             if pid == "":
                 # Vegeta has completed its works, generate report and return OK
-                self.get_result(test_number, repetition, name, qps_value, duration)
-                return 1
+                return self.get_result(test_number, repetition, name, qps_value, duration)
 
     def execute_sequence(self, sequence, tag):
         """ Execute the sequence of tests """
@@ -331,14 +336,14 @@ class PerfTest:
             for test_rep in range(0, self.config.repetitions):
                 qps = test.split(':')[0]
                 duration = test.split(':')[1]
-                result = self.execute(test_number, self.config.repetitions, tag, qps, duration)
-                if result == 0:
+                result = self.execute(test_number, test_rep, tag, qps, duration)
+                if result == 1:
                     print("Server dead test Aborted!")
-                    return 0
+                    return 1
                 time.sleep(self.config.waiting_time)
             test_number = test_number + 1
             print("")
-        return 1
+        return 0
 
     def get_result(self, test_number, repetition, daemon_name, qps_value, duration):
         """ Processes the report file generated by vegeta and reads latency data """
@@ -349,7 +354,19 @@ class PerfTest:
             newline = file_raws[2].replace('\n', ' ')
             latency_values = newline.split(',')
             min_latency = latency_values[6].split(']')[1]
+            min_latency = min_latency.replace("\u00b5s", "us")
+            mean = latency_values[7]
+            mean = mean.replace("\u00b5s", "us")
+            fifty = latency_values[8]
+            fifty = fifty.replace("\u00b5s", "us")
+            ninty = latency_values[9]
+            ninty = ninty.replace("\u00b5s", "us")
+            nintyfive = latency_values[10]
+            nintyfive = nintyfive.replace("\u00b5s", "us")
+            nintynine = latency_values[11]
+            nintynine = nintynine.replace("\u00b5s", "us")
             max_latency = latency_values[12]
+            max_latency = max_latency.replace("\u00b5s", "us")
             newline = file_raws[5].replace('\n', ' ')
             ratio = newline.split(' ')[34]
             if len(file_raws) > 8:
@@ -358,14 +375,14 @@ class PerfTest:
             else:
                 error = ""
                 print(" [ Ratio="+ratio+", MaxLatency="+max_latency+"]")
-            threads = os.popen("ps -efL | grep erigon | grep bin | wc -l").read().replace('\n', ' ')
         finally:
             file.close()
 
         if self.config.create_test_report:
-            self.test_report.write_test_report(daemon_name, test_number, repetition, threads, qps_value, duration, min_latency, latency_values[7], latency_values[8],
-                                               latency_values[9], latency_values[10], latency_values[11], max_latency, ratio, error)
+            self.test_report.write_test_report(daemon_name, test_number, repetition, qps_value, duration, min_latency, mean, fifty,
+                                               ninty, nintyfive, nintynine, max_latency, ratio, error)
         os.system("/bin/rm " + test_report_filename)
+        return 0
 
 
 class Hardware:
@@ -468,33 +485,34 @@ class TestReport:
             command = "cd " + self.config.erigon_dir + " && git rev-parse HEAD"
             erigon_commit = os.popen(command).read().replace('\n', '')
 
-        self.write_test_header(model[1], bogomips, kern_vers, self.config.daemon_vegeta_on_core, self.config.vegeta_pattern_tar_file,
-                               checksum[0], gcc_vers[0], go_vers, silkrpc_commit, erigon_commit)
+        self.write_test_header(model[1], bogomips, kern_vers, checksum[0], gcc_vers[0], go_vers, silkrpc_commit, erigon_commit)
 
-    def write_test_header_on_json(self, model, bogomips, kern_vers, taskset, vegeta_file, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit):
+    def write_test_header_on_json(self, model, bogomips, kern_vers, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit):
         """ Writes test header on json """
         self.json_test_report = {
            'platform': {
-               'vendor': Hardware.vendor(),
-               'product': Hardware.product(),
-               'board': Hardware.board(),
-               'cpu': model,
-               'bogomips': bogomips,
-               'kernel': kern_vers,
-               'gccVersion': gcc_vers,
-               'goVersion': go_vers,
-               'silkrpcVersion': silkrpc_commit,
-               'erigonVersion': erigon_commit
+               'vendor': Hardware.vendor().lstrip().rstrip(),
+               'product': Hardware.product().lstrip().rstrip(),
+               'board': Hardware.board().lstrip().rstrip(),
+               'cpu': model.lstrip().rstrip(),
+               'bogomips': bogomips.lstrip().rstrip(),
+               'kernel': kern_vers.lstrip().rstrip(),
+               'gccVersion': gcc_vers.lstrip().rstrip(),
+               'goVersion': go_vers.lstrip().rstrip(),
+               'silkrpcCommit': silkrpc_commit.lstrip().rstrip(),
+               'erigonCommit': erigon_commit.lstrip().rstrip()
            },
            "configuration": {
-               "taskset": taskset,
-               "vegetaFile": vegeta_file,
+               "taskset": self.config.daemon_vegeta_on_core,
+               "testRepetions": self.config.repetitions,
+               "testSequence": self.config.test_sequence,
+               "vegetaFile": self.config.vegeta_pattern_tar_file,
                "vegetaChecksum": checksum,
           },
-          'result': list()
+          'result': []
        }
 
-    def write_test_header(self, model, bogomips, kern_vers, taskset, vegeta_file, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit):
+    def write_test_header(self, model, bogomips, kern_vers, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit):
         """ Writes test header """
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "vendor", Hardware.vendor()])
         product = Hardware.product()
@@ -505,8 +523,8 @@ class TestReport:
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "cpu", model])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "bogomips", bogomips])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "kernel", kern_vers])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "taskset", taskset])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "vegetaFile", vegeta_file])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "taskset", self.config.daemon_vegeta_on_core])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "vegetaFile", self.config.vegeta_pattern_tar_file])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "vegetaChecksum", checksum])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "gccVersion", gcc_vers])
         self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "goVersion", go_vers])
@@ -517,39 +535,37 @@ class TestReport:
         self.writer.writerow(["Daemon", "TestNo", "Repetition", "Qps", "Time(secs)", "Min", "Mean", "50", "90", "95", "99", "Max", "Ratio", "Error"])
         self.csv_file.flush()
 
-        if self.config.json_report:
-            self.write_test_header_on_json(model, bogomips, kern_vers, taskset, vegeta_file, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit)
+        if self.config.json_report_file != "":
+            self.write_test_header_on_json(model, bogomips, kern_vers, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit)
 
 
-    def write_test_report(self, daemon, test_number, repetition, threads, qps_value, duration, min_latency, mean, fifty, ninty,
-                          nintyfive, nintynine, max_latency, ratio, error):
+    def write_test_report(self, daemon, test_number, repetition, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine,
+                          max_latency, ratio, error):
         """ Writes on CSV the latency data for one completed test """
         self.writer.writerow([daemon, test_number, repetition, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine, max_latency, ratio, error])
         self.csv_file.flush()
 
-        if self.config.json_report:
-            self.write_test_report_on_json(daemon, test_number, repetition, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine,
+        if self.config.json_report_file != "":
+            self.write_test_report_on_json(test_number, repetition, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine,
                                            max_latency, ratio, error)
 
-    def write_test_report_on_json(self, daemon, test_number, repetition, qps_value, duration, min_latency, mean, fifty, ninty,
+    def write_test_report_on_json(self, test_number, repetition, qps_value, duration, min_latency, mean, fifty, ninty,
                                   nintyfive, nintynine, max_latency, ratio, error):
         """ Writes on json the latency data for one completed test """
         self.json_test_report['result'].append({
-            'daemon': daemon,
-            'test': str(test_number),
-            'repetition': str(repetition),
-            'qps': qps_value,
-            'duration': duration,
+            'test': str(test_number).lstrip().strip(),
+            'qps': qps_value.lstrip().strip(),
+            'duration': duration.lstrip().strip(),
             'latency' : {
-               'min': min_latency.lstrip(),
-               'mean': mean.lstrip(),
-               '50%': fifty.lstrip(),
-               '90%': ninty.lstrip(),
-               '95%': nintyfive.lstrip(),
-               '99%': nintynine.lstrip(),
-               'max': max_latency.lstrip(),
-               'ratio': ratio,
-               'error': error
+               'min': min_latency.lstrip().strip(),
+               'mean': mean.lstrip().strip(),
+               '50%': fifty.lstrip().strip(),
+               '90%': ninty.lstrip().strip(),
+               '95%': nintyfive.lstrip().strip(),
+               '99%': nintynine.lstrip().strip(),
+               'max': max_latency.lstrip().strip(),
+               'ratio': ratio.lstrip().strip(),
+               'error': error.lstrip().rstrip()
            }
         })
 
@@ -558,8 +574,9 @@ class TestReport:
         self.csv_file.flush()
         self.csv_file.close()
 
-        if self.config.json_report:
-            with open('/tmp/data.json', 'w', encoding='utf-8') as report_file:
+        if self.config.json_report_file != "":
+            print("Create json file: ",self.config.json_report_file)
+            with open(self.config.json_report_file, 'w', encoding='utf-8') as report_file:
                 json.dump(self.json_test_report, report_file, indent=4)
 
 #
@@ -580,31 +597,31 @@ def main(argv):
 
     if config.test_mode in ("1", "3"):
         result = perf_test.execute_sequence(current_sequence, SILKWORM)
-        if result == 0:
+        if result == 1:
             print("Server dead test Aborted!")
             if config.create_test_report:
                 test_report.close()
-            sys.exit(-1)
+            return 1
         if config.test_mode == "3":
             print("--------------------------------------------------------------------------------------------\n")
 
     if config.test_mode in ("2", "3"):
         result = perf_test.execute_sequence(current_sequence, ERIGON)
-        if result == 0:
+        if result == 1:
             print("Server dead test Aborted!")
             if config.create_test_report:
                 test_report.close()
-            sys.exit(-1)
+            return 1
 
     if config.create_test_report:
         test_report.close()
     perf_test.cleanup(0)
     print("Performance Test completed successfully.")
+    return 0
 
 
 #
 # module as main
 #
 if __name__ == "__main__":
-    main(sys.argv)
-    sys.exit(0)
+    sys.exit(main(sys.argv))
