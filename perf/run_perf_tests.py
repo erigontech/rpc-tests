@@ -111,6 +111,7 @@ class Config:
         self.vegeta_response_timeout = DEFAULT_VEGETA_RESPONSE_TIMEOUT
         self.max_body_rsp = DEFAULT_MAX_BODY_RSP
         self.json_report_file = ""
+        self.binary_file_full_pathname = ""
         self.binary_file = ""
         self.chain_name = "mainnet"
 
@@ -219,7 +220,6 @@ class Config:
             usage(argv)
             sys.exit(1)
 
-
 class PerfTest:
     """ This class manage performance test """
 
@@ -288,14 +288,14 @@ class PerfTest:
         else:
             pattern = VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
         on_core = self.config.daemon_vegeta_on_core.split(':')
-        filename = datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.testing_daemon + "_" +  self.config.test_type + \
+        self.config.binary_file = datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.chain_name + "_" + self.config.testing_daemon + "_" +  self.config.test_type + \
                                                                "_" + qps_value + "_" + duration + "_" + str(repetition+1) + ".bin"
         if self.config.versioned_test_report:
             dirname = './reports/' + self.config.chain_name + '/' + BINARY + '/'
         else:
             dirname = RUN_TEST_DIRNAME + "/" + self.config.chain_name + '/' + BINARY + '/'
         pathlib.Path(dirname).mkdir(parents=True, exist_ok=True)
-        self.config.binary_file = dirname + filename
+        self.config.binary_file_full_pathname = dirname + self.config.binary_file
         if self.config.max_connection == "0":
             vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=" + \
                            self.config.vegeta_response_timeout + "s -max-body=" + self.config.max_body_rsp
@@ -304,13 +304,13 @@ class PerfTest:
                           self.config.vegeta_response_timeout + "s -max-connections=" + self.config.max_connection + " -max-body=" + \
                           self.config.max_body_rsp
         if on_core[1] == "-":
-            cmd = "cat " + pattern + " | " + vegeta_cmd + " | tee " + self.config.binary_file + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
+            cmd = "cat " + pattern + " | " + vegeta_cmd + " | tee " + self.config.binary_file_full_pathname + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
         else:
             cmd = "taskset -c " + on_core[1] + " cat " + pattern + " | " \
-                  "taskset -c " + on_core[1] + vegeta_cmd + " tee " + self.config.binary_file + " | " \
+                  "taskset -c " + on_core[1] + vegeta_cmd + " tee " + self.config.binary_file_full_pathname + " | " \
                   "taskset -c " + on_core[1] + " vegeta report -type=text > " + VEGETA_REPORT + " &"
 
-        #print ("Created binary file: ", self.config.binary_file)
+        #print ("Created binary file: ", self.config.binary_file_full_pathname)
         test_name = "[{:d}.{:2d}] "
         test_formatted = test_name.format(test_number, repetition+1)
         if self.config.testing_daemon != "":
@@ -572,7 +572,7 @@ class TestReport:
                 'time': duration.lstrip().strip(),
                 'repetitions': [],
             })
-        cmd = "vegeta report --type=json " + self.config.binary_file
+        cmd = "vegeta report --type=json " + self.config.binary_file_full_pathname
         json_string = os.popen(cmd).read()
         if json_string == "" :
             print ("error in vegeta json")
