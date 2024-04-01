@@ -75,7 +75,7 @@ Vegeta request files are written to `/tmp/erigon_stress_test`:
 
 From Silkrpc project directory check the performance test runner usage:
 ```
-$ tests/perf/run_perf_tests.py
+$ tests/perf/run_perf_tests.py --help
 Usage: ./run_perf_tests.py -p vegetaPatternTarFile -y <api_name>  
 
 Launch an automated performance test sequence on Silkrpc and RPCDaemon using Vegeta
@@ -88,10 +88,10 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 -x,--tracing:                         verbose and tracing
 -e,--empty-cache:                     empty cache
 -C,--max-connections <conn>:                                                                             [default: 9000]
--A,--additional-string-name <string>: string to be add in the file name
+-D,--testing-daemon <string>:         name of testing daemon
 -b,--blockchain <chain name>:         mandatory in case of -R or -u
 -y,--test-type <test-type>:           eth_call, eth_getLogs, ...                                         [default: eth_getLogs]
--m,--test-mode <0,1,2>:               silkrpc(1), rpcdaemon(2), both(3)                                  [default: 3]
+-m,--test-mode <0,1,2>:               silkworm(1), erigon(2), both(3)                                    [default: 3]
 -p,--pattern-file <file-name>:        path to the request file for Vegeta attack                         [default: ]
 -r,--repetitions <number>:            number of repetitions for each element in test sequence (e.g. 10)  [default: 10]
 -t,--test-sequence <seq>:             list of qps/timeas <qps1>:<t1>,... (e.g. 200:30,400:10)            [default: 50:30,1000:30,2500:20,10000:20]
@@ -102,10 +102,12 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 -c,--run-vegeta-on-core <...>         taskset format for vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: -:-]
 -T,--response-timeout <timeout>:      vegeta response timeout                                            [default: 300]
 -M,--max-body-rsp <size>:             max number of bytes to read from response bodies                   [default: 1500]
+-j,--json-report <file-name>:         generate json report
+
 ```
+
 Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`
 Results are written on output and in case -u option is specified also in a CSV file in ./reports area  `./reports/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`
-
 
 Invokation examples
 ./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  

@@ -4,6 +4,7 @@
 
 # pylint: disable=consider-using-with
 
+import json
 import os
 import csv
 import pathlib
@@ -22,8 +23,8 @@ DEFAULT_VEGETA_PATTERN_TAR_FILE = ""
 DEFAULT_DAEMON_VEGETA_ON_CORE = "-:-"
 DEFAULT_ERIGON_ADDRESS = "localhost:9090"
 DEFAULT_ERIGON_BUILD_DIR = ""
-DEFAULT_SILKRPC_BUILD_DIR = ""
-DEFAULT_RPCDAEMON_ADDRESS = "localhost"
+DEFAULT_SILKWORM_BUILD_DIR = ""
+DEFAULT_ERIGON_ADDRESS = "localhost"
 DEFAULT_TEST_MODE = "3"
 DEFAULT_WAITING_TIME = 5
 DEFAULT_MAX_CONN = "9000"
@@ -31,17 +32,18 @@ DEFAULT_TEST_TYPE = "eth_getLogs"
 DEFAULT_VEGETA_RESPONSE_TIMEOUT = "300"
 DEFAULT_MAX_BODY_RSP = "1500"
 
-SILKRPC="silk"
-RPCDAEMON="rpcdaemon"
-SILKRPC_SERVER_NAME="rpcdaemon"
-RPCDAEMON_SERVER_NAME="rpcdaemon"
+SILKWORM="silkworm"
+ERIGON="rpcdaemon"
+BINARY="bin"
+SILKWORM_SERVER_NAME="rpcdaemon"
+ERIGON_SERVER_NAME="rpcdaemon"
 RAND_NUM = randint(0, 100000)
 RUN_TEST_DIRNAME = "/tmp/run_tests_" + str(RAND_NUM)
 VEGETA_PATTERN_DIRNAME = RUN_TEST_DIRNAME + "/erigon_stress_test"
 VEGETA_REPORT = RUN_TEST_DIRNAME + "/vegeta_report.hrd"
 VEGETA_TAR_FILE_NAME = RUN_TEST_DIRNAME + "/vegeta_TAR_File"
-VEGETA_PATTERN_SILKRPC_BASE = VEGETA_PATTERN_DIRNAME + "/vegeta_geth_"
-VEGETA_PATTERN_RPCDAEMON_BASE = VEGETA_PATTERN_DIRNAME + "/vegeta_erigon_"
+VEGETA_PATTERN_SILKWORM_BASE = VEGETA_PATTERN_DIRNAME + "/vegeta_geth_"
+VEGETA_PATTERN_ERIGON_BASE = VEGETA_PATTERN_DIRNAME + "/vegeta_erigon_"
 
 def usage(argv):
     """ Print script usage """
@@ -57,20 +59,21 @@ def usage(argv):
     print("-x,--tracing:                         verbose and tracing")
     print("-e,--empty-cache:                     empty cache")
     print("-C,--max-connections <conn>:                                                                             [default: " + DEFAULT_MAX_CONN + "]")
-    print("-A,--additional-string-name <string>: string to be add in the file name")
+    print("-D,--testing-daemon <string>:         name of testing daemon")
     print("-b,--blockchain <chain name>:         mandatory in case of -R or -u")
     print("-y,--test-type <test-type>:           eth_call, eth_getLogs, ...                                         [default: " + DEFAULT_TEST_TYPE + "]")
-    print("-m,--test-mode <0,1,2>:               silkrpc(1), rpcdaemon(2), both(3)                                  [default: " + str(DEFAULT_TEST_MODE) + "]")
+    print("-m,--test-mode <0,1,2>:               silkworm(1), erigon(2), both(3)                                    [default: " + str(DEFAULT_TEST_MODE) + "]")
     print("-p,--pattern-file <file-name>:        path to the request file for Vegeta attack                         [default: " + DEFAULT_VEGETA_PATTERN_TAR_FILE +"]")
     print("-r,--repetitions <number>:            number of repetitions for each element in test sequence (e.g. 10)  [default: " + str(DEFAULT_REPETITIONS) + "]")
     print("-t,--test-sequence <seq>:             list of qps/timeas <qps1>:<t1>,... (e.g. 200:30,400:10)            [default: " + DEFAULT_TEST_SEQUENCE + "]")
     print("-w,--wait-after-test-sequence <secs>: time interval between successive test iterations in sec            [default: " + str(DEFAULT_WAITING_TIME) + "]")
-    print("-d,--rpc-daemon-address <addr>:       address of RPCDaemonc (e.g. 192.2.3.1)                             [default: " + DEFAULT_RPCDAEMON_ADDRESS +"]")
+    print("-d,--rpc-daemon-address <addr>:       address of RPCDaemonc (e.g. 192.2.3.1)                             [default: " + DEFAULT_ERIGON_ADDRESS +"]")
     print("-g,--erigon-dir <path>:               path to erigon folder (e.g. /home/erigon)                          [default: " + DEFAULT_ERIGON_BUILD_DIR + "]")
-    print("-s,--silk-dir <path>:                 path to silk folder (e.g. /home/silkworm)                          [default: " + DEFAULT_SILKRPC_BUILD_DIR + "]")
+    print("-s,--silk-dir <path>:                 path to silk folder (e.g. /home/silkworm)                          [default: " + DEFAULT_SILKWORM_BUILD_DIR + "]")
     print("-c,--run-vegeta-on-core <...>         taskset format for vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE +"]")
     print("-T,--response-timeout <timeout>:      vegeta response timeout                                            [default: " + DEFAULT_VEGETA_RESPONSE_TIMEOUT + "]")
     print("-M,--max-body-rsp <size>:             max number of bytes to read from response bodies                   [default: " + DEFAULT_MAX_BODY_RSP + "]")
+    print("-j,--json-report <file-name>:         generate json report")
     sys.exit(1)
 
 def get_process(process_name: str):
@@ -89,13 +92,13 @@ class Config:
         self.vegeta_pattern_tar_file = DEFAULT_VEGETA_PATTERN_TAR_FILE
         self.daemon_vegeta_on_core = DEFAULT_DAEMON_VEGETA_ON_CORE
         self.erigon_dir = DEFAULT_ERIGON_BUILD_DIR
-        self.silkrpc_dir = DEFAULT_SILKRPC_BUILD_DIR
+        self.silkworm_dir = DEFAULT_SILKWORM_BUILD_DIR
         self.repetitions = DEFAULT_REPETITIONS
         self.test_sequence = DEFAULT_TEST_SEQUENCE
-        self.rpc_daemon_address = DEFAULT_RPCDAEMON_ADDRESS
+        self.rpc_daemon_address = DEFAULT_ERIGON_ADDRESS
         self.test_mode = DEFAULT_TEST_MODE
         self.test_type = DEFAULT_TEST_TYPE
-        self.additional_string = ""
+        self.testing_daemon = ""
         self.waiting_time = DEFAULT_WAITING_TIME
         self.versioned_test_report = False
         self.verbose = False
@@ -107,85 +110,89 @@ class Config:
         self.max_connection = DEFAULT_MAX_CONN
         self.vegeta_response_timeout = DEFAULT_VEGETA_RESPONSE_TIMEOUT
         self.max_body_rsp = DEFAULT_MAX_BODY_RSP
+        self.json_report_file = ""
+        self.binary_file_full_pathname = ""
+        self.binary_file = ""
+        self.chain_name = "mainnet"
 
         self.__parse_args(argv)
 
+    def validate_input(self):
+        """ This methods validate user input """
+        if self.json_report_file != "" and self.test_mode == "3":
+            print("ERROR: incompatible option -j/--json-report with -m/--test-mode")
+            return 0
+
+        if self.test_mode == "3" and self.testing_daemon != "":
+            print("ERROR: incompatible option -m/--test-mode and -D/--testing-daemon")
+            return 0
+
+        if self.json_report_file != "" and self.testing_daemon == "":
+            print("ERROR: with option -j/--json-report must be set also -D/--testing_daemon")
+            return 0
+
+        if (self.erigon_dir != DEFAULT_ERIGON_BUILD_DIR or self.silkworm_dir != DEFAULT_SILKWORM_BUILD_DIR) and self.rpc_daemon_address != DEFAULT_ERIGON_ADDRESS:
+            print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
+            return 0
+
+        if self.empty_cache and getpass.getuser() != "root":
+            print("ERROR: this option can be used only by root")
+            return 0
+
+        if self.create_test_report:
+            if os.path.exists(self.erigon_dir) == 0:
+                print ("ERROR: erigon buildir not specified correctly: ", self.erigon_dir)
+                return 0
+
+            if os.path.exists(self.silkworm_dir) == 0:
+                print ("ERROR: silkworm buildir not specified correctly: ", self.silkworm_dir)
+                return 0
+
+        return 1
+
     def __parse_args(self, argv):
+        """ This methods parse input args """
         try:
-            local_config = 0
-            specified_chain = 0
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:a:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:",
-                   ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'additional-string-name=', 'max-connections=',
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:D:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j:",
+                   ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'testing-daemon=', 'max-connections=',
                     'run-vegeta-on-core=', 'empty-cache', 'erigon-dir=', 'silk-dir=', 'repetitions=', 'test-sequence=',
                     'tmp-test-report', 'test-report', 'blockchain=', 'verbose', 'tracing', 'wait-after-test-sequence=', 'test-type=',
-                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp='])
+                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'json-report='])
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
                 elif option in ("-m", "--test-mode"):
                     self.test_mode = optarg
+                elif option in ("-j", "--json-report"):
+                    self.json_report_file = optarg
                 elif option in ("-d", "--rpc-daemon-address"):
-                    if local_config == 1:
-                        print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
-                        usage(argv)
-                    local_config = 2
                     self.rpc_daemon_address = optarg
                 elif option in ("-p", "--pattern-file"):
                     self.vegeta_pattern_tar_file = optarg
-                elif option in ("-A", "--additional-string-name"):
-                    self.additional_string = optarg
+                elif option in ("-D", "--testing-daemon"):
+                    self.testing_daemon = optarg
                 elif option in ("-C", "--max-connections"):
                     self.max_connection = optarg
                 elif option in ("-c", "--run-vegeta-on-core"):
                     self.daemon_vegeta_on_core = optarg
                 elif option in ("-e", "--empty-cache"):
-                    if getpass.getuser() != "root":
-                        print("ERROR: this option can be used only by root")
-                        usage(argv)
                     self.empty_cache = True
                 elif option in ("-g", "--erigon-dir"):
-                    if local_config == 2:
-                        print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
-                        usage(argv)
-                    local_config = 1
                     self.erigon_dir = optarg
                 elif option in ("-s", "--silk-dir"):
-                    if local_config == 2:
-                        print("ERROR: incompatible option -d/rpc-daemon-address with -g/erigon-dir -s/silk-dir")
-                        usage(argv)
-                    local_config = 1
-                    self.silkrpc_dir = optarg
+                    self.silkworm_dir = optarg
                 elif option in ("-r", "--repetitions"):
                     self.repetitions = int(optarg)
                 elif option in ("-t", "--test-sequence"):
                     self.test_sequence = optarg
                 elif option in ("-R", "--tmp-test-report"):
                     self.create_test_report = True
-                    if os.path.exists(self.erigon_dir) == 0:
-                        print ("ERROR: erigon buildir not specified correctly: ", self.erigon_dir)
-                        usage(argv)
-                    if os.path.exists(self.silkrpc_dir) == 0:
-                        print ("ERROR: silkrpc buildir not specified correctly: ", self.silkrpc_dir)
-                        usage(argv)
-                    if specified_chain == 0:
-                        print ("ERROR: chain not specified ")
-                        usage(argv)
                 elif option in ("-b", "--blockchain"):
                     self.chain_name = optarg
-                    specified_chain = 1
                 elif option in ("-u", "--test-report"):
                     self.create_test_report = True
                     self.versioned_test_report = True
-                    if os.path.exists(self.erigon_dir) == 0:
-                        print ("ERROR: erigon buildir not specified correctly: ", self.erigon_dir)
-                        usage(argv)
-                    if os.path.exists(self.silkrpc_dir) == 0:
-                        print ("ERROR: silkrpc buildir not specified correctly: ", self.silkrpc_dir)
-                        usage(argv)
-                    if specified_chain == 0:
-                        print ("ERROR: chain not specified ")
-                        usage(argv)
                 elif option in ("-v", "--verbose"):
                     self.verbose = True
                 elif option in ("-x", "--tracing"):
@@ -209,6 +216,9 @@ class Config:
             usage(argv)
             sys.exit(1)
 
+        if self.validate_input() == 0:
+            usage(argv)
+            sys.exit(1)
 
 class PerfTest:
     """ This class manage performance test """
@@ -261,23 +271,31 @@ class PerfTest:
 
         # If address is provided substitute the address and port of daemon in the vegeta file
         if self.config.rpc_daemon_address != "localhost":
-            cmd = "sed -i 's/localhost/" + self.config.rpc_daemon_address + "/g' " + VEGETA_PATTERN_SILKRPC_BASE + self.config.test_type + ".txt"
+            cmd = "sed -i 's/localhost/" + self.config.rpc_daemon_address + "/g' " + VEGETA_PATTERN_SILKWORM_BASE + self.config.test_type + ".txt"
             os.system(cmd)
-            cmd = "sed -i 's/localhost/" + self.config.rpc_daemon_address + "/g' " + VEGETA_PATTERN_RPCDAEMON_BASE + self.config.test_type + ".txt"
+            cmd = "sed -i 's/localhost/" + self.config.rpc_daemon_address + "/g' " + VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
             os.system(cmd)
 
-    def execute(self, test_number, name, qps_value, duration):
+    def execute(self, test_number, repetition, name, qps_value, duration):
         """ Execute the tests using specified queries-per-second (QPS) and duration """
         if self.config.empty_cache:
             if "linux" in sys.platform or "linux2" in sys.platform: #linux
                 status = os.system("sync && sudo sysctl vm.drop_caches=3 > /dev/null")
             elif sys.platform == "darwin": # OS X
                 status = os.system("sync && sudo purge > /dev/null")
-        if name == SILKRPC:
-            pattern = VEGETA_PATTERN_SILKRPC_BASE + self.config.test_type + ".txt"
+        if name == SILKWORM:
+            pattern = VEGETA_PATTERN_SILKWORM_BASE + self.config.test_type + ".txt"
         else:
-            pattern = VEGETA_PATTERN_RPCDAEMON_BASE + self.config.test_type + ".txt"
+            pattern = VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
         on_core = self.config.daemon_vegeta_on_core.split(':')
+        self.config.binary_file = datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.chain_name + "_" + self.config.testing_daemon + "_" +  self.config.test_type + \
+                                                               "_" + qps_value + "_" + duration + "_" + str(repetition+1) + ".bin"
+        if self.config.versioned_test_report:
+            dirname = './reports/' + self.config.chain_name + '/' + BINARY + '/'
+        else:
+            dirname = RUN_TEST_DIRNAME + "/" + self.config.chain_name + '/' + BINARY + '/'
+        pathlib.Path(dirname).mkdir(parents=True, exist_ok=True)
+        self.config.binary_file_full_pathname = dirname + self.config.binary_file
         if self.config.max_connection == "0":
             vegeta_cmd = " vegeta attack -keepalive -rate=" + qps_value + " -format=json -duration=" + duration + "s -timeout=" + \
                            self.config.vegeta_response_timeout + "s -max-body=" + self.config.max_body_rsp
@@ -286,12 +304,19 @@ class PerfTest:
                           self.config.vegeta_response_timeout + "s -max-connections=" + self.config.max_connection + " -max-body=" + \
                           self.config.max_body_rsp
         if on_core[1] == "-":
-            cmd = "cat " + pattern + " | " + vegeta_cmd + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
+            cmd = "cat " + pattern + " | " + vegeta_cmd + " | tee " + self.config.binary_file_full_pathname + " | vegeta report -type=text > " + VEGETA_REPORT + " &"
         else:
             cmd = "taskset -c " + on_core[1] + " cat " + pattern + " | " \
-                  "taskset -c " + on_core[1] + vegeta_cmd + " | " \
+                  "taskset -c " + on_core[1] + vegeta_cmd + " tee " + self.config.binary_file_full_pathname + " | " \
                   "taskset -c " + on_core[1] + " vegeta report -type=text > " + VEGETA_REPORT + " &"
-        print(f"{test_number} daemon: executes test qps: {qps_value} time: {duration} -> ", end="")
+
+        #print ("Created binary file: ", self.config.binary_file_full_pathname)
+        test_name = "[{:d}.{:2d}] "
+        test_formatted = test_name.format(test_number, repetition+1)
+        if self.config.testing_daemon != "":
+            print(f"{test_formatted} " + self.config.testing_daemon + f": executes test qps: {qps_value} time: {duration} -> ", end="")
+        else:
+            print(f"{test_formatted} daemon: executes test qps: {qps_value} time: {duration} -> ", end="")
         sys.stdout.flush()
         status = os.system(cmd)
         if int(status) != 0:
@@ -301,10 +326,10 @@ class PerfTest:
         while 1:
             time.sleep(3)
             if self.config.check_server_alive:
-                if name == SILKRPC:
-                    cmd = "ps aux | grep '" + SILKRPC_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
+                if name == SILKWORM:
+                    cmd = "ps aux | grep '" + SILKWORM_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
                 else:
-                    cmd = "ps aux | grep '" + RPCDAEMON_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
+                    cmd = "ps aux | grep '" + ERIGON_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
                 pid = os.popen(cmd).read()
                 if pid == "" :
                     # the server is dead; kill vegeta and returns fails
@@ -315,7 +340,7 @@ class PerfTest:
             pid = os.popen("ps aux | grep 'vegeta report' | grep -v 'grep' | awk '{print $2}'").read()
             if pid == "":
                 # Vegeta has completed its works, generate report
-                return self.get_result(test_number, name, qps_value, duration)
+                return self.get_result(test_number, repetition, name, qps_value, duration)
 
     def execute_sequence(self, sequence, tag):
         """ Execute the sequence of tests """
@@ -324,17 +349,16 @@ class PerfTest:
             for test_rep in range(0, self.config.repetitions):
                 qps = test.split(':')[0]
                 duration = test.split(':')[1]
-                test_name = "[{:d}.{:2d}] "
-                test_name_formatted = test_name.format(test_number, test_rep+1)
-                result = self.execute(test_name_formatted, tag, qps, duration)
+                result = self.execute(test_number, test_rep, tag, qps, duration)
                 if result == 1:
+                    print("Server dead test Aborted!")
                     return 1
                 time.sleep(self.config.waiting_time)
             test_number = test_number + 1
             print("")
         return 0
 
-    def get_result(self, test_number, daemon_name, qps_value, duration):
+    def get_result(self, test_number, repetition, daemon_name, qps_value, duration):
         """ Processes the report file generated by vegeta and reads latency data """
         test_report_filename = VEGETA_REPORT
         file = open(test_report_filename, encoding='utf8')
@@ -343,7 +367,19 @@ class PerfTest:
             newline = file_raws[2].replace('\n', ' ')
             latency_values = newline.split(',')
             min_latency = latency_values[6].split(']')[1]
+            min_latency = min_latency.replace("\u00b5s", "us")
+            mean = latency_values[7]
+            mean = mean.replace("\u00b5s", "us")
+            fifty = latency_values[8]
+            fifty = fifty.replace("\u00b5s", "us")
+            ninty = latency_values[9]
+            ninty = ninty.replace("\u00b5s", "us")
+            nintyfive = latency_values[10]
+            nintyfive = nintyfive.replace("\u00b5s", "us")
+            nintynine = latency_values[11]
+            nintynine = nintynine.replace("\u00b5s", "us")
             max_latency = latency_values[12]
+            max_latency = max_latency.replace("\u00b5s", "us")
             newline = file_raws[5].replace('\n', ' ')
             ratio = newline.split(' ')[34]
             if len(file_raws) > 8:
@@ -352,7 +388,6 @@ class PerfTest:
             else:
                 error = ""
                 print(" [ Ratio="+ratio+", MaxLatency="+max_latency+"]")
-            threads = os.popen("ps -efL | grep erigon | grep bin | wc -l").read().replace('\n', ' ')
         finally:
             file.close()
 
@@ -361,12 +396,10 @@ class PerfTest:
             return 1
 
         if self.config.create_test_report:
-            self.test_report.write_test_report(daemon_name, test_number, threads, qps_value, duration, min_latency, latency_values[7], latency_values[8], \
-                                               latency_values[9], latency_values[10], latency_values[11], max_latency, ratio, error)
+            self.test_report.write_test_report(daemon_name, test_number, repetition, qps_value, duration, min_latency, mean, fifty,
+                                               ninty, nintyfive, nintynine, max_latency, ratio, error)
         os.system("/bin/rm " + test_report_filename)
-
         return 0
-
 
 class Hardware:
     """ Extract hardware information from the underlying platform. """
@@ -411,10 +444,11 @@ class TestReport:
         """ Create a new TestReport """
         self.csv_file = ''
         self.writer = ''
+        self.json_test_report = ''
         self.config = config
 
-    def open(self):
-        """ Writes on CSV file the header """
+    def create_csv_file(self):
+        """ Creates CSV file """
         estension = Hardware.normalized_product()
         if estension == "systemproductname":
             estension = Hardware.normalized_board()
@@ -426,16 +460,19 @@ class TestReport:
         pathlib.Path(csv_folder_path).mkdir(parents=True, exist_ok=True)
 
         # Generate unique CSV file name w/ date-time and open it
-        if self.config.additional_string != "":
-            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.additional_string + "_perf.csv"
+        if self.config.testing_daemon != "":
+            csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.testing_daemon + "_perf.csv"
         else:
             csv_filename = self.config.test_type + "_" + datetime.today().strftime('%Y%m%d%H%M%S') + "_perf.csv"
         csv_filepath = csv_folder_path + '/' + csv_filename
         self.csv_file = open(csv_filepath, 'w', newline='', encoding='utf8')
         self.writer = csv.writer(self.csv_file)
-
         print("Perf report file: " + csv_filepath + "\n")
 
+
+    def open(self):
+        """ Writes on CSV file the header """
+        self.create_csv_file()
         command = "sum "+ self.config.vegeta_pattern_tar_file
         checksum = os.popen(command).read().split('\n')
 
@@ -454,55 +491,108 @@ class TestReport:
         tmp = os.popen(command).readline().replace('\n', '').split(':')[1]
         bogomips = tmp.replace(' ', '')
 
-        erigon_branch = ""
         erigon_commit = ""
-        silkrpc_branch = ""
         silkrpc_commit = ""
         if self.config.test_mode in ("1", "3"):
-            command = "cd " + self.config.silkrpc_dir + " && git branch --show-current"
-            silkrpc_branch = os.popen(command).read().replace('\n', '')
-
-            command = "cd " + self.config.silkrpc_dir + " && git rev-parse HEAD"
+            command = "cd " + self.config.silkworm_dir + " && git rev-parse HEAD"
             silkrpc_commit = os.popen(command).read().replace('\n', '')
 
         if self.config.test_mode in ("2", "3"):
-            command = "cd " + self.config.erigon_dir + " && git branch --show-current"
-            erigon_branch = os.popen(command).read().replace('\n', '')
-
             command = "cd " + self.config.erigon_dir + " && git rev-parse HEAD"
             erigon_commit = os.popen(command).read().replace('\n', '')
 
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Vendor", Hardware.vendor()])
+        self.write_test_header(model[1], bogomips, kern_vers, checksum[0], gcc_vers[0], go_vers, silkrpc_commit, erigon_commit)
+
+    def write_test_header_on_json(self, model, bogomips, kern_vers, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit):
+        """ Writes test header on json """
+        self.json_test_report = {
+           'platform': {
+               'vendor': Hardware.vendor().lstrip().rstrip(),
+               'product': Hardware.product().lstrip().rstrip(),
+               'board': Hardware.board().lstrip().rstrip(),
+               'cpu': model.lstrip().rstrip(),
+               'bogomips': bogomips.lstrip().rstrip(),
+               'kernel': kern_vers.lstrip().rstrip(),
+               'gccVersion': gcc_vers.lstrip().rstrip(),
+               'goVersion': go_vers.lstrip().rstrip(),
+               'silkrpcCommit': silkrpc_commit.lstrip().rstrip(),
+               'erigonCommit': erigon_commit.lstrip().rstrip()
+           },
+           "configuration": {
+               "taskset": self.config.daemon_vegeta_on_core,
+               "testRepetions": self.config.repetitions,
+               "testSequence": self.config.test_sequence,
+               "vegetaFile": self.config.vegeta_pattern_tar_file,
+               "vegetaChecksum": checksum,
+          },
+          'result': []
+       }
+
+    def write_test_header(self, model, bogomips, kern_vers, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit):
+        """ Writes test header """
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "vendor", Hardware.vendor()])
         product = Hardware.product()
         if product != "System Product Name":
-            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Product", product])
+            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "product", product])
         else:
-            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Board", Hardware.board()])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "CPU", model[1]])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Bogomips", bogomips])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Kernel", kern_vers])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "DaemonVegetaRunOnCore", self.config.daemon_vegeta_on_core])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "VegetaFile", self.config.vegeta_pattern_tar_file])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "VegetaChecksum", checksum[0]])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "GCC version", gcc_vers[0]])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Go version", go_vers])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Silkrpc version", silkrpc_branch + " " + silkrpc_commit])
-        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "Erigon version", erigon_branch + " " + erigon_commit])
+            self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "board", Hardware.board()])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "cpu", model])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "bogomips", bogomips])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "kernel", kern_vers])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "taskset", self.config.daemon_vegeta_on_core])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "vegetaFile", self.config.vegeta_pattern_tar_file])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "vegetaChecksum", checksum])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "gccVersion", gcc_vers])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "goVersion", go_vers])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "silkrpcVersion", silkrpc_commit])
+        self.writer.writerow(["", "", "", "", "", "", "", "", "", "", "", "", "erigonVersion", erigon_commit])
         self.writer.writerow([])
         self.writer.writerow([])
-        self.writer.writerow(["Daemon", "TestNo", "TG-Threads", "Qps", "Time", "Min", "Mean", "50", "90", "95", "99", "Max", "Ratio", "Error"])
+        self.writer.writerow(["Daemon", "TestNo", "Repetition", "Qps", "Time(secs)", "Min", "Mean", "50", "90", "95", "99", "Max", "Ratio", "Error"])
         self.csv_file.flush()
 
-    def write_test_report(self, daemon, test_number, threads, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine, max_latency, ratio, error):
+        if self.config.json_report_file != "":
+            self.write_test_header_on_json(model, bogomips, kern_vers, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit)
+
+
+    def write_test_report(self, daemon, test_number, repetition, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine,
+                          max_latency, ratio, error):
         """ Writes on CSV the latency data for one completed test """
-        self.writer.writerow([daemon, str(test_number), threads, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine, max_latency, ratio, error])
+        self.writer.writerow([daemon, test_number, repetition, qps_value, duration, min_latency, mean, fifty, ninty, nintyfive, nintynine, max_latency, ratio, error])
         self.csv_file.flush()
+
+        if self.config.json_report_file != "":
+            self.write_test_report_on_json(test_number, repetition, qps_value, duration)
+
+    def write_test_report_on_json(self, test_number, repetition, qps_value, duration):
+        """ Writes on json the latency data for one completed test """
+        if repetition == 0:
+            self.json_test_report['result'].append({
+                'qps': qps_value.lstrip().strip(),
+                'time': duration.lstrip().strip(),
+                'repetitions': [],
+            })
+        cmd = "vegeta report --type=json " + self.config.binary_file_full_pathname
+        json_string = os.popen(cmd).read()
+        if json_string == "" :
+            print ("error in vegeta json")
+            sys.exit (1)
+
+        json_object = json.loads(json_string)
+        self.json_test_report['result'][test_number-1]['repetitions'].append({
+               'binary-file': self.config.binary_file,
+               'vegeta-report': json_object
+        })
 
     def close(self):
         """ Close the report """
         self.csv_file.flush()
         self.csv_file.close()
 
+        if self.config.json_report_file != "":
+            print("Create json file: ",self.config.json_report_file)
+            with open(self.config.json_report_file, 'w', encoding='utf-8') as report_file:
+                json.dump(self.json_test_report, report_file, indent=4)
 
 #
 # main
@@ -521,8 +611,9 @@ def main(argv):
     current_sequence = str(config.test_sequence).split(',')
 
     if config.test_mode in ("1", "3"):
-        result = perf_test.execute_sequence(current_sequence, SILKRPC)
+        result = perf_test.execute_sequence(current_sequence, SILKWORM)
         if result == 1:
+            print("Server dead test Aborted!")
             if config.create_test_report:
                 test_report.close()
             return 1
@@ -530,8 +621,9 @@ def main(argv):
             print("--------------------------------------------------------------------------------------------\n")
 
     if config.test_mode in ("2", "3"):
-        result = perf_test.execute_sequence(current_sequence, RPCDAEMON)
+        result = perf_test.execute_sequence(current_sequence, ERIGON)
         if result == 1:
+            print("Server dead test Aborted!")
             if config.create_test_report:
                 test_report.close()
             return 1
