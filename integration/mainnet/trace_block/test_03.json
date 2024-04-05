@@ -1,0 +1,71 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_block",
+      "params": [
+        "5415091"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "action": {
+            "callType": "call",
+            "from": "0xe93381fb4c4f14bda253907b18fad305d799241a",
+            "gas": "0x9758",
+            "input": "0xa9059cbb00000000000000000000000048e96290dc78bcb3994ea4fa3093d539a57e856000000000000000000000000000000000000000000000000564d702d38f5e0000",
+            "to": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
+            "value": "0x0"
+          },
+          "blockHash": "0x0621386f998fd3cfd761657ff81d72b1e465b314971febc088cf607037232938",
+          "blockNumber": 5415091,
+          "result": {
+            "gasUsed": "0x44b3",
+            "output": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "subtraces": 0,
+          "traceAddress": [],
+          "transactionHash": "0x6897d7991a8fca8d2c0654cfeaeeefed87f80308407f32f8da3d6aba9c2cede2",
+          "transactionPosition": 0,
+          "type": "call"
+        },
+        {
+          "action": {
+            "callType": "call",
+            "from": "0x268b374261ac5b9ea3bb9d7c4d06b569d0804fad",
+            "gas": "0x73b271",
+            "input": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
+            "to": "0xa146240bf2c04005a743032dc0d241ec0bb2ba2b",
+            "value": "0x0"
+          },
+          "blockHash": "0x0621386f998fd3cfd761657ff81d72b1e465b314971febc088cf607037232938",
+          "blockNumber": 5415091,
+          "error": "bad instruction",
+          "result": null,
+          "subtraces": 0,
+          "traceAddress": [],
+          "transactionHash": "0x63952eb7c146c2143db56238b339486cd541aa23e677d71479633cb3685822e0",
+          "transactionPosition": 1,
+          "type": "call"
+        },
+        {
+          "action": {
+            "author": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+            "rewardType": "block",
+            "value": "0x29a2241af62c0000"
+          },
+          "blockHash": "0x0621386f998fd3cfd761657ff81d72b1e465b314971febc088cf607037232938",
+          "blockNumber": 5415091,
+          "result": null,
+          "subtraces": 0,
+          "traceAddress": [],
+          "type": "reward"
+        }
+      ]
+    }
+  }
+]
