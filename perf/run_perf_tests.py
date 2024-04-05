@@ -291,9 +291,9 @@ class PerfTest:
         self.config.binary_file = datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.chain_name + "_" + self.config.testing_daemon + "_" +  self.config.test_type + \
                                                                "_" + qps_value + "_" + duration + "_" + str(repetition+1) + ".bin"
         if self.config.versioned_test_report:
-            dirname = './reports/' + self.config.chain_name + '/' + BINARY + '/'
+            dirname = './reports/' + BINARY + '/'
         else:
-            dirname = RUN_TEST_DIRNAME + "/" + self.config.chain_name + '/' + BINARY + '/'
+            dirname = RUN_TEST_DIRNAME + "/" + BINARY + '/'
         pathlib.Path(dirname).mkdir(parents=True, exist_ok=True)
         self.config.binary_file_full_pathname = dirname + self.config.binary_file
         if self.config.max_connection == "0":
@@ -479,7 +479,7 @@ class TestReport:
         command = "gcc --version"
         gcc_vers = os.popen(command).read().split(',')
 
-        command = "go version"
+        command = "go version 2> /dev/null"
         go_vers = os.popen(command).read().replace('\n', '')
 
         command = "uname -r"
@@ -494,11 +494,11 @@ class TestReport:
         erigon_commit = ""
         silkrpc_commit = ""
         if self.config.test_mode in ("1", "3"):
-            command = "cd " + self.config.silkworm_dir + " && git rev-parse HEAD"
+            command = "cd " + self.config.silkworm_dir + " && git rev-parse HEAD 2 /dev/null"
             silkrpc_commit = os.popen(command).read().replace('\n', '')
 
         if self.config.test_mode in ("2", "3"):
-            command = "cd " + self.config.erigon_dir + " && git rev-parse HEAD"
+            command = "cd " + self.config.erigon_dir + " && git rev-parse HEAD 2 /dev/null"
             erigon_commit = os.popen(command).read().replace('\n', '')
 
         self.write_test_header(model[1], bogomips, kern_vers, checksum[0], gcc_vers[0], go_vers, silkrpc_commit, erigon_commit)
@@ -519,13 +519,14 @@ class TestReport:
                'erigonCommit': erigon_commit.lstrip().rstrip()
            },
            "configuration": {
-               "taskset": self.config.daemon_vegeta_on_core,
-               "testRepetions": self.config.repetitions,
+               "testingApi": self.config.test_type,
                "testSequence": self.config.test_sequence,
+               "testRepetions": self.config.repetitions,
                "vegetaFile": self.config.vegeta_pattern_tar_file,
                "vegetaChecksum": checksum,
+               "taskset": self.config.daemon_vegeta_on_core,
           },
-          'result': []
+          'results': []
        }
 
     def write_test_header(self, model, bogomips, kern_vers, checksum, gcc_vers, go_vers, silkrpc_commit, erigon_commit):
@@ -567,10 +568,10 @@ class TestReport:
     def write_test_report_on_json(self, test_number, repetition, qps_value, duration):
         """ Writes on json the latency data for one completed test """
         if repetition == 0:
-            self.json_test_report['result'].append({
+            self.json_test_report['results'].append({
                 'qps': qps_value.lstrip().strip(),
-                'time': duration.lstrip().strip(),
-                'repetitions': [],
+                'duration': duration.lstrip().strip(),
+                'testRepetitions': [],
             })
         cmd = "vegeta report --type=json " + self.config.binary_file_full_pathname
         json_string = os.popen(cmd).read()
@@ -579,9 +580,9 @@ class TestReport:
             sys.exit (1)
 
         json_object = json.loads(json_string)
-        self.json_test_report['result'][test_number-1]['repetitions'].append({
-               'binary-file': self.config.binary_file,
-               'vegeta-report': json_object
+        self.json_test_report['results'][test_number-1]['testRepetitions'].append({
+               'vegetaBinary': self.config.binary_file,
+               'vegetaReport': json_object
         })
 
     def close(self):
