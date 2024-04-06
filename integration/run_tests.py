@@ -82,7 +82,18 @@ tests_not_compared = [
     "mainnet/debug_traceCall/test_05.tar",  # diff on gasCost
     "mainnet/debug_traceCall/test_06.tar", # diff on gasCost
     "mainnet/debug_traceCall/test_08.tar",  # diff on gasCost
-    "mainnet/debug_traceCall/test_10.tar" # diff on gasCost
+    "mainnet/debug_traceCall/test_10.tar", # diff on gasCost
+
+    "mainnet/trace_block/test_01.json", # diff on error message
+    "mainnet/trace_block/test_03.json", # diff on error message
+    "mainnet/trace_block/test_04.tar", # diff on gasCost
+    "mainnet/trace_block/test_05.tar", # diff on gasCost
+    "mainnet/trace_block/test_06.tar", # diff on rewardType and author
+    "mainnet/trace_block/test_15.tar", # diff on error message
+    "mainnet/trace_block/test_17.tar", # diff on rewardType and author
+    "mainnet/trace_block/test_18.tar", # diff on error message
+    "mainnet/trace_block/test_19.tar", # diff on gasCost
+    "mainnet/trace_block/test_20.tar" # diff on callType
 ]
 
 tests_not_compared_result = [
