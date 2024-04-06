@@ -494,11 +494,11 @@ class TestReport:
         erigon_commit = ""
         silkrpc_commit = ""
         if self.config.test_mode in ("1", "3"):
-            command = "cd " + self.config.silkworm_dir + " && git rev-parse HEAD 2 /dev/null"
+            command = "cd " + self.config.silkworm_dir + " && git rev-parse HEAD 2> /dev/null"
             silkrpc_commit = os.popen(command).read().replace('\n', '')
 
         if self.config.test_mode in ("2", "3"):
-            command = "cd " + self.config.erigon_dir + " && git rev-parse HEAD 2 /dev/null"
+            command = "cd " + self.config.erigon_dir + " && git rev-parse HEAD 2> /dev/null"
             erigon_commit = os.popen(command).read().replace('\n', '')
 
         self.write_test_header(model[1], bogomips, kern_vers, checksum[0], gcc_vers[0], go_vers, silkrpc_commit, erigon_commit)
@@ -519,6 +519,7 @@ class TestReport:
                'erigonCommit': erigon_commit.lstrip().rstrip()
            },
            "configuration": {
+               "testingDaemon": self.config.testing_daemon,
                "testingApi": self.config.test_type,
                "testSequence": self.config.test_sequence,
                "testRepetions": self.config.repetitions,
