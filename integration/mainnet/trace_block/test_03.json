@@ -44,7 +44,7 @@
           },
           "blockHash": "0x0621386f998fd3cfd761657ff81d72b1e465b314971febc088cf607037232938",
           "blockNumber": 5415091,
-          "error": "bad instruction",
+          "error": "invalid opcode: INVALID",
           "result": null,
           "subtraces": 0,
           "traceAddress": [],
