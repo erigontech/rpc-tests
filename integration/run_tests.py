@@ -84,14 +84,12 @@ tests_not_compared = [
     "mainnet/debug_traceCall/test_08.tar",  # diff on gasCost
     "mainnet/debug_traceCall/test_10.tar", # diff on gasCost
 
-    "mainnet/trace_block/test_01.json", # diff on error message
-    "mainnet/trace_block/test_03.json", # diff on error message
+    "mainnet/trace_block/test_01.json", # diff on action
     "mainnet/trace_block/test_04.tar", # diff on gasCost
     "mainnet/trace_block/test_05.tar", # diff on gasCost
     "mainnet/trace_block/test_06.tar", # diff on rewardType and author
-    "mainnet/trace_block/test_15.tar", # diff on error message
+    "mainnet/trace_block/test_15.tar", # diff on call
     "mainnet/trace_block/test_17.tar", # diff on rewardType and author
-    "mainnet/trace_block/test_18.tar", # diff on error message
     "mainnet/trace_block/test_19.tar", # diff on gasCost
     "mainnet/trace_block/test_20.tar" # diff on callType
 ]
@@ -539,10 +537,10 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
             os.mkdir(output_dir)
         if silk_file != "":
             with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                json_file_ptr.write(json.dumps(response, indent=6, sort_keys=True))
+                json_file_ptr.write(json.dumps(response, indent=2, sort_keys=True))
         if exp_rsp_file != "":
             with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                json_file_ptr.write(json.dumps(expected_response, indent=5, sort_keys=True))
+                json_file_ptr.write(json.dumps(expected_response, indent=2, sort_keys=True))
 
 
 def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int, compression: bool):

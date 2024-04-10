@@ -729,7 +729,7 @@
           },
           "blockHash": "0xb425a0ecfa4b74abf04a6f73c7e323b4b7220c8a96f12fff30b60172cfc50973",
           "blockNumber": 4417196,
-          "error": "bad jump destination",
+          "error": "invalid jump destination",
           "result": null,
           "subtraces": 1,
           "traceAddress": [],
