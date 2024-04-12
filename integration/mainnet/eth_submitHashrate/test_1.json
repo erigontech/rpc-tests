@@ -1,13 +1,16 @@
 [
-    {
-         "test": {
+   {
+        "test": {
            "reference": "",
            "description": ""
         },
         "request": {
             "jsonrpc":"2.0",
-            "method":"eth_mining",
-            "params":[],
+            "method":"eth_submitHashrate",
+            "params":[
+                "0x1",
+                "0x59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c"
+            ],
             "id":1
         },
         "response": {

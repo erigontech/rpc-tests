@@ -1,12 +1,13 @@
 [
-    {
+     {
         "test": {
            "reference": "",
            "description": ""
         },
         "request":{
             "jsonrpc":"2.0",
-            "method":"eth_maxPriorityFeePerGas",
+            "method":"eth_syncing",
+            "params":[],
             "id":1
         },
         "response":{

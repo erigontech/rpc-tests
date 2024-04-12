@@ -1,12 +1,9 @@
 [
     {
-        "test": {
-           "reference": "",
-           "description": ""
-        },
         "request":{
             "jsonrpc":"2.0",
-            "method":"eth_maxPriorityFeePerGas",
+            "method":"erigon_blockNumber",
+            "params":["latest"],
             "id":1
         },
         "response":{

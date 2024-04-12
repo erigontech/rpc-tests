@@ -1,18 +1,15 @@
 [
-    {
-        "test": {
-           "reference": "",
-           "description": ""
-        },
+      {
         "request":{
             "jsonrpc":"2.0",
-            "method":"eth_maxPriorityFeePerGas",
+            "method":"net_version",
+            "params":[],
             "id":1
         },
         "response":{
             "jsonrpc":"2.0",
             "id":1,
-            "result":null
+            "result":"1"
         }
     }
 ]
