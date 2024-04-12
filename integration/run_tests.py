@@ -87,9 +87,7 @@ tests_not_compared = [
     "mainnet/trace_block/test_01.json", # diff on action
     "mainnet/trace_block/test_04.tar", # diff on gasCost
     "mainnet/trace_block/test_05.tar", # diff on gasCost
-    "mainnet/trace_block/test_06.tar", # diff on rewardType and author
     "mainnet/trace_block/test_15.tar", # diff on call
-    "mainnet/trace_block/test_17.tar", # diff on rewardType and author
     "mainnet/trace_block/test_19.tar", # diff on gasCost
     "mainnet/trace_block/test_20.tar" # diff on callType
 ]
