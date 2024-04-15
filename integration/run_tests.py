@@ -35,7 +35,8 @@ api_not_compared = [
     "goerli/engine_getPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
     "goerli/engine_getPayloadV2",  # not supported by silkrpc removed from ethbackend i/f
     "goerli/engine_newPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerli/engine_newPayloadV2"  # not supported by silkrpc removed from ethbackend i/f
+    "goerli/engine_newPayloadV2",  # not supported by silkrpc removed from ethbackend i/f
+    "mainnet/erigon_watchTheBurn"  # not supported by rpcdaemon
 ]
 
 tests_not_compared = [
