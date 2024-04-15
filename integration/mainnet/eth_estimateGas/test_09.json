@@ -1,8 +1,8 @@
 [
     {
         "test": {
-           "reference": "https://etherscan.io/tx/0xdea8cf208ab5a75e25d168115f85ed5e612ad978b9b8ccc462f69feca5a9a6db",
-           "description": "no access list entry" 
+           "reference": "",
+           "description": "with EVM return REVERT" 
         },
         "request": {
             "jsonrpc":"2.0",
