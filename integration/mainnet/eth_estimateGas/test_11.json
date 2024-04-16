@@ -1,0 +1,25 @@
+[
+    {
+        "test": {
+           "reference": "",
+           "description": "without gas field"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_estimateGas",
+            "params":[
+                {
+                  "from": "0x3D0768da09CE77d25e2d998E6a7b6eD4b9116c2D",
+                  "to":  "0x730ea66c8c5dc205d45a978573fa86df5af1fe7a"
+                }
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": "0x5208"
+        }
+    }
+]
+
