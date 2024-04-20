@@ -1,0 +1,146 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_replayBlockTransactions",
+      "params": [
+        "1000004",
+        [
+          "vmTrace",
+          "trace",
+          "stateDiff"
+        ]
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "output": "0x",
+          "stateDiff": {
+            "0x120a270bbc009644e35f0bb6ab13f95b8199c4ad": {
+              "balance": {
+                "*": {
+                  "from": "0x5326a224fcc95fa2056",
+                  "to": "0x5325b905346ba53c056"
+                }
+              },
+              "code": "=",
+              "nonce": {
+                "*": {
+                  "from": "0x310b",
+                  "to": "0x310c"
+                }
+              },
+              "storage": {}
+            },
+            "0x2a65aca4d5fc5b5c859090a6c34d164135398226": {
+              "balance": {
+                "*": {
+                  "from": "0xb4c79c7c3cec9388ef",
+                  "to": "0xb4c7a03735199728ef"
+                }
+              },
+              "code": "=",
+              "nonce": "=",
+              "storage": {}
+            },
+            "0x3dc12a32a5abf477e2ec91f6218d0a96150fef99": {
+              "balance": {
+                "*": {
+                  "from": "0x228359bec4b039ac5a",
+                  "to": "0x2291e800525edc6c5a"
+                }
+              },
+              "code": "=",
+              "nonce": "=",
+              "storage": {}
+            }
+          },
+          "trace": [
+            {
+              "action": {
+                "callType": "call",
+                "from": "0x120a270bbc009644e35f0bb6ab13f95b8199c4ad",
+                "gas": "0x37e88",
+                "input": "0x",
+                "to": "0x3dc12a32a5abf477e2ec91f6218d0a96150fef99",
+                "value": "0xe8e418daea2c000"
+              },
+              "result": {
+                "gasUsed": "0x0",
+                "output": "0x"
+              },
+              "subtraces": 0,
+              "traceAddress": [],
+              "type": "call"
+            }
+          ],
+          "transactionHash": "0x4cec043eca5a4b936fbf911fd3be02e0bb1b093c2882bde37ea08506442fb889",
+          "vmTrace": {
+            "code": "0x",
+            "ops": []
+          }
+        },
+        {
+          "output": "0x",
+          "stateDiff": {
+            "0x2a65aca4d5fc5b5c859090a6c34d164135398226": {
+              "balance": {
+                "*": {
+                  "from": "0xb4c7a03735199728ef",
+                  "to": "0xb4b92c34439ecb04ef"
+                }
+              },
+              "code": "=",
+              "nonce": {
+                "*": {
+                  "from": "0x2a124",
+                  "to": "0x2a125"
+                }
+              },
+              "storage": {}
+            },
+            "0xf4f2c15602b084cae84ea603f75527de19705aa1": {
+              "balance": {
+                "*": {
+                  "from": "0xb3bc0c68",
+                  "to": "0xe7402f22e883068"
+                }
+              },
+              "code": "=",
+              "nonce": "=",
+              "storage": {}
+            }
+          },
+          "trace": [
+            {
+              "action": {
+                "callType": "call",
+                "from": "0x2a65aca4d5fc5b5c859090a6c34d164135398226",
+                "gas": "0x10d88",
+                "input": "0x",
+                "to": "0xf4f2c15602b084cae84ea603f75527de19705aa1",
+                "value": "0xe7402f17acc2400"
+              },
+              "result": {
+                "gasUsed": "0x0",
+                "output": "0x"
+              },
+              "subtraces": 0,
+              "traceAddress": [],
+              "type": "call"
+            }
+          ],
+          "transactionHash": "0x0baaaf107ec45688f429be367189890e220d5020e17f64105fd76bef894e8fc6",
+          "vmTrace": {
+            "code": "0x",
+            "ops": []
+          }
+        }
+      ]
+    }
+  }
+]
