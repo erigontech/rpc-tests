@@ -1,0 +1,88 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_replayTransaction",
+      "params": [
+        "0x2ef0dd3ec03b108ae84e9355a783d5399a7b7f7dde9c1c519f8693b15aaad5da",
+        [
+          "vmTrace",
+          "trace",
+          "stateDiff"
+        ]
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "output": "0x",
+        "stateDiff": {
+          "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0": {
+            "balance": {
+              "*": {
+                "from": "0x4a11002e558c362ceb63",
+                "to": "0x4a10f25d255678740b63"
+              }
+            },
+            "code": "=",
+            "nonce": {
+              "*": {
+                "from": "0xf2057",
+                "to": "0xf2058"
+              }
+            },
+            "storage": {}
+          },
+          "0x7dd743400735690f7a8df9e6f3f663c8e1cab766": {
+            "balance": {
+              "*": {
+                "from": "0x97bbce9c1098f7b",
+                "to": "0x174ab024308d0f7b"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          },
+          "0xb2930b35844a230f00e51431acae96fe543a0347": {
+            "balance": {
+              "*": {
+                "from": "0x1d067ecbf22c7d477ef",
+                "to": "0x1d067eefc1e1609d7ef"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          }
+        },
+        "trace": [
+          {
+            "action": {
+              "callType": "call",
+              "from": "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0",
+              "gas": "0x2328",
+              "input": "0x",
+              "to": "0x7dd743400735690f7a8df9e6f3f663c8e1cab766",
+              "value": "0xdcef33a6f838000"
+            },
+            "result": {
+              "gasUsed": "0x0",
+              "output": "0x"
+            },
+            "subtraces": 0,
+            "traceAddress": [],
+            "type": "call"
+          }
+        ],
+        "transactionHash": "0x2ef0dd3ec03b108ae84e9355a783d5399a7b7f7dde9c1c519f8693b15aaad5da",
+        "vmTrace": {
+          "code": "0x",
+          "ops": []
+        }
+      }
+    }
+  }
+]

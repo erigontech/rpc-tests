@@ -1,0 +1,88 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_replayTransaction",
+      "params": [
+        "0x473b30375595dbb8d1afe4bb283ef70d8b42b92ce3c1fc9ce7df0816be249978",
+        [
+          "vmTrace",
+          "trace",
+          "stateDiff"
+        ]
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "output": "0x",
+        "stateDiff": {
+          "0x25e9b957be09b991474989040664a0667ffd34d6": {
+            "balance": {
+              "*": {
+                "from": "0x8c4f07bf9b9a9919",
+                "to": "0x8b9bd3ed1c7d0919"
+              }
+            },
+            "code": "=",
+            "nonce": {
+              "*": {
+                "from": "0x18",
+                "to": "0x19"
+              }
+            },
+            "storage": {}
+          },
+          "0x61c9ce78cc6fbc67e252a53df62e78801d120dd4": {
+            "balance": {
+              "*": {
+                "from": "0x2eba14eef7877",
+                "to": "0xb48e5d7db47877"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          },
+          "0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
+            "balance": {
+              "*": {
+                "from": "0x1a3d0c0d712b27d2e2",
+                "to": "0x1a3d0d9e877b8062e2"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          }
+        },
+        "trace": [
+          {
+            "action": {
+              "callType": "call",
+              "from": "0x25e9b957be09b991474989040664a0667ffd34d6",
+              "gas": "0x0",
+              "input": "0x",
+              "to": "0x61c9ce78cc6fbc67e252a53df62e78801d120dd4",
+              "value": "0xb1a2bc2ec50000"
+            },
+            "result": {
+              "gasUsed": "0x0",
+              "output": "0x"
+            },
+            "subtraces": 0,
+            "traceAddress": [],
+            "type": "call"
+          }
+        ],
+        "transactionHash": "0x473b30375595dbb8d1afe4bb283ef70d8b42b92ce3c1fc9ce7df0816be249978",
+        "vmTrace": {
+          "code": "0x",
+          "ops": []
+        }
+      }
+    }
+  }
+]
