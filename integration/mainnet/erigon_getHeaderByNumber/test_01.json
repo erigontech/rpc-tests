@@ -1,0 +1,43 @@
+[
+   {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"erigon_getHeaderByNumber",
+            "params":["0x41b57c"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": {
+             "AuRaSeal": null,
+              "AuRaStep": 0,
+              "Verkle": false,
+              "VerkleKeyVals": null,
+              "VerkleProof": null,
+              "baseFeePerGas": null,
+              "blobGasUsed": null,
+              "difficulty": "0xa51845dfe9373",
+              "excessBlobGas": null,
+              "extraData": "0xd5830107008650617269747986312e31382e30826c69",
+              "gasLimit": "0x666205",
+              "gasUsed": "0x31a405",
+              "hash": "0x7d4be8d1616bbe4f702c003d1f7cfadc67329bc5e6a29873ae9d20ffc9b1334c",
+              "logsBloom": "0x0000000004008010000000040000000104000008040008000080000000084000900000000a0001000000000110c0000b0800000000000080000000004000000000000000080004000100202a000000000009000000000000200000000040010000000002022000000000004060400800000000400000400020000930000000000000000000010000800004000000000000400002008000200002008000000100000000000000000000020000400000000000010022000000080000000000000080020012000000000000000000040000000000000000000420080000000020020000000000100000010000200000000000004000401000000000000000000000",
+              "miner": "0xe4bdced60430a90f31dba03524dd5d15a2670649",
+              "mixHash": "0x51ea6b15ba5886ea2893389c0ea59086722ee6dd3d32f4f691db98b07c9c6bc4",
+              "nonce": "0x4d5cf6701381cfa7",
+              "number": "0x41b57c",
+              "parentBeaconBlockRoot": null,
+              "parentHash": "0x00b19159c189a4a8eb13877151e895d1cd6573a4139ba4b9cb77ed977c9cfd3c",
+              "receiptsRoot": "0xcc06f28a629d6567038c77266829d97804063977346becaf57ee37c934e6096c",
+              "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+              "stateRoot": "0x49dc7f29c2c59f609eff2004b1a32f4c78e6a472107deaca639b3d797b4d0628",
+              "timestamp": "0x59c71bba",
+              "transactionsRoot": "0xf85cca6039e1f4f682bb0a156ec14ab4b8ae761bd0e7eaea35ada3c47dee6186",
+              "withdrawalsRoot": null
+          }
+        }
+    }
+]
+

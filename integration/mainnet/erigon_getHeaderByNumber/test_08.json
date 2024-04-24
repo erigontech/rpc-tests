@@ -1,0 +1,19 @@
+[
+   {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"erigon_getHeaderByNumber",
+            "params":["0xFFFA880"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "error": {
+                "code": -32000,
+                "message": "block header not found: 268413056"
+            }
+        }
+    }
+]
+
