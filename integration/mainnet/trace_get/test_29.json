@@ -1,0 +1,20 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_get",
+      "params": [
+        "0xf72a61bf9f175300f4a35d52951c24eb6149b68aec35786e446f981ecf143925",
+        [
+          "0x8"
+        ]
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null
+    }
+  }
+]
