@@ -1,0 +1,37 @@
+[
+   {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getTransactionByBlockNumberAndIndex",
+            "params":["0x112A880", "0x30"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result":{
+                 "accessList": [],
+                  "blockHash": "0x95b198e154acbfc64109dfd22d8224fe927fd8dfdedfae01587674482ba4baf3",
+                  "blockNumber": "0x112a880",
+                  "chainId": "0x1",
+                  "from": "0xa3ff917fb3f879b85c7ccca5be7d3dc3f98edc60",
+                  "gas": "0x9ac1",
+                  "gasPrice": "0x5208f3139",
+                  "hash": "0x462cf7ff85cc733ebdbb7c08388f85ccd3b9163951cca47cb56da37f9b4190e2",
+                  "input": "0x2e1a7d4d0000000000000000000000000000000000000000000000000058d15e17628000",
+                  "maxFeePerGas": "0x829f2c80a",
+                  "maxPriorityFeePerGas": "0x11e1a300",
+                  "nonce": "0x2d",
+                  "r": "0xc9393c6e2606daa9198eca0b6fe1b998905c08c84a574a8bf7433c28b54a128",
+                  "s": "0x6b4a07606f2399a349e48a3cea80b582bcd56bced118cf0d35c520c9ad3d5212",
+                  "to": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                  "transactionIndex": "0x30",
+                  "type": "0x2",
+                  "v": "0x0",
+                  "value": "0x0",
+                  "yParity": "0x0"
+            }
+        }
+    }
+]
+
