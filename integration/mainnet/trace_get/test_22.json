@@ -1,0 +1,42 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_get",
+      "params": [
+        "0xf72a61bf9f175300f4a35d52951c24eb6149b68aec35786e446f981ecf143925",
+        [
+          "0x1"
+        ]
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "action": {
+          "callType": "delegatecall",
+          "from": "0xaab684f2990af4ddc902ee074a7771c501ef97a8",
+          "gas": "0x2c303",
+          "input": "0x6ea056a90000000000000000000000004470bb87d77b963a013db939be332f927f2b992e0000000000000000000000000000000000000000000000000000000001ec7535",
+          "to": "0x88de41a34871e239c52926f920efb4eefa0f3de3",
+          "value": "0x0"
+        },
+        "blockHash": "0xb425a0ecfa4b74abf04a6f73c7e323b4b7220c8a96f12fff30b60172cfc50973",
+        "blockNumber": 4417196,
+        "result": {
+          "gasUsed": "0x823a",
+          "output": "0x0000000000000000000000000000000000000000000000000000000000000001"
+        },
+        "subtraces": 6,
+        "traceAddress": [
+          1
+        ],
+        "transactionHash": "0xf72a61bf9f175300f4a35d52951c24eb6149b68aec35786e446f981ecf143925",
+        "transactionPosition": 1,
+        "type": "call"
+      }
+    }
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_get",
+      "params": [
+        "0x2c492b15d9107ec38c8cf97437e70c4456db6081b85844221fd4be7a5ba44c21",
+        [
+          "0x0"
+        ]
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "action": {
+          "callType": "call",
+          "from": "0x8d12a197cb00d4747a1fe03395095ce2a5cc6819",
+          "gas": "0x346fa",
+          "input": "0xa9059cbb000000000000000000000000d58011fee7560561c9b972ed89801ccae19195de0000000000000000000000000000000000000000000000055de6a779bbac0000",
+          "to": "0x4e0603e2a27a30480e5e3a4fe548e29ef12f64be",
+          "value": "0x0"
+        },
+        "blockHash": "0x05c86b974bd664034d953a280be4207f483d5809256ba89aa4bd95f58a167b0a",
+        "blockNumber": 5405095,
+        "result": {
+          "gasUsed": "0x3502",
+          "output": "0x0000000000000000000000000000000000000000000000000000000000000001"
+        },
+        "subtraces": 0,
+        "traceAddress": [
+          0
+        ],
+        "transactionHash": "0x2c492b15d9107ec38c8cf97437e70c4456db6081b85844221fd4be7a5ba44c21",
+        "transactionPosition": 5,
+        "type": "call"
+      }
+    }
+  }
+]
