@@ -1,0 +1,35 @@
+[
+   {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"erigon_getHeaderByHash",
+            "params":["0x96cfa0fb5e50b0a3f6cc76f3299cfbf48f17e8b41798d1394474e67ec8a97e9f"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": {
+               "baseFeePerGas": "0x4cad3abe1",
+               "difficulty": "0x0",
+               "extraData": "0x627920406275696c64657230783639",
+               "gasLimit": "0x1c9c380",
+               "gasUsed": "0x8bc84a",
+               "hash": "0x96cfa0fb5e50b0a3f6cc76f3299cfbf48f17e8b41798d1394474e67ec8a97e9f",
+               "logsBloom": "0x00a5800311003514143110248118186108f900001a860055664930042204b7b9180823e91008c0b9131b71049561150a820741c69ac129022612639111ea2d3d64486012650ac92cef32730c52d000709735a2c81040099802121c448a70424a2342048632438001181c100001478f58a61c2006889926009a20035810b90034031189704c211210f15546029a8018c704609505b1a2034c0e3a824b4015b722cb4d01478131794a0ad270ab09108c102c49805860b10a0332111902920100834dd80582381a211238810814560a259d414c4b00240a70d0047e5d2a154ee4462230aa599280a9808624b042218981518f3400390b4c827819459d69e1501c00",
+               "miner": "0x690b9a9e9aa1c9db991c7721a92d351db4fac990",
+               "mixHash": "0x508cf9f7faca2553230266065ff45109c2a25c2a55138f4176fd5228a7339b77",
+               "nonce": "0x0000000000000000",
+               "number": "0x1036640",
+               "parentHash": "0xe464691f28218637d00ac4d694a86c0e01044b0a76b357b997e575be6d4cc135",
+               "receiptsRoot": "0xdafc7e17d609503a08b1406eb69c714cb3e7ba51e84580977c449999068ae513",
+               "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+               "stateRoot": "0x72eea852168e4156811869d6e40789083891288161d5a110259cf4fc922b1a09",
+               "timestamp": "0x6430ae13",
+               "transactionsRoot": "0x06ca3364e7ff05c6adad066d09dd50edc25e7935a7aa0bdb2f4ce07d2f5bf82e",
+               "withdrawalsRoot": null
+          }
+        }
+    }
+]
+
