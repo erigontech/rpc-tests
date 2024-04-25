@@ -1,0 +1,35 @@
+[
+   {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"erigon_getHeaderByHash",
+            "params":["0xfffff6a46b17361cd1ac3ed3401c9a268095c1810bf991c470c139f8441e1d0b"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": {
+               "baseFeePerGas": null,
+                "difficulty": "0x14116905d7514c",
+                "extraData": "0x426162656c20687a38",
+                "gasLimit": "0xbed39b",
+                "gasUsed": "0xbe9530",
+                "hash": "0x3c9c46a46b17361cd1ac3ed3401c9a268095c1810bf991c470c139f8441e1d0b",
+                "logsBloom": "0x40a40328609aa01d1514a588f001962842101a449091549c4d29611214c800440118a5288002c91a9339f102311327f0076042002a13db79ab50cf5572ec1a007001231ba22a2a224cc3061b930460a280475b045c40281e01e30d30c22079c43f62855406cc1513aa09110842ad394ac830108866234e54a8027c5c9d120540040333181604f2842a40e4c9900db49088450d9131384069803b39c080f269a0079a08cb04a029f80819c3a610078480804401617c26870520330a089c900021385c02ee2078903388901976078a34cd0d2002c00d41c2101e069846506c32113a31248ead262983044f03b282008889e1646a06025b05c41428b6dce086143c",
+                "miner": "0xb3b7874f13387d44a3398d298b075b7a3505d8d4",
+                "mixHash": "0x114f16f97d044682678844ea69212d6764998107ccb698fc6ae4fd2d71a33104",
+                "nonce": "0xb62c052c3d4a3866",
+                "number": "0xb71b00",
+                "parentHash": "0x5855b177bf334278228bb6dc8c7be272d6828ffce8bafc5c27b535e298e8e0a6",
+                "receiptsRoot": "0x0bdbc8f25e31e43cf5b2ff325711f7bb06ccea31a53aa9dfe34f39cd28834803",
+                "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                "stateRoot": "0x8da999d414392e86fda9a3bc48a1fb35dcb8bbfef6c390c700e6822ad433e3e1",
+                "timestamp": "0x60468700",
+                "transactionsRoot": "0x1b1f04a1ec5c282c78e5b83f3fd947cfc6fb61677e0dce75b8000bafe961f885",
+                "withdrawalsRoot": null
+          }
+        }
+    }
+]
+
