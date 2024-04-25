@@ -1,0 +1,43 @@
+[
+   {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"erigon_getHeaderByNumber",
+            "params":["0xF42400"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": {
+             "AuRaSeal": null,
+              "AuRaStep": 0,
+              "Verkle": false,
+              "VerkleKeyVals": null,
+              "VerkleProof": null,
+              "baseFeePerGas": "0x2976ca599",
+              "blobGasUsed": null,
+              "difficulty": "0x0",
+              "excessBlobGas": null,
+              "extraData": "0x4d616465206f6e20746865206d6f6f6e20627920426c6f636b6e6174697665",
+              "gasLimit": "0x1c9c380",
+              "gasUsed": "0x121cdff",
+              "hash": "0x3dc4ef568ae2635db1419c5fec55c4a9322c05302ae527cd40bff380c1d465dd",
+              "logsBloom": "0xdaa80d34c104520cb02c181aa334f26395a0512141a85800c11d8c0c9d7729450f0c5312194a10655d72ba6542aab72f070146682f1ae981e663c1ff58eaedc266044692052ab00e7eaed34b60b26cf85003080153c602690e38ac619e4461431ac01d6c5a070e28c9469e006a90999175badc76a93b2e3a56b300d8ca9e18108e22c319caa21081184b494880923617c1800cf95b24904be3a48079c4526582fee283c1100ae8112239a1c908ae804a4dc178cee0248d8215a33d0c91c895555194c1abe11124dd81c09a02018fa22e4de90fcb90db62160058bb02c0b46054603eb1889038316a1211de9010db1bd1971c0085cc2c1642100f096618daf833",
+              "miner": "0xebec795c9c8bbd61ffc14a6662944748f299cacf",
+              "mixHash": "0xe197021bc2912013a6c5e3a42fa1260f00d80ad389a9f7137a5dafdaef38977a",
+              "nonce": "0x0000000000000000",
+              "number": "0xf42400",
+              "parentBeaconBlockRoot": null,
+              "parentHash": "0x6f377dc6bd1f3e38b9ceb8c946a88c13211fa3f084622df3ee5cfcd98cc6bb16",
+              "receiptsRoot": "0x63c77297d9aace97c33e40c07c4f7d52f62e898f9be74f43ae8f8b751012e719",
+              "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+              "stateRoot": "0xe5608defce0c3e193b4c2e3452ece5158e6ae35db211925cdfb4cd307587bbf0",
+              "timestamp": "0x63780c83",
+              "transactionsRoot": "0xe0265e44b4639453428546d1c0046c9fbba7d679b7be3e67692904c776389890",
+              "withdrawalsRoot": null
+          }
+        }
+    }
+]
+
