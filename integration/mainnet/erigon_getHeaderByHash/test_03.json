@@ -10,6 +10,14 @@
             "jsonrpc":"2.0",
             "id":1,
             "result": {
+             "AuRaSeal": null,
+              "AuRaStep": 0,
+              "Verkle": false,
+              "VerkleKeyVals": null,
+              "VerkleProof": null,
+              "blobGasUsed": null,
+              "excessBlobGas": null,
+              "parentBeaconBlockRoot": null,
               "baseFeePerGas": "0x50ead8e39",
               "difficulty": "0x0",
               "extraData": "0x496c6c756d696e61746520446d6f63726174697a6520447374726962757465",
@@ -27,7 +35,7 @@
               "stateRoot": "0x08b7443c83a93d4711f5c63e738c27c54a932522405b37b4ca7868a944105deb",
               "timestamp": "0x64ea268f",
               "transactionsRoot": "0x97dd0200249a35da2c73b366612c2d9c3d112e83ef5e0277cded1352c66628ba",
-              "withdrawalsRoot": null
+              "withdrawalsRoot": "0x5362ee94b61e8cef92bf61353e62744b4fe6d1f2482aade614054527e6d5de7d"
           }
         }
     }
