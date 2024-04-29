@@ -15,7 +15,10 @@
         "response": {
             "id":1,
             "jsonrpc":"2.0",
-            "result":"0x53ac"
+            "error": {
+              "code": -32000,
+              "message": "insufficient funds for gas * price + value: address 0x3a9a5def01d7b14c14ef51996bf66f3047f0738f have 0 want 364744357228059396"
+            }
         }
     }
 ]
