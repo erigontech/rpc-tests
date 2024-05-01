@@ -1,0 +1,20 @@
+[
+    {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"erigon_getLogsByHash",
+            "params":["0x95c3a05973fec7bf98f1131a72e607b4eba171d0576571cf83ee7162bbcdb7d9"],
+            "id":1
+        },
+        "response": {
+           "id": 1,
+           "jsonrpc": "2.0",
+           "result": [
+                null,
+                null,
+                null
+           ]
+        }
+    }
+]
+
