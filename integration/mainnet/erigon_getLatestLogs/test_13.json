@@ -1,0 +1,22 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "erigon_getLatestLogs",
+      "params": [
+        {
+          "fromBlock": 18270770
+        },
+        {
+          "blockCount": 2
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result":  null
+    }
+  }
+]

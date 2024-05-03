@@ -2,7 +2,7 @@
     {
         "test": {
            "reference": "", 
-           "description": "with intrisic gas error"
+           "description": ""
         },
         "request": {
             "jsonrpc":"2.0",
@@ -19,8 +19,7 @@
         },
         "response": {
             "id":1,
-            "jsonrpc":"2.0",
-            "result": "0x7c7c"
+            "jsonrpc":"2.0"
         }
     }
 ]

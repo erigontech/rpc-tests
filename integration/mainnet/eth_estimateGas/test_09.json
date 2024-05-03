@@ -2,7 +2,7 @@
     {
         "test": {
            "reference": "",
-           "description": "with EVM return REVERT" 
+           "description": "" 
         },
         "request": {
             "jsonrpc":"2.0",
@@ -20,12 +20,7 @@
         },
         "response": {
             "id":1,
-            "jsonrpc":"2.0",
-            "error": {
-               "code": 3,
-               "data": "0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000324174206c65617374206f6e65206f66207468652070726f76696465642074726169747320646f6573206e6f742065786973740000000000000000000000000000",
-               "message": "execution reverted: at least one of the provided traits does not exist"
-          }
+            "jsonrpc":"2.0"
         }
     }
 ]

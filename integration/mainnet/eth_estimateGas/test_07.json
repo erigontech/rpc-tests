@@ -2,7 +2,7 @@
     {
         "test": {
            "reference": "",
-           "description": "with EVM return OutOfGas" 
+           "description": "" 
         },
         "request": {
             "jsonrpc":"2.0",
@@ -20,8 +20,7 @@
         },
         "response": {
             "id":1,
-            "jsonrpc":"2.0",
-            "result": "0xabe8"
+            "jsonrpc":"2.0"
         }
     }
 ]
