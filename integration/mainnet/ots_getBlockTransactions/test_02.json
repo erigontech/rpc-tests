@@ -1,0 +1,41 @@
+[
+    {
+        "request":{
+            "jsonrpc":"2.0",
+            "method":"ots_getBlockTransactions",
+            "params":["0x79fca", 1, 4],
+            "id":1
+        },
+        "response":{
+          "jsonrpc":"2.0",
+          "id":1,
+  "result": {
+    "fullblock": {
+      "difficulty": "0x6d7aef6d7f0",
+      "extraData": "0xd783010301844765746887676f312e342e32856c696e7578",
+      "gasLimit": "0x2fefd8",
+      "gasUsed": "0x0",
+      "hash": "0xf8f7f7cb7a9c8ed49744dfeed30488ee83f7e9d04991c34f854f3f4f315e19f3",
+      "logsBloom": null,
+      "miner": "0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5",
+      "mixHash": "0x40cf03d24bf68137ac590ed9450ab1a04880eadab48fa13d18ce165b16b99055",
+      "nonce": "0x02f004572f18e439",
+      "number": "0x79fca",
+      "parentHash": "0x90b6512227a6fd0ab1548ca8fbab84d7613f44e5ccd92ef72d71db69c70e19f7",
+      "receiptsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+      "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+      "size": "0x21d",
+      "stateRoot": "0x091b285bab11f82a42b29cba009ef540eb35c6504215155df704eabea43c0c1e",
+      "timestamp": "0x563cd3cc",
+      "totalDifficulty": "0x2559973f981dc69e",
+      "transactionCount": 0,
+      "transactions": [],
+      "transactionsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+      "uncles": []
+    },
+    "receipts": []
+  }
+        }
+    }
+]
+
