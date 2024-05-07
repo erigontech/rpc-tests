@@ -1,7 +1,7 @@
 [
     {
         "test": {
-           "reference": "https://etherscan.io/block/19665755"
+           "reference": "https://etherscan.io/block/19665755",
            "description": "block after cancun with blob"
         },
         "request": {
