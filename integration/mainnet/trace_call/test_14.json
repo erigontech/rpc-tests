@@ -1,0 +1,95 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_call",
+      "params": [
+        {
+          "data": "0xdf8de3e7000000000000000000000000499d11e0b6eac7c0593d8fb292dcbbf815fb29ae",
+          "from": "0x267be1C1D684F78cb4F6a176C4911b741E4Ffdc0",
+          "gas": "0x7530",
+          "gasPrice": "0x6FC23AC00",
+          "to": "0x7DD743400735690F7a8Df9e6F3f663c8e1CaB766",
+          "value": "0xDCEF33A6F838000"
+        },
+        [
+          "vmTrace",
+          "trace",
+          "stateDiff"
+        ],
+        "0x627331"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "output": "0x",
+        "stateDiff": {
+          "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0": {
+            "balance": {
+              "*": {
+                "from": "0x4a10f25d255678740b63",
+                "to": "0x4a10e48bc74a10a26b63"
+              }
+            },
+            "code": "=",
+            "nonce": {
+              "*": {
+                "from": "0xf2058",
+                "to": "0xf2059"
+              }
+            },
+            "storage": {}
+          },
+          "0x7dd743400735690f7a8df9e6f3f663c8e1cab766": {
+            "balance": {
+              "*": {
+                "from": "0x174ab024308d0f7b",
+                "to": "0x2519a35ea0108f7b"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          },
+          "0xb2930b35844a230f00e51431acae96fe543a0347": {
+            "balance": {
+              "*": {
+                "from": "0x1d0925a464b2fa39f50",
+                "to": "0x1d0925cb11d27f1bf50"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          }
+        },
+        "trace": [
+          {
+            "action": {
+              "callType": "call",
+              "from": "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0",
+              "gas": "0x1c98",
+              "input": "0xdf8de3e7000000000000000000000000499d11e0b6eac7c0593d8fb292dcbbf815fb29ae",
+              "to": "0x7dd743400735690f7a8df9e6f3f663c8e1cab766",
+              "value": "0xdcef33a6f838000"
+            },
+            "result": {
+              "gasUsed": "0x0",
+              "output": "0x"
+            },
+            "subtraces": 0,
+            "traceAddress": [],
+            "type": "call"
+          }
+        ],
+        "vmTrace": {
+          "code": "0x",
+          "ops": []
+        }
+      }
+    }
+  }
+]

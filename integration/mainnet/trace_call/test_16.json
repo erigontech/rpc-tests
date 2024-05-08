@@ -1,0 +1,93 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_call",
+      "params": [
+        {
+          "data": "0x071ccd0a00610023",
+          "from": "0xb7F819B983E0CbB0316786d7FBa12E3b1E58DA5F",
+          "gas": "0x57E40",
+          "gasPrice": "0xBDB7D910B",
+          "value": "0x0"
+        },
+        [
+          "vmTrace",
+          "trace",
+          "stateDiff"
+        ],
+        "0x5F7CF1"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "output": "0x",
+        "stateDiff": {
+          "0x35f61dfb08ada13eba64bf156b80df3d5b3a738d": {
+            "balance": {
+              "*": {
+                "from": "0xd70b2e72bc56d13a3",
+                "to": "0xd70f4099e476bc063"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          },
+          "0xb7f819b983e0cbb0316786d7fba12e3b1e58da5f": {
+            "balance": {
+              "*": {
+                "from": "0x40f4b88d1f1ed7c",
+                "to": "0x3ce29164ff340bc"
+              }
+            },
+            "code": "=",
+            "nonce": {
+              "*": {
+                "from": "0xea6f",
+                "to": "0xea70"
+              }
+            },
+            "storage": {}
+          }
+        },
+        "trace": [
+          {
+            "action": {
+              "from": "0xb7f819b983e0cbb0316786d7fba12e3b1e58da5f",
+              "gas": "0x4ad98",
+              "init": "0x071ccd0a00610023",
+              "value": "0x0"
+            },
+            "error": "stack underflow",
+            "result": null,
+            "subtraces": 0,
+            "traceAddress": [],
+            "type": "create"
+          }
+        ],
+        "vmTrace": {
+          "code": "0x071ccd0a00610023",
+          "ops": [
+            {
+              "cost": 306584,
+              "ex": {
+                "mem": null,
+                "push": [],
+                "store": null,
+                "used": 0
+              },
+              "idx": "0",
+              "op": "SMOD",
+              "pc": 0,
+              "sub": null
+            }
+          ]
+        }
+      }
+    }
+  }
+]

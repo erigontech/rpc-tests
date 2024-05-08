@@ -1,0 +1,66 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_call",
+      "params": [
+        {
+          "data": "0x00",
+          "from": "0xA25388E869b9660364448b364051B969760A2D9b",
+          "gas": "0xB7A0",
+          "gasPrice": "0x3b9aca00",
+          "to": "0x6Fc82a5fe25A5cDb58bc74600A40A69C065263f8",
+          "value": "0x6EEAFD0CC46C860"
+        },
+        [
+          "vmTrace",
+          "trace",
+          "stateDiff"
+        ],
+        "0x4366AC"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "output": "0x",
+        "stateDiff": {
+          "0xa25388e869b9660364448b364051b969760a2d9b": {
+            "balance": {
+              "*": {
+                "from": "0x88a479d4fab0",
+                "to": "0xa04b0103c2b0"
+              }
+            },
+            "code": "=",
+            "nonce": {
+              "*": {
+                "from": "0x1",
+                "to": "0x2"
+              }
+            },
+            "storage": {}
+          },
+          "0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
+            "balance": {
+              "*": {
+                "from": "0x1a682e1d5e4daffba3",
+                "to": "0x1a682e3078ada573a3"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          }
+        },
+        "trace": [],
+        "vmTrace": {
+          "code": "0x",
+          "ops": []
+        }
+      }
+    }
+  }
+]

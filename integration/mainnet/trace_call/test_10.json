@@ -1,0 +1,61 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_call",
+      "params": [
+        {
+          "data": "0x",
+          "from": "0xF9eC351E5C2eCa57CE98D54AB39eF7f77A60041C",
+          "gas": "0x5208",
+          "gasPrice": "0x3B9ACA00",
+          "to": "0x434b6c1969067Eb48e53BaAA37dbBec6b17B83Da",
+          "value": "0xE0EC792E96800"
+        },
+        [
+          "vmTrace",
+          "trace",
+          "stateDiff"
+        ],
+        "0x5279A7"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "output": "0x",
+        "stateDiff": {
+          "0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
+            "balance": {
+              "*": {
+                "from": "0x2314d0d6f2fb840b64",
+                "to": "0x2314d0ea0c6d0e5b64"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          },
+          "0xf9ec351e5c2eca57ce98d54ab39ef7f77a60041c": {
+            "balance": "=",
+            "code": "=",
+            "nonce": {
+              "*": {
+                "from": "0x6",
+                "to": "0x7"
+              }
+            },
+            "storage": {}
+          }
+        },
+        "trace": [],
+        "vmTrace": {
+          "code": "0x",
+          "ops": []
+        }
+      }
+    }
+  }
+]
