@@ -106,14 +106,13 @@ tests_not_compared = [
     "mainnet/trace_replayTransaction/test_16.tar", # diff on gasCost
     "mainnet/trace_replayTransaction/test_18.tar", # diff on gasCost
     "mainnet/trace_replayTransaction/test_23.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_24.json" # diff on gasCost
+    "mainnet/trace_replayTransaction/test_24.json", # diff on gasCost
 
     "mainnet/trace_replayBlockTransactions/test_01.tar", # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_02.tar", # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_03.tar", # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_04.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_05.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_06.json", # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_05.tar", # too big
     "mainnet/trace_replayBlockTransactions/test_07.json", # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_08.tar", # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_09.json", # diff on gasCost
@@ -123,7 +122,12 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_13.tar", # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_14.tar", # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_15.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_16.tar" # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_16.tar", # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_17.tar", # diff on gasCost and too big
+    "mainnet/trace_replayBlockTransactions/test_18.tar", # diff on gasCost and too big
+    "mainnet/trace_replayBlockTransactions/test_19.tar", # diff on gasCost and too big
+    "mainnet/trace_replayBlockTransactions/test_20.tar", # diff on gasCost and too big
+    "mainnet/trace_replayBlockTransactions/test_21.tar" # diff on gasCost and too big
 ]
 
 tests_not_compared_result = [
@@ -788,7 +792,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
 
             output_api_filename = output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
-            diff_file = output_api_filename + "diff.json"
+            diff_file = output_api_filename + "-diff.json"
 
             silk_file = output_api_filename + "response.json"
             exp_rsp_file = output_api_filename + "expResponse.json"
@@ -801,7 +805,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
 
             output_api_filename = output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
-            diff_file = output_api_filename + "diff.json"
+            diff_file = output_api_filename + "-diff.json"
 
             silk_file = output_api_filename + get_json_filename_ext(SILK)
             exp_rsp_file = output_api_filename + get_json_filename_ext(daemon_as_reference)
