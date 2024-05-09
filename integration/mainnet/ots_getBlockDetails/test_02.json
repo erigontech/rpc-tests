@@ -37,7 +37,11 @@
                "transactionsRoot": "0xe0265e44b4639453428546d1c0046c9fbba7d679b7be3e67692904c776389890",
                "uncles": []
           },
-          "issuance": {},
+          "issuance": {
+            "blockReward": "0x0",
+            "issuance": "0x0",
+            "uncleReward": "0x0"
+          },
           "totalFees": "0x3fcc8f706ebb74d"
          }
         }
