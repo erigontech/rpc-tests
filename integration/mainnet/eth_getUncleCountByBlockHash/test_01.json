@@ -1,0 +1,20 @@
+[
+      {
+       "test": {
+           "reference": "https://etherscan.io/tx/0x827d30e914a3adeefabb9d53f70da87e6e0ed3d02a72e7d9ae9bfd1bf123c7a3",
+           "description": "with uncle not zero"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getUncleCountByBlockHash",
+            "params":["0x827d30e914a3adeefabb9d53f70da87e6e0ed3d02a72e7d9ae9bfd1bf123c7a3"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result":"0x1"
+        }
+    }
+]
+
