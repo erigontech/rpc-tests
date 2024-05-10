@@ -11,33 +11,34 @@
           "id":1,
   "result": {
     "block": {
-      "difficulty": "0x3fdff02b32d1",
-      "extraData": "0x4477617266506f6f6c",
-      "gasLimit": "0x325a9d",
-      "gasUsed": "0x50316",
-      "hash": "0x596ddbb951a08858dcb7fb3c8296e966b73e1414cb03f8bf96df4cd630cac878",
+      "baseFeePerGas": "0x2976ca599",
+      "difficulty": "0x0",
+      "extraData": "0x4d616465206f6e20746865206d6f6f6e20627920426c6f636b6e6174697665",
+      "gasLimit": "0x1c9c380",
+      "gasUsed": "0x121cdff",
+      "hash": "0x3dc4ef568ae2635db1419c5fec55c4a9322c05302ae527cd40bff380c1d465dd",
       "logsBloom": null,
-      "miner": "0x2a65aca4d5fc5b5c859090a6c34d164135398226",
-      "mixHash": "0x4c299a760b22eaf715a73c48b01fe534d7e0f4ba19d5edea0198b101a77b968c",
-      "nonce": "0x75104dfc05611221",
-      "number": "0x299fca",
-      "parentHash": "0xa62052f93cfe54db510cd23aac67fa4a12486694f32c2174ecd91f1fbe1a95d7",
-      "receiptsRoot": "0x73b4eded17b821df2a42e38af7104e4cfe287dce29298157366964daaba7a146",
+      "miner": "0xebec795c9c8bbd61ffc14a6662944748f299cacf",
+      "mixHash": "0xe197021bc2912013a6c5e3a42fa1260f00d80ad389a9f7137a5dafdaef38977a",
+      "nonce": "0x0000000000000000",
+      "number": "0xf42400",
+      "parentHash": "0x6f377dc6bd1f3e38b9ceb8c946a88c13211fa3f084622df3ee5cfcd98cc6bb16",
+      "receiptsRoot": "0x63c77297d9aace97c33e40c07c4f7d52f62e898f9be74f43ae8f8b751012e719",
       "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-      "size": "0x8ec",
-      "stateRoot": "0x61e3150a9036e96081730dc7e43b63b582f41aedd964c84146a3297bfb0a6798",
-      "timestamp": "0x58401840",
-      "totalDifficulty": "0x541d72873af4ba41c",
-      "transactionCount": 15,
-      "transactionsRoot": "0x454ca14088255d922ced365432f26713568b1ff6c6bbbffa32975a02f54fcfe3",
+      "size": "0x12b4f",
+      "stateRoot": "0xe5608defce0c3e193b4c2e3452ece5158e6ae35db211925cdfb4cd307587bbf0",
+      "timestamp": "0x63780c83",
+      "totalDifficulty": "0xc70d815d562d3cfa955",
+      "transactionCount": 211,
+      "transactionsRoot": "0xe0265e44b4639453428546d1c0046c9fbba7d679b7be3e67692904c776389890",
       "uncles": []
     },
     "issuance": {
-      "blockReward": "0x4563918244f40000",
-      "issuance": "0x4563918244f40000",
+      "blockReward": "0x0",
+      "issuance": "0x0",
       "uncleReward": "0x0"
     },
-    "totalFees": "0x17b654d916c000"
+    "totalFees": "0x3fcc8f706ebb74d"
   }
         }
     }
