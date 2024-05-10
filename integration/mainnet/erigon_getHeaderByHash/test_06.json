@@ -1,0 +1,47 @@
+[
+   {
+	"test": {
+           "reference": "https://etherscan.io/block/19665756",
+           "description": "block with blob fields"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"erigon_getHeaderByHash",
+            "params":["0x885dbb7ca37d235e2a211e04668cd382f54872292e2adf50d61d65785fa2b713"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+  "result": {
+    "AuRaSeal": null,
+    "AuRaStep": 0,
+    "Verkle": false,
+    "VerkleKeyVals": null,
+    "VerkleProof": null,
+    "baseFeePerGas": "0x347cd1939",
+    "blobGasUsed": "0xc0000",
+    "difficulty": "0x0",
+    "excessBlobGas": "0x0",
+    "extraData": "0x6265617665726275696c642e6f7267",
+    "gasLimit": "0x1c9c380",
+    "gasUsed": "0x9ad893",
+    "hash": "0x885dbb7ca37d235e2a211e04668cd382f54872292e2adf50d61d65785fa2b713",
+    "logsBloom": "0x1521542a4b00019c20180410e4b9d505612101e1c48e2944248505437c128c000051d2e4a0400225618048400c32d340436b89389e33308a3952054018fe80067cd4b44848458a2c09036f0d807e606111d4122a01548cd0d0b490cad830151014c847490af0890000601a902888685822278843224804618621459d28091100200700484220407803cd4c798b02228424559ce78b2d00786c0b094428b80c4887c19a1259886152251851dec902a5a224f8885c0e8ac08628e5344020aa46e441d0184a00b36347a940b2b00248d10a126126509621a5d5ac71f18739107184313abc0c112184c578045280a7211385052250b6fcb6a2501fb92b985440dd4f",
+    "miner": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
+    "mixHash": "0xb78df4881bf0331aa0144de47833a9668d5fd52453efc2212b3e807f1be1fd57",
+    "nonce": "0x0000000000000000",
+    "number": "0x12c135c",
+    "parentBeaconBlockRoot": "0xdca8a25203be7c6ce5927ed54069d739f8855304a1a524960915cb18a84bbe1c",
+    "parentHash": "0xe1629604a508fb8dff451435a73e348583aa1974257dd6615554092a350c677d",
+    "receiptsRoot": "0x545fb1dda0c9e5eca1c81d9cbaa2aee7fce963b2865523d18d2cdf2582e6928d",
+    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+    "stateRoot": "0xd5ee4354bf24a2bb9ec854562dd4c908d71f91a720127f94065e5ceedaa240bc",
+    "timestamp": "0x661e02cf",
+    "transactionsRoot": "0xb8788f3f173a1a7e58a8948740d3a342838c7842f5b8fdad7245ecf2dd8f0048",
+    "withdrawalsRoot": "0xe7b710a4382477838a7bdd1373dcad857ca76a7f0b70b599cdf8c7c6ea3827c6"
+  }
+        }
+    }
+]
+
