@@ -1,0 +1,21 @@
+[
+      {
+       "test": {
+           "reference": "",
+           "description": "with invalid hash"
+        },
+
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getUncleCountByBlockHash",
+            "params":["0xffffffffff50b0a3f6cc76f3299cfbf48f17e8b41798d1394474e67ec8a97e9f"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result":"0x0"
+        }
+    }
+]
+
