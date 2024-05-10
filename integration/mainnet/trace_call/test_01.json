@@ -1,0 +1,32 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_call",
+      "params": [
+        {
+          "data": "0x",
+          "from": "0xB5772B3A6Be702D0387770C64bf17e36a4D38188",
+          "gas": "0x5208",
+          "gasPrice": "0x14",
+          "value": "0x46E4DEB133863000"
+        },
+        [
+          "vmTrace",
+          "trace",
+          "stateDiff"
+        ],
+        "0x4366AC"
+      ]
+    },
+    "response": {
+      "error": {
+        "code": -32000,
+        "message": "intrinsic gas too low: address 0xb5772b3a6be702d0387770c64bf17e36a4d38188, have 21000, want 53000"
+      },
+      "id": 1,
+      "jsonrpc": "2.0"
+    }
+  }
+]
