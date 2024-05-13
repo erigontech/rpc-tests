@@ -49,7 +49,21 @@
             "storage": {}
           }
         },
-        "trace": [],
+        "trace": [
+          {
+            "action": {
+              "from": "0xb5772b3a6be702d0387770c64bf17e36a4d38188",
+              "gas": "0x45178",
+              "init": "0x",
+              "value": "0x46e4deb133863000"
+            },
+            "error": "insufficient balance for transfer",
+            "result": null,
+            "subtraces": 0,
+            "traceAddress": [],
+            "type": "create"
+          }
+        ],
         "vmTrace": {
           "code": "0x",
           "ops": []
