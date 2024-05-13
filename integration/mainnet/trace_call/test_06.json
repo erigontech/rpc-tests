@@ -57,7 +57,7 @@
               "init": "0xa9059cbb000000000000000000000000fc9dd1f314dbb6b95c6b5386e00f662ee8e123780000000000000000000000000000000000000000000000004563918244f40000",
               "value": "0x0"
             },
-            "error": "bad instruction",
+            "error": "invalid opcode: opcode 0xa9 not defined",
             "result": null,
             "subtraces": 0,
             "traceAddress": [],
