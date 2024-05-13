@@ -62,7 +62,7 @@
               "init": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
               "value": "0x0"
             },
-            "error": "bad instruction",
+            "error": "invalid opcode: opcode 0xe4 not defined",
             "result": null,
             "subtraces": 0,
             "traceAddress": [],
