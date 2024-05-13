@@ -50,9 +50,23 @@
             "storage": {}
           }
         },
-        "trace": [],
+        "trace": [
+          {
+            "action": {
+              "from": "0x21f510d475787abcfc6ca646a8ea15f7d2cf7167",
+              "gas": "0x8a58",
+              "init": "0x602a6000556101c960015560068060166000396000f3600035600055",
+              "value": "0x8ac7230489e80000"
+            },
+            "error": "insufficient balance for transfer",
+            "result": null,
+            "subtraces": 0,
+            "traceAddress": [],
+            "type": "create"
+          }
+        ],
         "vmTrace": {
-          "code": "0x",
+          "code": "0x602a6000556101c960015560068060166000396000f3600035600055",
           "ops": []
         }
       }
