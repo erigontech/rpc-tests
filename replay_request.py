@@ -5,7 +5,6 @@
 import sys
 from typing import List
 
-from rpc.replay.config import OptionError
 from rpc.replay.config import Options
 from rpc.replay.player import Player
 
@@ -16,14 +15,15 @@ from rpc.replay.player import Player
 def main(argv: List[str]) -> int:
     """ Replay JSON RPC API command
     """
-    try:
-        player_options = Options(argv)
-        player = Player(player_options)
-        player.replay_request("engine_newPayloadV3", 1)
-    except OptionError as err:
-        print(err)
+    player_options = Options()
+    parse_error = player_options.parse(argv)
+    if parse_error:
+        print(parse_error, file=sys.stderr)
         Options.usage(argv)
         return 1
+
+    player = Player(player_options)
+    player.replay_request(player_options.method, player_options.method_index)
 
     return 0
 
