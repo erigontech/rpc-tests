@@ -82,6 +82,7 @@ tests_not_compared = [
     "mainnet/debug_traceCall/test_05.tar",  # diff on gasCost
     "mainnet/debug_traceCall/test_06.tar",  # diff on gasCost
     "mainnet/debug_traceCall/test_08.tar",  # diff on gasCost
+
     "mainnet/debug_traceCall/test_10.tar",  # diff on gasCost
 
     "mainnet/trace_block/test_01.json",  # diff on action
@@ -91,7 +92,6 @@ tests_not_compared = [
     "mainnet/trace_block/test_19.tar",  # diff on gasCost
     "mainnet/trace_block/test_20.tar",  # diff on callType
 
-    "mainnet/trace_call/test_01.json",  # diff on callType
     "mainnet/trace_call/test_03.json",  # diff on callType
     "mainnet/trace_call/test_07.json",  # diff on callType
     "mainnet/trace_call/test_08.tar",  # diff on callType
