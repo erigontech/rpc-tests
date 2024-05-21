@@ -1,0 +1,21 @@
+[
+    {
+        "request":{
+            "jsonrpc":"2.0",
+            "method":"ots_searchTransactionsAfter",
+            "params":["0x0000000000000000000000000000000000000000", 18500000, 10],
+            "id":1
+        },
+        "response":{
+          "jsonrpc":"2.0",
+          "id":1,
+          "result": {
+              "firstPage": true,
+              "lastPage": false,
+              "receipts": [],
+              "txs": []
+            }
+        }
+    }
+]
+
