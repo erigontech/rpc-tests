@@ -14,9 +14,7 @@
           "value": "0xF1539B63D3691"
         },
         [
-          "vmTrace",
-          "trace",
-          "stateDiff"
+          "trace"
         ],
         "0x5279A7"
       ]
@@ -26,35 +24,27 @@
       "jsonrpc": "2.0",
       "result": {
         "output": "0x",
-        "stateDiff": {
-          "0x264b09a49e97ed8dd310816577f2de6ae22af5f4": {
-            "balance": "=",
-            "code": "=",
-            "nonce": {
-              "*": {
-                "from": "0x51",
-                "to": "0x52"
-              }
+        "stateDiff": null,
+        "trace": [
+          {
+            "action": {
+              "callType": "call",
+              "from": "0x264b09a49e97ed8dd310816577f2de6ae22af5f4",
+              "gas": "0x0",
+              "input": "0x",
+              "to": "0x9ea9b8a8c40d59dd55cd3abb5ebd7590bdcb9227",
+              "value": "0xf1539b63d3691"
             },
-            "storage": {}
-          },
-          "0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
-            "balance": {
-              "*": {
-                "from": "0x2314d0d6f2fb840b64",
-                "to": "0x2314d1103f5022fb64"
-              }
+            "result": {
+              "gasUsed": "0x0",
+              "output": "0x"
             },
-            "code": "=",
-            "nonce": "=",
-            "storage": {}
+            "subtraces": 0,
+            "traceAddress": [],
+            "type": "call"
           }
-        },
-        "trace": [],
-        "vmTrace": {
-          "code": "0x",
-          "ops": []
-        }
+        ],
+        "vmTrace": null
       }
     }
   }
