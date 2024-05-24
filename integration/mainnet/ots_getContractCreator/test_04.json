@@ -1,0 +1,16 @@
+[
+    {
+        "request":{
+            "jsonrpc":"2.0",
+            "method":"ots_getContractCreator",
+            "params":["0x650c1E71fD009DBD8344BB63a8727b538397B5D3"],
+            "id":1
+        },
+        "response":{
+          "id":1,
+          "jsonrpc":"2.0",
+          "result": null
+        }
+    }
+]
+
