@@ -561,10 +561,10 @@ def get_json_from_response(msg, verbose_level: int, json_file, result: str, test
 
     if len(result) == 0:
         file = json_file.ljust(60)
-        print(f"{test_number:03d}. {file} Failed [" + msg + "]  (json response is zero length)")
-        if verbose_level:
-            print(msg)
-            print("Failed (json response zero length)")
+        if verbose_level == 0:
+            print(f"{test_number:03d}. {file} Failed [" + msg + "]  (json response is zero length, maybe server is down)")
+        else:
+            print("Failed [" + msg + "]  (response zero length, maybe server is down)")
         if exit_on_fail:
             print("TEST ABORTED!")
             sys.exit(1)
@@ -631,9 +631,10 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             sys.exit(1)
 
     if verbose_level > 1:
-        print("\n", target)
+        print("\n target:", target)
         print(request_dumps)
         print("Response.len:", len(result))
+        print("Response:",result)
     return result
 
 
@@ -721,6 +722,16 @@ def process_response(net, result, result1, response_in_file: str, verbose_level:
             print("OK")
         dump_jsons(force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
         return 1
+
+    if response is None:
+        if verbose_level:
+            print("Failed [" + daemon_under_test + "] (server doesn't response)")
+        return 0
+
+    if expected_response is None:
+        if verbose_level:
+            print("Failed [" + daemon_as_reference + "] (server doesn't response)")
+        return 0
 
     if response != expected_response:
         if "result" in response and "result" in expected_response and expected_response["result"] is None:
