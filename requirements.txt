@@ -1,8 +1,10 @@
 cpplint
 jsondiff
 psutil
+pylint
 pytz
 pyjwt
+requests
 web3
 websocket-client
-pylint==2.11.*
+websockets
