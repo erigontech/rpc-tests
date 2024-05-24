@@ -14,7 +14,6 @@ import jwt
 from websockets.sync.client import connect
 from websockets.extensions import permessage_deflate
 
-
 SILK = "silk"
 RPCDAEMON = "rpcdaemon"
 EXTERNAL_PROVIDER = "external-provider"
@@ -76,69 +75,67 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # json too big
 
     "mainnet/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
-    "mainnet/debug_traceTransaction/test_02.tar", # diff on gasCost
+    "mainnet/debug_traceTransaction/test_02.tar",  # diff on gasCost
 
     "mainnet/debug_traceCall/test_02.json",  # diff on gasCost
-    "mainnet/debug_traceCall/test_04.json", # diff on gasCost
+    "mainnet/debug_traceCall/test_04.json",  # diff on gasCost
     "mainnet/debug_traceCall/test_05.tar",  # diff on gasCost
-    "mainnet/debug_traceCall/test_06.tar", # diff on gasCost
+    "mainnet/debug_traceCall/test_06.tar",  # diff on gasCost
     "mainnet/debug_traceCall/test_08.tar",  # diff on gasCost
-    "mainnet/debug_traceCall/test_10.tar", # diff on gasCost
 
-    "mainnet/trace_block/test_01.json", # diff on action
-    "mainnet/trace_block/test_04.tar", # diff on gasCost
-    "mainnet/trace_block/test_05.tar", # diff on gasCost
-    "mainnet/trace_block/test_15.tar", # diff on call
-    "mainnet/trace_block/test_19.tar", # diff on gasCost
-    "mainnet/trace_block/test_20.tar", # diff on callType
+    "mainnet/debug_traceCall/test_10.tar",  # diff on gasCost
 
-    "mainnet/trace_call/test_03.json", # diff on callType
-    "mainnet/trace_call/test_07.json", # diff on callType
-    "mainnet/trace_call/test_08.tar", # diff on callType
-    "mainnet/trace_call/test_09.json", # diff on callType
-    "mainnet/trace_call/test_10.json", # diff on callType
-    "mainnet/trace_call/test_11.tar", # diff on callType
-    "mainnet/trace_call/test_12.json", # diff on callType
-    "mainnet/trace_call/test_15.json", # diff on callType
-    "mainnet/trace_call/test_16.json", # diff on callType
-    "mainnet/trace_call/test_17.tar", # diff on callType
+    "mainnet/trace_block/test_01.json",  # diff on action
+    "mainnet/trace_block/test_04.tar",  # diff on gasCost
+    "mainnet/trace_block/test_05.tar",  # diff on gasCost
+    "mainnet/trace_block/test_15.tar",  # diff on call
+    "mainnet/trace_block/test_19.tar",  # diff on gasCost
+    "mainnet/trace_block/test_20.tar",  # diff on callType
 
-    "mainnet/trace_replayTransaction/test_02.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_03.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_04.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_05.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_06.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_07.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_08.json", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_09.json", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_10.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_11.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_14.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_16.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_18.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_23.tar", # diff on gasCost
-    "mainnet/trace_replayTransaction/test_24.json", # diff on gasCost
+    "mainnet/trace_call/test_07.json",  # diff on callType
+    "mainnet/trace_call/test_08.tar",  # diff on callType
+    "mainnet/trace_call/test_11.tar",  # diff on callType
+    "mainnet/trace_call/test_12.json",  # diff on callType
+    "mainnet/trace_call/test_15.json",  # diff on callType
+    "mainnet/trace_call/test_16.json",  # diff on callType
+    "mainnet/trace_call/test_17.tar",  # diff on callType
 
-    "mainnet/trace_replayBlockTransactions/test_01.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_02.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_03.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_04.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_05.tar", # too big
-    "mainnet/trace_replayBlockTransactions/test_07.json", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_08.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_09.json", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_10.json", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_11.json", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_12.json", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_13.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_14.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_15.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_16.tar", # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_17.tar", # diff on gasCost and too big
-    "mainnet/trace_replayBlockTransactions/test_18.tar", # diff on gasCost and too big
-    "mainnet/trace_replayBlockTransactions/test_19.tar", # diff on gasCost and too big
-    "mainnet/trace_replayBlockTransactions/test_20.tar", # diff on gasCost and too big
-    "mainnet/trace_replayBlockTransactions/test_21.tar" # diff on gasCost and too big
+    "mainnet/trace_replayTransaction/test_02.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_03.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_04.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_05.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_06.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_07.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_08.json",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_09.json",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_10.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_11.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_14.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_16.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_18.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_23.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost
+
+    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_02.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_05.tar",  # too big
+    "mainnet/trace_replayBlockTransactions/test_07.json",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_09.json",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_10.json",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_11.json",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_12.json",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_13.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_14.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_15.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_16.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_17.tar",  # diff on gasCost and too big
+    "mainnet/trace_replayBlockTransactions/test_18.tar",  # diff on gasCost and too big
+    "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on gasCost and too big
+    "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on gasCost and too big
+    "mainnet/trace_replayBlockTransactions/test_21.tar"  # diff on gasCost and too big
 ]
 
 tests_not_compared_result = [
@@ -378,6 +375,7 @@ def is_not_compared_message(test_name, net: str):
             return 1
     return 0
 
+
 def is_not_compared_error(test_name, net: str):
     """ determine if test not compared error field
     """
@@ -386,6 +384,7 @@ def is_not_compared_error(test_name, net: str):
         if curr_test_name == test_full_name:
             return 1
     return 0
+
 
 def is_message_to_be_converted(test_name, net: str):
     """ determine if test not compared result
@@ -432,11 +431,11 @@ class Config:
         """ process user command """
         try:
             opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:CT:",
-                   ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
-                   'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
-                   'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=', 'compression',
-                   'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'dump-response',
-                   'without-compare-results'])
+                                    ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
+                                     'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
+                                     'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
+                                     'compression', 'transport_type=', 'exclude-api-list=', 'exclude-test-list=',
+                                     'dump-response', 'without-compare-results'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
@@ -445,7 +444,8 @@ class Config:
                     self.exit_on_fail = 0
                 elif option in ("-r", "--erigon-rpcdaemon"):
                     if self.verify_with_daemon == 1:
-                        print("Error on options: -r/--erigon-rpcdaemon is not compatible with -d/--compare-erigon-rpcdaemon")
+                        print("Error on options: "
+                              "-r/--erigon-rpcdaemon is not compatible with -d/--compare-erigon-rpcdaemon")
                         usage(argv)
                         sys.exit(1)
                     self.daemon_under_test = RPCDAEMON
@@ -462,7 +462,9 @@ class Config:
                     self.verbose_level = int(optarg)
                 elif option in ("-t", "--run-single-test"):
                     if self.exclude_test_list != "" or self.exclude_api_list != "":
-                        print("Error on options: -t/--run-single-test is not compatible with -x/--exclude-api-list or -X/--exclude-test-list")
+                        print("Error on options: "
+                              "-t/--run-single-test is not compatible with -x/--exclude-api-list or"
+                              " -X/--exclude-test-list")
                         usage(argv)
                         sys.exit(1)
                     self.req_test_number = int(optarg)
@@ -470,7 +472,8 @@ class Config:
                     self.start_test = int(optarg)
                 elif option in ("-a", "--api-list"):
                     if self.exclude_api_list != "":
-                        print("Error on options: -a/--api-list is not compatible with -X/--exclude-test-list")
+                        print("Error on options: "
+                              "-a/--api-list is not compatible with -X/--exclude-test-list")
                         usage(argv)
                         sys.exit(1)
                     self.testing_apis = optarg
@@ -478,11 +481,13 @@ class Config:
                     self.loop_number = int(optarg)
                 elif option in ("-d", "--compare-erigon-rpcdaemon"):
                     if self.daemon_under_test != SILK:
-                        print("Error in options: -d/--compare-erigon-rpcdaemon is not compatible with -r/--erigon-rpcdaemon")
+                        print("Error in options: "
+                              "-d/--compare-erigon-rpcdaemon is not compatible with -r/--erigon-rpcdaemon")
                         usage(argv)
                         sys.exit(1)
                     if self.without_compare_results is True:
-                        print("Error in options: -d/--compare-erigon-rpcdaemon is not compatible with -i/--without_compare_results")
+                        print("Error in options: "
+                              "-d/--compare-erigon-rpcdaemon is not compatible with -i/--without_compare_results")
                         usage(argv)
                         sys.exit(1)
                     self.verify_with_daemon = 1
@@ -495,8 +500,8 @@ class Config:
                         sys.exit(1)
                     tokenize_list = optarg.split(",")
                     for test in tokenize_list:
-                        if test not in ['websocket','http']:
-                            print("Error invalid connection type: ",test)
+                        if test not in ['websocket', 'http']:
+                            print("Error invalid connection type: ", test)
                             print("Error in options: -T/--transport_type http,websocket")
                             usage(argv)
                             sys.exit(1)
@@ -507,13 +512,15 @@ class Config:
                     self.output_dir = self.json_dir + self.results_dir + "/"
                 elif option in ("-x", "--exclude-api-list"):
                     if self.req_test_number != -1 or self.testing_apis != "":
-                        print("Error in options: -x/--exclude-api-list is not compatible with -a/--api-list or -t/--run-single-test")
+                        print("Error in options: "
+                              "-x/--exclude-api-list is not compatible with -a/--api-list or -t/--run-single-test")
                         usage(argv)
                         sys.exit(1)
                     self.exclude_api_list = optarg
                 elif option in ("-X", "--exclude-test-list"):
                     if self.req_test_number != -1:
-                        print("Error in options: -X/--exclude-test-list is not compatible with -t/--run-single-test")
+                        print("Error in options: "
+                              "-X/--exclude-test-list is not compatible with -t/--run-single-test")
                         usage(argv)
                         sys.exit(1)
                     self.exclude_test_list = optarg
@@ -525,7 +532,8 @@ class Config:
                         sys.exit(1)
                 elif option in ("-i", "--without-compare-results"):
                     if self.verify_with_daemon == 1:
-                        print("Error on options: -i/--without-compare-results is not compatible with -d/--compare-erigon-rpcdaemon")
+                        print("Error on options: "
+                              "-i/--without-compare-results is not compatible with -d/--compare-erigon-rpcdaemon")
                         usage(argv)
                         sys.exit(1)
                     self.without_compare_results = True
@@ -547,7 +555,7 @@ class Config:
 
 
 def get_json_from_response(msg, verbose_level: int, json_file, result: str, test_number, exit_on_fail: int):
-    """ retrieve json from response """
+    """ Retrieve JSON from response """
     if verbose_level > 2:
         print(msg + " :[" + result + "]")
 
@@ -590,7 +598,8 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
                 json_file_ptr.write(json.dumps(expected_response, indent=2, sort_keys=True))
 
 
-def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int, compression: bool):
+def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int,
+                    compression: bool):
     """ execute request on server identified by target """
     if transport_type == "http":
         options = jwt_auth
@@ -601,18 +610,19 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
     else:
         ws_target = "ws://" + target  # use websocket
         if compression:
-            selected_compression='deflate'
-            curr_extensions=[
-                 permessage_deflate.ClientPerMessageDeflateFactory(
-                     client_max_window_bits=15,
-                     compress_settings={"memLevel": 4}
-                 ),
+            selected_compression = 'deflate'
+            curr_extensions = [
+                permessage_deflate.ClientPerMessageDeflateFactory(
+                    client_max_window_bits=15,
+                    compress_settings={"memLevel": 4}
+                ),
             ]
         else:
-            selected_compression=None
-            curr_extensions=None
+            selected_compression = None
+            curr_extensions = None
         try:
-            with connect(ws_target, max_size=1000048576, compression=selected_compression, extensions=curr_extensions) as websocket:
+            with connect(ws_target, max_size=1000048576, compression=selected_compression,
+                         extensions=curr_extensions) as websocket:
                 websocket.send(request_dumps)
                 result = websocket.recv(None)
         except:
@@ -621,16 +631,16 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             sys.exit(1)
 
     if verbose_level > 1:
-        print ("\n target:",target)
-        print (request_dumps)
-        print ("Response.len:",len(result))
-        print ("Response:",result)
+        print("\n target:", target)
+        print(request_dumps)
+        print("Response.len:", len(result))
+        print("Response:",result)
     return result
 
 
 def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: str, verbose_level, test_number,
                  exit_on_fail: int):
-    """ Compare jsos response. """
+    """ Compare JSON response. """
     temp_file1 = "/tmp/silk_lower_case"
     temp_file2 = "/tmp/rpc_lower_case"
 
@@ -664,7 +674,7 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
         modified_str_from_file(silk_file, temp_file2, modified_string)
         cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
     #        elif is_big_json(json_file, net):
-    #            cmd = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file
+    #            tools = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file
     else:
         cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
     os.system(cmd)
@@ -808,7 +818,8 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
             jwt_auth = "-H \"Authorization: Bearer " + str(encoded) + "\" "
         if verify_with_daemon == 0:  # compare daemon result with file
-            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, verbose_level, compression)
+            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, verbose_level,
+                                     compression)
             result1 = ""
             response_in_file = json_rpc["response"]
 
@@ -820,9 +831,11 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             exp_rsp_file = output_api_filename + "expResponse.json"
         else:  # run tests with both servers
             target = get_target(SILK, method, external_provider_url, daemon_on_host, daemon_on_port)
-            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, verbose_level, compression)
+            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, verbose_level,
+                                     compression)
             target1 = get_target(daemon_as_reference, method, external_provider_url, daemon_on_host, daemon_on_port)
-            result1 = execute_request(transport_type, jwt_auth, encoded, request_dumps, target1, verbose_level, compression)
+            result1 = execute_request(transport_type, jwt_auth, encoded, request_dumps, target1, verbose_level,
+                                      compression)
             response_in_file = None
 
             output_api_filename = output_dir + json_file[:-4]
@@ -860,7 +873,7 @@ def main(argv) -> int:
     config = Config()
     config.select_user_options(argv)
 
-    tstart = datetime.now()
+    start_time = datetime.now()
     os.mkdir(config.output_dir)
     match = 0
     executed_tests = 0
@@ -885,11 +898,13 @@ def main(argv) -> int:
                 test_lists = sorted(os.listdir(test_dir))
                 test_number = 1
                 for test_name in test_lists:  # scan all json test present in the dir
-                    if (test_name in ["json", "zip", "gzip"] == 0):  # if file doesn't terminate with .json, .gzip, .tar jump it
+                    if (test_name in ["json", "zip",
+                                      "gzip"] == 0):  # if file doesn't terminate with .json, .gzip, .tar jump it
                         continue
                     if is_testing_apis(api_name, config.testing_apis):  # -a or all
                         test_file = api_name + "/" + test_name
-                        if is_skipped(api_name, config.net, config.exclude_api_list, config.exclude_test_list, test_file,
+                        if is_skipped(api_name, config.net, config.exclude_api_list, config.exclude_test_list,
+                                      test_file,
                                       config.req_test_number,
                                       config.verify_with_daemon, test_number_in_any_loop) == 1:
                             if config.start_test == "" or test_number_in_any_loop >= int(config.start_test):
@@ -901,10 +916,12 @@ def main(argv) -> int:
                             # runs all tests or
                             # runs single global test
                             # runs only tests a specific test_number in the testing_apis list
-                            if ((config.testing_apis == "" and config.req_test_number in (-1, test_number_in_any_loop)) or
-                                (config.testing_apis != "" and config.req_test_number in (-1, test_number))):
-                                if (config.start_test == "" or # start from specific test
-                                    (config.start_test != "" and test_number_in_any_loop >= int(config.start_test))):
+                            if ((config.testing_apis == "" and config.req_test_number in (
+                                    -1, test_number_in_any_loop)) or
+                                    (config.testing_apis != "" and config.req_test_number in (-1, test_number))):
+                                if (config.start_test == "" or  # start from specific test
+                                        (config.start_test != "" and test_number_in_any_loop >= int(
+                                            config.start_test))):
                                     file = test_file.ljust(60)
                                     curr_tt = transport_type.ljust(8)
                                     if config.verbose_level:
@@ -912,17 +929,17 @@ def main(argv) -> int:
                                     else:
                                         print(f"{test_number_in_any_loop:03d}. {curr_tt}::{file}\r", end='', flush=True)
                                     ret = run_test(config.net, config.json_dir, config.output_dir,
-                                               test_file,
-                                               config.verbose_level, config.daemon_under_test,
-                                               config.exit_on_fail, config.verify_with_daemon,
-                                               config.daemon_as_reference,
-                                               config.force_dump_jsons, test_number_in_any_loop,
-                                               config.external_provider_url,
-                                               config.daemon_on_host, config.daemon_on_port,
-                                               config.jwt_secret,
-                                               transport_type,
-                                               config.without_compare_results,
-                                               config.compression)
+                                                   test_file,
+                                                   config.verbose_level, config.daemon_under_test,
+                                                   config.exit_on_fail, config.verify_with_daemon,
+                                                   config.daemon_as_reference,
+                                                   config.force_dump_jsons, test_number_in_any_loop,
+                                                   config.external_provider_url,
+                                                   config.daemon_on_host, config.daemon_on_port,
+                                                   config.jwt_secret,
+                                                   transport_type,
+                                                   config.without_compare_results,
+                                                   config.compression)
                                     if ret == 1:
                                         success_tests = success_tests + 1
                                     else:
@@ -939,8 +956,7 @@ def main(argv) -> int:
         print("ERROR: api or testNumber not found")
         return 1
 
-    tend = datetime.now()
-    elapsed = tend - tstart
+    elapsed = datetime.now() - start_time
     print("                                                                                    \r")
     print(f"Test time-elapsed:            {str(elapsed)}")
     print(f"Number of executed tests:     {executed_tests}/{global_test_number - 1}")

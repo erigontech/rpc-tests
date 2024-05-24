@@ -13,9 +13,7 @@
           "value": "0x46E4DEB133863000"
         },
         [
-          "vmTrace",
-          "trace",
-          "stateDiff"
+          "trace"
         ],
         "0x4366AC"
       ]
@@ -25,30 +23,7 @@
       "jsonrpc": "2.0",
       "result": {
         "output": "0x",
-        "stateDiff": {
-          "0xb5772b3a6be702d0387770c64bf17e36a4d38188": {
-            "balance": {
-              "*": {
-                "from": "0x1400",
-                "to": "0x141bbd716dd400"
-              }
-            },
-            "code": "=",
-            "nonce": "=",
-            "storage": {}
-          },
-          "0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
-            "balance": {
-              "*": {
-                "from": "0x1a682e1d5e4daffba3",
-                "to": "0x1a6831e16ec9263ba3"
-              }
-            },
-            "code": "=",
-            "nonce": "=",
-            "storage": {}
-          }
-        },
+        "stateDiff": null,
         "trace": [
           {
             "action": {
@@ -57,17 +32,17 @@
               "init": "0x",
               "value": "0x46e4deb133863000"
             },
-            "error": "insufficient balance for transfer",
-            "result": null,
+            "result": {
+              "address": "0xf33cd02c8682f0c1f5d3f05c89aba0d5f38db8de",
+              "code": "0x",
+              "gasUsed": "0x0"
+            },
             "subtraces": 0,
             "traceAddress": [],
             "type": "create"
           }
         ],
-        "vmTrace": {
-          "code": "0x",
-          "ops": []
-        }
+        "vmTrace": null
       }
     }
   }
