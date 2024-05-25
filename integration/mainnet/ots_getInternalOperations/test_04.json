@@ -1,0 +1,17 @@
+[
+  {
+    "request":{
+      "jsonrpc":"2.0",
+      "method":"ots_getInternalOperations",
+      "params":[
+        "0x2f4de949cf3199962492c70b233c5111eed7ac7b7d9cd519bef102388c0482b4"
+      ],
+      "id":1
+    },
+    "response":{
+      "jsonrpc":"2.0",
+      "id":1,
+      "result":[]
+    }
+  }
+]
