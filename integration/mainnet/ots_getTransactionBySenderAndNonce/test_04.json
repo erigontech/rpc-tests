@@ -1,0 +1,16 @@
+[
+   {
+        "request":{
+            "jsonrpc":"2.0",
+            "method":"ots_getTransactionBySenderAndNonce",
+            "params":["0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990", 123],
+            "id":1
+        },
+        "response":{
+            "jsonrpc":"2.0",
+            "id":1,
+            "result":"0xd903f97c40b7f158970ece99a0385f4b14d0d10695e9cbab6aabfd8bbc6109aa"
+        }
+    }
+]
+

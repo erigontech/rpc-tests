@@ -1,0 +1,15 @@
+[
+  {
+    "request": {
+      "jsonrpc":"2.0",
+      "method":"ots_hasCode",
+      "params":["0x6d2e03b7EfFEae98BD302A9F836D0d6Ab0002766", "0x1036640"],
+      "id":1
+    },
+    "response": {
+      "id":1,
+      "jsonrpc":"2.0",
+      "result":false
+    }
+  }
+]
