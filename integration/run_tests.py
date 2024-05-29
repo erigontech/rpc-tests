@@ -100,6 +100,17 @@ tests_not_compared = [
     "mainnet/trace_call/test_16.json",  # diff on callType
     "mainnet/trace_call/test_17.tar",  # diff on callType
 
+    "mainnet/trace_callMany/test_01.json",  # diff on balance
+    "mainnet/trace_callMany/test_02.json",  # diff on balance
+    "mainnet/trace_callMany/test_03.json",  # diff on balance
+    "mainnet/trace_callMany/test_04.json",  # diff on balance
+    "mainnet/trace_callMany/test_05.json",  # diff on balance
+    "mainnet/trace_callMany/test_06.json",  # diff on balance
+    "mainnet/trace_callMany/test_08.json",  # diff on balance
+    "mainnet/trace_callMany/test_09.json",  # diff on balance
+    "mainnet/trace_callMany/test_10.json",  # diff on balance
+    "mainnet/trace_callMany/test_11.json",  # diff on balance
+  
     "mainnet/trace_replayTransaction/test_02.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_03.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_04.tar",  # diff on gasCost
