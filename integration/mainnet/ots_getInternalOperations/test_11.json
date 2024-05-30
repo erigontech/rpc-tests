@@ -1,0 +1,20 @@
+[
+  {
+    "request":{
+      "jsonrpc":"2.0",
+      "method":"ots_getInternalOperations",
+      "params":[
+        "0xfffffff807742d71590baec64507cba6229f60b74285e21115a149d87d1c373b"
+      ],
+      "id":1
+    },
+    "response":{
+      "error": {
+           "code": -32000,
+           "message": "transaction 0xfffffff807742d71590baec64507cba6229f60b74285e21115a149d87d1c373b not found"
+      },
+      "jsonrpc":"2.0",
+      "id":1
+    }
+  }
+]
