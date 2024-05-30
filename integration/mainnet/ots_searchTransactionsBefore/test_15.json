@@ -10,8 +10,8 @@
           "jsonrpc":"2.0",
           "id":1,
           "result": {
-            "firstPage": true,
-            "lastPage": false,
+            "firstPage": false,
+            "lastPage": true,
             "receipts": [],
             "txs": []
           }
