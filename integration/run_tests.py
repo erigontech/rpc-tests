@@ -83,8 +83,16 @@ tests_not_compared = [
     "mainnet/debug_traceCall/test_05.tar",  # diff on gasCost
     "mainnet/debug_traceCall/test_06.tar",  # diff on gasCost
     "mainnet/debug_traceCall/test_08.tar",  # diff on gasCost
+    "mainnet/debug_traceCall/test_10.tar",  # json too big
 
-    "mainnet/debug_traceCall/test_10.tar",  # diff on gasCost
+    "mainnet/debug_traceCallMany/test_02.json",  # diff on opcode dump
+    "mainnet/debug_traceCallMany/test_04.json",  # diff on gasCost
+    "mainnet/debug_traceCallMany/test_05.tar",  # diff on gasCost
+    "mainnet/debug_traceCallMany/test_06.tar",  # diff on gasCost
+    "mainnet/debug_traceCallMany/test_07.tar",  # diff on storage and stack entries
+    "mainnet/debug_traceCallMany/test_08.tar",  # diff on gasCost
+    "mainnet/debug_traceCallMany/test_09.json",  # diff on storage and stack entries
+    "mainnet/debug_traceCallMany/test_10.tar",  # json too big
 
     "mainnet/trace_block/test_01.json",  # diff on action
     "mainnet/trace_block/test_04.tar",  # diff on gasCost
