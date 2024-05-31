@@ -1,0 +1,17 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_getRawTransactionByHash",
+      "params": [
+        "0x496eabfa43bb9fe6bacaad5818880b987d35ae19d4a2dff33fd5360c68860790"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0xf86b06850129f773108252089477e3205329fe307d0b3b1489d1ad69abb9570a0b870db0fbbcea73808026a0f9d18134034d011058aa910412fc1a270e4bff25fff0e58c21f2c99cb2735beaa02012fb3480e87cec793283b23e984a96b33a4d8edd5f2639dd77da25ed94546b"
+    }
+  }
+]
