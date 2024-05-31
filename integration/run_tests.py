@@ -35,7 +35,8 @@ api_not_compared = [
     "goerli/engine_getPayloadV2",  # not supported by silkrpc removed from ethbackend i/f
     "goerli/engine_newPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
     "goerli/engine_newPayloadV2",  # not supported by silkrpc removed from ethbackend i/f
-    "mainnet/erigon_watchTheBurn"  # not supported by rpcdaemon
+    "mainnet/erigon_watchTheBurn", # not supported by rpcdaemon
+    "mainnet/engine_getClientVersionV1" # not supported by rpcdaemon
 ]
 
 tests_not_compared = [
@@ -146,7 +147,8 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_18.tar",  # diff on gasCost and too big
     "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on gasCost and too big
     "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on gasCost and too big
-    "mainnet/trace_replayBlockTransactions/test_21.tar"  # diff on gasCost and too big
+    "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on gasCost and too big
+    "mainnet/engine_exchangeCapabilities/test_1.json" # dif on supported API 
 ]
 
 tests_not_compared_result = [
@@ -159,7 +161,7 @@ tests_not_compared_result = [
     "goerli/trace_callMany/test_05.json",  # error message different invalidOpcode vs badInstructions
     "goerli/trace_callMany/test_13.json",  # error message different invalidOpcode vs badInstructions
     "goerli/trace_callMany/test_14.tar",  # error message different invalidOpcode vs badInstructions
-    "goerli/trace_callMany/test_15.json"  # error message different invalidOpcode vs badInstructions
+    "goerli/trace_callMany/test_15.json",  # error message different invalidOpcode vs badInstructions
 ]
 
 tests_not_compared_message = [
