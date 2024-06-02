@@ -37,6 +37,7 @@ api_not_compared = [
     "goerli/engine_newPayloadV2",  # not supported by silkrpc removed from ethbackend i/f
     "mainnet/erigon_watchTheBurn",  # not supported by erigon
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
+    "mainnet/parity_getBlockReceipts",  # not supported by erigon
 ]
 
 tests_not_compared = [
