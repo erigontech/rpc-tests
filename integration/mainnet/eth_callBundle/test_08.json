@@ -1,0 +1,19 @@
+[
+   {
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_callBundle",
+            "params": [["0x5b520840fef569738e1b54589ff90fe6858076e8a582732a98fa7d0bd4c2b9a6"], "latest", 50000],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "error": {
+              "code": -32000,
+              "message": "internal failure: Cancun is active but ExcessBlobGas is nil"
+            }
+        }
+  }
+]
+

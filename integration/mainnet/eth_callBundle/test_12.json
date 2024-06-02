@@ -1,0 +1,19 @@
+[
+   {
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_callBundle",
+            "params": [["0xfffff840fef569738e1b54589ff90fe6858076e8a582732a98fa7d0bd4c2b9a6"], "0x112A880", 50000],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                 "bundleHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                 "results": []
+            }
+        }
+  }
+]
+
