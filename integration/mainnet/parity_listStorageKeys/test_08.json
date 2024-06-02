@@ -1,0 +1,24 @@
+[
+   {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"parity_listStorageKeys",
+            "params":[
+                "0xFD14567eaf9ba941cB8c8a94eEC14831ca7fD1b4",
+                2,
+                null,
+                "latest"
+            ],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": [
+               "0x0000000000000000000000000000000000000000000000000000000000000001",
+               "0x00001a374273796e8c24fde9780312002df32f4c5a9627c018d325f75e0f1691"
+           ]
+        }
+    }
+]
+
