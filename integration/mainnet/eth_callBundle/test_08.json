@@ -1,5 +1,10 @@
 [
    {
+        "test": {
+           "reference": "https://etherscan.io/tx/0x5b520840fef569738e1b54589ff90fe6858076e8a582732a98fa7d0bd4c2b9a6  on pre EIP1559 block",
+           "description": "tx post EIP1559 on block pre 1559"
+        },
+
         "request": {
             "jsonrpc": "2.0",
             "method": "eth_callBundle",

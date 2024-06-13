@@ -1,5 +1,10 @@
 [
    {
+        "test": {
+           "reference": "",
+           "description": "invalid transaction on latest"
+        },
+
         "request": {
             "jsonrpc": "2.0",
             "method": "eth_callBundle",
