@@ -130,6 +130,10 @@ tests_not_compared = [
     "mainnet/trace_filter/test_13.json",  # diff on result field missing (fix easy)
     "mainnet/trace_filter/test_14.json",  # diff on on gasUsed for call
 
+    "mainnet/trace_rawTransaction/test_01.json",  # as executed on latest block
+    "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
+    "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
+
     "mainnet/trace_replayTransaction/test_02.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_03.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_04.tar",  # diff on gasCost
