@@ -1,0 +1,23 @@
+[
+   {
+       "test": {
+           "reference": "https://etherscan.io/tx/0xae3f0896814b8598decc725788b40ec3c0f5f56adbdcb443b35669db23fe3148 on block https://etherscan.io/block/10000000",
+           "description": "tx pre EIP-1559 on block post EIP-1559"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_callBundle",
+            "params": [["0xae3f0896814b8598decc725788b40ec3c0f5f56adbdcb443b35669db23fe3148"], "0x112A880", 50000],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32000,
+                "message": "insufficient funds for gas * price + value: address 0x263e47386006bc8e84872b8976dd4675da640bf6 have 1481561298817362 want 40061769000000000"
+              }
+        }
+  }
+]
+

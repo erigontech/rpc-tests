@@ -1,0 +1,29 @@
+[
+  {
+        "test": {
+           "reference": "https://etherscan.io/tx/0xe0ec7848bbd448b11a85dae2fd5e276dd0ea66fd774f5803578933ad0b52251e on block https://etherscan.io/block/17999490",
+           "description": "tx post EIP-1559 on block post EIP-1559"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_callBundle",
+            "params": [["0xe0ec7848bbd448b11a85dae2fd5e276dd0ea66fd774f5803578933ad0b52251e"], "0x112A682", 50000],
+            "id": 1
+        },
+        "response": {
+           "id": 1,
+           "jsonrpc": "2.0",
+           "result": {
+             "bundleHash": "0xb5f9ca3716ee6c6893ce666fad51b6363eec6ab8e2b089c9b3e9ead24c47f461",
+             "results": [
+               {
+                 "error": "execution reverted",
+                 "gasUsed": 159965,
+                 "txHash": "0xe0ec7848bbd448b11a85dae2fd5e276dd0ea66fd774f5803578933ad0b52251e"
+               }
+             ]
+          }
+        }
+   }
+]
+
