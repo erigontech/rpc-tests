@@ -6,19 +6,18 @@
       "method": "trace_filter",
       "params": [
         {
-          "fromBlock": "0x6DDD03",
-          "toBlock": "0x6DDD02"
+          "fromBlock": "0x1C9C380",
+          "toBlock": "0x1C9C381"
         }
       ]
     },
     "response": {
       "error": {
         "code": -32000,
-        "message": "invalid parameters: fromBlock cannot be greater than toBlock"
+        "message": "invalid parameters: fromBlock not found"
       },
       "id": 1,
-      "jsonrpc": "2.0",
-      "result": null
+      "jsonrpc": "2.0"
     }
   }
 ]
