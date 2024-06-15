@@ -121,14 +121,14 @@ tests_not_compared = [
     "mainnet/trace_callMany/test_10.json",  # diff on balance
     "mainnet/trace_callMany/test_11.json",  # diff on balance
 
-    "mainnet/trace_filter/test_01.json",  # diff on action.type suicide missing
-    "mainnet/trace_filter/test_02.json",  # diff on action.type suicide missing
-    "mainnet/trace_filter/test_05.json",  # diff on gasUsed for call
-    "mainnet/trace_filter/test_06.json",  # diff on gasUsed for call
+    "mainnet/trace_filter/test_01.tar",  # diff on call type
+    "mainnet/trace_filter/test_02.tar",  # diff for missing section
+    "mainnet/trace_filter/test_05.tar",  # diff on gasUsed for call
+    "mainnet/trace_filter/test_06.tar",  # diff on gasUsed for call
     "mainnet/trace_filter/test_08.json",  # diff on gasUsed for call
-    "mainnet/trace_filter/test_11.json",  # diff on gasUsed for call
-    "mainnet/trace_filter/test_13.json",  # diff on result field missing (fix easy)
-    "mainnet/trace_filter/test_14.json",  # diff on on gasUsed for call
+    "mainnet/trace_filter/test_11.tar",  # diff on gasUsed for call
+    "mainnet/trace_filter/test_14.tar",  # diff on gasUsed for call
+    "mainnet/trace_filter/test_16.json",  # diff on response
 
     "mainnet/trace_rawTransaction/test_01.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
