@@ -25,7 +25,6 @@ api_not_compared = [
     "goerli/trace_rawTransaction",  # erigon does not support raw tx but hash of tx
     "goerli/parity_getBlockReceipts",  # not supported by erigon
     "goerli/erigon_watchTheBurn",  # not supported by erigon
-    "goerli/erigon_cumulativeChainTraffic",  # not supported by erigon
     "goerli/engine_exchangeCapabilities",  # not supported by silkrpc removed from ethbackend i/f
     "goerli/engine_forkchoiceUpdatedV1",  # not supported by silkrpc removed from ethbackend i/f
     "goerli/engine_forkchoiceUpdatedV2",  # not supported by silkrpc removed from ethbackend i/f
