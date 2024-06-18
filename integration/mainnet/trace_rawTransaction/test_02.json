@@ -14,12 +14,9 @@
       ]
     },
     "response": {
-      "error": {
-        "code": -32000,
-        "message": "fee cap less than block base fee: address 0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5, gasFeeCap: 1000000000 baseFee: 32031927475"
-      },
       "id": 1,
-      "jsonrpc": "2.0"
+      "jsonrpc": "2.0",
+      "result": null
     }
   }
 ]
