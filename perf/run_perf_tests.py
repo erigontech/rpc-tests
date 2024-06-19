@@ -576,14 +576,21 @@ class TestReport:
             })
         cmd = "vegeta report --type=json " + self.config.binary_file_full_pathname
         json_string = os.popen(cmd).read()
-        if json_string == "" :
-            print ("error in vegeta json")
-            sys.exit (1)
-
+        if json_string == "":
+            print("error in vegeta report --type=json")
+            sys.exit(1)
         json_object = json.loads(json_string)
+
+        cmd = "vegeta report --type=hdrplot " + self.config.binary_file_full_pathname
+        hdrplot_string = os.popen(cmd).read()
+        if hdrplot_string == "":
+            print("error in vegeta report --type=hdrplot")
+            sys.exit(1)
+
         self.json_test_report['results'][test_number-1]['testRepetitions'].append({
                'vegetaBinary': self.config.binary_file,
-               'vegetaReport': json_object
+               'vegetaReport': json_object,
+               'vegetaReportHdrPlot': hdrplot_string
         })
 
     def close(self):
