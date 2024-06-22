@@ -1,0 +1,21 @@
+[
+   {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_sendRawTransaction",
+            "params":[
+               "0x02f874820180843b9aca0085095025"
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "error":{
+                "code":-32000,
+                "message":"rlp: value size exceeds available input length"
+            }
+        }
+    }
+]
+
