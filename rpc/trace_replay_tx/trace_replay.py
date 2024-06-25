@@ -1,4 +1,4 @@
-
+#!/usr/bin/python3
 """ JSON RPC API scans DB """
 
 import getopt
