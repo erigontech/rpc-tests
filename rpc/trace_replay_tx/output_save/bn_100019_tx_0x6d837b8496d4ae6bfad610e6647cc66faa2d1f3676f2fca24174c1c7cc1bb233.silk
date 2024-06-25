@@ -1,0 +1,820 @@
+{
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+            "output": "0x",
+            "stateDiff": null,
+            "trace": [],
+            "transactionHash": "0x6d837b8496d4ae6bfad610e6647cc66faa2d1f3676f2fca24174c1c7cc1bb233",
+            "vmTrace": {
+                  "code": "0x60606040526000357c01000000000000000000000000000000000000000000000000000000009004806341c0e1b514610044578063cfae32171461005157610042565b005b61004f6004506100ca565b005b61005c60045061015e565b60405180806020018281038252838181518152602001915080519060200190808383829060006004602084601f0104600302600f01f150905090810190601f1680156100bc5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16141561015b57600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16ff5b5b565b60206040519081016040528060008152602001506001600050805480601f016020809104026020016040519081016040528092919081815260200182805480156101cd57820191906000526020600020905b8154815290600101906020018083116101b057829003601f168201915b505050505090506101d9565b9056",
+                  "ops": [
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x60"
+                                    ],
+                                    "store": null,
+                                    "used": 68725
+                              },
+                              "idx": "0-0",
+                              "op": "PUSH1",
+                              "pc": 0,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x40"
+                                    ],
+                                    "store": null,
+                                    "used": 68722
+                              },
+                              "idx": "0-1",
+                              "op": "PUSH1",
+                              "pc": 2,
+                              "sub": null
+                        },
+                        {
+                              "cost": 12,
+                              "ex": {
+                                    "mem": {
+                                          "data": "0x0000000000000000000000000000000000000000000000000000000000000060",
+                                          "off": 64
+                                    },
+                                    "push": [],
+                                    "store": null,
+                                    "used": 68710
+                              },
+                              "idx": "0-2",
+                              "op": "MSTORE",
+                              "pc": 4,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x0"
+                                    ],
+                                    "store": null,
+                                    "used": 68707
+                              },
+                              "idx": "0-3",
+                              "op": "PUSH1",
+                              "pc": 5,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x41c0e1b500000000000000000000000000000000000000000000000000000000"
+                                    ],
+                                    "store": null,
+                                    "used": 68704
+                              },
+                              "idx": "0-4",
+                              "op": "CALLDATALOAD",
+                              "pc": 7,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x100000000000000000000000000000000000000000000000000000000"
+                                    ],
+                                    "store": null,
+                                    "used": 68701
+                              },
+                              "idx": "0-5",
+                              "op": "PUSH29",
+                              "pc": 8,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x100000000000000000000000000000000000000000000000000000000",
+                                          "0x41c0e1b500000000000000000000000000000000000000000000000000000000"
+                                    ],
+                                    "store": null,
+                                    "used": 68698
+                              },
+                              "idx": "0-6",
+                              "op": "SWAP1",
+                              "pc": 38,
+                              "sub": null
+                        },
+                        {
+                              "cost": 5,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x41c0e1b5"
+                                    ],
+                                    "store": null,
+                                    "used": 68693
+                              },
+                              "idx": "0-7",
+                              "op": "DIV",
+                              "pc": 39,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x41c0e1b5",
+                                          "0x41c0e1b5"
+                                    ],
+                                    "store": null,
+                                    "used": 68690
+                              },
+                              "idx": "0-8",
+                              "op": "DUP1",
+                              "pc": 40,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x41c0e1b5"
+                                    ],
+                                    "store": null,
+                                    "used": 68687
+                              },
+                              "idx": "0-9",
+                              "op": "PUSH4",
+                              "pc": 41,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x1"
+                                    ],
+                                    "store": null,
+                                    "used": 68684
+                              },
+                              "idx": "0-10",
+                              "op": "EQ",
+                              "pc": 46,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x44"
+                                    ],
+                                    "store": null,
+                                    "used": 68681
+                              },
+                              "idx": "0-11",
+                              "op": "PUSH2",
+                              "pc": 47,
+                              "sub": null
+                        },
+                        {
+                              "cost": 10,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [],
+                                    "store": null,
+                                    "used": 68671
+                              },
+                              "idx": "0-12",
+                              "op": "JUMPI",
+                              "pc": 50,
+                              "sub": null
+                        },
+                        {
+                              "cost": 1,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [],
+                                    "store": null,
+                                    "used": 68670
+                              },
+                              "idx": "0-13",
+                              "op": "JUMPDEST",
+                              "pc": 68,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x4f"
+                                    ],
+                                    "store": null,
+                                    "used": 68667
+                              },
+                              "idx": "0-14",
+                              "op": "PUSH2",
+                              "pc": 69,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x4"
+                                    ],
+                                    "store": null,
+                                    "used": 68664
+                              },
+                              "idx": "0-15",
+                              "op": "PUSH1",
+                              "pc": 72,
+                              "sub": null
+                        },
+                        {
+                              "cost": 2,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [],
+                                    "store": null,
+                                    "used": 68662
+                              },
+                              "idx": "0-16",
+                              "op": "POP",
+                              "pc": 74,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0xca"
+                                    ],
+                                    "store": null,
+                                    "used": 68659
+                              },
+                              "idx": "0-17",
+                              "op": "PUSH2",
+                              "pc": 75,
+                              "sub": null
+                        },
+                        {
+                              "cost": 8,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [],
+                                    "store": null,
+                                    "used": 68651
+                              },
+                              "idx": "0-18",
+                              "op": "JUMP",
+                              "pc": 78,
+                              "sub": null
+                        },
+                        {
+                              "cost": 1,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [],
+                                    "store": null,
+                                    "used": 68650
+                              },
+                              "idx": "0-19",
+                              "op": "JUMPDEST",
+                              "pc": 202,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x0"
+                                    ],
+                                    "store": null,
+                                    "used": 68647
+                              },
+                              "idx": "0-20",
+                              "op": "PUSH1",
+                              "pc": 203,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x0"
+                                    ],
+                                    "store": null,
+                                    "used": 68644
+                              },
+                              "idx": "0-21",
+                              "op": "PUSH1",
+                              "pc": 205,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x0",
+                                          "0x0"
+                                    ],
+                                    "store": null,
+                                    "used": 68641
+                              },
+                              "idx": "0-22",
+                              "op": "SWAP1",
+                              "pc": 207,
+                              "sub": null
+                        },
+                        {
+                              "cost": 50,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68591
+                              },
+                              "idx": "0-23",
+                              "op": "SLOAD",
+                              "pc": 208,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7",
+                                          "0x0"
+                                    ],
+                                    "store": null,
+                                    "used": 68588
+                              },
+                              "idx": "0-24",
+                              "op": "SWAP1",
+                              "pc": 209,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x100"
+                                    ],
+                                    "store": null,
+                                    "used": 68585
+                              },
+                              "idx": "0-25",
+                              "op": "PUSH2",
+                              "pc": 210,
+                              "sub": null
+                        },
+                        {
+                              "cost": 10,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x1"
+                                    ],
+                                    "store": null,
+                                    "used": 68575
+                              },
+                              "idx": "0-26",
+                              "op": "EXP",
+                              "pc": 213,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x1",
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68572
+                              },
+                              "idx": "0-27",
+                              "op": "SWAP1",
+                              "pc": 214,
+                              "sub": null
+                        },
+                        {
+                              "cost": 5,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68567
+                              },
+                              "idx": "0-28",
+                              "op": "DIV",
+                              "pc": 215,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0xffffffffffffffffffffffffffffffffffffffff"
+                                    ],
+                                    "store": null,
+                                    "used": 68564
+                              },
+                              "idx": "0-29",
+                              "op": "PUSH20",
+                              "pc": 216,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68561
+                              },
+                              "idx": "0-30",
+                              "op": "AND",
+                              "pc": 237,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0xffffffffffffffffffffffffffffffffffffffff"
+                                    ],
+                                    "store": null,
+                                    "used": 68558
+                              },
+                              "idx": "0-31",
+                              "op": "PUSH20",
+                              "pc": 238,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68555
+                              },
+                              "idx": "0-32",
+                              "op": "AND",
+                              "pc": 259,
+                              "sub": null
+                        },
+                        {
+                              "cost": 2,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68553
+                              },
+                              "idx": "0-33",
+                              "op": "CALLER",
+                              "pc": 260,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0xffffffffffffffffffffffffffffffffffffffff"
+                                    ],
+                                    "store": null,
+                                    "used": 68550
+                              },
+                              "idx": "0-34",
+                              "op": "PUSH20",
+                              "pc": 261,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68547
+                              },
+                              "idx": "0-35",
+                              "op": "AND",
+                              "pc": 282,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x1"
+                                    ],
+                                    "store": null,
+                                    "used": 68544
+                              },
+                              "idx": "0-36",
+                              "op": "EQ",
+                              "pc": 283,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x0"
+                                    ],
+                                    "store": null,
+                                    "used": 68541
+                              },
+                              "idx": "0-37",
+                              "op": "ISZERO",
+                              "pc": 284,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x15b"
+                                    ],
+                                    "store": null,
+                                    "used": 68538
+                              },
+                              "idx": "0-38",
+                              "op": "PUSH2",
+                              "pc": 285,
+                              "sub": null
+                        },
+                        {
+                              "cost": 10,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [],
+                                    "store": null,
+                                    "used": 68528
+                              },
+                              "idx": "0-39",
+                              "op": "JUMPI",
+                              "pc": 288,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x0"
+                                    ],
+                                    "store": null,
+                                    "used": 68525
+                              },
+                              "idx": "0-40",
+                              "op": "PUSH1",
+                              "pc": 289,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x0"
+                                    ],
+                                    "store": null,
+                                    "used": 68522
+                              },
+                              "idx": "0-41",
+                              "op": "PUSH1",
+                              "pc": 291,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x0",
+                                          "0x0"
+                                    ],
+                                    "store": null,
+                                    "used": 68519
+                              },
+                              "idx": "0-42",
+                              "op": "SWAP1",
+                              "pc": 293,
+                              "sub": null
+                        },
+                        {
+                              "cost": 50,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68469
+                              },
+                              "idx": "0-43",
+                              "op": "SLOAD",
+                              "pc": 294,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7",
+                                          "0x0"
+                                    ],
+                                    "store": null,
+                                    "used": 68466
+                              },
+                              "idx": "0-44",
+                              "op": "SWAP1",
+                              "pc": 295,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x100"
+                                    ],
+                                    "store": null,
+                                    "used": 68463
+                              },
+                              "idx": "0-45",
+                              "op": "PUSH2",
+                              "pc": 296,
+                              "sub": null
+                        },
+                        {
+                              "cost": 10,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x1"
+                                    ],
+                                    "store": null,
+                                    "used": 68453
+                              },
+                              "idx": "0-46",
+                              "op": "EXP",
+                              "pc": 299,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x1",
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68450
+                              },
+                              "idx": "0-47",
+                              "op": "SWAP1",
+                              "pc": 300,
+                              "sub": null
+                        },
+                        {
+                              "cost": 5,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68445
+                              },
+                              "idx": "0-48",
+                              "op": "DIV",
+                              "pc": 301,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0xffffffffffffffffffffffffffffffffffffffff"
+                                    ],
+                                    "store": null,
+                                    "used": 68442
+                              },
+                              "idx": "0-49",
+                              "op": "PUSH20",
+                              "pc": 302,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68439
+                              },
+                              "idx": "0-50",
+                              "op": "AND",
+                              "pc": 323,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0xffffffffffffffffffffffffffffffffffffffff"
+                                    ],
+                                    "store": null,
+                                    "used": 68436
+                              },
+                              "idx": "0-51",
+                              "op": "PUSH20",
+                              "pc": 324,
+                              "sub": null
+                        },
+                        {
+                              "cost": 3,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [
+                                          "0x7a2f47c09a9436e8b7fcfeacdd4e7ee10a0d00b7"
+                                    ],
+                                    "store": null,
+                                    "used": 68433
+                              },
+                              "idx": "0-52",
+                              "op": "AND",
+                              "pc": 345,
+                              "sub": null
+                        },
+                        {
+                              "cost": 0,
+                              "ex": {
+                                    "mem": null,
+                                    "push": [],
+                                    "store": null,
+                                    "used": 68433
+                              },
+                              "idx": "0-53",
+                              "op": "SELFDESTRUCT",
+                              "pc": 346,
+                              "sub": null
+                        }
+                  ]
+            }
+      }
+}
