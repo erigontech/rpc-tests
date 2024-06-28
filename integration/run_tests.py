@@ -66,29 +66,17 @@ tests_not_compared = [
     "mainnet/debug_storageRangeAt/test_10.json",  # diff in storage entries
 
     "mainnet/debug_traceBlockByNumber/test_05.tar",  # json too big
-    "mainnet/debug_traceBlockByNumber/test_06.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_08.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_09.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_10.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_11.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # json too big
 
-    "mainnet/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
-    "mainnet/debug_traceTransaction/test_02.tar",  # diff on gasCost
-
-    "mainnet/debug_traceCall/test_02.json",  # diff on gasCost
-    "mainnet/debug_traceCall/test_04.json",  # diff on gasCost
-    "mainnet/debug_traceCall/test_05.tar",  # diff on gasCost
-    "mainnet/debug_traceCall/test_06.tar",  # diff on gasCost
-    "mainnet/debug_traceCall/test_08.tar",  # diff on gasCost
+    "mainnet/debug_traceCall/test_02.json",  # diff on opcode dump
     "mainnet/debug_traceCall/test_10.tar",  # json too big
 
     "mainnet/debug_traceCallMany/test_02.json",  # diff on opcode dump
-    "mainnet/debug_traceCallMany/test_04.json",  # diff on gasCost
-    "mainnet/debug_traceCallMany/test_05.tar",  # diff on gasCost
-    "mainnet/debug_traceCallMany/test_06.tar",  # diff on gasCost
     "mainnet/debug_traceCallMany/test_07.tar",  # diff on storage and stack entries
-    "mainnet/debug_traceCallMany/test_08.tar",  # diff on gasCost
     "mainnet/debug_traceCallMany/test_09.json",  # diff on storage and stack entries
     "mainnet/debug_traceCallMany/test_10.tar",  # json too big
 

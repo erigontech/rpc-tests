@@ -8,7 +8,7 @@
         [
           {
             "blockOverride": {
-              "blockNumber": "0xb425a0ecfa4b74abf04a6f73c7e323b4b7220c8a96f12fff30b60172cfc50973"
+              "blockNumber": "0x4366AC"
             },
             "transactions": [
               {
@@ -22,7 +22,7 @@
           }
         ],
         {
-          "blockNumber": "0xb425a0ecfa4b74abf04a6f73c7e323b4b7220c8a96f12fff30b60172cfc50973",
+          "blockNumber": "0x4366AC",
           "transactionIndex": -1
         },
         {
@@ -33,12 +33,28 @@
       ]
     },
     "response": {
-      "error": {
-        "code": 100,
-        "message": "stoull"
-      },
       "id": 1,
-      "jsonrpc": "2.0"
+      "jsonrpc": "2.0",
+      "result": [
+        [
+          {
+            "failed": true,
+            "gas": 200000,
+            "returnValue": "",
+            "structLogs": [
+              {
+                "depth": 1,
+                "gas": 141928,
+                "gasCost": 0,
+                "memory": [],
+                "op": "opcode 0x47 not defined",
+                "pc": 0,
+                "stack": []
+              }
+            ]
+          }
+        ]
+      ]
     }
   }
 ]
