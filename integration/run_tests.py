@@ -69,10 +69,8 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_11.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # json too big
 
-    "mainnet/debug_traceCall/test_02.json",  # diff on opcode dump
     "mainnet/debug_traceCall/test_10.tar",  # json too big
 
-    "mainnet/debug_traceCallMany/test_02.json",  # diff on opcode dump
     "mainnet/debug_traceCallMany/test_07.tar",  # diff on storage and stack entries
     "mainnet/debug_traceCallMany/test_09.json",  # diff on storage and stack entries
     "mainnet/debug_traceCallMany/test_10.tar",  # json too big
@@ -431,7 +429,7 @@ class Config:
         self.daemon_on_port = 0
         self.testing_apis = ""
         self.verify_with_daemon = False
-        self.net = "goerli"
+        self.net = "mainnet"
         self.json_dir = "./" + self.net + "/"
         self.results_dir = "results"
         self.output_dir = self.json_dir + self.results_dir + "/"
