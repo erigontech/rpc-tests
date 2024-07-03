@@ -1,0 +1,33 @@
+[
+     {
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "engine_newPayloadV2",
+            "params": [
+                {
+                    "parentHash":"0x405f74886b576b8e3e5ab0ddffef88589f283faad5bb774674d2c866e8d7387d",
+                    "feeRecipient":"0x05295a0ac05d2165b061cd44907c53b7a85e95ff",
+                    "stateRoot":"0x16f1ebc351beef439819f227cab1bb5baed3f73bf919ac047b6bc082513ba973",
+                    "receiptsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+                    "logsBloom":"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "prevRandao":"0x40ffdb1c880a9801120c36314bdbe47f8185759e44e15acc2a87772c596ac421",
+                    "blockNumber":"0x104f40b",
+                    "gasLimit":"0x1c9c380",
+                    "baseFeePerGas":"0x71b75e13d",
+                    "gasUsed":"0x0",
+                    "timestamp":"0x6443d0a7",
+                    "extraData":"0x",
+                    "blockHash":"0xbc544f8e92ffa5b92be1a560c59d91dd1d664f9c8e51fb8418be169ec6c3549b",
+                    "transactions": [],
+                    "withdrawals":[{"index":"0x1058ed","validatorIndex":"0x5a7e3","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xbaa446"},{"index":"0x1058ee","validatorIndex":"0x5a7e4","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xbae310"},{"index":"0x1058ef","validatorIndex":"0x5a7e5","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xbaef81"},{"index":"0x1058f0","validatorIndex":"0x5a7e6","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xbaf986"},{"index":"0x1058f1","validatorIndex":"0x5a7e7","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xba58e2"},{"index":"0x1058f2","validatorIndex":"0x5a7e8","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xbad619"},{"index":"0x1058f3","validatorIndex":"0x5a7e9","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xbb1b03"},{"index":"0x1058f4","validatorIndex":"0x5a7ea","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xbab989"},{"index":"0x1058f5","validatorIndex":"0x5a7eb","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xb9b7e5"},{"index":"0x1058f6","validatorIndex":"0x5a7ec","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xb9bce2"},{"index":"0x1058f7","validatorIndex":"0x5a7ed","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xba26e9"},{"index":"0x1058f8","validatorIndex":"0x5a7ee","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xb9fac9"},{"index":"0x1058f9","validatorIndex":"0x5a7ef","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xb9dc69"},{"index":"0x1058fa","validatorIndex":"0x5a7f0","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xb9f665"},{"index":"0x1058fb","validatorIndex":"0x5a7f1","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0xba2cb7"},{"index":"0x1058fc","validatorIndex":"0x5a7f2","address":"0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f","amount":"0x2b76fbc"}]
+              }
+            ],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        }
+    }
+]
+
