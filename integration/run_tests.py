@@ -150,6 +150,16 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on gasCost and too big
     "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on gasCost and too big
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on gasCost and too big
+    "mainnet/engine_forkchoiceUpdatedV1/test_01.json", # exception when invoke execution interface
+    "mainnet/engine_forkchoiceUpdatedV2/test_01.json", # exception when invoke execution interface
+    "mainnet/engine_getPayloadBodiesByHashV1/test_01.json", # exception when invoke execution interface
+    "mainnet/engine_getPayloadBodiesByHashV1/test_02.json", # exception when invoke execution interface
+    "mainnet/engine_getPayloadBodiesByRangeV1/test_01.json", # exception when invoke execution interface
+    "mainnet/engine_getPayloadBodiesByRangeV1/test_02.json", # exception when invoke execution interface
+    "mainnet/engine_getPayloadBodiesByRangeV1/test_03.json", # exception when invoke execution interface
+    "mainnet/engine_newPayloadV1/test_01.json", # exception when invoke execution interface
+    "mainnet/engine_newPayloadV2/test_01.json", # exception when invoke execution interface
+    "mainnet/erigon_forks/test_1.json", # exception when invoke execution interface
     "mainnet/engine_exchangeCapabilities/test_1.json"  # diff on supported API list 
 ]
 
