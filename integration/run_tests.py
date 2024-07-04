@@ -22,45 +22,11 @@ tests_with_big_json = [
 ]
 
 api_not_compared = [
-    "goerli/trace_rawTransaction",  # erigon does not support raw tx but hash of tx
-    "goerli/parity_getBlockReceipts",  # not supported by erigon
-    "goerli/engine_exchangeCapabilities",  # not supported by silkrpc removed from ethbackend i/f
-    "goerli/engine_forkchoiceUpdatedV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerli/engine_forkchoiceUpdatedV2",  # not supported by silkrpc removed from ethbackend i/f
-    "goerli/engine_getPayloadBodiesByHashV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerli/engine_getPayloadBodiesByRangeV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerli/engine_getPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerli/engine_getPayloadV2",  # not supported by silkrpc removed from ethbackend i/f
-    "goerli/engine_newPayloadV1",  # not supported by silkrpc removed from ethbackend i/f
-    "goerli/engine_newPayloadV2",  # not supported by silkrpc removed from ethbackend i/f
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
     "mainnet/parity_getBlockReceipts",  # not supported by erigon
 ]
 
 tests_not_compared = [
-    "goerli/debug_traceBlockByHash/test_02.tar",  # diff on gasCost
-    "goerli/debug_traceBlockByHash/test_03.tar",  # diff on gasCost
-    "goerli/debug_traceBlockByHash/test_04.tar",  # diff on gasCost
-
-    "goerli/debug_traceBlockByNumber/test_02.tar",  # diff on gasCost
-    "goerli/debug_traceBlockByNumber/test_09.tar",  # diff on gasCost
-    "goerli/debug_traceBlockByNumber/test_10.tar",  # diff on gasCost
-    "goerli/debug_traceBlockByNumber/test_11.tar",  # diff on gasCost
-    "goerli/debug_traceBlockByNumber/test_12.tar",  # diff on gasCost
-    "goerli/debug_traceBlockByNumber/test_14.tar",  # diff on gasCost
-
-    "goerli/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost
-    "goerli/trace_replayBlockTransactions/test_02.tar",  # diff on gasCost
-
-    "goerli/trace_replayTransaction/test_16.tar",  # diff on gasCost
-    "goerli/trace_replayTransaction/test_23.tar",  # diff on gasCost
-
-    "goerli/debug_traceCall/test_10.json",  # diff on gasCost
-    "goerli/debug_traceCall/test_14.json",  # diff on gasCost
-    "goerli/debug_traceCall/test_17.json",  # diff on gasCost
-
-    "goerli/eth_getLogs/test_14.json",  # validator doesn't support earlist and latest
-    "goerli/eth_getLogs/test_15.json",  # validator doesn't support earlist and latest
 
     "mainnet/debug_traceBlockByNumber/test_05.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_08.tar",  # json too big
@@ -164,16 +130,6 @@ tests_not_compared = [
 ]
 
 tests_not_compared_result = [
-    "goerli/trace_call/test_04.json",  # error message different invalidOpcode vs badInstructions
-    "goerli/trace_call/test_11.json",  # error message different invalidOpcode vs badInstructions
-    "goerli/trace_call/test_15.json",  # error message different invalidOpcode vs badInstructions
-    "goerli/trace_call/test_17.json",  # error message different invalidOpcode vs badInstructions
-    "goerli/trace_callMany/test_04.json",  # error message different invalidOpcode vs badInstructions
-    "goerli/eth_callMany/test_04.json",  # error message different invalidOpcode vs badInstructions
-    "goerli/trace_callMany/test_05.json",  # error message different invalidOpcode vs badInstructions
-    "goerli/trace_callMany/test_13.json",  # error message different invalidOpcode vs badInstructions
-    "goerli/trace_callMany/test_14.tar",  # error message different invalidOpcode vs badInstructions
-    "goerli/trace_callMany/test_15.json",  # error message different invalidOpcode vs badInstructions
 ]
 
 tests_not_compared_message = [
@@ -181,11 +137,6 @@ tests_not_compared_message = [
     "mainnet/eth_callMany/test_07.json",  # diff message
     "mainnet/eth_callMany/test_08.json",  # diff message
     "mainnet/eth_callMany/test_12.json",  # diff message
-    "goerli/trace_callMany/test_10.json",  # silkrpc message contains also address
-    "goerli/trace_callMany/test_11.json",  # silkrpc message contains also address
-    "goerli/eth_callMany/test_08.json",  # silkrpc message contains few chars
-    "goerli/trace_call/test_12.json",  # silkrpc message contains also address
-    "goerli/trace_call/test_16.json",  # silkrpc message contains also address
 
     "mainnet/eth_callMany/test_04.json"  # diff on check order (precheck after check on have/want)
 ]
@@ -216,7 +167,7 @@ def usage(argv):
     print("-v,--verbose: <verbose_level>")
     print("-c,--continue: runs all tests even if one test fails [default: exit at first test fail]")
     print("-l,--loops: <number of loops>")
-    print("-b,--blockchain: [default: goerli]")
+    print("-b,--blockchain: [default: mainnet]")
     print("-s,--start-from-test: <test_number>: run tests starting from input")
     print("-t,--run-single-test: <test_number>: run single test")
     print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
