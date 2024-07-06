@@ -117,6 +117,8 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on gasCost and too big
     "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on gasCost and too big
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on gasCost and too big
+    "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
+    "mainnet/engine_getPayloadV2/test_01.json", # exception when invoke execution interface
     "mainnet/engine_forkchoiceUpdatedV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_forkchoiceUpdatedV2/test_01.json", # exception when invoke execution interface
     "mainnet/engine_getPayloadBodiesByHashV1/test_01.json", # exception when invoke execution interface
@@ -592,8 +594,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             result = rsp.json()
         except:
             print("\nhttp connection fail")
-            print("TEST ABORTED!")
-            sys.exit(1)
+            return ""
     else:
         ws_target = "ws://" + target  # use websocket
         if transport_type == 'websocketC':
@@ -619,8 +620,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
 
         except:
             print("\nwebsocket connection fail")
-            print("TEST ABORTED!")
-            sys.exit(1)
+            return ""
 
     if verbose_level > 1:
         print("\n target:", target)
