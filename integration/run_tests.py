@@ -174,7 +174,7 @@ def usage(argv):
     print("-s,--start-from-test: <test_number>: run tests starting from input")
     print("-t,--run-single-test: <test_number>: run single test")
     print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
-    print("-T,--transport_type: <http,websocket,httpC,websocketC>")
+    print("-T,--transport_type: <http,http_comp,websocket,websocket_comp>")
     print("-k,--jwt: authentication token file")
     print("-a,--api-list: <apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)")
     print("-x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
@@ -472,14 +472,14 @@ class Config:
                     self.force_dump_jsons = 1
                 elif option in ("-T", "--transport_type"):
                     if optarg == "":
-                        print("Error in options: -T/--transport_type http,websocket,httpC,websocketC")
+                        print("Error in options: -T/--transport_type http,http_comp,websocket,websocket_comp")
                         usage(argv)
                         sys.exit(1)
                     tokenize_list = optarg.split(",")
                     for test in tokenize_list:
-                        if test not in ['websocket', 'http', 'httpC', 'websocketC']:
+                        if test not in ['websocket', 'http', 'http_comp', 'websocket_comp']:
                             print("Error invalid connection type: ", test)
-                            print("Error in options: -T/--transport_type http,websocket,httpC,websocketC")
+                            print("Error in options: -T/--transport_type http,http_comp,websocket,websocket_comp")
                             usage(argv)
                             sys.exit(1)
                     self.transport_type = optarg
@@ -574,9 +574,9 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
 
 def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int):
     """ execute request on server identified by target """
-    if transport_type in ("http", 'httpC'):
+    if transport_type in ("http", 'http_comp'):
         http_headers = {'content-type': 'application/json'}
-        if transport_type == 'httpC':
+        if transport_type == 'http_comp':
             http_headers['Transfer-Encoding' ] =  'gzip'
         else:
             http_headers['Accept-Encoding' ] =  'Identity'
@@ -597,7 +597,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             return ""
     else:
         ws_target = "ws://" + target  # use websocket
-        if transport_type == 'websocketC':
+        if transport_type == 'websocket_comp':
             selected_compression = 'deflate'
             curr_extensions = [
                 permessage_deflate.ClientPerMessageDeflateFactory(
