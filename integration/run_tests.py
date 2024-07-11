@@ -129,6 +129,7 @@ tests_not_compared = [
     "mainnet/engine_newPayloadV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_newPayloadV2/test_01.json", # exception when invoke execution interface
     "mainnet/erigon_forks/test_1.json", # exception when invoke execution interface
+    "mainnet/engine_exchangeTransitionConfigurationV1/test_01.json", # diff on supported API list
     "mainnet/engine_exchangeCapabilities/test_1.json"  # diff on supported API list
 ]
 
@@ -576,9 +577,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
     """ execute request on server identified by target """
     if transport_type in ("http", 'http_comp'):
         http_headers = {'content-type': 'application/json'}
-        if transport_type == 'http_comp':
-            http_headers['Transfer-Encoding' ] =  'gzip'
-        else:
+        if transport_type != 'http_comp':
             http_headers['Accept-Encoding' ] =  'Identity'
 
         if jwt_auth:
@@ -912,7 +911,7 @@ def main(argv) -> int:
                                         (config.start_test != "" and test_number_in_any_loop >= int(
                                             config.start_test))):
                                     file = test_file.ljust(60)
-                                    curr_tt = transport_type.ljust(8)
+                                    curr_tt = transport_type.ljust(15)
                                     if config.verbose_level:
                                         print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} ", end='', flush=True)
                                     else:
