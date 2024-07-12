@@ -48,12 +48,7 @@
           "output": "0x",
           "stateDiff": {
             "0x07c4da4be817d9bea6900d754b5449f58b1a725d": {
-              "balance": {
-                "*": {
-                  "from": "0x0",
-                  "to": "0xfffffffffffffffffffffffffffffffffffffffffffffffff2089e6c0168dc00"
-                }
-              },
+              "balance": "=",
               "code": "=",
               "nonce": {
                 "*": {
