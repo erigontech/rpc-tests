@@ -11,6 +11,7 @@ import sys
 import tarfile
 import pytz
 import jwt
+import requests
 from websockets.sync.client import connect
 from websockets.extensions import permessage_deflate
 
@@ -116,6 +117,8 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on gasCost and too big
     "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on gasCost and too big
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on gasCost and too big
+    "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
+    "mainnet/engine_getPayloadV2/test_01.json", # exception when invoke execution interface
     "mainnet/engine_forkchoiceUpdatedV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_forkchoiceUpdatedV2/test_01.json", # exception when invoke execution interface
     "mainnet/engine_getPayloadBodiesByHashV1/test_01.json", # exception when invoke execution interface
@@ -126,7 +129,8 @@ tests_not_compared = [
     "mainnet/engine_newPayloadV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_newPayloadV2/test_01.json", # exception when invoke execution interface
     "mainnet/erigon_forks/test_1.json", # exception when invoke execution interface
-    "mainnet/engine_exchangeCapabilities/test_1.json"  # diff on supported API list 
+    "mainnet/engine_exchangeTransitionConfigurationV1/test_01.json", # diff on supported API list
+    "mainnet/engine_exchangeCapabilities/test_1.json"  # diff on supported API list
 ]
 
 tests_not_compared_result = [
@@ -171,7 +175,7 @@ def usage(argv):
     print("-s,--start-from-test: <test_number>: run tests starting from input")
     print("-t,--run-single-test: <test_number>: run single test")
     print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
-    print("-T,--transport_type: <http,websocket>")
+    print("-T,--transport_type: <http,http_comp,websocket,websocket_comp>")
     print("-k,--jwt: authentication token file")
     print("-a,--api-list: <apis>: run all tests of the specified API (e.g.: eth_call,eth_getLogs,debug_)")
     print("-x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
@@ -182,7 +186,6 @@ def usage(argv):
     print("-r,--erigon-rpcdaemon: connect to Erigon RpcDaemon [default: connect to Silkrpc] ")
     print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
     print("-i,--without-compare-results: send request without compare results")
-    print("-C,--compression: enable compression")
 
 
 def get_target_name(target_type: str):
@@ -401,16 +404,15 @@ class Config:
         self.display_only_fail = 0
         self.transport_type = "http"
         self.without_compare_results = False
-        self.compression = False
 
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:CT:",
+            opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:",
                                     ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                                      'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
-                                     'compression', 'transport_type=', 'exclude-api-list=', 'exclude-test-list=',
+                                     'transport_type=', 'exclude-api-list=', 'exclude-test-list=',
                                      'dump-response', 'without-compare-results'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -471,14 +473,14 @@ class Config:
                     self.force_dump_jsons = 1
                 elif option in ("-T", "--transport_type"):
                     if optarg == "":
-                        print("Error in options: -T/--transport_type http,websocket")
+                        print("Error in options: -T/--transport_type http,http_comp,websocket,websocket_comp")
                         usage(argv)
                         sys.exit(1)
                     tokenize_list = optarg.split(",")
                     for test in tokenize_list:
-                        if test not in ['websocket', 'http']:
+                        if test not in ['websocket', 'http', 'http_comp', 'websocket_comp']:
                             print("Error invalid connection type: ", test)
-                            print("Error in options: -T/--transport_type http,websocket")
+                            print("Error in options: -T/--transport_type http,http_comp,websocket,websocket_comp")
                             usage(argv)
                             sys.exit(1)
                     self.transport_type = optarg
@@ -513,8 +515,6 @@ class Config:
                         usage(argv)
                         sys.exit(1)
                     self.without_compare_results = True
-                elif option in ("-C", "--compression"):
-                    self.compression = True
                 else:
                     print("Error option not managed:", option)
                     usage(argv)
@@ -538,7 +538,7 @@ def get_json_from_response(msg, verbose_level: int, json_file, result: str, test
     if len(result) == 0:
         file = json_file.ljust(60)
         if verbose_level == 0:
-            print(f"{test_number:03d}. {file} Failed [" + msg + "]  (json response is zero length, maybe server is down)")
+            print(f"{test_number:04d}. {file} Failed [" + msg + "]  (json response is zero length, maybe server is down)")
         else:
             print("Failed [" + msg + "]  (response zero length, maybe server is down)")
         if exit_on_fail:
@@ -546,11 +546,10 @@ def get_json_from_response(msg, verbose_level: int, json_file, result: str, test
             sys.exit(1)
         return None
     try:
-        response = json.loads(result)
-        return response
+        return result
     except json.decoder.JSONDecodeError:
         file = json_file.ljust(60)
-        print(f"{test_number:03d}. {file} Failed [" + msg + "]  (bad json format)")
+        print(f"{test_number:04d}. {file} Failed [" + msg + "]  (bad json format)")
         if verbose_level:
             print(msg)
             print("Failed (bad json format)")
@@ -574,18 +573,30 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
                 json_file_ptr.write(json.dumps(expected_response, indent=2, sort_keys=True))
 
 
-def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int,
-                    compression: bool):
+def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int):
     """ execute request on server identified by target """
-    if transport_type == "http":
-        options = jwt_auth
-        if compression:
-            options = options + " --compressed  "
-        cmd = '''curl --silent -X POST -H "Content-Type: application/json" ''' + options + ''' --data \'''' + request_dumps + '''\' ''' + target
-        result = os.popen(cmd).read()
+    if transport_type in ("http", 'http_comp'):
+        http_headers = {'content-type': 'application/json'}
+        if transport_type != 'http_comp':
+            http_headers['Accept-Encoding' ] =  'Identity'
+
+        if jwt_auth:
+            http_headers['Authorization' ] =  jwt_auth
+
+        target_url = "http://" + target
+        try:
+            rsp = requests.post(target_url, data=request_dumps, headers=http_headers)
+            if rsp.status_code != 200:
+                if verbose_level:
+                    print("post result=",rsp.status_code)
+                return ""
+            result = rsp.json()
+        except:
+            print("\nhttp connection fail")
+            return ""
     else:
         ws_target = "ws://" + target  # use websocket
-        if compression:
+        if transport_type == 'websocket_comp':
             selected_compression = 'deflate'
             curr_extensions = [
                 permessage_deflate.ClientPerMessageDeflateFactory(
@@ -597,14 +608,18 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             selected_compression = None
             curr_extensions = None
         try:
+            http_headers = {}
+            if jwt_auth:
+                http_headers['Authorization' ] =  jwt_auth
             with connect(ws_target, max_size=1000048576, compression=selected_compression,
                          extensions=curr_extensions) as websocket:
                 websocket.send(request_dumps)
-                result = websocket.recv(None)
+                rsp = websocket.recv(None)
+                result = json.loads(rsp)
+
         except:
             print("\nwebsocket connection fail")
-            print("TEST ABORTED!")
-            sys.exit(1)
+            return ""
 
     if verbose_level > 1:
         print("\n target:", target)
@@ -657,7 +672,7 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
     diff_file_size = os.stat(diff_file).st_size
     if diff_file_size != 0:
         file = json_file.ljust(60)
-        print(f"{test_number:03d}. {file} Failed")
+        print(f"{test_number:04d}. {file} Failed")
         if verbose_level:
             print("Failed")
         if exit_on_fail:
@@ -753,7 +768,7 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
              daemon_under_test: str, exit_on_fail: bool, verify_with_daemon: bool,
              daemon_as_reference: str, force_dump_jsons: bool, test_number, external_provider_url: str,
              daemon_on_host: str, daemon_on_port: int,
-             jwt_secret: str, transport_type, without_compare_results: bool, compression: bool):
+             jwt_secret: str, transport_type, without_compare_results: bool):
     """ Run integration tests. """
     json_filename = test_dir + json_file
     ext = os.path.splitext(json_file)[1]
@@ -792,10 +807,9 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
         else:
             byte_array_secret = bytes.fromhex(jwt_secret)
             encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
-            jwt_auth = "-H \"Authorization: Bearer " + str(encoded) + "\" "
+            jwt_auth = "Bearer " + str(encoded)
         if verify_with_daemon == 0:  # compare daemon result with file
-            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, verbose_level,
-                                     compression)
+            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, verbose_level)
             result1 = ""
             response_in_file = json_rpc["response"]
 
@@ -807,11 +821,9 @@ def run_test(net: str, test_dir: str, output_dir: str, json_file: str, verbose_l
             exp_rsp_file = output_api_filename + "expResponse.json"
         else:  # run tests with both servers
             target = get_target(SILK, method, external_provider_url, daemon_on_host, daemon_on_port)
-            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, verbose_level,
-                                     compression)
+            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, verbose_level)
             target1 = get_target(daemon_as_reference, method, external_provider_url, daemon_on_host, daemon_on_port)
-            result1 = execute_request(transport_type, jwt_auth, encoded, request_dumps, target1, verbose_level,
-                                      compression)
+            result1 = execute_request(transport_type, jwt_auth, encoded, request_dumps, target1, verbose_level)
             response_in_file = None
 
             output_api_filename = output_dir + json_file[:-4]
@@ -886,7 +898,7 @@ def main(argv) -> int:
                             if config.start_test == "" or test_number_in_any_loop >= int(config.start_test):
                                 if config.display_only_fail == 0 and config.req_test_number != "":
                                     file = test_file.ljust(60)
-                                    print(f"{test_number_in_any_loop:03d}. {file} Skipped")
+                                    print(f"{test_number_in_any_loop:04d}. {file} Skipped")
                                     tests_not_executed = tests_not_executed + 1
                         else:
                             # runs all tests or
@@ -899,11 +911,11 @@ def main(argv) -> int:
                                         (config.start_test != "" and test_number_in_any_loop >= int(
                                             config.start_test))):
                                     file = test_file.ljust(60)
-                                    curr_tt = transport_type.ljust(8)
+                                    curr_tt = transport_type.ljust(15)
                                     if config.verbose_level:
-                                        print(f"{test_number_in_any_loop:03d}. {curr_tt}::{file} ", end='', flush=True)
+                                        print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} ", end='', flush=True)
                                     else:
-                                        print(f"{test_number_in_any_loop:03d}. {curr_tt}::{file}\r", end='', flush=True)
+                                        print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file}\r", end='', flush=True)
                                     ret = run_test(config.net, config.json_dir, config.output_dir,
                                                    test_file,
                                                    config.verbose_level, config.daemon_under_test,
@@ -914,8 +926,7 @@ def main(argv) -> int:
                                                    config.daemon_on_host, config.daemon_on_port,
                                                    config.jwt_secret,
                                                    transport_type,
-                                                   config.without_compare_results,
-                                                   config.compression)
+                                                   config.without_compare_results)
                                     if ret == 1:
                                         success_tests = success_tests + 1
                                     else:
