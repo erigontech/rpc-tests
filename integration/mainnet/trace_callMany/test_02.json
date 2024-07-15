@@ -51,7 +51,7 @@
               "balance": {
                 "*": {
                   "from": "0x18e036b45e7200",
-                  "to": "0xfffffffffffffffffffffffffffffffffffffffffffffffffebf0157c7b21a00"
+                  "to": "0x2246d0253c1a00"
                 }
               },
               "code": "=",
@@ -4272,12 +4272,7 @@
           "output": "0x",
           "stateDiff": {
             "0x07c4da4be817d9bea6900d754b5449f58b1a725d": {
-              "balance": {
-                "*": {
-                  "from": "0x0",
-                  "to": "0xfffffffffffffffffffffffffffffffffffffffffffffffff2089e6c0168dc00"
-                }
-              },
+              "balance": "=",
               "code": "=",
               "nonce": {
                 "*": {
