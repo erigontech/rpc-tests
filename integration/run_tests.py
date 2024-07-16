@@ -42,27 +42,11 @@ tests_not_compared = [
     "mainnet/debug_traceCallMany/test_09.json",  # diff on storage and stack entries
     "mainnet/debug_traceCallMany/test_10.tar",  # json too big
 
-    "mainnet/trace_block/test_01.json",  # diff on action
     "mainnet/trace_block/test_04.tar",  # diff on gasCost
     "mainnet/trace_block/test_05.tar",  # diff on gasCost
     "mainnet/trace_block/test_15.tar",  # diff on call
     "mainnet/trace_block/test_19.tar",  # diff on gasCost
     "mainnet/trace_block/test_20.tar",  # diff on callType
-
-    "mainnet/trace_call/test_07.json",  # diff on callType
-    "mainnet/trace_call/test_08.tar",  # diff on callType
-    "mainnet/trace_call/test_11.tar",  # diff on callType
-    "mainnet/trace_call/test_12.json",  # diff on callType
-    "mainnet/trace_call/test_15.json",  # diff on callType
-    "mainnet/trace_call/test_16.json",  # diff on callType
-    "mainnet/trace_call/test_17.tar",  # diff on callType
-
-    "mainnet/trace_callMany/test_03.json",  # diff on gasCost
-    "mainnet/trace_callMany/test_04.json",  # diff on gasCost
-    "mainnet/trace_callMany/test_05.json",  # diff on gasCost
-    "mainnet/trace_callMany/test_06.json",  # diff on gasCost
-    "mainnet/trace_callMany/test_08.json",  # diff on gasCost
-    "mainnet/trace_callMany/test_09.json",  # diff on gasCost
 
     "mainnet/trace_filter/test_01.tar",  # diff on call type
     "mainnet/trace_filter/test_02.tar",  # diff for missing section
@@ -77,14 +61,17 @@ tests_not_compared = [
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
 
+    "mainnet/trace_call/test_02.json",  # failed on rpcdaemon ok silk
+    "mainnet/trace_call/test_07.json",  # diff cost on EXP
+    "mainnet/trace_call/test_11.tar",   # diff on gasCost
+    "mainnet/trace_call/test_13.json",  # rpcdaemon: not suff balance, out of gas
+
     "mainnet/trace_replayTransaction/test_02.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_03.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_04.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_05.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_06.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_07.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_08.json",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_09.json",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_08.json",  # diff on from to balance
+    "mainnet/trace_replayTransaction/test_09.json",  # ddiff on from to balance
     "mainnet/trace_replayTransaction/test_10.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_11.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_14.tar",  # diff on gasCost
@@ -113,6 +100,7 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on gasCost and too big
     "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on gasCost and too big
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on gasCost and too big
+
     "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_getPayloadV2/test_01.json", # exception when invoke execution interface
     "mainnet/engine_forkchoiceUpdatedV1/test_01.json", # exception when invoke execution interface
@@ -133,19 +121,19 @@ tests_not_compared_result = [
 ]
 
 tests_not_compared_message = [
-    "mainnet/eth_callMany/test_02.json",  # diff message
-    "mainnet/eth_callMany/test_07.json",  # diff message
-    "mainnet/eth_callMany/test_08.json",  # diff message
-    "mainnet/eth_callMany/test_12.json",  # diff message
-
-    "mainnet/eth_callMany/test_04.json"  # diff on check order (precheck after check on have/want)
+    "mainnet/eth_callMany/test_02.json",  # diff message on intrinsic gas
+    "mainnet/eth_callMany/test_04.json",  # diff message on intrinsic gas
+    "mainnet/eth_callMany/test_07.json",  # diff message on intrinsic gas
+    "mainnet/eth_callMany/test_08.json",  # diff message on intrinsic gas
+    "mainnet/eth_callMany/test_12.json",  # diff message on intrinsic gas
 ]
 
 tests_not_compared_error = [
     "mainnet/eth_callMany/test_06.json",  # diff on opcode not defined (erigon print opcode in error message)
     "mainnet/eth_callMany/test_13.json",  # diff on opcode not defined (erigon print opcode in error message)
     "mainnet/eth_callMany/test_14.json",  # diff on stack underflow message (erigon print depth)
-    "mainnet/eth_callMany/test_15.json"  # diff on opcode not defined (erigon print opcode in error message)
+    "mainnet/eth_callMany/test_15.json"   # diff on opcode not defined (erigon print opcode in error message)
+
 ]
 
 tests_message_lower_case = [
