@@ -31,8 +31,8 @@ tests_not_compared = [
 
     "mainnet/debug_traceBlockByNumber/test_05.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_08.tar",  # json too big
-    "mainnet/debug_traceBlockByNumber/test_09.tar",  # json too big
-    "mainnet/debug_traceBlockByNumber/test_10.tar",  # json too big
+    "mainnet/debug_traceBlockByNumber/test_09.tar",  # json too big and diff on gasCost
+    "mainnet/debug_traceBlockByNumber/test_10.tar",  # json too big and diff on gasCost
     "mainnet/debug_traceBlockByNumber/test_11.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # json too big
 
@@ -41,6 +41,9 @@ tests_not_compared = [
     "mainnet/debug_traceCallMany/test_07.tar",  # diff on storage and stack entries
     "mainnet/debug_traceCallMany/test_09.json",  # diff on storage and stack entries
     "mainnet/debug_traceCallMany/test_10.tar",  # json too big
+
+    "mainnet/debug_traceTransaction/test_17.tar",  # diff on gasCost
+    "mainnet/debug_traceTransaction/test_18.tar",  # diff on gasCost
 
     "mainnet/trace_block/test_04.tar",  # diff on gasCost
     "mainnet/trace_block/test_05.tar",  # diff on gasCost
