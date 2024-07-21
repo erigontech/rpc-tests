@@ -64,17 +64,15 @@ tests_not_compared = [
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
 
-    "mainnet/trace_call/test_02.json",  # failed on rpcdaemon ok silk
-    "mainnet/trace_call/test_07.json",  # diff cost on EXP
     "mainnet/trace_call/test_11.tar",   # diff on gasCost
-    "mainnet/trace_call/test_13.json",  # rpcdaemon: not suff balance, out of gas
+    "mainnet/trace_call/test_13.json",  # rpcdaemon: not suff balance, out of gas (waiting ERIGON PR)
 
     "mainnet/trace_replayTransaction/test_02.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_05.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_06.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_07.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_08.json",  # diff on from to balance
-    "mainnet/trace_replayTransaction/test_09.json",  # ddiff on from to balance
+    "mainnet/trace_replayTransaction/test_08.json", # diff on from/to balance: due to gasUsed tx-8
+    "mainnet/trace_replayTransaction/test_09.json", # diff on from/to balance
     "mainnet/trace_replayTransaction/test_10.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_11.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_14.tar",  # diff on gasCost
