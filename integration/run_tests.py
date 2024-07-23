@@ -9,8 +9,9 @@ import os
 import shutil
 import sys
 import tarfile
-import pytz
 import jwt
+import pytz
+import time
 import requests
 from websockets.sync.client import connect
 from websockets.extensions import permessage_deflate
@@ -18,6 +19,8 @@ from websockets.extensions import permessage_deflate
 SILK = "silk"
 RPCDAEMON = "rpcdaemon"
 EXTERNAL_PROVIDER = "external-provider"
+TIME=0.1
+MAX_TIME = 50 # times of TIME secs
 
 tests_with_big_json = [
 ]
@@ -649,11 +652,37 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
         modified_str_from_file(exp_rsp_file, temp_file1, modified_string)
         modified_str_from_file(silk_file, temp_file2, modified_string)
         cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-    #        elif is_big_json(json_file, net):
-    #            tools = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file
     else:
         cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
+    cmd = cmd + " &"
     os.system(cmd)
+
+    idx = 0
+    already_failed = False
+    while 1:
+        idx += 1
+        time.sleep(TIME)
+        cmd = "ps aux | grep 'json-diff' | grep -v 'grep' | awk '{print $2}'"
+        pid = os.popen(cmd).read()
+        if pid == "":
+            break
+        if idx >= MAX_TIME:
+            cmd = "kill -2 " + pid
+            os.system(cmd)
+            if already_failed:
+                file = json_file.ljust(60)
+                print(f"{test_number:04d}. {file} Failed (compare timeout)")
+                if verbose_level:
+                    print("Failed")
+                if exit_on_fail:
+                    print("TEST ABORTED!")
+                    sys.exit(1)
+                return 0
+            already_failed = True
+            cmd = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
+            os.system(cmd)
+            idx = 0
+            continue
     diff_file_size = os.stat(diff_file).st_size
     if diff_file_size != 0:
         file = json_file.ljust(60)
@@ -673,7 +702,6 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
     if os.path.exists(temp_file2):
         os.remove(temp_file2)
     return 1
-
 
 def process_response(net, result, result1, response_in_file: str, verbose_level: int, exit_on_fail: bool,
                      output_dir: str, silk_file: str,
