@@ -662,7 +662,7 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
     while 1:
         idx += 1
         time.sleep(TIME)
-        cmd = "ps aux | grep 'json-diff' | grep -v 'grep' | awk '{print $2}'"
+        cmd = "ps aux | grep 'json-' | grep -v 'grep' | awk '{print $2}'"
         pid = os.popen(cmd).read()
         if pid == "":
             break
