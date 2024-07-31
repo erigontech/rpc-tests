@@ -67,34 +67,21 @@ tests_not_compared = [
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
 
+    "mainnet/trace_call/test_02.json",  # failed on rpcdaemon ok silk
+    "mainnet/trace_call/test_07.json",  # diff cost on EXP
     "mainnet/trace_call/test_11.tar",   # diff on gasCost
     "mainnet/trace_call/test_13.json",  # rpcdaemon: not suff balance, out of gas (waiting ERIGON PR)
 
-    "mainnet/trace_replayTransaction/test_02.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_05.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_06.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_07.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_08.json", # diff on from/to balance: due to gasUsed tx-8
     "mainnet/trace_replayTransaction/test_09.json", # diff on from/to balance
-    "mainnet/trace_replayTransaction/test_10.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_11.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_14.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_16.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_18.tar",  # diff on gasCost
-    "mainnet/trace_replayTransaction/test_23.tar",  # diff on gasCost
     "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost
 
-    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_02.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost on PUSH1 and ex data structure
     "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on gasCost
+    "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on gasCost, big
     "mainnet/trace_replayBlockTransactions/test_05.tar",  # too big
-    "mainnet/trace_replayBlockTransactions/test_07.json",  # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_09.json",  # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_10.json",  # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_11.json",  # diff on gasCost
-    "mainnet/trace_replayBlockTransactions/test_12.json",  # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_13.tar",  # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_14.tar",  # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_15.tar",  # diff on gasCost
