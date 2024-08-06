@@ -9,9 +9,9 @@ import os
 import shutil
 import sys
 import tarfile
-import jwt
-import pytz
 import time
+import pytz
+import jwt
 import requests
 from websockets.sync.client import connect
 from websockets.extensions import permessage_deflate
@@ -20,10 +20,7 @@ SILK = "silk"
 RPCDAEMON = "rpcdaemon"
 EXTERNAL_PROVIDER = "external-provider"
 TIME=0.1
-MAX_TIME = 50 # times of TIME secs
-
-tests_with_big_json = [
-]
+MAX_TIME = 100 # times of TIME secs
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
@@ -39,7 +36,7 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_11.tar",  # json too big
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # json too big
 
-    "mainnet/debug_traceCall/test_10.tar",  # json too big
+    "mainnet/debug_traceCall/test_10.tar",  # diff on CALL gasCost
 
     "mainnet/debug_traceCallMany/test_07.tar",  # diff on storage and stack entries
     "mainnet/debug_traceCallMany/test_09.json",  # diff on storage and stack entries
@@ -67,20 +64,16 @@ tests_not_compared = [
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
 
-    "mainnet/trace_call/test_02.json",  # failed on rpcdaemon ok silk
-    "mainnet/trace_call/test_07.json",  # diff cost on EXP
-    "mainnet/trace_call/test_11.tar",   # diff on gasCost
-    "mainnet/trace_call/test_13.json",  # rpcdaemon: not suff balance, out of gas (waiting ERIGON PR)
-
-    "mainnet/trace_replayTransaction/test_05.tar",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_05.tar",  # diff on from/to balance
     "mainnet/trace_replayTransaction/test_08.json", # diff on from/to balance: due to gasUsed tx-8
     "mainnet/trace_replayTransaction/test_09.json", # diff on from/to balance
-    "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost
+    "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on out of gas
+
 
     "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost on PUSH1 and ex data structure
     "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on gasCost, big
-    "mainnet/trace_replayBlockTransactions/test_05.tar",  # too big
+    "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_13.tar",  # diff on gasCost
     "mainnet/trace_replayBlockTransactions/test_14.tar",  # diff on gasCost
@@ -108,9 +101,6 @@ tests_not_compared = [
     "mainnet/engine_exchangeCapabilities/test_1.json"  # diff on supported API list
 ]
 
-tests_not_compared_result = [
-]
-
 tests_not_compared_message = [
     "mainnet/eth_callMany/test_02.json",  # diff message on intrinsic gas
     "mainnet/eth_callMany/test_04.json",  # diff message on intrinsic gas
@@ -126,10 +116,6 @@ tests_not_compared_error = [
     "mainnet/eth_callMany/test_15.json"   # diff on opcode not defined (erigon print opcode in error message)
 
 ]
-
-tests_message_lower_case = [
-]
-
 
 #
 # usage
@@ -300,26 +286,6 @@ def is_testing_apis(api_name, testing_apis: str):
     return 0
 
 
-def is_big_json(test_name, net: str, ):
-    """ determine if json is in the big list
-    """
-    test_full_name = net + "/" + test_name
-    for curr_test_name in tests_with_big_json:
-        if curr_test_name == test_full_name:
-            return 1
-    return 0
-
-
-def is_not_compared_result(test_name, net: str):
-    """ determine if test not compared result
-    """
-    test_full_name = net + "/" + test_name
-    for curr_test_name in tests_not_compared_result:
-        if curr_test_name == test_full_name:
-            return 1
-    return 0
-
-
 def is_not_compared_message(test_name, net: str):
     """ determine if test not compared message field
     """
@@ -335,16 +301,6 @@ def is_not_compared_error(test_name, net: str):
     """
     test_full_name = net + "/" + test_name
     for curr_test_name in tests_not_compared_error:
-        if curr_test_name == test_full_name:
-            return 1
-    return 0
-
-
-def is_message_to_be_converted(test_name, net: str):
-    """ determine if test not compared result
-    """
-    test_full_name = net + "/" + test_name
-    for curr_test_name in tests_message_lower_case:
         if curr_test_name == test_full_name:
             return 1
     return 0
@@ -604,6 +560,36 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
     return result
 
 
+def run_compare(temp_file1, temp_file2, diff_file):
+    """ run Compare command and verify if command complete. """
+
+    cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
+    os.system(cmd)
+    idx = 0
+    already_failed = False
+    while 1:
+        idx += 1
+        time.sleep(TIME)
+        # verify if json-diff in progress
+        cmd = "ps aux | grep 'diff' | grep -v 'grep' | awk '{print $2}'"
+        pid = os.popen(cmd).read()
+        if pid == "":
+            # json-diff terminated
+            return 1
+        if idx >= MAX_TIME:
+            # reach timeout. kill it
+            cmd = "kill -9 " + pid
+            os.system(cmd)
+            if already_failed:
+                # timeout with json-diff and  diff
+                return 0
+            already_failed = True
+            # try diff with diff
+            cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
+            os.system(cmd)
+            idx = 0
+            continue
+
 def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: str, verbose_level, test_number,
                  exit_on_fail: int):
     """ Compare JSON response. """
@@ -619,76 +605,40 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
         cmd = "cp " + exp_rsp_file + " " + temp_file2
         os.system(cmd)
 
-    if is_not_compared_result(json_file, net):
-        removed_line_string = "error"
-        replace_str_from_file(exp_rsp_file, temp_file1, removed_line_string)
-        replace_str_from_file(silk_file, temp_file2, removed_line_string)
-        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-    elif is_not_compared_message(json_file, net):
+    if is_not_compared_message(json_file, net):
         removed_line_string = "message"
         replace_message(exp_rsp_file, temp_file1, removed_line_string)
         replace_message(silk_file, temp_file2, removed_line_string)
-        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
     elif is_not_compared_error(json_file, net):
         removed_line_string = "error"
         replace_message(exp_rsp_file, temp_file1, removed_line_string)
         replace_message(silk_file, temp_file2, removed_line_string)
-        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-    elif is_message_to_be_converted(json_file, net):
-        modified_string = "message"
-        modified_str_from_file(exp_rsp_file, temp_file1, modified_string)
-        modified_str_from_file(silk_file, temp_file2, modified_string)
-        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-    else:
-        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file
-    cmd = cmd + " &"
-    os.system(cmd)
 
-    idx = 0
-    already_failed = False
-    while 1:
-        idx += 1
-        time.sleep(TIME)
-        cmd = "ps aux | grep 'json-' | grep -v 'grep' | awk '{print $2}'"
-        pid = os.popen(cmd).read()
-        if pid == "":
-            break
-        if idx >= MAX_TIME:
-            cmd = "kill -2 " + pid
-            os.system(cmd)
-            if already_failed:
-                file = json_file.ljust(60)
-                print(f"{test_number:04d}. {file} Failed (compare timeout)")
-                if verbose_level:
-                    print("Failed")
-                if exit_on_fail:
-                    print("TEST ABORTED!")
-                    sys.exit(1)
-                return 0
-            already_failed = True
-            cmd = "json-patch-jsondiff --indent 4 " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
-            os.system(cmd)
-            idx = 0
-            continue
-    diff_file_size = os.stat(diff_file).st_size
-    if diff_file_size != 0:
+    diff_result = run_compare(temp_file1, temp_file2, diff_file)
+    diff_file_size = 0
+    return_code = 1 # ok
+    if diff_result == 1:
+        diff_file_size = os.stat(diff_file).st_size
+    if diff_file_size != 0 or diff_result == 0:
         file = json_file.ljust(60)
-        print(f"{test_number:04d}. {file} Failed")
+        if diff_result == 0:
+            print(f"{test_number:04d}. {file} Failed Timeout")
+        else:
+            print(f"{test_number:04d}. {file} Failed")
         if verbose_level:
             print("Failed")
         if exit_on_fail:
             print("TEST ABORTED!")
             sys.exit(1)
-        return 0
-    if verbose_level:
+        return_code = 0 # failed
+    elif verbose_level:
         print("OK")
 
-    # cleanup
     if os.path.exists(temp_file1):
         os.remove(temp_file1)
     if os.path.exists(temp_file2):
         os.remove(temp_file2)
-    return 1
+    return return_code
 
 def process_response(net, result, result1, response_in_file: str, verbose_level: int, exit_on_fail: bool,
                      output_dir: str, silk_file: str,
