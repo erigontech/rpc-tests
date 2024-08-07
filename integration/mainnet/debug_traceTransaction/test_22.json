@@ -1,0 +1,38 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0x99558d18808c317e596caedc217184cbaec1b44a2d05ada659f1e61b4009895c",
+        {
+          "disableMemory": false,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "failed": true,
+        "gas": 21000,
+        "returnValue": "",
+        "structLogs": [
+          {
+            "depth": 1,
+            "error": {},
+            "gas": 0,
+            "gasCost": 3,
+            "memory": [],
+            "op": "PUSH1",
+            "pc": 0,
+            "stack": []
+          }
+        ]
+      }
+    }
+  }
+]

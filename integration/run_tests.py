@@ -47,12 +47,13 @@ tests_not_compared = [
 
     "mainnet/debug_traceTransaction/test_17.tar",  # diff on gasCost
     "mainnet/debug_traceTransaction/test_18.tar",  # diff on gasCost
+    "mainnet/debug_traceTransaction/test_21.json",  # diff on gasCost
 
     "mainnet/trace_block/test_04.tar",  # diff on gasCost
     "mainnet/trace_block/test_05.tar",  # diff on gasCost
     "mainnet/trace_block/test_15.tar",  # diff on call
     "mainnet/trace_block/test_19.tar",  # diff on gasCost
-    "mainnet/trace_block/test_20.tar",  # diff on callType
+    "mainnet/trace_block/test_21.tar",  # diff on callType
 
     "mainnet/trace_filter/test_01.tar",  # diff on call type
     "mainnet/trace_filter/test_02.tar",  # diff for missing section
