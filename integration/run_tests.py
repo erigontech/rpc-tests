@@ -45,31 +45,18 @@ tests_not_compared = [
     "mainnet/debug_traceTransaction/test_17.tar",  # diff on gasCost
     "mainnet/debug_traceTransaction/test_18.tar",  # diff on gasCost
     "mainnet/debug_traceTransaction/test_21.json",  # diff on gasCost
-
-    "mainnet/trace_block/test_04.tar",  # diff on gasCost
-    "mainnet/trace_block/test_05.tar",  # diff on gasCost
-    "mainnet/trace_block/test_15.tar",  # diff on call
-    "mainnet/trace_block/test_19.tar",  # diff on gasCost
-    "mainnet/trace_block/test_21.tar",  # diff on callType
+    "mainnet/debug_traceTransaction/test_28.json",  # diff on gasCost
 
     "mainnet/trace_filter/test_01.tar",  # diff on call type
-    "mainnet/trace_filter/test_02.tar",  # diff for missing section
-    "mainnet/trace_filter/test_05.tar",  # diff on gasUsed for call
-    "mainnet/trace_filter/test_06.tar",  # diff on gasUsed for call
-    "mainnet/trace_filter/test_08.json",  # diff on gasUsed for call
-    "mainnet/trace_filter/test_11.tar",  # diff on gasUsed for call
-    "mainnet/trace_filter/test_14.tar",  # diff on gasUsed for call
     "mainnet/trace_filter/test_16.json",  # diff on response
+
+    "mainnet/trace_block/test_20.tar",  # diff on call type static/call
 
     "mainnet/trace_rawTransaction/test_01.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
 
-    "mainnet/trace_replayTransaction/test_05.tar",  # diff on from/to balance
-    "mainnet/trace_replayTransaction/test_08.json", # diff on from/to balance: due to gasUsed tx-8
-    "mainnet/trace_replayTransaction/test_09.json", # diff on from/to balance
     "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on out of gas
-
 
     "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost on PUSH1 and ex data structure
     "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on gasCost
