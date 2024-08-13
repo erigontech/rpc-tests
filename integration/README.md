@@ -42,6 +42,7 @@ Usage: ./run_tests.py:
 Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon
 
 -h,--help: print this help
+-j,--json-diff: use json-diff to make compare (default use diff)
 -f,--display-only-fail: shows only failed tests (not Skipped)
 -v,--verbose: <verbose_level>
 -c,--continue: runs all tests even if one test fails [default: exit at first test fail]
