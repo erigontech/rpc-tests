@@ -58,8 +58,8 @@ tests_not_compared = [
 
     "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on out of gas and ex:null
 
-    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on CALL gasCost ex:null, gasCost 0
-    "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on CALL gasCost ex:null
+    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on CALL gasCost, gasCost 0
+    "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on CALL gasCost 
     "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on 1 CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on 3 CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on 1 CALL gasCost
@@ -68,9 +68,9 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_15.tar",  # diff on 3 CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_16.tar",  # diff on many gasCost
     "mainnet/trace_replayBlockTransactions/test_17.tar",  # diff on many gasCost, callType
-    "mainnet/trace_replayBlockTransactions/test_18.tar",  # diff on gasCost callType, ex:null
+    "mainnet/trace_replayBlockTransactions/test_18.tar",  # diff on gasCost callType
     "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on CALL gasCost  silk trace many STOP opcode non present on rpcdaemon
-    "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on CALL gasCost, sstore param,  ex:null
+    "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on CALL gasCost, sstore param
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on 1 CALL gasCost
 
     "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
@@ -126,7 +126,7 @@ def usage(argv):
     print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
     print("-T,--transport_type: <http,http_comp,websocket,websocket_comp>")
     print("-k,--jwt: authentication token file")
-    print("-a,--api-list: <apis>: run all tests of the specified API that contains string (e.g.: eth_,debug_)")
+    print("-a,--api-list-with: <apis>: run all tests of the specified API that contains string (e.g.: eth_,debug_)")
     print("-A,--api-list: <apis>: run all tests of the specified API that match full name (e.g.: eth_call,eth_getLogs)")
     print("-x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
     print("-X,--exclude-test-list: exclude test list (e.g.: 18,22)")
@@ -338,7 +338,7 @@ class Config:
             opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:",
                                     ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
-                                     'api-list_with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
+                                     'api-list-with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
                                      'transport_type=', 'exclude-api-list=', 'exclude-test-list=',
                                      'dump-response', 'without-compare-results'])
             for option, optarg in opts:
