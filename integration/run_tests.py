@@ -116,6 +116,7 @@ def usage(argv):
     print("Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon")
     print("")
     print("-h,--help: print this help")
+    print("-j,--json-diff: use json-diff to make compare (default use diff)")
     print("-f,--display-only-fail: shows only failed tests (not Skipped)")
     print("-v,--verbose: <verbose_level>")
     print("-c,--continue: runs all tests even if one test fails [default: exit at first test fail]")
@@ -582,7 +583,7 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file):
         idx += 1
         time.sleep(TIME)
         # verify if json-diff or diff in progress
-        cmd = "ps aux | grep 'diff' | grep -v 'grep' | awk '{print $2}'"
+        cmd = "ps aux | grep -v run_tests | grep 'diff' | grep -v 'grep' | awk '{print $2}'"
         pid = os.popen(cmd).read()
         if pid == "":
             # json-diff or diff terminated
