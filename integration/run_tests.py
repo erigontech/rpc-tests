@@ -58,8 +58,8 @@ tests_not_compared = [
 
     "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on out of gas and ex:null
 
-    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on CALL gasCost ex:null, gasCost 0
-    "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on CALL gasCost ex:null
+    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on CALL gasCost, gasCost 0
+    "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on 1 CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on 3 CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on 1 CALL gasCost
@@ -68,9 +68,9 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_15.tar",  # diff on 3 CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_16.tar",  # diff on many gasCost
     "mainnet/trace_replayBlockTransactions/test_17.tar",  # diff on many gasCost, callType
-    "mainnet/trace_replayBlockTransactions/test_18.tar",  # diff on gasCost callType, ex:null
+    "mainnet/trace_replayBlockTransactions/test_18.tar",  # diff on gasCost callType
     "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on CALL gasCost  silk trace many STOP opcode non present on rpcdaemon
-    "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on CALL gasCost, sstore param,  ex:null
+    "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on CALL gasCost, sstore param
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on 1 CALL gasCost
 
     "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
@@ -116,6 +116,7 @@ def usage(argv):
     print("Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon")
     print("")
     print("-h,--help: print this help")
+    print("-j,--json-diff: use json-diff to make compare (default use diff)")
     print("-f,--display-only-fail: shows only failed tests (not Skipped)")
     print("-v,--verbose: <verbose_level>")
     print("-c,--continue: runs all tests even if one test fails [default: exit at first test fail]")
@@ -126,7 +127,7 @@ def usage(argv):
     print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
     print("-T,--transport_type: <http,http_comp,websocket,websocket_comp>")
     print("-k,--jwt: authentication token file")
-    print("-a,--api-list: <apis>: run all tests of the specified API that contains string (e.g.: eth_,debug_)")
+    print("-a,--api-list-with: <apis>: run all tests of the specified API that contains string (e.g.: eth_,debug_)")
     print("-A,--api-list: <apis>: run all tests of the specified API that match full name (e.g.: eth_call,eth_getLogs)")
     print("-x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
     print("-X,--exclude-test-list: exclude test list (e.g.: 18,22)")
@@ -330,16 +331,17 @@ class Config:
         self.jwt_secret = ""
         self.display_only_fail = 0
         self.transport_type = "http"
+        self.use_jsondiff = False
         self.without_compare_results = False
 
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:",
+            opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:j",
                                     ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
-                                     'api-list_with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
-                                     'transport_type=', 'exclude-api-list=', 'exclude-test-list=',
+                                     'api-list-with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
+                                     'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff',
                                      'dump-response', 'without-compare-results'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -403,6 +405,7 @@ class Config:
                         usage(argv)
                         sys.exit(1)
                     self.verify_with_daemon = 1
+                    self.use_jsondiff = True
                 elif option in ("-o", "--dump-response"):
                     self.force_dump_jsons = 1
                 elif option in ("-T", "--transport_type"):
@@ -442,6 +445,8 @@ class Config:
                         print("secret file not found")
                         usage(argv)
                         sys.exit(1)
+                elif option in ("-j", "--json-diff"):
+                    self.use_jsondiff = True
                 elif option in ("-i", "--without-compare-results"):
                     if self.verify_with_daemon == 1:
                         print("Error on options: "
@@ -563,38 +568,41 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
     return result
 
 
-def run_compare(temp_file1, temp_file2, diff_file):
+def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file):
     """ run Compare command and verify if command complete. """
 
-    cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
+    if use_jsondiff:
+        already_failed = False
+        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
+    else:
+        cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
+        already_failed = True
     os.system(cmd)
     idx = 0
-    already_failed = False
     while 1:
         idx += 1
         time.sleep(TIME)
-        # verify if json-diff in progress
-        cmd = "ps aux | grep 'diff' | grep -v 'grep' | awk '{print $2}'"
+        # verify if json-diff or diff in progress
+        cmd = "ps aux | grep -v run_tests | grep 'diff' | grep -v 'grep' | awk '{print $2}'"
         pid = os.popen(cmd).read()
         if pid == "":
-            # json-diff terminated
+            # json-diff or diff terminated
             return 1
         if idx >= MAX_TIME:
             # reach timeout. kill it
             cmd = "kill -9 " + pid
             os.system(cmd)
             if already_failed:
-                # timeout with json-diff and  diff
+                # timeout with json-diff and diff so return timeout->0
                 return 0
             already_failed = True
-            # try diff with diff
+            # try json diffs with diff
             cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
             os.system(cmd)
             idx = 0
             continue
 
-def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: str, verbose_level, test_number,
-                 exit_on_fail: int):
+def compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file: str, test_number):
     """ Compare JSON response. """
     temp_file1 = "/tmp/silk_lower_case"
     temp_file2 = "/tmp/rpc_lower_case"
@@ -608,16 +616,16 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
         cmd = "cp " + exp_rsp_file + " " + temp_file2
         os.system(cmd)
 
-    if is_not_compared_message(json_file, net):
+    if is_not_compared_message(json_file, config.net):
         removed_line_string = "message"
         replace_message(exp_rsp_file, temp_file1, removed_line_string)
         replace_message(silk_file, temp_file2, removed_line_string)
-    elif is_not_compared_error(json_file, net):
+    elif is_not_compared_error(json_file, config.net):
         removed_line_string = "error"
         replace_message(exp_rsp_file, temp_file1, removed_line_string)
         replace_message(silk_file, temp_file2, removed_line_string)
 
-    diff_result = run_compare(temp_file1, temp_file2, diff_file)
+    diff_result = run_compare(config.use_jsondiff, temp_file1, temp_file2, diff_file)
     diff_file_size = 0
     return_code = 1 # ok
     if diff_result == 1:
@@ -628,13 +636,13 @@ def compare_json(net, response, json_file, silk_file, exp_rsp_file, diff_file: s
             print(f"{test_number:04d}. {file} Failed Timeout")
         else:
             print(f"{test_number:04d}. {file} Failed")
-        if verbose_level:
+        if config.verbose_level:
             print("Failed")
-        if exit_on_fail:
+        if config.exit_on_fail:
             print("TEST ABORTED!")
             sys.exit(1)
         return_code = 0 # failed
-    elif verbose_level:
+    elif config.verbose_level:
         print("OK")
 
     if os.path.exists(temp_file1):
@@ -696,8 +704,7 @@ def process_response(result, result1, response_in_file: str, config,
             return 1
         dump_jsons(True, silk_file, exp_rsp_file, output_dir, response, expected_response)
 
-        same = compare_json(config.net, response, json_file, silk_file, exp_rsp_file, diff_file,
-                            config.verbose_level, test_number, config.exit_on_fail)
+        same = compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file, test_number)
         # cleanup
         if same:
             os.remove(silk_file)
