@@ -56,9 +56,9 @@ tests_not_compared = [
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
 
-    "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on out of gas and ex:null
+    "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on last opcode (OUTOFGAS)
 
-    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on CALL gasCost, gasCost 0
+    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on CALL gasCost + diff last opcode (OUTOFGAS)
     "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on 1 CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on 3 CALL gasCost
