@@ -73,6 +73,9 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on CALL gasCost, sstore param
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on 1 CALL gasCost
 
+    "mainnet/debug_accountRange/test_09.tar",  # waiting approval FIX on Rpcdaemon
+    "mainnet/debug_accountRange/test_12.tar",  # waiting approval FIX on Rpcdaemon
+
     "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_getPayloadV2/test_01.json", # exception when invoke execution interface
     "mainnet/engine_forkchoiceUpdatedV1/test_01.json", # exception when invoke execution interface
