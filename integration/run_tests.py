@@ -56,9 +56,9 @@ tests_not_compared = [
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
 
-    "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on out of gas and ex:null
+    "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on last opcode (OUTOFGAS)
 
-    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on CALL gasCost, gasCost 0
+    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on CALL gasCost + diff last opcode (OUTOFGAS)
     "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on 1 CALL gasCost
     "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on 3 CALL gasCost
@@ -72,6 +72,9 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on CALL gasCost  silk trace many STOP opcode non present on rpcdaemon
     "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on CALL gasCost, sstore param
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on 1 CALL gasCost
+
+    "mainnet/debug_accountRange/test_09.tar",  # waiting approval FIX on Rpcdaemon
+    "mainnet/debug_accountRange/test_12.tar",  # waiting approval FIX on Rpcdaemon
 
     "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_getPayloadV2/test_01.json", # exception when invoke execution interface
