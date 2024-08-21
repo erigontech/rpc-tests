@@ -37,20 +37,21 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # diff one gas
 
     "mainnet/debug_traceCall/test_10.tar",  # diff on CALL gasCost
+    "mainnet/debug_traceCall/test_10.tar",  # diff on CALL gasCost
 
     "mainnet/debug_traceCallMany/test_07.tar",  # diff on storage and stack entries
     "mainnet/debug_traceCallMany/test_09.json", # diff on storage and stack entries
-    "mainnet/debug_traceCallMany/test_10.tar",  # diff one CALL gasCost
+    "mainnet/debug_traceCallMany/test_10.tar",  # diff on 1 gasCost
 
     "mainnet/debug_traceTransaction/test_17.tar",  # diff on DELEGATECALL gasCost
     "mainnet/debug_traceTransaction/test_18.tar",  # diff on one gasCost DELETECALL + CALL
     "mainnet/debug_traceTransaction/test_21.json",  # diff on gasCost SSTORE last opcode
     "mainnet/debug_traceTransaction/test_28.json",  # many diff on gasCost/gas
 
-    "mainnet/trace_filter/test_01.tar",  # diff on call type static/call
     "mainnet/trace_filter/test_16.json",  # diff on message response
 
-    "mainnet/trace_block/test_20.tar",  # diff on call type static/call
+    "mainnet/trace_call/test_02.json",  # waits to move to 2.60 erigon
+    "mainnet/trace_call/test_13.json",  # waits to move to 2.60 erigon
 
     "mainnet/trace_rawTransaction/test_01.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
@@ -58,23 +59,26 @@ tests_not_compared = [
 
     "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on last opcode (OUTOFGAS)
 
-    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on CALL gasCost + diff last opcode (OUTOFGAS)
-    "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on CALL gasCost
-    "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on 1 CALL gasCost
-    "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on 3 CALL gasCost
-    "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on 1 CALL gasCost
-    "mainnet/trace_replayBlockTransactions/test_13.tar",  # diff on CALLCODE gasCost and to
-    "mainnet/trace_replayBlockTransactions/test_14.tar",  # diff on many CALL gasCost and balance from e to
-    "mainnet/trace_replayBlockTransactions/test_15.tar",  # diff on 3 CALL gasCost
-    "mainnet/trace_replayBlockTransactions/test_16.tar",  # diff on many gasCost
-    "mainnet/trace_replayBlockTransactions/test_17.tar",  # diff on many gasCost, callType
-    "mainnet/trace_replayBlockTransactions/test_18.tar",  # diff on gasCost callType
-    "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on CALL gasCost  silk trace many STOP opcode non present on rpcdaemon
-    "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on CALL gasCost, sstore param
-    "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on 1 CALL gasCost
+    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost + diff last opcode (OUTOFGAS)
+    "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on 8 gasCost + diff last opcode (OUTOFGAS)
+    "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on 1 gasCost
+    "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on 6 gasCost
+    "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on 1 gasCost
+    "mainnet/trace_replayBlockTransactions/test_13.tar",  # diff on CALLCODE gasCost and wrong to
+    "mainnet/trace_replayBlockTransactions/test_14.tar",  # diff on 15 gasCost and balance from e to stateDiff 
+    "mainnet/trace_replayBlockTransactions/test_15.tar",  # diff on 3 gasCost
+    "mainnet/trace_replayBlockTransactions/test_16.tar",  # diff on 25 gasCost
+    "mainnet/trace_replayBlockTransactions/test_17.tar",  # diff on 21 gasCost
+    "mainnet/trace_replayBlockTransactions/test_18.tar",  # diff on 5 gasCost + diff last opcode (OUTOFGAS)
+    "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on 11 gasCost  rpcdaemon trace 14 STOP opcode not present on silk
+    "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on 18 gasCost
+    "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on 1 gasCost
 
-    "mainnet/debug_accountRange/test_09.tar",  # waiting approval FIX on Rpcdaemon
-    "mainnet/debug_accountRange/test_12.tar",  # waiting approval FIX on Rpcdaemon
+    "mainnet/debug_accountRange/test_09.tar",   # waits to move to 2.60 erigon
+    "mainnet/debug_accountRange/test_12.tar",   # waits to move to 2.60 erigon
+    "mainnet/debug_accountRange/test_14.json",  # waits to move to 2.60 erigon
+
+    "mainnet/erigon_getLatestLogs/test_14.json", # waits to move to 2.60 erigon
 
     "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_getPayloadV2/test_01.json", # exception when invoke execution interface
