@@ -1,0 +1,42 @@
+[
+   {
+        "test": {
+           "reference": "https://etherscan.io/tx/0x5a4bf6970980a9381e6d6c78d96ab278035bbff58c383ffe96a0a2bbc7c02a4b, on https://etherscan.io/block/8000005",
+           "description": ""
+        },
+
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_callBundle",
+            "params": [["0x651746ac8955627441037a25ae530240eea1c4798ec93228d516bee8949c949a", "0xfeade0ed17dc1472369e17fabd60300114ff5d396687269125bbe15bc0f57ccf", "0x7fee8dac4ee888d9e8d26c66f8c16fa88cc73503ba047fa07b36d5d297209098", "0x77c00ca2e414db56b702147849515e532dc476185c7fc4b7400387cf025470a0"], "0x7A1209", 50000],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+   "results": [
+      {
+        "gasUsed": 37973,
+        "txHash": "0x651746ac8955627441037a25ae530240eea1c4798ec93228d516bee8949c949a",
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000001"
+      },
+      {
+        "gasUsed": 38059,
+        "txHash": "0xfeade0ed17dc1472369e17fabd60300114ff5d396687269125bbe15bc0f57ccf",
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000001"
+      },
+      {
+        "gasUsed": 21000,
+        "txHash": "0x7fee8dac4ee888d9e8d26c66f8c16fa88cc73503ba047fa07b36d5d297209098",
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "gasUsed": 38694,
+        "txHash": "0x77c00ca2e414db56b702147849515e532dc476185c7fc4b7400387cf025470a0",
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  }
+  }
+]
+
