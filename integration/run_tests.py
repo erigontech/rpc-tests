@@ -31,22 +31,21 @@ tests_not_compared = [
 
     "mainnet/debug_traceBlockByNumber/test_05.tar",  # diff on 1 gasCost
     "mainnet/debug_traceBlockByNumber/test_08.tar",  # diff on 3 gasCost
-    "mainnet/debug_traceBlockByNumber/test_09.tar",  # many diff on gasCost, gas, stack
-    "mainnet/debug_traceBlockByNumber/test_10.tar",  # many diff on gasCost, gas, stack
-    "mainnet/debug_traceBlockByNumber/test_11.tar",  # diff one gas and one gasCost
-    "mainnet/debug_traceBlockByNumber/test_12.tar",  # diff one gas
+    "mainnet/debug_traceBlockByNumber/test_09.tar",  # diff on 60 gasCost, 8000 gas, 8500 stack
+    "mainnet/debug_traceBlockByNumber/test_10.tar",  # diff on 40 gasCost, 12000 gas, 12000 stack
+    "mainnet/debug_traceBlockByNumber/test_11.tar",  # diff on 1 gas and 1 gasCost
+    "mainnet/debug_traceBlockByNumber/test_12.tar",  # diff on 1 gas
 
-    "mainnet/debug_traceCall/test_10.tar",  # diff on CALL gasCost
-    "mainnet/debug_traceCall/test_10.tar",  # diff on CALL gasCost
+    "mainnet/debug_traceCall/test_10.tar",  # diff on 1 gasCost
 
-    "mainnet/debug_traceCallMany/test_07.tar",  # diff on storage and stack entries
-    "mainnet/debug_traceCallMany/test_09.json", # diff on storage and stack entries
+    "mainnet/debug_traceCallMany/test_07.tar",  # diff on many storage and many stack entries
+    "mainnet/debug_traceCallMany/test_09.json", # diff on few storage and few stack entries
     "mainnet/debug_traceCallMany/test_10.tar",  # diff on 1 gasCost
 
-    "mainnet/debug_traceTransaction/test_17.tar",  # diff on DELEGATECALL gasCost
-    "mainnet/debug_traceTransaction/test_18.tar",  # diff on one gasCost DELETECALL + CALL
+    "mainnet/debug_traceTransaction/test_17.tar",  # diff on 1 DELEGATECALL gasCost
+    "mainnet/debug_traceTransaction/test_18.tar",  # diff on 1 gasCost DELETECALL + CALL
     "mainnet/debug_traceTransaction/test_21.json",  # diff on gasCost SSTORE last opcode
-    "mainnet/debug_traceTransaction/test_28.json",  # many diff on gasCost/gas
+    "mainnet/debug_traceTransaction/test_28.json",  # diff on 14 gasCost && 14 STOP traced by rpcdaemon not silk
 
     "mainnet/trace_filter/test_16.json",  # diff on message response
 
@@ -64,7 +63,7 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on 1 gasCost
     "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on 6 gasCost
     "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on 1 gasCost
-    "mainnet/trace_replayBlockTransactions/test_13.tar",  # diff on CALLCODE gasCost and wrong to
+    "mainnet/trace_replayBlockTransactions/test_13.tar",  # diff on CALLCODE gasCost
     "mainnet/trace_replayBlockTransactions/test_14.tar",  # diff on 15 gasCost and balance from e to stateDiff 
     "mainnet/trace_replayBlockTransactions/test_15.tar",  # diff on 3 gasCost
     "mainnet/trace_replayBlockTransactions/test_16.tar",  # diff on 25 gasCost
