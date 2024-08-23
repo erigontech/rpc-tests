@@ -45,7 +45,7 @@ tests_not_compared = [
     "mainnet/debug_traceTransaction/test_17.tar",  # diff on 1 DELEGATECALL gasCost
     "mainnet/debug_traceTransaction/test_18.tar",  # diff on 1 gasCost DELETECALL + CALL
     "mainnet/debug_traceTransaction/test_21.json",  # diff on gasCost SSTORE last opcode
-    "mainnet/debug_traceTransaction/test_28.json",  # diff on 28 gasCost
+    "mainnet/debug_traceTransaction/test_28.tar",  # diff on 28 gasCost
 
     "mainnet/trace_filter/test_16.json",  # diff on message response
 
