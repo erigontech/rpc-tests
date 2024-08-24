@@ -47,8 +47,6 @@ tests_not_compared = [
     "mainnet/debug_traceTransaction/test_21.json",  # diff on gasCost SSTORE last opcode
     "mainnet/debug_traceTransaction/test_28.json",  # diff on 14 gasCost && 14 STOP traced by rpcdaemon not silk
 
-    "mainnet/trace_filter/test_16.json",  # diff on message response
-
     "mainnet/trace_call/test_02.json",  # waits to move to 2.60 erigon
     "mainnet/trace_call/test_13.json",  # waits to move to 2.60 erigon
 
