@@ -12,12 +12,22 @@
       ]
     },
     "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+  "result": [
+    {
       "error": {
         "code": -32000,
-        "message": "invalid parameters: fromBlock not found"
-      },
-      "id": 1,
-      "jsonrpc": "2.0"
+        "message": "could not find block 30000000"
+      }
+    },
+    {
+      "error": {
+        "code": -32000,
+        "message": "could not find block 30000001"
+      }
+    }
+  ]
     }
   }
 ]
