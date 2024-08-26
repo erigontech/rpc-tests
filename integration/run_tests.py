@@ -45,7 +45,7 @@ tests_not_compared = [
     "mainnet/debug_traceTransaction/test_17.tar",  # diff on 1 DELEGATECALL gasCost
     "mainnet/debug_traceTransaction/test_18.tar",  # diff on 1 gasCost DELETECALL + CALL
     "mainnet/debug_traceTransaction/test_21.json",  # diff on gasCost SSTORE last opcode
-    "mainnet/debug_traceTransaction/test_28.json",  # diff on 14 gasCost && 14 STOP traced by rpcdaemon not silk
+    "mainnet/debug_traceTransaction/test_28.tar",  # diff on 28 gasCost
 
     "mainnet/trace_filter/test_16.json",  # diff on message response
 
@@ -69,7 +69,7 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_16.tar",  # diff on 25 gasCost
     "mainnet/trace_replayBlockTransactions/test_17.tar",  # diff on 21 gasCost
     "mainnet/trace_replayBlockTransactions/test_18.tar",  # diff on 5 gasCost + diff last opcode (OUTOFGAS)
-    "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on 11 gasCost  rpcdaemon trace 14 STOP opcode not present on silk
+    "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on 11 gasCost
     "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on 18 gasCost
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on 1 gasCost
 
