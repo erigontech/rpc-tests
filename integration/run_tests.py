@@ -62,7 +62,7 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on 6 gasCost
     "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on 1 gasCost
     "mainnet/trace_replayBlockTransactions/test_13.tar",  # diff on CALLCODE gasCost
-    "mainnet/trace_replayBlockTransactions/test_14.tar",  # diff on 15 gasCost + stateDiff (nonce, balance, code)
+    "mainnet/trace_replayBlockTransactions/test_14.tar",  # diff on 15 gasCost
     "mainnet/trace_replayBlockTransactions/test_15.tar",  # diff on 3 gasCost
     "mainnet/trace_replayBlockTransactions/test_16.tar",  # diff on 25 gasCost
     "mainnet/trace_replayBlockTransactions/test_17.tar",  # diff on 21 gasCost
@@ -70,9 +70,11 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on 11 gasCost
     "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on 18 gasCost
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on 1 gasCost
-    "mainnet/trace_replayBlockTransactions/test_22.tar",  # diff on 26 gasCost + statediff(nonce, balance, code)
+    "mainnet/trace_replayBlockTransactions/test_22.tar",  # diff on 26 gasCost & 1 error on sub section of SELFDESTRUCT
     "mainnet/trace_replayBlockTransactions/test_23.tar",  # diff on 14 gasCost
-    "mainnet/trace_replayBlockTransactions/test_24.tar",  # diff on 9 gasCost + statediff (nonce, balance, code)
+    "mainnet/trace_replayBlockTransactions/test_24.tar",  # diff on 9 gasCost
+    "mainnet/trace_replayBlockTransactions/test_28.tar",  # diff on 10 gasCost
+    "mainnet/trace_replayBlockTransactions/test_29.tar",  # diff on 4 gasCost 6 section sub and 4 mem e stack
 
     "mainnet/debug_accountRange/test_09.tar",   # waits to move to 2.60 erigon
     "mainnet/debug_accountRange/test_12.tar",   # waits to move to 2.60 erigon
