@@ -47,9 +47,6 @@ tests_not_compared = [
     "mainnet/debug_traceTransaction/test_21.json",  # diff on gasCost SSTORE last opcode
     "mainnet/debug_traceTransaction/test_28.tar",  # diff on 28 gasCost
 
-    "mainnet/trace_call/test_02.json",  # waits to move to 2.60 erigon
-    "mainnet/trace_call/test_13.json",  # waits to move to 2.60 erigon
-
     "mainnet/trace_rawTransaction/test_01.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
@@ -75,12 +72,6 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_24.tar",  # diff on 9 gasCost
     "mainnet/trace_replayBlockTransactions/test_28.tar",  # diff on 10 gasCost
     "mainnet/trace_replayBlockTransactions/test_29.tar",  # diff on 4 gasCost 6 section sub and 4 mem e stack
-
-    "mainnet/debug_accountRange/test_09.tar",   # waits to move to 2.60 erigon
-    "mainnet/debug_accountRange/test_12.tar",   # waits to move to 2.60 erigon
-    "mainnet/debug_accountRange/test_14.json",  # waits to move to 2.60 erigon
-
-    "mainnet/erigon_getLatestLogs/test_14.json", # waits to move to 2.60 erigon
 
     "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_getPayloadV2/test_01.json", # exception when invoke execution interface
@@ -693,7 +684,7 @@ def process_response(result, result1, response_in_file: str, config,
         return 0
 
     if response != expected_response:
-        if "result" in response and "result" in expected_response and expected_response["result"] is None:
+        if "result" in response and "result" in expected_response and expected_response["result"] is None and result1 == "":
             # response and expected_response are different but don't care
             if config.verbose_level:
                 print("OK")
