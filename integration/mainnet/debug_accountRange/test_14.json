@@ -36,22 +36,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-  "result": {
-    "accounts": {
-      "0x01838a3747dc170a67db968c8ce50cdde8e3bc7c": {
-        "balance": "0",
-        "codeHash": "0x6616342f393c4c24c5920aa30e303a37c55734ed0ebcb1656727a7bb8e36c13f",
-        "nonce": 1,
-        "root": "0x8c1ad84c84b471f109e96a245f3e605b62207f1dd607001ffefa4e077527d072",
-        "storage": {
-          "0x0000000000000000000000000000000000000000000000000000000000000000": "3b476a3c49ead380967bb7eac4445e86a653c917",
-          "0x0000000000000000000000000000000000000000000000000000000000000001": "1bb133fec8f7a5463adbdb37a2dd2c502e9b979a"
-        }
-      }
-    },
-    "next": "AYOKZL7dUqoc4KiScYCMSkob33w=",
-    "root": "0xed33613a2acb5b3bd53eb343c331fb161921db2a45d49793561c78bc7e27717a"
-  }
+      "result": null 
   }
  }
 ]
