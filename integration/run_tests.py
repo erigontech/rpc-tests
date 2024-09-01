@@ -28,18 +28,19 @@ api_not_compared = [
 ]
 
 tests_not_compared = [
+    "mainnet/eth_syncing/test_01.json",  # different stages
 
     "mainnet/debug_traceBlockByNumber/test_05.tar",  # diff on 1 gasCost
     "mainnet/debug_traceBlockByNumber/test_08.tar",  # diff on 3 gasCost
-    "mainnet/debug_traceBlockByNumber/test_09.tar",  # diff on 60 gasCost, 8000 gas, 8500 stack
-    "mainnet/debug_traceBlockByNumber/test_10.tar",  # diff on 40 gasCost, 12000 gas, 12000 stack
+    "mainnet/debug_traceBlockByNumber/test_09.tar",  # diff on 60 gasCost, 8473 gas, 16 stack
+    "mainnet/debug_traceBlockByNumber/test_10.tar",  # diff on 42 gasCost, 12358 gas, 8 stack
     "mainnet/debug_traceBlockByNumber/test_11.tar",  # diff on 1 gas and 1 gasCost
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # diff on 1 gas
 
     "mainnet/debug_traceCall/test_10.tar",  # diff on 1 gasCost
 
     "mainnet/debug_traceCallMany/test_07.tar",  # diff on many storage and many stack entries
-    "mainnet/debug_traceCallMany/test_09.json", # diff on few storage and few stack entries
+    "mainnet/debug_traceCallMany/test_09.json", # diff on 2 storage and 28 stack entries
     "mainnet/debug_traceCallMany/test_10.tar",  # diff on 1 gasCost
 
     "mainnet/debug_traceTransaction/test_17.tar",  # diff on 1 DELEGATECALL gasCost
@@ -48,13 +49,12 @@ tests_not_compared = [
     "mainnet/debug_traceTransaction/test_28.tar",  # diff on 28 gasCost
 
     "mainnet/trace_rawTransaction/test_01.json",  # as executed on latest block
-    "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
 
     "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on last opcode (OUTOFGAS)
 
     "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost + diff last opcode (OUTOFGAS)
-    "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on 8 gasCost + diff last opcode (OUTOFGAS)
+    "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on 8 gasCost + 2 diff last opcode (OUTOFGAS)
     "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on 1 gasCost
     "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on 6 gasCost
     "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on 1 gasCost
