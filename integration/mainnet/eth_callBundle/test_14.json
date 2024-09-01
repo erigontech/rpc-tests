@@ -14,7 +14,9 @@
         "response": {
             "id": 1,
             "jsonrpc": "2.0",
-   "results": [
+  "result": {
+    "bundleHash": "0x5d090f1006119fb8860b1ea879186c2332bbdd4fe40d9df1df9c3f837ce6308f",
+    "results": [
       {
         "gasUsed": 37973,
         "txHash": "0x651746ac8955627441037a25ae530240eea1c4798ec93228d516bee8949c949a",
@@ -37,6 +39,7 @@
       }
     ]
   }
+       }
   }
 ]
 

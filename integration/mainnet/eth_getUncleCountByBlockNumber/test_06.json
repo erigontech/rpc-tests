@@ -1,9 +1,9 @@
 [
-    {
+      {
         "request": {
             "jsonrpc":"2.0",
-            "method":"eth_getBlockTransactionCountByNumber",
-            "params":["0xFFFFFFFF"],
+            "method":"eth_getUncleCountByBlockNumber",
+            "params":["0xFFFFFF"],
             "id":1
         },
         "response": {
@@ -11,6 +11,6 @@
             "id":1,
             "result": null
         }
-    }
+      }
 ]
 
