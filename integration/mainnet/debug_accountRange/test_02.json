@@ -36,7 +36,30 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": null 
+      "result": {
+        "accounts": {
+          "0x76b495a3b2137024f3dc03b1c1a062cf3a49a0de": {
+            "balance": "4992",
+            "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+            "nonce": 1,
+            "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+          },
+          "0x76b496121573236da5197220633f8f3dcd6a83b9": {
+            "balance": "0",
+            "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+            "nonce": 1,
+            "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+          },
+          "0x76b4974fb180f3973109f849e31adb058e60eba2": {
+            "balance": "1000000000000000",
+            "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+            "nonce": 0,
+            "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+          }
+        },
+        "next": "drSYuNkt+HjHLUAzIQAqELOBhB0=",
+        "root": "0x0a5cd37405eebff8010da1659026b2e8461ae3b68e19528c4208c9578c1a1a9d"
+      }
     }
   }
 ]
