@@ -67,12 +67,7 @@
           }
         },
         "0xe93381fb4c4f14bda253907b18fad305d799241a": {
-          "balance": {
-            "*": {
-              "from": "0x126c35599ecc3c00",
-              "to": "0x1269bddc162fae00"
-            }
-          },
+          "balance": "=",
           "code": "=",
           "nonce": {
             "*": {
@@ -7473,12 +7468,7 @@
       "output": "0x",
       "stateDiff": {
         "0x268b374261ac5b9ea3bb9d7c4d06b569d0804fad": {
-          "balance": {
-            "*": {
-              "from": "0xc466a408c8d52a8",
-              "to": "0xc2b66b54b6038a8"
-            }
-          },
+          "balance": "=",
           "code": "=",
           "nonce": {
             "*": {

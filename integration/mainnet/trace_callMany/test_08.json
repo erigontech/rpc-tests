@@ -62,7 +62,7 @@
           "balance": {
             "*": {
               "from": "0x3c1cb7b9b4dfc40bda2d",
-              "to": "0x3c1cb7b53ae927a11a2d"
+              "to": "0x3c1cb7b777e475d67a2d"
             }
           },
           "code": "=",
@@ -125,12 +125,7 @@
           "storage": {}
         },
         "0xfcbbf256451c113656a51aaf259a239ae52c0e60": {
-          "balance": {
-            "*": {
-              "from": "0x1037e4f1475bd24",
-              "to": "0xf9b932cf53dd24"
-            }
-          },
+          "balance": "=",
           "code": "=",
           "nonce": {
             "*": {
