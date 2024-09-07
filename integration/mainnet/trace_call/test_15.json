@@ -27,12 +27,7 @@
     "output": "0x",
     "stateDiff": {
       "0x544731de2bc32c96198980f14923e50518ad6a1a": {
-        "balance": {
-          "*": {
-            "from": "0x1c6ac39cc5f495a1",
-            "to": "0x1c66f61143ad25a1"
-          }
-        },
+        "balance": "=",
         "code": "=",
         "nonce": {
           "*": {

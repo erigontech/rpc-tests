@@ -58,12 +58,7 @@
           "storage": {}
         },
         "0xfcbbf256451c113656a51aaf259a239ae52c0e60": {
-          "balance": {
-            "*": {
-              "from": "0x1037e4f1475bd24",
-              "to": "0xf9b932cf53dd24"
-            }
-          },
+          "balance": "=",
           "code": "=",
           "nonce": {
             "*": {
@@ -1428,12 +1423,7 @@
       "output": "0x",
       "stateDiff": {
         "0xb16dc534252e1bbc5a5190e7225615360d1e27eb": {
-          "balance": {
-            "*": {
-              "from": "0xf9ee05ddc3c23e00",
-              "to": "0xf82e6188aa0f3e00"
-            }
-          },
+          "balance": "=",
           "code": "=",
           "nonce": {
             "*": {
