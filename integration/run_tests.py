@@ -68,11 +68,15 @@ tests_not_compared = [
     "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on 11 gasCost
     "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on 18 gasCost
     "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on 1 gasCost
-    "mainnet/trace_replayBlockTransactions/test_22.tar",  # diff on 26 gasCost & 1 error on sub section of SELFDESTRUCT
+    "mainnet/trace_replayBlockTransactions/test_22.tar",  # diff on 26 gasCost
     "mainnet/trace_replayBlockTransactions/test_23.tar",  # diff on 14 gasCost
     "mainnet/trace_replayBlockTransactions/test_24.tar",  # diff on 9 gasCost
     "mainnet/trace_replayBlockTransactions/test_28.tar",  # diff on 10 gasCost
-    "mainnet/trace_replayBlockTransactions/test_29.tar",  # diff on 4 gasCost 6 section sub and 4 mem e stack
+    "mainnet/trace_replayBlockTransactions/test_29.tar",  # diff on 4 gasCost 2 CALL stack info 
+    "mainnet/trace_replayBlockTransactions/test_31.tar",  # diff on 12 gasCost
+    "mainnet/trace_replayBlockTransactions/test_32.tar",  # diff on 8 gasCost
+    "mainnet/trace_replayBlockTransactions/test_33.tar",  # diff on 3 gasCost
+    "mainnet/trace_replayBlockTransactions/test_34.tar",  # diff on 3 gasCost
 
     "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_getPayloadV2/test_01.json", # exception when invoke execution interface
