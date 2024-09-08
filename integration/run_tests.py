@@ -30,23 +30,15 @@ api_not_compared = [
 tests_not_compared = [
     "mainnet/eth_syncing/test_01.json",  # different stages
 
-    "mainnet/debug_traceBlockByNumber/test_05.tar",  # diff on 1 gasCost
+    "mainnet/debug_traceBlockByNumber/test_05.tar",  # diff on 1 gas
     "mainnet/debug_traceBlockByNumber/test_08.tar",  # diff on 3 gasCost
     "mainnet/debug_traceBlockByNumber/test_09.tar",  # diff on 60 gasCost, 8473 gas, 16 stack
     "mainnet/debug_traceBlockByNumber/test_10.tar",  # diff on 42 gasCost, 12358 gas, 8 stack
     "mainnet/debug_traceBlockByNumber/test_11.tar",  # diff on 1 gas and 1 gasCost
     "mainnet/debug_traceBlockByNumber/test_12.tar",  # diff on 1 gas
 
-    "mainnet/debug_traceCall/test_10.tar",  # diff on 1 gasCost
-
     "mainnet/debug_traceCallMany/test_07.tar",  # diff on many storage and many stack entries
     "mainnet/debug_traceCallMany/test_09.json", # diff on 2 storage and 28 stack entries
-    "mainnet/debug_traceCallMany/test_10.tar",  # diff on 1 gasCost
-
-    "mainnet/debug_traceTransaction/test_17.tar",  # diff on 1 DELEGATECALL gasCost
-    "mainnet/debug_traceTransaction/test_18.tar",  # diff on 1 gasCost DELETECALL + CALL
-    "mainnet/debug_traceTransaction/test_21.json",  # diff on gasCost SSTORE last opcode
-    "mainnet/debug_traceTransaction/test_28.tar",  # diff on 28 gasCost
 
     "mainnet/trace_rawTransaction/test_01.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block

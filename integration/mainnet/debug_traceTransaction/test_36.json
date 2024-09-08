@@ -1,0 +1,216 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0xacb09f1c58f6cec5e6a9a2411b00ca16b2fff8d92bf74457a80361e99d82dc0b",
+        {
+          "disableMemory": false,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "failed": true,
+        "gas": 29244,
+        "returnValue": "",
+        "structLogs": [
+          {
+            "depth": 1,
+            "gas": 8244,
+            "gasCost": 2,
+            "memory": [],
+            "op": "CALLDATASIZE",
+            "pc": 0,
+            "stack": []
+          },
+          {
+            "depth": 1,
+            "gas": 8242,
+            "gasCost": 3,
+            "memory": [],
+            "op": "PUSH1",
+            "pc": 1,
+            "stack": [
+              "0x0"
+            ]
+          },
+          {
+            "depth": 1,
+            "gas": 8239,
+            "gasCost": 3,
+            "memory": [],
+            "op": "DUP1",
+            "pc": 3,
+            "stack": [
+              "0x0",
+              "0x0"
+            ]
+          },
+          {
+            "depth": 1,
+            "gas": 8236,
+            "gasCost": 3,
+            "memory": [],
+            "op": "CALLDATACOPY",
+            "pc": 4,
+            "stack": [
+              "0x0",
+              "0x0",
+              "0x0"
+            ]
+          },
+          {
+            "depth": 1,
+            "gas": 8233,
+            "gasCost": 3,
+            "memory": [],
+            "op": "PUSH1",
+            "pc": 5,
+            "stack": []
+          },
+          {
+            "depth": 1,
+            "gas": 8230,
+            "gasCost": 3,
+            "memory": [],
+            "op": "PUSH1",
+            "pc": 7,
+            "stack": [
+              "0x20"
+            ]
+          },
+          {
+            "depth": 1,
+            "gas": 8227,
+            "gasCost": 2,
+            "memory": [],
+            "op": "CALLDATASIZE",
+            "pc": 9,
+            "stack": [
+              "0x20",
+              "0x0"
+            ]
+          },
+          {
+            "depth": 1,
+            "gas": 8225,
+            "gasCost": 3,
+            "memory": [],
+            "op": "PUSH1",
+            "pc": 10,
+            "stack": [
+              "0x20",
+              "0x0",
+              "0x0"
+            ]
+          },
+          {
+            "depth": 1,
+            "gas": 8222,
+            "gasCost": 2,
+            "memory": [],
+            "op": "CALLVALUE",
+            "pc": 12,
+            "stack": [
+              "0x20",
+              "0x0",
+              "0x0",
+              "0x0"
+            ]
+          },
+          {
+            "depth": 1,
+            "gas": 8220,
+            "gasCost": 3,
+            "memory": [],
+            "op": "PUSH20",
+            "pc": 13,
+            "stack": [
+              "0x20",
+              "0x0",
+              "0x0",
+              "0x0",
+              "0x8aa39c121a270000"
+            ]
+          },
+          {
+            "depth": 1,
+            "gas": 8217,
+            "gasCost": 3,
+            "memory": [],
+            "op": "PUSH2",
+            "pc": 34,
+            "stack": [
+              "0x20",
+              "0x0",
+              "0x0",
+              "0x0",
+              "0x8aa39c121a270000",
+              "0x273930d21e01ee25e4c219b63259d214872220a2"
+            ]
+          },
+          {
+            "depth": 1,
+            "gas": 8214,
+            "gasCost": 2,
+            "memory": [],
+            "op": "GAS",
+            "pc": 37,
+            "stack": [
+              "0x20",
+              "0x0",
+              "0x0",
+              "0x0",
+              "0x8aa39c121a270000",
+              "0x273930d21e01ee25e4c219b63259d214872220a2",
+              "0x235a"
+            ]
+          },
+          {
+            "depth": 1,
+            "gas": 8212,
+            "gasCost": 3,
+            "memory": [],
+            "op": "SUB",
+            "pc": 38,
+            "stack": [
+              "0x20",
+              "0x0",
+              "0x0",
+              "0x0",
+              "0x8aa39c121a270000",
+              "0x273930d21e01ee25e4c219b63259d214872220a2",
+              "0x235a",
+              "0x2014"
+            ]
+          },
+          {
+            "depth": 1,
+            "error": {},
+            "gas": 8209,
+            "gasCost": 40,
+            "memory": [],
+            "op": "CALLCODE",
+            "pc": 39,
+            "stack": [
+              "0x20",
+              "0x0",
+              "0x0",
+              "0x0",
+              "0x8aa39c121a270000",
+              "0x273930d21e01ee25e4c219b63259d214872220a2",
+              "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffcba"
+            ]
+          }
+        ]
+      }
+    }
+  }
+]
