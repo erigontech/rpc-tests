@@ -44,31 +44,31 @@ tests_not_compared = [
     "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
     "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
 
-    "mainnet/trace_replayTransaction/test_24.json",  # diff on gasCost on last opcode (OUTOFGAS)
+    "mainnet/trace_replayTransaction/test_24.json_",  # diff on gasCost on last opcode (OUTOFGAS)
 
-    "mainnet/trace_replayBlockTransactions/test_01.tar",  # diff on gasCost + diff last opcode (OUTOFGAS)
-    "mainnet/trace_replayBlockTransactions/test_03.tar",  # diff on 8 gasCost + 2 diff last opcode (OUTOFGAS)
-    "mainnet/trace_replayBlockTransactions/test_04.tar",  # diff on 1 gasCost
-    "mainnet/trace_replayBlockTransactions/test_05.tar",  # diff on 6 gasCost
-    "mainnet/trace_replayBlockTransactions/test_08.tar",  # diff on 1 gasCost
-    "mainnet/trace_replayBlockTransactions/test_13.tar",  # diff on CALLCODE gasCost
-    "mainnet/trace_replayBlockTransactions/test_14.tar",  # diff on 15 gasCost
-    "mainnet/trace_replayBlockTransactions/test_15.tar",  # diff on 3 gasCost
-    "mainnet/trace_replayBlockTransactions/test_16.tar",  # diff on 25 gasCost
-    "mainnet/trace_replayBlockTransactions/test_17.tar",  # diff on 21 gasCost
-    "mainnet/trace_replayBlockTransactions/test_18.tar",  # diff on 5 gasCost + diff last opcode (OUTOFGAS)
-    "mainnet/trace_replayBlockTransactions/test_19.tar",  # diff on 11 gasCost
-    "mainnet/trace_replayBlockTransactions/test_20.tar",  # diff on 18 gasCost
-    "mainnet/trace_replayBlockTransactions/test_21.tar",  # diff on 1 gasCost
-    "mainnet/trace_replayBlockTransactions/test_22.tar",  # diff on 26 gasCost
-    "mainnet/trace_replayBlockTransactions/test_23.tar",  # diff on 14 gasCost
-    "mainnet/trace_replayBlockTransactions/test_24.tar",  # diff on 9 gasCost
-    "mainnet/trace_replayBlockTransactions/test_28.tar",  # diff on 10 gasCost
-    "mainnet/trace_replayBlockTransactions/test_29.tar",  # diff on 4 gasCost 2 CALL stack info 
-    "mainnet/trace_replayBlockTransactions/test_31.tar",  # diff on 12 gasCost
-    "mainnet/trace_replayBlockTransactions/test_32.tar",  # diff on 8 gasCost
-    "mainnet/trace_replayBlockTransactions/test_33.tar",  # diff on 3 gasCost
-    "mainnet/trace_replayBlockTransactions/test_34.tar",  # diff on 3 gasCost
+    "mainnet/trace_replayBlockTransactions/test_01.tar_",  # diff on gasCost + diff last opcode (OUTOFGAS)
+    "mainnet/trace_replayBlockTransactions/test_03.tar_",  # diff on 8 gasCost + 2 diff last opcode (OUTOFGAS)
+    "mainnet/trace_replayBlockTransactions/test_04.tar_",  # diff on 1 gasCost
+    "mainnet/trace_replayBlockTransactions/test_05.tar_",  # diff on 6 gasCost
+    "mainnet/trace_replayBlockTransactions/test_08.tar_",  # diff on 1 gasCost
+    "mainnet/trace_replayBlockTransactions/test_13.tar_",  # diff on CALLCODE gasCost
+    "mainnet/trace_replayBlockTransactions/test_14.tar_",  # diff on 15 gasCost
+    "mainnet/trace_replayBlockTransactions/test_15.tar_",  # diff on 3 gasCost
+    "mainnet/trace_replayBlockTransactions/test_16.tar_",  # diff on 25 gasCost
+    "mainnet/trace_replayBlockTransactions/test_17.tar_",  # diff on 21 gasCost
+    "mainnet/trace_replayBlockTransactions/test_18.tar_",  # diff on 5 gasCost + diff last opcode (OUTOFGAS)
+    "mainnet/trace_replayBlockTransactions/test_19.tar_",  # diff on 11 gasCost
+    "mainnet/trace_replayBlockTransactions/test_20.tar_",  # diff on 18 gasCost
+    "mainnet/trace_replayBlockTransactions/test_21.tar_",  # diff on 1 gasCost
+    "mainnet/trace_replayBlockTransactions/test_22.tar_",  # diff on 26 gasCost
+    "mainnet/trace_replayBlockTransactions/test_23.tar_",  # diff on 14 gasCost
+    "mainnet/trace_replayBlockTransactions/test_24.tar_",  # diff on 9 gasCost
+    "mainnet/trace_replayBlockTransactions/test_28.tar_",  # diff on 10 gasCost
+    "mainnet/trace_replayBlockTransactions/test_29.tar",  # diff on stack info 
+    "mainnet/trace_replayBlockTransactions/test_31.tar_",  # diff on 12 gasCost
+    "mainnet/trace_replayBlockTransactions/test_32.tar_",  # diff on 8 gasCost
+    "mainnet/trace_replayBlockTransactions/test_33.tar_",  # diff on 3 gasCost
+    "mainnet/trace_replayBlockTransactions/test_34.tar_",  # diff on 3 gasCost
 
     "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
     "mainnet/engine_getPayloadV2/test_01.json", # exception when invoke execution interface
