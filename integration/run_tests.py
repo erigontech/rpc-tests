@@ -388,7 +388,7 @@ class Config:
                         sys.exit(1)
                     tokenize_list = optarg.split(",")
                     for test in tokenize_list:
-                        if test not in ['websocket', 'http', 'http_comp', 'websocket_comp']:
+                        if test not in ['websocket', 'http', 'http_comp', 'https', 'websocket_comp']:
                             print("Error invalid connection type: ", test)
                             print("Error in options: -T/--transport_type http,http_comp,https,websocket,websocket_comp")
                             usage(argv)
