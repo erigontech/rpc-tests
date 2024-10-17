@@ -5,17 +5,17 @@
       "jsonrpc": "2.0",
       "method": "eth_getBalance",
       "params": [
-        "0xcf1dc766fc2c62bef0b67a8de666c8e67acf35f6",
-        "0x1036640"
+        "0xC40f73c0630bE875970053B9980BD53AF59eB3E6",
+        "0x2DC6C7"
       ]
     },
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": "0x2703b117035bf256"
+      "result": "0x4acd2073879ef920"
     },
     "test": {
-      "description": "invoke getBalance on specific account on block no. 17000000",
+      "description": "invoke getBalance on specific account on block no. 3000007",
       "reference": ""
     }
   }
