@@ -1,16 +1,21 @@
 [
-    {
-        "request": {
-            "jsonrpc":"2.0",
-            "method":"eth_getBlockTransactionCountByNumber",
-            "params":["0x112A880"],
-            "id":1
-        },
-        "response": {
-            "jsonrpc":"2.0",
-            "id":1,
-            "result":"0x5e"
-        }
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_getBlockTransactionCountByNumber",
+      "params": [
+        "0x1879A3"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0x2"
+    },
+    "test": {
+      "description": "invoke eth_getBlockTransactionCountByNumber on block no. 1604003",
+      "reference": ""
     }
+  }
 ]
-

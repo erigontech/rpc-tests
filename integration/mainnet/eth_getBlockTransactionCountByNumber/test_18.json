@@ -5,16 +5,16 @@
       "jsonrpc": "2.0",
       "method": "eth_getBlockTransactionCountByNumber",
       "params": [
-        "0x1036640"
+        "0x4366AD"
       ]
     },
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": "0x66"
+      "result": "0x7"
     },
     "test": {
-      "description": "invoke eth_getBlockTransactionCountByNumber on block no. 17000000",
+      "description": "invoke eth_getBlockTransactionCountByNumber on block no. 4417197",
       "reference": ""
     }
   }
