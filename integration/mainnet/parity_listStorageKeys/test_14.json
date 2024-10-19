@@ -1,0 +1,29 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "parity_listStorageKeys",
+      "params": [
+        "0x9813037ee2218799597d83D4a5B6F3b6778218d9",
+        4,
+        "0x01",
+        "latest"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "0x0000000000000000000000000000000000000000000000000000000000000003",
+        "0x0000000000000000000000000000000000000000000000000000000000000004",
+        "0x0000000000000000000000000000000000000000000000000000000000000005"
+      ]
+    },
+    "test": {
+      "description": "get storage keys for specific account on latest block  list differs from erigon reply",
+      "reference": ""
+    }
+  }
+]
