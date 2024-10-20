@@ -1,24 +1,45 @@
 [
-   {
-        "request": {
-            "jsonrpc":"2.0",
-            "method":"parity_listStorageKeys",
-            "params":[
-                "0xFD14567eaf9ba941cB8c8a94eEC14831ca7fD1b4",
-                2,
-                null,
-                "latest"
-            ],
-            "id":1
-        },
-        "response": {
-            "jsonrpc":"2.0",
-            "id":1,
-            "result": [
-               "0x0000000000000000000000000000000000000000000000000000000000000001",
-               "0x00001a374273796e8c24fde9780312002df32f4c5a9627c018d325f75e0f1691"
-           ]
-        }
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "parity_listStorageKeys",
+      "params": [
+        "0x3CACa7b48D0573D793d3b0279b5F0029180E83b6",
+        20,
+        "0x000b",
+        "latest"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        "0x000b926fa93ddd27c314254b036fbd6e8be1296e8c1041ea09be11cab0aaa58d",
+        "0x000d109becf64564760eb91e29de1d8f4588c390ef1e0c5f3e39de5240634016",
+        "0x000d41c6277773f126a70e44e1bfacfd6ec722637f7de5c905048c55f4e89781",
+        "0x000d7625f44db3ad34538e147a87996bb2ffa9bbcc4221e5ae7464dedb066147",
+        "0x000d7c7afee437ec00158fe7045f67c0cb708892d11d23144d708ec83346b53b",
+        "0x000ee29a76ecf566e32ba6bd8be6b870ff09d0bb15ca3b91d47172d5c3fb394c",
+        "0x000f51b522f2de011896f133281e5e9a0aa9e859da53f105ef6d306e219a42f3",
+        "0x000f8993f58796c389a15a0c13c4ad31879a69717bb0363efb5a8335b89c5dbc",
+        "0x000f9b6e2e9c7d9965ce054f9e6d9188e31e1d1202d8847ad81c31ee6f4d441b",
+        "0x000fd94c8ea463b4b4d7489f38b4e6811d5b7a1dd584fbf9603e24e445213523",
+        "0x00106ddfb3816894a21c51a2b6893bd0798ff734169ab9797acbdcfc3863e888",
+        "0x0010da1c7563bb85a5aeecddcca4c81b0f3d1b4ec4e8428264a5643add54e876",
+        "0x00113050c943db8bbf1528f3ded66decd65653d788039c488ec904638166d4cf",
+        "0x00115f596ef33db712e5fdb74949951eac12bdec2cc21e2f8921bca3d6099be6",
+        "0x00119f0b5d62970896d9d7593c3e5f805ecfd649d6b9c57dc3348f0d2f3b62e0",
+        "0x0011b1e5ee59d6b55bdfbe66ae6b32260ee6c83ca6ee0bdbd5ae1f525dd1e392",
+        "0x0011f32aa46433b9bf337cec93eeef0f5ad83e8ffa2e623f75f25c885bcefd72",
+        "0x0011fb6167683cbf2a31b6356a821bae321f4d485a04cb7615387c67e03a6032",
+        "0x0012379fa7b54b947bf5579cb54b164c6a8082e035905876cca1f8b3b8e77f0c",
+        "0x00126a66dc159e9be94ce93d3c6a50721a5c6c6bc7b74b48641905ef91fc9049"
+      ]
+    },
+    "test": {
+      "description": "get storage keys for specific account on latest block  list differs from erigon reply",
+      "reference": ""
     }
+  }
 ]
-

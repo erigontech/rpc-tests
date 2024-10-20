@@ -66,7 +66,11 @@ tests_not_compared = [
     "mainnet/engine_newPayloadV2/test_01.json", # exception when invoke execution interface
     "mainnet/erigon_forks/test_1.json", # exception when invoke execution interface
     "mainnet/engine_exchangeTransitionConfigurationV1/test_01.json", # diff on supported API list
-    "mainnet/engine_exchangeCapabilities/test_1.json"  # diff on supported API list
+    "mainnet/engine_exchangeCapabilities/test_1.json",  # diff on supported API list
+
+    "mainnet/parity_listStorageKeys/test_08.json",  # diff on key list
+    "mainnet/parity_listStorageKeys/test_12.json",  # diff on key list
+    "mainnet/parity_listStorageKeys/test_14.json"  # diff on key list
 ]
 
 tests_not_compared_message = [

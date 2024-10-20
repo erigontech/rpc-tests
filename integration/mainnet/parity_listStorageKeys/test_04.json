@@ -1,21 +1,27 @@
 [
-   {
-        "request": {
-            "jsonrpc":"2.0",
-            "method":"parity_listStorageKeys",
-            "params":[
-                "0x738ACaF48938C42D9c0f6cE23dF56b0F00dbe860",
-                0,
-                null,
-                "latest"
-            ],
-            "id":1
-        },
-        "response": {
-            "jsonrpc":"2.0",
-            "id":1,
-            "result": []
-        }
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "parity_listStorageKeys",
+      "params": [
+        "0x6dc6001535e15b9def7b0f6A20a2111dFA9454E2",
+        2,
+        null,
+        "latest"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "test": {
+      "description": "get storage keys for specific account on latest block",
+      "reference": ""
     }
+  }
 ]
-
