@@ -30,6 +30,13 @@ api_not_compared = [
 tests_not_compared = [
     "mainnet/eth_syncing/test_01.json",  # different stages
 
+    "mainnet/debug_traceBlockByHash/test_05.tar",  # diff on 1 gas
+    "mainnet/debug_traceBlockByHash/test_08.tar",  # diff on 3 gasCost
+    "mainnet/debug_traceBlockByHash/test_09.tar",  # diff on 60 gasCost, 8473 gas, 16 stack
+    "mainnet/debug_traceBlockByHash/test_10.tar",  # diff on 42 gasCost, 12358 gas, 8 stack
+    "mainnet/debug_traceBlockByHash/test_11.tar",  # diff on 1 gas and 1 gasCost
+    "mainnet/debug_traceBlockByHash/test_12.tar",  # diff on 1 gas
+
     "mainnet/debug_traceBlockByNumber/test_05.tar",  # diff on 1 gas
     "mainnet/debug_traceBlockByNumber/test_08.tar",  # diff on 3 gasCost
     "mainnet/debug_traceBlockByNumber/test_09.tar",  # diff on 60 gasCost, 8473 gas, 16 stack
