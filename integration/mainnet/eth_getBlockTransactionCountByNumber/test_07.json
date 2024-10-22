@@ -1,16 +1,21 @@
 [
-    {
-        "request": {
-            "jsonrpc":"2.0",
-            "method":"eth_getBlockTransactionCountByNumber",
-            "params":["earliest"],
-            "id":1
-        },
-        "response": {
-            "jsonrpc":"2.0",
-            "id":1,
-            "result":"0x0"
-        }
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_getBlockTransactionCountByNumber",
+      "params": [
+        "0xE4E226"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0x0"
+    },
+    "test": {
+      "description": "invoke eth_getBlockTransactionCountByNumber on not existent account on block no. 15000102",
+      "reference": ""
     }
+  }
 ]
-
