@@ -365,11 +365,6 @@ class Config:
                 elif option in ("-s", "--start-from-test"):
                     self.start_test = int(optarg)
                 elif option in ("-a", "--api-list-with"):
-                    if self.exclude_api_list != "":
-                        print("Error on options: "
-                              "-a/--api-list-with is not compatible with -X/--exclude-test-list")
-                        usage(argv)
-                        sys.exit(1)
                     self.testing_apis_with = optarg
                 elif option in ("-A", "--api-list"):
                     if self.exclude_api_list != "":
@@ -413,11 +408,6 @@ class Config:
                     self.json_dir = "./" + self.net + "/"
                     self.output_dir = self.json_dir + self.results_dir + "/"
                 elif option in ("-x", "--exclude-api-list"):
-                    if self.req_test_number != -1 or self.testing_apis != "" or self.testing_apis_with != "":
-                        print("Error in options: "
-                              "-x/--exclude-api-list is not compatible with -a/--api-list-with or -A/--apis-list or -t/--run-single-test")
-                        usage(argv)
-                        sys.exit(1)
                     self.exclude_api_list = optarg
                 elif option in ("-X", "--exclude-test-list"):
                     if self.req_test_number != -1:
@@ -831,7 +821,7 @@ def main(argv) -> int:
                                 if config.display_only_fail == 0 and config.req_test_number != "":
                                     file = json_test_full_name.ljust(60)
                                     print(f"{test_number_in_any_loop:04d}. {file} Skipped")
-                                    tests_not_executed = tests_not_executed + 1
+                                tests_not_executed = tests_not_executed + 1
                         else:
                             # runs all tests or
                             # runs single global test
