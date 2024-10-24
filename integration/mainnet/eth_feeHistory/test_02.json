@@ -17,30 +17,39 @@
         "response": {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": {
-             "baseFeePerGas": [
-                  "0x0",
-                  "0x0",
-                  "0x0"
-             ],
-             "gasUsedRatio": [
-                  0.399316875,
-                  0.243054875
-             ],
-             "oldestBlock": "0x737a7f",
-             "reward": [
-                  [
-                       "0x3b9aca00",
-                       "0x77359400",
-                       "0x4a817c800"
-                  ],
-                  [
-                       "0x3b9aca00",
-                       "0x77359400",
-                       "0x2540be400"
-                  ]
-             ]
-        }
+  "result": {
+    "baseFeePerBlobGas": [
+      "0x0",
+      "0x0",
+      "0x0"
+    ],
+    "baseFeePerGas": [
+      "0x0",
+      "0x0",
+      "0x0"
+    ],
+    "blobGasUsedRatio": [
+      0,
+      0
+    ],
+    "gasUsedRatio": [
+      0.399316875,
+      0.243054875
+    ],
+    "oldestBlock": "0x737a7f",
+    "reward": [
+      [
+        "0x3b9aca00",
+        "0x77359400",
+        "0x4a817c800"
+      ],
+      [
+        "0x3b9aca00",
+        "0x77359400",
+        "0x2540be400"
+      ]
+    ]
+  }
 
       }
     }
