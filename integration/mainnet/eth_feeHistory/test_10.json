@@ -17,16 +17,23 @@
         "response": {
          "id": 1,
          "jsonrpc": "2.0",
-         "result": {
-           "baseFeePerGas": [
-              "0x0",
-              "0x0"
-            ],
-            "gasUsedRatio": [
-              0.9980612069624781
-            ],
-            "oldestBlock": "0x989680"
-        }
+  "result": {
+    "baseFeePerBlobGas": [
+      "0x0",
+      "0x0"
+    ],
+    "baseFeePerGas": [
+      "0x0",
+      "0x0"
+    ],
+    "blobGasUsedRatio": [
+      0
+    ],
+    "gasUsedRatio": [
+      0.9980612069624781
+    ],
+    "oldestBlock": "0x989680"
+  }
       }
     }
 ]
