@@ -7,9 +7,9 @@
       "params": [
         "0x2ef0dd3ec03b108ae84e9355a783d5399a7b7f7dde9c1c519f8693b15aaad5da",
         {
-          "disableMemory": false,
-          "disableStack": false,
-          "disableStorage": false
+          "disableMemory": true,
+          "disableStack": true,
+          "disableStorage": true
         }
       ]
     },
@@ -22,6 +22,10 @@
         "returnValue": "",
         "structLogs": []
       }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
   }
 ]

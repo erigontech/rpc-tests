@@ -48,7 +48,6 @@ tests_not_compared = [
     "mainnet/debug_traceCallMany/test_09.json", # diff on 2 storage and 28 stack entries
 
     "mainnet/debug_traceTransaction/test_43.json",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_44.json",  # diff on 1 gasCost
     "mainnet/debug_traceTransaction/test_90.tar",  # diff on 1 gasCost
     "mainnet/debug_traceTransaction/test_91.tar",  # diff on 1 gasCost
     "mainnet/debug_traceTransaction/test_92.tar",  # diff on 1 gasCost

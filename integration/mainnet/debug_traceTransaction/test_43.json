@@ -1507,14 +1507,18 @@
           },
           {
             "depth": 1,
-            "error": {},
+            "error": "out of gas",
             "gas": 703,
-            "gasCost": 1500,
+            "gasCost": 1756,
             "op": "LOG3",
             "pc": 2941
           }
         ]
       }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
   }
 ]
