@@ -15,6 +15,7 @@
                "Verkle": false,
                "VerkleKeyVals": null,
                "VerkleProof": null,
+               "requestsHash": null,
                "blobGasUsed": null,
                "excessBlobGas": null,
                "parentBeaconBlockRoot": null,
