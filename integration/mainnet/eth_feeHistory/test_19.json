@@ -1,0 +1,72 @@
+[
+    {
+        "test": {
+         "reference": "",
+         "description": "with newest block and without percentiles"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_feeHistory",
+            "params": [
+               "0x5",
+                "0x1300A00",
+                [0]
+            ],
+            "id": 1
+        },
+        "response": {
+         "id": 1,
+         "jsonrpc": "2.0",
+  "result": {
+    "baseFeePerBlobGas": [
+      "0x1",
+      "0x1",
+      "0x1",
+      "0x1",
+      "0x1",
+      "0x1"
+    ],
+    "baseFeePerGas": [
+      "0x3fc9233c6",
+      "0x3f6787b3a",
+      "0x41024b1e9",
+      "0x40b3e1f9a",
+      "0x4216c580a",
+      "0x4105aa63b"
+    ],
+    "blobGasUsedRatio": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "gasUsedRatio": [
+      0.47608996666666664,
+      0.6012260333333334,
+      0.48115386666666665,
+      0.5857018333333334,
+      0.43543126666666665
+    ],
+    "oldestBlock": "0x13009fc",
+    "reward": [
+      [
+        "0x0"
+      ],
+      [
+        "0x0"
+      ],
+      [
+        "0x0"
+      ],
+      [
+        "0x0"
+      ],
+      [
+        "0x0"
+      ]
+    ]
+  }
+      }
+    }
+]
