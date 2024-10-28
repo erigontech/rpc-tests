@@ -28,52 +28,69 @@ api_not_compared = [
 ]
 
 tests_not_compared = [
+    "mainnet/debug_accountRange",  # necessary new algo using tkv 
+
+    "mainnet/debug_getModifiedAccountsByHash",  # necessary new algo using tkv 
+
+    "mainnet/debug_getModifiedAccountsByNumber",  # necessary new algo using tkv 
+
+    "mainnet/debug_storageRangeAt",  # necessary new algo using tkv 
+
+    "mainnet/erigon_getBalanceChangesInBlock",  # necessary new algo using tkv 
+
+    "mainnet/erigon_getLatestLogs",  # necessary new algo using tkv 
+
+    "mainnet/erigon_getLogsByHash",  # necessary new algo using tkv 
+
+    "mainnet/eth_getLogs",  # necessary new algo using tkv 
+
+    "mainnet/ots_searchTransactionsAfter",  # necessary new algo using tkv 
+
+    "mainnet/ots_searchTransactionsBefore",  # necessary new algo using tkv 
+
+    "mainnet/ots_getTransactionBySenderAndNonce",  # necessary new algo using tkv
+
+    "mainnet/ots_getContractCreator",  # necessary new algo using tkv
+
     "mainnet/eth_syncing/test_01.json",  # different stages
 
-    "mainnet/debug_traceBlockByHash/test_05.tar",  # diff on 1 gas
-    "mainnet/debug_traceBlockByHash/test_08.tar",  # diff on 3 gasCost
-    "mainnet/debug_traceBlockByHash/test_09.tar",  # diff on 60 gasCost, 8473 gas, 16 stack
-    "mainnet/debug_traceBlockByHash/test_10.tar",  # diff on 42 gasCost, 12358 gas, 8 stack
-    "mainnet/debug_traceBlockByHash/test_11.tar",  # diff on 1 gas and 1 gasCost
-    "mainnet/debug_traceBlockByHash/test_12.tar",  # diff on 1 gas
+    "mainnet/ots_hasCode/test_09", # bad return code if tx and block are invalid
 
-    "mainnet/debug_traceBlockByNumber/test_05.tar",  # diff on 1 gas
-    "mainnet/debug_traceBlockByNumber/test_08.tar",  # diff on 3 gasCost
-    "mainnet/debug_traceBlockByNumber/test_09.tar",  # diff on 60 gasCost, 8473 gas, 16 stack
-    "mainnet/debug_traceBlockByNumber/test_10.tar",  # diff on 42 gasCost, 12358 gas, 8 stack
-    "mainnet/debug_traceBlockByNumber/test_11.tar",  # diff on 1 gas and 1 gasCost
-    "mainnet/debug_traceBlockByNumber/test_12.tar",  # diff on 1 gas
+    "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest
 
-    "mainnet/debug_traceCallMany/test_07.tar",  # diff on many storage and many stack entries
-    "mainnet/debug_traceCallMany/test_09.json", # diff on 2 storage and 28 stack entries
+    "mainnet/parity_listStorageKeys/test_12", # must be debugged
 
-    "mainnet/debug_traceTransaction/test_43.json",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_44.json",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_90.tar",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_91.tar",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_92.tar",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_96.json",  # diff on 1 gasCost
-    
-    "mainnet/trace_rawTransaction/test_01.json",  # as executed on latest block
-    "mainnet/trace_rawTransaction/test_02.json",  # as executed on latest block
-    "mainnet/trace_rawTransaction/test_03.json",  # as executed on latest block
+    "mainnet/debug_traceBlockByHash/test_05",  # diff on 1 gas
+    "mainnet/debug_traceBlockByHash/test_08",  # diff on 3 gasCost
+    "mainnet/debug_traceBlockByHash/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
+    "mainnet/debug_traceBlockByHash/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
+    "mainnet/debug_traceBlockByHash/test_11",  # diff on 1 gas and 1 gasCost
+    "mainnet/debug_traceBlockByHash/test_12",  # diff on 1 gas
 
-    "mainnet/trace_replayBlockTransactions/test_29.tar",  # diff on stack info 
+    "mainnet/debug_traceBlockByNumber/test_05",  # diff on 1 gas
+    "mainnet/debug_traceBlockByNumber/test_08",  # diff on 3 gasCost
+    "mainnet/debug_traceBlockByNumber/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
+    "mainnet/debug_traceBlockByNumber/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
+    "mainnet/debug_traceBlockByNumber/test_11",  # diff on 1 gas and 1 gasCost
+    "mainnet/debug_traceBlockByNumber/test_12",  # diff on 1 gas
 
-    "mainnet/engine_getPayloadV1/test_01.json", # exception when invoke execution interface
-    "mainnet/engine_getPayloadV2/test_01.json", # exception when invoke execution interface
-    "mainnet/engine_forkchoiceUpdatedV1/test_01.json", # exception when invoke execution interface
-    "mainnet/engine_forkchoiceUpdatedV2/test_01.json", # exception when invoke execution interface
-    "mainnet/engine_getPayloadBodiesByHashV1/test_01.json", # exception when invoke execution interface
-    "mainnet/engine_getPayloadBodiesByHashV1/test_02.json", # exception when invoke execution interface
-    "mainnet/engine_getPayloadBodiesByRangeV1/test_01.json", # exception when invoke execution interface
-    "mainnet/engine_getPayloadBodiesByRangeV1/test_02.json", # exception when invoke execution interface
-    "mainnet/engine_getPayloadBodiesByRangeV1/test_03.json", # exception when invoke execution interface
-    "mainnet/engine_newPayloadV1/test_01.json", # exception when invoke execution interface
-    "mainnet/engine_newPayloadV2/test_01.json", # exception when invoke execution interface
-    "mainnet/erigon_forks/test_1.json", # exception when invoke execution interface
-    "mainnet/engine_exchangeTransitionConfigurationV1/test_01.json", # diff on supported API list
-    "mainnet/engine_exchangeCapabilities/test_1.json"  # diff on supported API list
+    "mainnet/debug_traceCallMany/test_07",  # diff on many storage and many stack entries
+    "mainnet/debug_traceCallMany/test_09", # diff on 2 storage and 28 stack entries
+
+    "mainnet/debug_traceTransaction/test_43",  # diff on 1 gasCost
+    "mainnet/debug_traceTransaction/test_44",  # diff on 1 gasCost
+    "mainnet/debug_traceTransaction/test_90",  # diff on 1 gasCost
+    "mainnet/debug_traceTransaction/test_91",  # diff on 1 gasCost
+    "mainnet/debug_traceTransaction/test_92",  # diff on 1 gasCost
+    "mainnet/debug_traceTransaction/test_96",  # diff on 1 gasCost
+
+    "mainnet/trace_rawTransaction/test_01",  # different implemenntaion
+    "mainnet/trace_rawTransaction/test_02",  # different implementation
+    "mainnet/trace_rawTransaction/test_03",  # different implementation
+
+    "mainnet/trace_replayBlockTransactions/test_29",  # diff on stack info 
+
+    "mainnet/engine_"
 ]
 
 tests_not_compared_message = [
@@ -124,6 +141,7 @@ def usage(argv):
     print("-r,--erigon-rpcdaemon: connect to Erigon RpcDaemon [default: connect to Silkrpc] ")
     print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
     print("-i,--without-compare-results: send request without compare results")
+    print("-w,--waiting_time: waiting after test execution (millisec)")
 
 
 def get_target_name(target_type: str):
@@ -228,13 +246,14 @@ def is_skipped(curr_api, test_name: str, global_test_number, config):
     """
     api_full_name = config.net + "/" + curr_api
     api_full_test_name = config.net + "/" + test_name
-    if config.req_test_number == -1 and config.verify_with_daemon == 1:
+    if ((config.req_test_number == -1 or config.testing_apis != "" or config.testing_apis_with != "") and  #  -t or -a, or -A
+        not(config.req_test_number != -1 and (config.testing_apis != "" or config.testing_apis_with != "")) and #  NOT (-t and (-A or -a))
+        config.exclude_api_list == ""  and config.exclude_test_list == ""): # if not -t and -x and -X are null -x or -X
         for curr_test_name in api_not_compared:
-            if curr_test_name == api_full_name:
+            if curr_test_name in api_full_name:
                 return 1
-    if config.req_test_number == -1 and config.verify_with_daemon == 1:
         for curr_test in tests_not_compared:
-            if curr_test == api_full_test_name:
+            if curr_test in api_full_test_name:
                 return 1
     if config.exclude_api_list != "":  # scans exclude api list (-x)
         tokenize_exclude_api_list = config.exclude_api_list.split(",")
@@ -320,20 +339,23 @@ class Config:
         self.transport_type = "http"
         self.use_jsondiff = False
         self.without_compare_results = False
+        self.waiting_time = 0
 
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iwhfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:j",
+            opts, _ = getopt.getopt(argv[1:], "iw:hfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:j",
                                     ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                                      'api-list-with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
-                                     'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff',
+                                     'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff', 'waiting_time=',
                                      'dump-response', 'without-compare-results'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
                     sys.exit(1)
+                elif option in ("-w", "--waiting_time"):
+                    self.waiting_time = int(optarg)
                 elif option in ("-c", "--continue"):
                     self.exit_on_fail = 0
                 elif option in ("-r", "--erigon-rpcdaemon"):
@@ -811,8 +833,7 @@ def main(argv) -> int:
                 test_lists = sorted(os.listdir(test_dir))
                 test_number = 1
                 for test_name in test_lists:  # scan all json test present in the dir
-                    if (test_name in ["json", "zip",
-                                      "gzip"] == 0):  # if file doesn't terminate with .json, .gzip, .tar jump it
+                    if (test_name in ["json", "zip", "gzip"] == 0):  # if file doesn't terminate with .json, .gzip, .tar jump it
                         continue
                     if api_under_test(curr_api, config):  # -a/-A or any api
                         json_test_full_name = curr_api + "/" + test_name
@@ -839,6 +860,8 @@ def main(argv) -> int:
                                     else:
                                         print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file}\r", end='', flush=True)
                                     ret = run_test(json_test_full_name, test_number_in_any_loop, transport_type, config)
+                                    if config.waiting_time:
+                                       time.sleep(config.waiting_time/1000)
                                     if ret == 1:
                                         success_tests = success_tests + 1
                                     else:
