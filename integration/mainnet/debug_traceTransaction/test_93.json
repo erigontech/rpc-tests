@@ -583,7 +583,7 @@
           },
           {
             "depth": 1,
-            "error": {},
+            "error": "out of gas",
             "gas": 77895,
             "gasCost": 1009040,
             "op": "CALL",
@@ -591,6 +591,10 @@
           }
         ]
       }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
   }
 ]

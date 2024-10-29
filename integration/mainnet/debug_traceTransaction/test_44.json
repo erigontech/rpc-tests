@@ -30,7 +30,7 @@
           },
           {
             "depth": 1,
-            "error": {},
+            "error": "stack underflow (1 <=> 2)",
             "gas": 188726,
             "gasCost": 3,
             "op": "SGT",
@@ -38,6 +38,10 @@
           }
         ]
       }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
   }
 ]

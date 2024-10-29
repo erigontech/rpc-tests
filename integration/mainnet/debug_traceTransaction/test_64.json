@@ -583,7 +583,7 @@
           },
           {
             "depth": 2,
-            "error": {},
+            "error": "out of gas",
             "gas": 0,
             "gasCost": 3,
             "op": "PUSH1",
@@ -857,6 +857,10 @@
           }
         ]
       }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
   }
 ]

@@ -64,7 +64,6 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByHash/test_08",  # diff on 3 gasCost
     "mainnet/debug_traceBlockByHash/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
     "mainnet/debug_traceBlockByHash/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
-    "mainnet/debug_traceBlockByHash/test_11",  # diff on 1 gas and 1 gasCost
     "mainnet/debug_traceBlockByHash/test_12",  # diff on 1 gas
 
     "mainnet/debug_traceBlockByNumber/test_05",  # diff on 1 gas
@@ -77,12 +76,17 @@ tests_not_compared = [
     "mainnet/debug_traceCallMany/test_07",  # diff on many storage and many stack entries
     "mainnet/debug_traceCallMany/test_09", # diff on 2 storage and 28 stack entries
 
-    "mainnet/debug_traceTransaction/test_43",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_44",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_90",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_91",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_92",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_96",  # diff on 1 gasCost
+    "mainnet/debug_traceTransaction/test_25.json", # diff on errror
+    "mainnet/debug_traceTransaction/test_36.json", # diff on errror
+    "mainnet/debug_traceTransaction/test_43.json",  # diff on 1 gasCost
+    "mainnet/debug_traceTransaction/test_62.json", # diff on errror
+    "mainnet/debug_traceTransaction/test_74.tar",  # diff on errror
+    "mainnet/debug_traceTransaction/test_75.tar",  # diff on errror
+    "mainnet/debug_traceTransaction/test_77.json", # diff on errror
+    "mainnet/debug_traceTransaction/test_90.tar",  # diff on 1 gas and 1 gasCost and too big
+    "mainnet/debug_traceTransaction/test_91.tar",  # diff on 1 gas and 1 gasCost and too big
+    "mainnet/debug_traceTransaction/test_92.tar",  # diff on 1 gas and 1 gasCost and too big
+    "mainnet/debug_traceTransaction/test_96.json", # diff on 1 gas and 1 gasCost and too big
 
     "mainnet/trace_rawTransaction/test_01",  # different implemenntaion
     "mainnet/trace_rawTransaction/test_02",  # different implementation

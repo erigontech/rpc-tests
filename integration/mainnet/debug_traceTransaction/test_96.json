@@ -779,14 +779,18 @@
           },
           {
             "depth": 1,
-            "error": {},
+            "error": "out of gas",
             "gas": 5,
-            "gasCost": 10,
+            "gasCost": 60,
             "op": "EXP",
             "pc": 2213
           }
         ]
       }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
   }
 ]

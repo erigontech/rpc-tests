@@ -3782,7 +3782,7 @@
           },
           {
             "depth": 2,
-            "error": {},
+            "error": "out of gas: gas uint64 overflow",
             "gas": 8216,
             "gasCost": 40,
             "op": "CALL",
@@ -3811,6 +3811,10 @@
           }
         ]
       }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
   }
 ]
