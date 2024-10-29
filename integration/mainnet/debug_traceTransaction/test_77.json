@@ -114,7 +114,7 @@
           },
           {
             "depth": 1,
-            "error": {},
+            "error": "out of gas: gas uint64 overflow",
             "gas": 8209,
             "gasCost": 40,
             "op": "CALLCODE",
@@ -122,6 +122,10 @@
           }
         ]
       }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
   }
 ]
