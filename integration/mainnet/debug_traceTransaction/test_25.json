@@ -193,7 +193,7 @@
           },
           {
             "depth": 1,
-            "error": {},
+            "error": "out of gas",
             "gas": 3965,
             "gasCost": 40,
             "memory": [],

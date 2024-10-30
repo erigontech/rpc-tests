@@ -23,7 +23,7 @@
         "structLogs": [
           {
             "depth": 1,
-            "error": {},
+            "error": "out of gas",
             "gas": 0,
             "gasCost": 3,
             "memory": [],
