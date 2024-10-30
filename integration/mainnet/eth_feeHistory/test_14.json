@@ -1,15 +1,15 @@
 [
     {
         "test": {
-         "reference": "https://etherscan.io/block/10000000",
-         "description": "with oldest block without percentile"
+         "reference": "",
+         "description": "with newest block and without percentiles"
         },
         "request": {
             "jsonrpc": "2.0",
             "method": "eth_feeHistory",
             "params": [
-               "0x1",
-                "0x989680",
+               "0x3",
+                "0x11c2D00",
                 []
             ],
             "id": 1
@@ -20,19 +20,27 @@
   "result": {
     "baseFeePerBlobGas": [
       "0x0",
-      "0x0"
-    ],
-    "baseFeePerGas": [
+      "0x0",
       "0x0",
       "0x0"
     ],
+    "baseFeePerGas": [
+      "0x7c937af43",
+      "0x78214b7d9",
+      "0x7dafda662",
+      "0x81692bbb4"
+    ],
     "blobGasUsedRatio": [
+      0,
+      0,
       0
     ],
     "gasUsedRatio": [
-      0.9980612069624781
+      0.3572427,
+      0.6850284,
+      0.6185134333333333
     ],
-    "oldestBlock": "0x989680"
+    "oldestBlock": "0x11c2cfe"
   }
       }
     }
