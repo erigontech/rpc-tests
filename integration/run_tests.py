@@ -40,8 +40,6 @@ tests_not_compared = [
 
     "mainnet/erigon_getLatestLogs",  # necessary new algo using tkv 
 
-    "mainnet/erigon_getLogsByHash",  # necessary new algo using tkv 
-
     "mainnet/eth_getLogs",  # necessary new algo using tkv 
 
     "mainnet/ots_searchTransactionsAfter",  # necessary new algo using tkv 
@@ -54,16 +52,21 @@ tests_not_compared = [
 
     "mainnet/eth_syncing/test_01.json",  # different stages
 
-    "mainnet/ots_hasCode/test_09", # bad return code if tx and block are invalid
+    "mainnet/ots_hasCode/test_09", # bad return code 
 
     "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest
 
     "mainnet/parity_listStorageKeys/test_12", # must be debugged
 
+    "mainnet/eth_estimateGas", # new field are added
+   
+    "mainnet/eth_getBlockReceipts/test_07", # new field
+
     "mainnet/debug_traceBlockByHash/test_05",  # diff on 1 gas
     "mainnet/debug_traceBlockByHash/test_08",  # diff on 3 gasCost
     "mainnet/debug_traceBlockByHash/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
     "mainnet/debug_traceBlockByHash/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
+    "mainnet/debug_traceBlockByHash/test_11",  # diff on 1 gas and 1 gasCost
     "mainnet/debug_traceBlockByHash/test_12",  # diff on 1 gas
 
     "mainnet/debug_traceBlockByNumber/test_05",  # diff on 1 gas
