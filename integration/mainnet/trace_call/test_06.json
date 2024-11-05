@@ -52,7 +52,7 @@
         "trace": [
           {
             "action": {
-              "createType": "call",
+              "creationMethod": "create",
               "from": "0x3faa17384cbab39b316b017ead3de7e47fe99a2b",
               "gas": "0x0",
               "init": "0xa9059cbb000000000000000000000000fc9dd1f314dbb6b95c6b5386e00f662ee8e123780000000000000000000000000000000000000000000000004563918244f40000",
