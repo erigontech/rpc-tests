@@ -48,8 +48,6 @@ tests_not_compared = [
 
     "mainnet/eth_syncing/test_01.json",  # different stages
 
-    "mainnet/ots_hasCode/test_09", # bad return code 
-
     "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest
 
     "mainnet/parity_listStorageKeys/test_12", # must be debugged
