@@ -91,9 +91,9 @@ tests_not_compared = [
     "mainnet/debug_traceTransaction/test_92.tar",  # diff on 1 gas and 1 gasCost and too big
     "mainnet/debug_traceTransaction/test_96.json", # diff on 1 gas and 1 gasCost and too big
 
-    "mainnet/trace_rawTransaction/test_01",  # different implemenntaion
-    "mainnet/trace_rawTransaction/test_02",  # different implementation
-    "mainnet/trace_rawTransaction/test_03",  # different implementation
+    "mainnet/trace_rawTransaction/test_01",  # not supported by erigon 
+    "mainnet/trace_rawTransaction/test_02",  # not supported by erigon 
+    "mainnet/trace_rawTransaction/test_03",  # not supported by erigon 
 
     "mainnet/trace_replayBlockTransactions/test_29",  # diff on stack info 
 
