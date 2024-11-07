@@ -30,10 +30,6 @@ api_not_compared = [
 tests_not_compared = [
     "mainnet/debug_accountRange",  # necessary new algo using tkv 
 
-    "mainnet/debug_getModifiedAccountsByHash",  # necessary new algo using tkv 
-
-    "mainnet/debug_getModifiedAccountsByNumber",  # necessary new algo using tkv 
-
     "mainnet/debug_storageRangeAt",  # necessary new algo using tkv 
 
     "mainnet/erigon_getBalanceChangesInBlock",  # necessary new algo using tkv 
@@ -874,15 +870,13 @@ def main(argv) -> int:
                                     else:
                                         failed_tests = failed_tests + 1
                                     executed_tests = executed_tests + 1
-                                    if config.req_test_number != -1 or config.testing_apis != "":
-                                        match = 1
 
                     global_test_number = global_test_number + 1
                     test_number_in_any_loop = test_number_in_any_loop + 1
                     test_number = test_number + 1
 
-    if (config.req_test_number != -1 or config.testing_apis != "") and match == 0:
-        print("ERROR: api or testNumber not found")
+    if executed_tests == 0:
+        print("ERROR: api-name or testNumber not found")
         return 1
 
     elapsed = datetime.now() - start_time
