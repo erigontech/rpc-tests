@@ -42,20 +42,14 @@ tests_not_compared = [
 
     "mainnet/ots_searchTransactionsBefore",  # necessary new algo using tkv 
 
-    "mainnet/ots_getTransactionBySenderAndNonce",  # necessary new algo using tkv
-
     "mainnet/ots_getContractCreator",  # necessary new algo using tkv
 
     "mainnet/eth_syncing/test_01.json",  # different stages
-
-    "mainnet/ots_hasCode/test_09", # bad return code 
 
     "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest
 
     "mainnet/parity_listStorageKeys/test_12", # must be debugged
 
-    "mainnet/eth_estimateGas", # new field are added
-   
     "mainnet/eth_getBlockReceipts/test_07", # new field
 
     "mainnet/debug_traceBlockByHash/test_05",  # diff on 1 gas
