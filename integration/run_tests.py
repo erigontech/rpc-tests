@@ -334,7 +334,7 @@ class Config:
         self.jwt_secret = ""
         self.display_only_fail = 0
         self.transport_type = "http"
-        self.use_jsondiff = False
+        self.use_jsondiff = True
         self.without_compare_results = False
         self.waiting_time = 0
 
