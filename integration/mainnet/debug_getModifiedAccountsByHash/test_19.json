@@ -1,0 +1,55 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_getModifiedAccountsByHash",
+      "params": [
+        "0xfac3d3f228c3c0acb871068da38da8848234c2504fdf3dfca52ca2129143ab77",
+        "0xfac3d3f228c3c0acb871068da38da8848234c2504fdf3dfca52ca2129143ab77"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        "0x0317fa147672a95be3c47405dee1669369565c14",
+        "0x06d7c50a3e7e082fd780bdea97b1223ee92606ed",
+        "0x0eaeca367efdb47b8357f4d2256a14f1319802a5",
+        "0x1a33a15160c94bf803e713304e27887fd4dc33e8",
+        "0x1f27fbfe92c42fb007a7ba19f426c247f9c0dcba",
+        "0x30f1276212c4f4e09c44da625ea500e948f60d3d",
+        "0x3cdaa641396360dac06d9f5be022d43a93cdf870",
+        "0x429bf8ec3330e02401d72beade86000d9a2e19eb",
+        "0x4bb96091ee9d802ed039c4d1a5f6216f90f81b01",
+        "0x4f389762a7ab841e866c6eaff45a63b99a822fa4",
+        "0x519c8329e6be3a97a332361f01d3dd41a555e0f9",
+        "0x52a087607de222c5bfb34db169d8782e5b94cdbb",
+        "0x5918180432543be93b7f77d4b4480cc40e695834",
+        "0x72abde06d591bd023e6381a10fa726fbbcd73c5d",
+        "0x7555eb85d0b1a966d4bdc188a06141b8652332b3",
+        "0x7a6df3ae74e6758618bcafabbbae9bbe6df8f724",
+        "0x7f3d397286d277b19250f9ef642f44069602365d",
+        "0x80774188cd524bbbefd8a6871256748a5dcf5e6c",
+        "0xa0dc033866775ecddb9f45269f85729a5e7abbf5",
+        "0xa22b3bd4eaea1549ffc9605859a66f3414037526",
+        "0xa55f59a4be576042b259e6080987ce1273ba9443",
+        "0xb3b89fc7f700e405f60a13b762727df4eb0f67a3",
+        "0xc3efe5ccc9c086ef2b56630675ce082a6466ba0c",
+        "0xc9c89871c18ae4fb1fb05e647ce9ddf968c78217",
+        "0xcd9a41b83ea56afdf100546aebfffe312861e5b7",
+        "0xd6d1f7a0d95b5f1a2e470b5bcb281c06a0cac9de",
+        "0xd7c4a3677a2867ee420db7a69b0ab7b43d227e86",
+        "0xe2f67eb9b6904c1d688e6ff87fe9a8661aad8de7",
+        "0xe5807c27bcbd46b9a8081c2f8c4613a878d49466",
+        "0xed6283ac20b330d064f8e41ad01cb2ef91553351",
+        "0xedad3da37b11b305fe2e66e1b7a3269ebf6d70f6",
+        "0xf21214aab25a7bfcebffb3794c04a77324b4d77e",
+        "0xf3dc28037d87942433a6f8b1e5c34070604c78df",
+        "0xfb5fea8f0a93ce09334bfc2ce0df5f7b6c559eb1"
+      ]
+    }
+  }
+]
+
+
