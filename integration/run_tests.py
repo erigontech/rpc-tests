@@ -24,6 +24,7 @@ MAX_TIME = 100 # times of TIME secs
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
+    "mainnet/trace_rawTransaction",  # not supported by erigon
 ]
 
 tests_not_compared = [
@@ -71,21 +72,17 @@ tests_not_compared = [
     "mainnet/debug_traceCallMany/test_09",  # diff on 2 storage and 28 stack entries
     "mainnet/debug_traceCallMany/test_10",  # to be analized 
 
-    "mainnet/debug_traceTransaction/test_25.json", # diff on errror
-    "mainnet/debug_traceTransaction/test_36.json", # diff on errror
+    "mainnet/debug_traceTransaction/test_25.json", # diff on error field
+    "mainnet/debug_traceTransaction/test_36.json", # diff on error field
     "mainnet/debug_traceTransaction/test_43.json",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_62.json", # diff on errror
-    "mainnet/debug_traceTransaction/test_74.tar",  # diff on errror
-    "mainnet/debug_traceTransaction/test_75.tar",  # diff on errror
-    "mainnet/debug_traceTransaction/test_77.json", # diff on errror
+    "mainnet/debug_traceTransaction/test_62.json", # diff on error field
+    "mainnet/debug_traceTransaction/test_74.tar",  # diff on error field
+    "mainnet/debug_traceTransaction/test_75.tar",  # diff on error field
+    "mainnet/debug_traceTransaction/test_77.json", # diff on error field
     "mainnet/debug_traceTransaction/test_90.tar",  # diff on 1 gas and 1 gasCost and too big
     "mainnet/debug_traceTransaction/test_91.tar",  # diff on 1 gas and 1 gasCost and too big
     "mainnet/debug_traceTransaction/test_92.tar",  # diff on 1 gas and 1 gasCost and too big
     "mainnet/debug_traceTransaction/test_96.json", # diff on 1 gas and 1 gasCost and too big
-
-    "mainnet/trace_rawTransaction/test_01",  # not supported by erigon 
-    "mainnet/trace_rawTransaction/test_02",  # not supported by erigon 
-    "mainnet/trace_rawTransaction/test_03",  # not supported by erigon 
 
     "mainnet/trace_replayBlockTransactions/test_29",  # diff on stack info 
 
