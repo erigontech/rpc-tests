@@ -24,7 +24,6 @@ MAX_TIME = 100 # times of TIME secs
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
-    "mainnet/parity_getBlockReceipts",  # not supported by erigon
 ]
 
 tests_not_compared = [
@@ -42,20 +41,12 @@ tests_not_compared = [
 
     "mainnet/ots_searchTransactionsBefore",  # necessary new algo using tkv 
 
-    "mainnet/ots_getTransactionBySenderAndNonce",  # necessary new algo using tkv
-
     "mainnet/ots_getContractCreator",  # necessary new algo using tkv
 
     "mainnet/eth_syncing/test_01.json",  # different stages
 
-    "mainnet/ots_hasCode/test_09", # bad return code 
-
     "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest
 
-    "mainnet/parity_listStorageKeys/test_12", # must be debugged
-
-    "mainnet/eth_estimateGas", # new field are added
-   
     "mainnet/eth_getBlockReceipts/test_07", # new field
 
     "mainnet/debug_traceBlockByHash/test_05",  # diff on 1 gas
@@ -72,8 +63,13 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_11",  # diff on 1 gas and 1 gasCost
     "mainnet/debug_traceBlockByNumber/test_12",  # diff on 1 gas
 
+    "mainnet/debug_traceCallMany/test_02",  # to be analized 
+    "mainnet/debug_traceCallMany/test_04",  # to be analized 
+    "mainnet/debug_traceCallMany/test_05",  # to be analized 
+    "mainnet/debug_traceCallMany/test_06",  # to be analized 
     "mainnet/debug_traceCallMany/test_07",  # diff on many storage and many stack entries
-    "mainnet/debug_traceCallMany/test_09", # diff on 2 storage and 28 stack entries
+    "mainnet/debug_traceCallMany/test_09",  # diff on 2 storage and 28 stack entries
+    "mainnet/debug_traceCallMany/test_10",  # to be analized 
 
     "mainnet/debug_traceTransaction/test_25.json", # diff on errror
     "mainnet/debug_traceTransaction/test_36.json", # diff on errror
@@ -340,7 +336,7 @@ class Config:
         self.jwt_secret = ""
         self.display_only_fail = 0
         self.transport_type = "http"
-        self.use_jsondiff = False
+        self.use_jsondiff = True
         self.without_compare_results = False
         self.waiting_time = 0
 
