@@ -40,8 +40,6 @@ tests_not_compared = [
 
     "mainnet/ots_searchTransactionsAfter",  # necessary new algo using tkv 
 
-    "mainnet/ots_searchTransactionsBefore",  # necessary new algo using tkv 
-
     "mainnet/ots_getTransactionBySenderAndNonce",  # necessary new algo using tkv
 
     "mainnet/ots_getContractCreator",  # necessary new algo using tkv
