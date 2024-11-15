@@ -48,8 +48,6 @@ tests_not_compared = [
 
     "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest
 
-    "mainnet/eth_getBlockReceipts/test_07", # new field
-
     "mainnet/debug_traceBlockByHash/test_05",  # diff on 1 gas
     "mainnet/debug_traceBlockByHash/test_08",  # diff on 3 gasCost
     "mainnet/debug_traceBlockByHash/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
