@@ -5,18 +5,20 @@
       "jsonrpc": "2.0",
       "method": "ots_searchTransactionsAfter",
       "params": [
-        "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-        18000000,
-        50
+        "0xFFfFFFFF2F8aF59Fd1D7Fa65D1C12f89f12F9394",
+        1305822,
+        15
       ]
     },
     "response": {
-      "error": {
-        "code": -32000,
-        "message": "max allowed page size: 25"
-      },
       "id": 1,
-      "jsonrpc": "2.0"
+      "jsonrpc": "2.0",
+      "result": {
+        "firstPage": true,
+        "lastPage": false,
+        "receipts": [],
+        "txs": []
+      }
     },
     "test": {
       "description": "search for transaction before provied block for a specific account",
