@@ -32,8 +32,6 @@ tests_not_compared = [
 
     "mainnet/debug_storageRangeAt",  # necessary new algo using tkv 
 
-    "mainnet/erigon_getBalanceChangesInBlock",  # necessary new algo using tkv 
-
     "mainnet/erigon_getLatestLogs",  # necessary new algo using tkv 
 
     "mainnet/eth_getLogs",  # necessary new algo using tkv 
