@@ -30,8 +30,6 @@ api_not_compared = [
 tests_not_compared = [
     "mainnet/debug_accountRange",  # necessary new algo using tkv 
 
-    "mainnet/debug_storageRangeAt",  # necessary new algo using tkv 
-
     "mainnet/erigon_getBalanceChangesInBlock",  # necessary new algo using tkv 
 
     "mainnet/erigon_getLatestLogs",  # necessary new algo using tkv 
