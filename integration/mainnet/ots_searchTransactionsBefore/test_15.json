@@ -1,21 +1,28 @@
 [
-    {
-        "request":{
-            "jsonrpc":"2.0",
-            "method":"ots_searchTransactionsBefore",
-            "params":["0xFFfFFFFF2F8aF59Fd1D7Fa65D1C12f89f12F9394", 1305822, 1],
-            "id":1
-        },
-        "response":{
-          "jsonrpc":"2.0",
-          "id":1,
-          "result": {
-            "firstPage": false,
-            "lastPage": true,
-            "receipts": [],
-            "txs": []
-          }
-       }
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "ots_searchTransactionsBefore",
+      "params": [
+        "0xFFfFFFFF2F8aF59Fd1D7Fa65D1C12f89f12F9394",
+        1305822,
+        1
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "firstPage": false,
+        "lastPage": true,
+        "receipts": [],
+        "txs": []
+      }
+    },
+    "test": {
+      "description": "search for transaction before provied block for a specific account",
+      "reference": ""
     }
+  }
 ]
-

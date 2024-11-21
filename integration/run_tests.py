@@ -36,8 +36,6 @@ tests_not_compared = [
 
     "mainnet/ots_searchTransactionsAfter",  # necessary new algo using tkv 
 
-    "mainnet/ots_searchTransactionsBefore",  # necessary new algo using tkv 
-
     "mainnet/ots_getContractCreator",  # necessary new algo using tkv
 
     "mainnet/eth_syncing/test_01.json",  # different stages
