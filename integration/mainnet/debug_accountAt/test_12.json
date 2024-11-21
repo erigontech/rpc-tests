@@ -1,0 +1,24 @@
+[
+  {
+    "request": {
+      "id": 240,
+      "jsonrpc": "2.0",
+      "method": "debug_accountAt",
+      "params": [
+        "0x96cfa0fb5e50b0a3f6cc76f3299cfbf48f17e8b41798d1394474e67ec8a97e9f",
+        3,
+        "0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13"
+      ]
+    },
+    "response": {
+      "id": 240,
+      "jsonrpc": "2.0",
+      "result": {
+         "balance": "0x660ef08d00979a61",
+         "code": "0x",
+         "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+         "nonce": "0x20b36"
+      }
+    }
+  }
+]
