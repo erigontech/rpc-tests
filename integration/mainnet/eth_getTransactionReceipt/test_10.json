@@ -1,0 +1,35 @@
+[
+   {
+         "test": {
+           "reference": "https://etherscan.io/tx/0x48966c818022e9226b001d87df58d75d8f3fc1a67a44b6dabc45a5ffa4d69af7",
+           "description": "first tx on block 20M"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getTransactionReceipt",
+            "params":["0x48966c818022e9226b001d87df58d75d8f3fc1a67a44b6dabc45a5ffa4d69af7"],
+            "id":1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+              "blockHash": "0xd24fd73f794058a3807db926d8898c6481e902b7edb91ce0d479d6760f276183",
+              "blockNumber": "0x1312d00",
+              "contractAddress": null,
+              "cumulativeGasUsed": "0x7367ce",
+              "effectiveGasPrice": "0x15ba97665",
+              "from": "0xa0d1b51279416ef35f2f01f6cfb7d45db75deaee",
+              "gasUsed": "0x5208",
+              "logs": [],
+              "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              "status": "0x1", 
+              "to": "0x27899fface558bde9f284ba5c8c91ec79ee60fd6",
+              "transactionHash": "0x48966c818022e9226b001d87df58d75d8f3fc1a67a44b6dabc45a5ffa4d69af7",
+              "transactionIndex": "0x54",
+              "type": "0x2"
+            }
+        }
+    }
+]
+
