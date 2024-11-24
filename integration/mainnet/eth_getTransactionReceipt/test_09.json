@@ -1,0 +1,20 @@
+[
+   {
+         "test": {
+           "reference": "https://etherscan.io/tx/0xffff7f11b454bfbc5a5471646282ab4bd561400a19a278e8ff0c8a83ee818690",
+           "description": "invalid tx"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getTransactionReceipt",
+            "params":["0xffff7f11b454bfbc5a5471646282ab4bd561400a19a278e8ff0c8a83ee818690"],
+            "id":1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result":null
+        }
+    }
+]
+
