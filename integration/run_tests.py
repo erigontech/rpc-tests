@@ -34,8 +34,6 @@ tests_not_compared = [
 
     "mainnet/eth_getLogs",  # necessary new algo using tkv 
 
-    "mainnet/ots_getContractCreator",  # necessary new algo using tkv
-
     "mainnet/eth_syncing/test_01.json",  # different stages
 
     "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest

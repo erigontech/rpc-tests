@@ -1,16 +1,21 @@
 [
-    {
-        "request":{
-            "jsonrpc":"2.0",
-            "method":"ots_getContractCreator",
-            "params":["0xffffFAC5E5542a773Aa44fBCfeDf7C193bc2C599"],
-            "id":1
-        },
-        "response":{
-          "id":1,
-          "jsonrpc":"2.0",
-          "result": null
-        }
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "ots_getContractCreator",
+      "params": [
+        "0xffffFAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
+  }
 ]
-

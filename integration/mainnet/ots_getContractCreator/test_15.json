@@ -5,13 +5,16 @@
       "jsonrpc": "2.0",
       "method": "ots_getContractCreator",
       "params": [
-        "0xFFFFFFb48D0573D793d3b0279b5F0029180E83b6"
+        "0x1f98431c8ad98523631ae4a59f267346ea31f984"
       ]
     },
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": null
+      "result": {
+        "creator": "0x6c9fc64a53c1b71fb3f9af64d1ae3a4931a5f4e9",
+        "hash": "0x1e20cd6d47d7021ae7e437792823517eeadd835df09dde17ab45afd7a5df4603"
+      }
     },
     "test": {
       "description": "",

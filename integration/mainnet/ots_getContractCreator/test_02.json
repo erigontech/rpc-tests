@@ -1,19 +1,24 @@
 [
-    {
-        "request":{
-            "jsonrpc":"2.0",
-            "method":"ots_getContractCreator",
-            "params":["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"],
-            "id":1
-        },
-        "response":{
-          "id":1,
-          "jsonrpc":"2.0",
-          "result":{
-              "creator": "0x8b41783ad99fcbeb8d575fa7a7b5a04fa0b8d80b",
-               "hash": "0xdaaa0b08e0fa932ebf1ebc9ed2de9a6eb4db3f03c77e9ed937d9c9a3a49e2b81"
-          }
-        }
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "ots_getContractCreator",
+      "params": [
+        "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "creator": "0x8b41783ad99fcbeb8d575fa7a7b5a04fa0b8d80b",
+        "hash": "0xdaaa0b08e0fa932ebf1ebc9ed2de9a6eb4db3f03c77e9ed937d9c9a3a49e2b81"
+      }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
+  }
 ]
-
