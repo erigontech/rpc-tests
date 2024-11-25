@@ -1,19 +1,24 @@
 [
-    {
-        "request":{
-            "jsonrpc":"2.0",
-            "method":"ots_getContractCreator",
-            "params":["0x3CACa7b48D0573D793d3b0279b5F0029180E83b6"],
-            "id":1
-        },
-        "response":{
-          "id":1,
-          "jsonrpc":"2.0",
-          "result":{
-            "creator": "0xaabb54394e8dd61dd70897e9c80be8de7c64a895",
-             "hash": "0x056c109b300f520bb03623d4d12667e1e5308c056d45764860e642186b056d99"
-          }
-        }
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "ots_getContractCreator",
+      "params": [
+        "0x3CACa7b48D0573D793d3b0279b5F0029180E83b6"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "creator": "0xaabb54394e8dd61dd70897e9c80be8de7c64a895",
+        "hash": "0x056c109b300f520bb03623d4d12667e1e5308c056d45764860e642186b056d99"
+      }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
+  }
 ]
-
