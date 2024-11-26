@@ -28,8 +28,6 @@ api_not_compared = [
 ]
 
 tests_not_compared = [
-    "mainnet/debug_accountRange",  # necessary new algo using tkv 
-
     "mainnet/erigon_getLatestLogs",  # necessary new algo using tkv 
 
     "mainnet/eth_getLogs",  # necessary new algo using tkv 
