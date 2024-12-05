@@ -1,0 +1,73 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_replayTransaction",
+      "params": [
+        "0xff178f8e9eede32ca37214446c889abc64c943a087bc630dfb88ad2695e262a8",
+        [
+          "stateDiff"
+        ]
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+  "result": {
+    "output": "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "stateDiff": {
+      "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0": {
+        "balance": "=",
+        "code": "=",
+        "nonce": "=",
+        "storage": {
+          "0x59d2b8842110e5d9e5a3c11b7ca2cffa43b22e96cca2a87097d9c6e3e6c2dba0": {
+            "*": {
+              "from": "0x00000000000000000000000000000000000000000000c09174a4fac0aaa8e7d8",
+              "to": "0x00000000000000000000000000000000000000000000c08167ae4e551e0223d8"
+            }
+          },
+          "0x827a69ad1ef234cfb5be4505d78f13c268e12ae164068ba780d9bd0c938717c4": {
+            "*": {
+              "from": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "to": "0x0000000000000000000000000000000000000000000000100cf6ac6b8ca6c400"
+            }
+          }
+        }
+      },
+      "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5": {
+        "balance": {
+          "*": {
+            "from": "0x10377ecf2ee08faa5",
+            "to": "0x103784f39ad87eaa5"
+          }
+        },
+        "code": "=",
+        "nonce": "=",
+        "storage": {}
+      },
+      "0x95b564f3b3bae3f206aa418667ba000afafacc8a": {
+        "balance": {
+          "*": {
+            "from": "0x2102e3e7a0df3a78",
+            "to": "0x21018f090af2d988"
+          }
+        },
+        "code": "=",
+        "nonce": {
+          "*": {
+            "from": "0x7e3a6",
+            "to": "0x7e3a7"
+          }
+        },
+        "storage": {}
+      }
+    },
+    "trace": [],
+    "transactionHash": "0xff178f8e9eede32ca37214446c889abc64c943a087bc630dfb88ad2695e262a8",
+    "vmTrace": null
+  }
+  }
+}
+]
