@@ -1,0 +1,25 @@
+[
+  {
+    "request": {
+      "jsonrpc":"2.0",
+      "method":"ots_traceTransaction",
+      "params":["0x7aff1755fb92839df5da3798bd011a36f9f50cdfbb20881d9d74ad328acadc53"],
+      "id":1
+    },
+    "response": {
+      "jsonrpc":"2.0",
+      "id":1,
+  "result": [
+    {
+      "depth": 0,
+      "from": "0xbe5a8eff2c633f805d99e5cc2b759db0c96303f1",
+      "input": "0x",
+      "output": "0x",
+      "to": "0x27899fface558bde9f284ba5c8c91ec79ee60fd6",
+      "type": "CALL",
+      "value": "0x4d52ff9a2edc88"
+    }
+  ]
+    }
+  }
+]
