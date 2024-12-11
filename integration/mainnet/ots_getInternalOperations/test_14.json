@@ -1,0 +1,31 @@
+[
+  {
+    "request":{
+      "jsonrpc":"2.0",
+      "method":"ots_getInternalOperations",
+      "params":[
+        "0x3bf6997d43ee3b5a78ecd3dd2ea659eddbbf376b360cf5cf27590df30cc7dd72"
+      ],
+      "id":1
+    },
+    "response":{
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+    {
+      "from": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "to": "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
+      "type": 0,
+      "value": "0x7642f7867ba960"
+    },
+    {
+      "from": "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
+      "to": "0xdade289f4635b3529e12cace4a9ed5e7f5134271",
+      "type": 0,
+      "value": "0x7642f7867ba960"
+    }
+  ]
+
+    }
+  }
+]
