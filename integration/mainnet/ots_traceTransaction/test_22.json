@@ -1,0 +1,34 @@
+[
+  {
+    "request": {
+      "jsonrpc":"2.0",
+      "method":"ots_traceTransaction",
+      "params":["0xb79b64182236284ad6753e1b5f506e7e6989912c25887575f82d64f23f6bf267"],
+      "id":1
+    },
+    "response": {
+      "jsonrpc":"2.0",
+      "id":1,
+  "result": [
+    {
+      "depth": 0,
+      "from": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
+      "input": "0x",
+      "output": "0x",
+      "to": "0x4befa2aa9c305238aa3e0b5d17eb20c045269e9d",
+      "type": "CALL",
+      "value": "0x52778fe8df2d37"
+    },
+    {
+      "depth": 1,
+      "from": "0x4befa2aa9c305238aa3e0b5d17eb20c045269e9d",
+      "input": "0x",
+      "output": "0x",
+      "to": "0xd968495636c4cf7435b36a6a8135c1b528ff31b1",
+      "type": "DELEGATECALL",
+      "value": null
+    }
+  ]
+    }
+  }
+]

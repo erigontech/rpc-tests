@@ -1,0 +1,24 @@
+[
+  {
+    "request":{
+      "jsonrpc":"2.0",
+      "method":"ots_getInternalOperations",
+      "params":[
+        "0x541a536cd7ce7e9990876b7a49041f21590cd92251e699d9d924c0abbb2e98ba"
+      ],
+      "id":1
+    },
+    "response":{
+       "id": 1,
+       "jsonrpc": "2.0",
+       "result": [
+    {
+      "from": "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
+      "to": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "type": 0,
+      "value": "0x470de4df820000"
+    }
+  ]
+    }
+  }
+]
