@@ -6,39 +6,46 @@
       "method": "erigon_getLatestLogs",
       "params": [
         {
-          "address": "0x0f5d2fb29fb7d3cfee444a200298f468908cc942",
-          "fromBlock": 5415040,
-          "toBlock": 5415099,
+          "address": [
+            "0x0f5d2fb29fb7d3cfee444a200298f468908cc942"
+          ],
+          "fromBlock": "5415040",
+          "toBlock": "5415099",
           "topics": [
             "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
             null
           ]
         },
         {
+          "TAIL": "tail"
         }
       ]
     },
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-  "result": [
-    {
-      "address": "0x0f5d2fb29fb7d3cfee444a200298f468908cc942",
-      "blockHash": "0xe7b39e088b778e58f279ce1320ec31422d73021199dadf6e7d40c21582c0c89c",
-      "blockNumber": "0x52a0bb",
-      "data": "0x0000000000000000000000000000000000000000000006555ecc13cf84878000",
-      "logIndex": "0x0",
-      "removed": false,
-      "timestamp": "0x5acca2f7",
-      "topics": [
-        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-        "0x0000000000000000000000004d468cf47eb6df39618dc9450be4b56a70a520c1",
-        "0x00000000000000000000000030716256c590991775a48ab28dd4b899d6c95031"
-      ],
-      "transactionHash": "0xa7455cd26e54a486d982701f0cf857783a732b71797b8d809043a55ac7933e75",
-      "transactionIndex": "0x0"
-    }
-  ]
+      "result": [
+        {
+          "address": "0x0f5d2fb29fb7d3cfee444a200298f468908cc942",
+          "blockHash": "0x207ba5490dd72c5745c7a1e9b48f3f7fcdc416a79682858111ff8cfaead0d69e",
+          "blockNumber": "0x52a082",
+          "data": "0x0000000000000000000000000000000000000000000028a18aa6bc7104120c00",
+          "logIndex": "0x0",
+          "removed": false,
+          "timestamp": "0x5acc9f9b",
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x000000000000000000000000fbb1b73c4f0bda4f67dca266ce6ef42f520fbb98",
+            "0x0000000000000000000000004ab2737e9ab6731e95628d7e4592a4f012462558"
+          ],
+          "transactionHash": "0xfdd9c4ebf85cb251e36b46aa2e4318fff922e5848bb08a827307a57381aa5cb0",
+          "transactionIndex": "0xc"
+        }
+      ]
+    },
+    "test": {
+      "description": "Latest logs for blocks [from  to]  adddress and 1 topic and null topic",
+      "reference": ""
     }
   }
 ]

@@ -1,0 +1,83 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "erigon_getLatestLogs",
+      "params": [
+        {
+          "address": [
+            "0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b",
+            "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            "0x87b1d1b59725209879cc5c5adeb99d8bc9eccf12"
+          ],
+          "fromBlock": "16000001",
+          "toBlock": "16000001",
+          "topics": []
+        },
+        {
+          "TAIL": "tail",
+          "logCount": 3
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "address": "0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b",
+          "blockHash": "0xc2beedf91127b83563d2b1a44b9f8a5510febb028440599b3f16cf436637930e",
+          "blockNumber": "0xf42401",
+          "data": "0x000000000000000000000000000000000000000000000000000005d294dc4881",
+          "logIndex": "0x0",
+          "removed": false,
+          "timestamp": "0x63780c8f",
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x00000000000000000000000087b1d1b59725209879cc5c5adeb99d8bc9eccf12",
+            "0x000000000000000000000000847e54d996f2e3114daaa6154256de287bb5ff93"
+          ],
+          "transactionHash": "0x05e9769544c867897687bdceb217056ae081925c1f1c23590bf6dfabb9c45002",
+          "transactionIndex": "0x0"
+        },
+        {
+          "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "blockHash": "0xc2beedf91127b83563d2b1a44b9f8a5510febb028440599b3f16cf436637930e",
+          "blockNumber": "0xf42401",
+          "data": "0x00000000000000000000000000000000000000000000000034bc4fdde27bff4e",
+          "logIndex": "0x1",
+          "removed": false,
+          "timestamp": "0x63780c8f",
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x00000000000000000000000044cd13d09b77343d5b1b98f946fa01d2924ab5b6",
+            "0x00000000000000000000000087b1d1b59725209879cc5c5adeb99d8bc9eccf12"
+          ],
+          "transactionHash": "0x05e9769544c867897687bdceb217056ae081925c1f1c23590bf6dfabb9c45002",
+          "transactionIndex": "0x0"
+        },
+        {
+          "address": "0x87b1d1b59725209879cc5c5adeb99d8bc9eccf12",
+          "blockHash": "0xc2beedf91127b83563d2b1a44b9f8a5510febb028440599b3f16cf436637930e",
+          "blockNumber": "0xf42401",
+          "data": "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffa2d6b23b77f00000000000000000000000000000000000000000000000034bc4fdde27bff4e00000000000000000000000000000000000002ffec2a28260553fac2e4aa3bf4000000000000000000000000000000000000000000000000134fdd425b6365b30000000000000000000000000000000000000000000000000000000000020710",
+          "logIndex": "0x2",
+          "removed": false,
+          "timestamp": "0x63780c8f",
+          "topics": [
+            "0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67",
+            "0x00000000000000000000000068b3465833fb72a70ecdf485e0e4c7bd8665fc45",
+            "0x000000000000000000000000847e54d996f2e3114daaa6154256de287bb5ff93"
+          ],
+          "transactionHash": "0x05e9769544c867897687bdceb217056ae081925c1f1c23590bf6dfabb9c45002",
+          "transactionIndex": "0x0"
+        }
+      ]
+    },
+    "test": {
+      "description": "Latest logs for blocks [from  to]  3 addresses and log count limit",
+      "reference": ""
+    }
+  }
+]
