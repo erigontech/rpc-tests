@@ -6,11 +6,13 @@
       "method": "erigon_getLatestLogs",
       "params": [
         {
-          "address": [],
-          "fromBlock": "15000000",
-          "toBlock": "15000003",
+          "address": [
+            "0x89a284bd0f69a20778f9beba68a9b480957d7305"
+          ],
+          "fromBlock": "5415091",
+          "toBlock": "5415092",
           "topics": [
-            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            null,
             "0x0000000000000000000000004d1892f15b03db24b55e73f9801826a56d6f0755"
           ]
         },
@@ -24,7 +26,7 @@
       "result": []
     },
     "test": {
-      "description": "Latest logs for blocks [from  to] and 2 topics",
+      "description": "Latest logs for blocks [from  to]  1 address and 1 null topic and 1 topics",
       "reference": ""
     }
   }
