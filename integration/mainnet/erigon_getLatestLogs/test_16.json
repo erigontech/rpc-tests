@@ -7,8 +7,7 @@
       "params": [
         {
           "address": [],
-          "fromBlock": "5415091",
-          "toBlock": "5415092",
+          "blockHash": "0x0621386f998fd3cfd761657ff81d72b1e465b314971febc088cf607037232938",
           "topics": []
         },
         {
@@ -55,7 +54,7 @@
       ]
     },
     "test": {
-      "description": "Latest logs for blocks [from  to]",
+      "description": "Latest logs for block hash",
       "reference": ""
     }
   }

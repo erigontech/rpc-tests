@@ -11,10 +11,12 @@
           "toBlock": "5415092",
           "topics": [
             "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-            "0x0000000000000000000000006bad41167634a1643b4f835dbf7b6421a5c87a30"
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            null
           ]
         },
         {
+          "ignoreTopicsOrder": false
         }
       ]
     },
@@ -23,25 +25,25 @@
       "jsonrpc": "2.0",
       "result": [
         {
-          "address": "0x39bb259f66e1c59d5abef88375979b4d20d98022",
+          "address": "0xb2135ab9695a7678dd590b1a996cb0f37bcb0718",
           "blockHash": "0x0d3b10fa73bb129c6bfbd631a3b9bd4fba0d658ba2be11a3255608cc8d2d19e7",
           "blockNumber": "0x52a0b4",
-          "data": "0x0000000000000000000000000000000000000000000000000000000246537850",
-          "logIndex": "0x0",
+          "data": "0x000000000000000000000000000000000000000000000000000002e2f6da0e7b",
+          "logIndex": "0x1",
           "removed": false,
           "timestamp": "0x5acca2a8",
           "topics": [
             "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-            "0x0000000000000000000000006bad41167634a1643b4f835dbf7b6421a5c87a30",
-            "0x00000000000000000000000013d0c7ada3f98eec232ed7e57fefc4c300f25095"
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000002120538f6c3bb1d7a47091dab74495182b8c71a8"
           ],
-          "transactionHash": "0x53497a175e9ed1f457af6386e0ca88f99bcba4e6fa7d7fc6d9a418c83bb3315f",
-          "transactionIndex": "0x3"
+          "transactionHash": "0x4459e54c5fbb008585496a9373c176513e7cfb1979d0f0464dc1aba72b2fcecf",
+          "transactionIndex": "0x4"
         }
       ]
     },
     "test": {
-      "description": "Latest logs for blocks [from  to] and 2 topics",
+      "description": "Latest logs for blocks [from  to] and 2 topics and 1 null topic  ignore topic order set to false",
       "reference": ""
     }
   }

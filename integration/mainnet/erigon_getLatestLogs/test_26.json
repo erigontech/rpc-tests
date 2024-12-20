@@ -6,12 +6,15 @@
       "method": "erigon_getLatestLogs",
       "params": [
         {
-          "address": [],
+          "address": [
+            "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0"
+          ],
           "fromBlock": "5415091",
           "toBlock": "5415092",
           "topics": []
         },
         {
+          "ignoreTopicsOrder": false
         }
       ]
     },
@@ -55,7 +58,7 @@
       ]
     },
     "test": {
-      "description": "Latest logs for blocks [from  to]",
+      "description": "Latest logs for blocks [from  to] and 1 address  ignore topic order set to false",
       "reference": ""
     }
   }
