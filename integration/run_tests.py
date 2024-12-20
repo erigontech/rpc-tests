@@ -28,16 +28,6 @@ api_not_compared = [
 ]
 
 tests_not_compared = [
-    "mainnet/erigon_getLatestLogs/test_03",  # diff on log index 
-    "mainnet/erigon_getLatestLogs/test_08",  # diff on log index 
-    "mainnet/erigon_getLatestLogs/test_09",  # diff on log index 
-    "mainnet/erigon_getLatestLogs/test_11",  # diff on log index 
-    "mainnet/erigon_getLatestLogs/test_13",  # diff on log index 
-    "mainnet/erigon_getLatestLogs/test_15",  # diff on log index 
-    "mainnet/erigon_getLatestLogs/test_23",  # diff on log index 
-    "mainnet/erigon_getLatestLogs/test_24",  # diff on log index 
-    "mainnet/erigon_getLatestLogs/test_28",  # diff on log index 
-
     "mainnet/eth_syncing/test_01.json",  # different stages
 
     "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest
