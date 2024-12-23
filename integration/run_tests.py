@@ -30,8 +30,6 @@ api_not_compared = [
 tests_not_compared = [
     "mainnet/eth_syncing/test_01.json",  # different stages
 
-    "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest
-
     "mainnet/debug_traceBlockByHash/test_05",  # diff on 1 gas
     "mainnet/debug_traceBlockByHash/test_08",  # diff on 3 gasCost
     "mainnet/debug_traceBlockByHash/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
@@ -45,6 +43,7 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
     "mainnet/debug_traceBlockByNumber/test_11",  # diff on 1 gas and 1 gasCost
     "mainnet/debug_traceBlockByNumber/test_12",  # diff on 1 gas
+    "mainnet/debug_traceBlockByNumber/test_21",  # diff on 42 gasCost, 12358 gas, 8 stack
 
     "mainnet/debug_traceCallMany/test_07",  # diff on many storage and many stack entries
     "mainnet/debug_traceCallMany/test_09",  # diff on 2 storage and 28 stack entries
@@ -814,7 +813,8 @@ def main(argv) -> int:
                             if config.start_test == "" or test_number_in_any_loop >= int(config.start_test):
                                 if config.display_only_fail == 0 and config.req_test_number != "":
                                     file = json_test_full_name.ljust(60)
-                                    print(f"{test_number_in_any_loop:04d}. {file} Skipped")
+                                    curr_tt = transport_type.ljust(15)
+                                    print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} Skipped")
                                 tests_not_executed = tests_not_executed + 1
                         else:
                             # runs all tests or
