@@ -1,0 +1,17 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_getRawTransaction",
+      "params": [
+        "0x5a4bf6970980a9381e6d6c78d96ab278035bbff58c383ffe96a0a2bbc7c02a4b"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0xf86c2f850165a0bc0082520894d69b8ff1888e78d9c337c2f2e6b3bf3e7357800e881bc16d674ec80000801ca0575d26288c1e3aa63e80eea927f54d5ad587ad795ad830149837258344a87d7ca025f5a3abf22f5b8ef6ed307a76e670f0c9fb4a71fab2621fce8b52da2ab8fe82"
+    }
+  }
+]
