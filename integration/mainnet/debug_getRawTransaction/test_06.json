@@ -1,0 +1,20 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_getRawTransaction",
+      "params": [
+        "0xffffff3f267d6e12ea500923bcc9973f6ae85f7c30fcab0ddb3042f63d1e891c"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {
+          "code": -32000,
+          "message": "transaction not found"
+      }
+    }
+  }
+]
