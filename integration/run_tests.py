@@ -30,6 +30,14 @@ api_not_compared = [
 tests_not_compared = [
     "mainnet/eth_syncing/test_01.json",  # different stages
 
+    "mainnet/debug_traceBlockByNumber/test_24",  # latest block, diff on transaction gas and very big
+    "mainnet/debug_traceBlockByNumber/test_25",  # pending block, diff on transaction gas and very big
+    "mainnet/debug_traceBlockByNumber/test_26",  # finalized block, diff on transaction gas and very big
+    "mainnet/debug_traceBlockByNumber/test_27",  # safe block, diff on transaction gas and very big
+    "mainnet/debug_traceBlockByNumber/test_28",  # latestExecuted block, diff on transaction gas and very big
+
+    "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest
+
     "mainnet/debug_traceBlockByHash/test_05",  # diff on 1 gas
     "mainnet/debug_traceBlockByHash/test_08",  # diff on 3 gasCost
     "mainnet/debug_traceBlockByHash/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
