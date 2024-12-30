@@ -24,7 +24,8 @@ MAX_TIME = 100 # times of TIME secs
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
-    "mainnet/trace_rawTransaction",  # not supported by erigon
+    "mainnet/trace_rawTransaction",       # not supported by erigon
+    "mainnet/debug_getRawTransaction",    # not supported by erigon
 ]
 
 tests_not_compared = [
