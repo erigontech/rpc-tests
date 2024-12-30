@@ -51,7 +51,7 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
     "mainnet/debug_traceBlockByNumber/test_11",  # diff on 1 gas and 1 gasCost
     "mainnet/debug_traceBlockByNumber/test_12",  # diff on 1 gas
-    "mainnet/debug_traceBlockByNumber/test_21",  # diff on 42 gasCost, 12358 gas, 8 stack
+    "mainnet/debug_traceBlockByNumber/test_29",  # diff on 42 gasCost, 12358 gas, 8 stack
 
     "mainnet/debug_traceCallMany/test_07",  # diff on many storage and many stack entries
     "mainnet/debug_traceCallMany/test_09",  # diff on 2 storage and 28 stack entries
