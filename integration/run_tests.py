@@ -13,6 +13,7 @@ import time
 import pytz
 import jwt
 import requests
+from concurrent.futures import ProcessPoolExecutor
 from websockets.sync.client import connect
 from websockets.extensions import permessage_deflate
 
@@ -794,6 +795,11 @@ def main(argv) -> int:
     success_tests = 0
     tests_not_executed = 0
     global_test_number = 1
+
+    tests_descr_list = []
+    exe = ProcessPoolExecutor()
+
+
     for test_rep in range(0, config.loop_number):  # makes tests more times
         test_number_in_any_loop = 1
         if config.verbose_level:
@@ -832,28 +838,40 @@ def main(argv) -> int:
                                 if (config.start_test == "" or  # start from specific test
                                         (config.start_test != "" and test_number_in_any_loop >= int(
                                             config.start_test))):
-                                    file = json_test_full_name.ljust(60)
-                                    curr_tt = transport_type.ljust(15)
-                                    if config.verbose_level:
-                                        print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} ", end='', flush=True)
-                                    else:
-                                        print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file}\r", end='', flush=True)
-                                    ret = run_test(json_test_full_name, test_number_in_any_loop, transport_type, config)
+                                    # create process pool
+                                    future = exe.submit(run_test, json_test_full_name, test_number_in_any_loop, transport_type, config)
+                                    tests_descr_list.append({'name': json_test_full_name, 'number': test_number_in_any_loop, 'transport-type': transport_type, 'future': future})
                                     if config.waiting_time:
                                        time.sleep(config.waiting_time/1000)
-                                    if ret == 1:
-                                        success_tests = success_tests + 1
-                                    else:
-                                        failed_tests = failed_tests + 1
+                                    
                                     executed_tests = executed_tests + 1
 
                     global_test_number = global_test_number + 1
                     test_number_in_any_loop = test_number_in_any_loop + 1
                     test_number = test_number + 1
 
+
     if executed_tests == 0:
         print("ERROR: api-name or testNumber not found")
         return 1
+
+    for test in tests_descr_list:
+       json_test_full_name = test['name']
+       test_number_in_any_loop = test['number']
+       transport_type = test['transport-type']
+       future = test['future']
+       file = json_test_full_name.ljust(60)
+       curr_tt = transport_type.ljust(15)
+       if config.verbose_level:
+           print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} ", end='', flush=True)
+       else:
+           print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file}\r", end='', flush=True)
+
+       ret = future.result()
+       if ret == 1:
+           success_tests = success_tests + 1
+       else:
+           failed_tests = failed_tests + 1
 
     elapsed = datetime.now() - start_time
     print("                                                                                    \r")
