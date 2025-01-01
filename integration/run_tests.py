@@ -10,10 +10,10 @@ import shutil
 import sys
 import tarfile
 import time
+from concurrent.futures import ProcessPoolExecutor
 import pytz
 import jwt
 import requests
-from concurrent.futures import ProcessPoolExecutor
 from websockets.sync.client import connect
 from websockets.extensions import permessage_deflate
 
@@ -121,6 +121,7 @@ def usage(argv):
     print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
     print("-i,--without-compare-results: send request without compare results")
     print("-w,--waiting_time: waiting after test execution (millisec)")
+    print("-W,--workers: no of workers")
 
 
 def get_target_name(target_type: str):
@@ -316,6 +317,7 @@ class Config:
         self.jwt_secret = ""
         self.display_only_fail = 0
         self.transport_type = "http"
+        self.workers = 0
         self.use_jsondiff = True
         self.without_compare_results = False
         self.waiting_time = 0
@@ -323,12 +325,12 @@ class Config:
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iw:hfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:j",
+            opts, _ = getopt.getopt(argv[1:], "iw:hfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:jW:",
                                     ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                                      'api-list-with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
                                      'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff', 'waiting_time=',
-                                     'dump-response', 'without-compare-results'])
+                                     'dump-response', 'without-compare-results', 'workers'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
@@ -347,6 +349,8 @@ class Config:
                 elif option in ("-e", "--verify-external-provider"):
                     self.daemon_as_reference = EXTERNAL_PROVIDER
                     self.external_provider_url = optarg
+                elif option in ("-W", "--workers"):
+                    self.workers = int(optarg)
                 elif option in ("-H", "--host"):
                     self.daemon_on_host = optarg
                 elif option in ("-p", "--port"):
@@ -453,14 +457,13 @@ def get_json_from_response(msg, verbose_level: int, json_file, result: str, test
         print(msg + " :[" + result + "]")
 
     if len(result) == 0:
-        file = json_file.ljust(60)
-        error_msg = f" Failed (json response is zero length, maybe server is down)"
+        error_msg = "Failed (json response is zero length, maybe server is down)"
         return None, error_msg
     try:
         return result, ""
     except json.decoder.JSONDecodeError:
         file = json_file.ljust(60)
-        error_msg = f" Failed (bad json format)"
+        error_msg = "Failed (bad json format)"
         if verbose_level:
             print(msg)
             print("Failed (bad json format)")
@@ -472,7 +475,10 @@ def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expecte
     """ dump jsons on result dir """
     if dump_json:
         if silk_file != "" and os.path.exists(output_dir) == 0:
-            os.mkdir(output_dir)
+            try:
+                os.mkdir(output_dir)
+            except:
+                pass
         if silk_file != "":
             with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
                 json_file_ptr.write(json.dumps(response, indent=2, sort_keys=True))
@@ -501,7 +507,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             result = rsp.json()
         except:
             if verbose_level:
-               print("\nhttp connection fail")
+                print("\nhttp connection fail")
             return ""
     else:
         ws_target = "ws://" + target  # use websocket
@@ -575,8 +581,11 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file):
 
 def compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file: str, test_number):
     """ Compare JSON response. """
-    temp_file1 = "/tmp/silk_lower_case"
-    temp_file2 = "/tmp/rpc_lower_case"
+    base_name = "/tmp/test_" + str(test_number) + "/"
+    if os.path.exists(base_name) == 0:
+        os.mkdir(base_name)
+    temp_file1 = base_name + "silk_lower_case.txt"
+    temp_file2 = base_name + "rpc_lower_case.txt"
 
     if "error" in response:
         to_lower_case(silk_file, temp_file1)
@@ -603,11 +612,10 @@ def compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file
     if diff_result == 1:
         diff_file_size = os.stat(diff_file).st_size
     if diff_file_size != 0 or diff_result == 0:
-        file = json_file.ljust(60)
         if diff_result == 0:
-            error_msg = f"Failed Timeout"
+            error_msg = "Failed Timeout"
         else:
-            error_msg = f"Failed"
+            error_msg = "Failed"
         return_code = 0 # failed
 
     if os.path.exists(temp_file1):
@@ -759,7 +767,6 @@ def main(argv) -> int:
 
     start_time = datetime.now()
     os.mkdir(config.output_dir)
-    match = 0
     executed_tests = 0
     failed_tests = 0
     success_tests = 0
@@ -767,7 +774,10 @@ def main(argv) -> int:
     global_test_number = 1
 
     tests_descr_list = []
-    exe = ProcessPoolExecutor()
+    if config.workers == 0:
+        exe = ProcessPoolExecutor()
+    else:
+        exe = ProcessPoolExecutor(max_workers=config.workers)
 
 
     for test_rep in range(0, config.loop_number):  # makes tests more times
@@ -812,8 +822,7 @@ def main(argv) -> int:
                                     future = exe.submit(run_test, json_test_full_name, test_number_in_any_loop, transport_type, config)
                                     tests_descr_list.append({'name': json_test_full_name, 'number': test_number_in_any_loop, 'transport-type': transport_type, 'future': future})
                                     if config.waiting_time:
-                                       time.sleep(config.waiting_time/1000)
-                                    
+                                        time.sleep(config.waiting_time/1000)
                                     executed_tests = executed_tests + 1
 
                     global_test_number = global_test_number + 1
@@ -827,30 +836,30 @@ def main(argv) -> int:
 
     cancel = 0
     for test in tests_descr_list:
-       json_test_full_name = test['name']
-       test_number_in_any_loop = test['number']
-       transport_type = test['transport-type']
-       future = test['future']
-       file = json_test_full_name.ljust(60)
-       curr_tt = transport_type.ljust(15)
-       if cancel:
-           future.cancel()
-           continue
-       if config.verbose_level:
-           print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} ", end='', flush=True)
-       else:
-           print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file}", end='', flush=True)
+        json_test_full_name = test['name']
+        test_number_in_any_loop = test['number']
+        transport_type = test['transport-type']
+        future = test['future']
+        file = json_test_full_name.ljust(60)
+        curr_tt = transport_type.ljust(15)
+        if cancel:
+            future.cancel()
+            continue
+        print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} ", end='', flush=True)
 
-       result, error_msg = future.result()
-       if result == 1:
-           success_tests = success_tests + 1
-           print("OK\r",end='', flush=True)
-       else:
-           failed_tests = failed_tests + 1
-           print(error_msg, "\r")
-           if config.exit_on_fail:
-               cancel = 1
-               print("TEST ABORTED!")
+        result, error_msg = future.result()
+        if result == 1:
+            success_tests = success_tests + 1
+            if config.verbose_level:
+                print("OK",flush=True)
+            else:
+                print("OK\r",end='', flush=True)
+        else:
+            failed_tests = failed_tests + 1
+            print(error_msg, "\r")
+            if config.exit_on_fail:
+                cancel = 1
+                print("TEST ABORTED!")
 
     elapsed = datetime.now() - start_time
     print("                                                                                                                  \r")
