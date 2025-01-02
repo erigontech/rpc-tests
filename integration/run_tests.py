@@ -671,7 +671,10 @@ def process_response(result, result1, response_in_file: str, config,
             os.remove(exp_rsp_file)
             os.remove(diff_file)
         if not os.listdir(output_dir):
-            os.rmdir(output_dir)
+            try:
+                os.rmdir(output_dir)
+            except:
+                pass
 
         return same, error_msg
 
