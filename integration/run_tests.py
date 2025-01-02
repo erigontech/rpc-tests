@@ -10,6 +10,7 @@ import shutil
 import sys
 import tarfile
 import time
+from concurrent.futures import ProcessPoolExecutor
 import pytz
 import jwt
 import requests
@@ -120,6 +121,7 @@ def usage(argv):
     print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
     print("-i,--without-compare-results: send request without compare results")
     print("-w,--waiting_time: waiting after test execution (millisec)")
+    print("-W,--workers: no of workers")
 
 
 def get_target_name(target_type: str):
@@ -315,6 +317,7 @@ class Config:
         self.jwt_secret = ""
         self.display_only_fail = 0
         self.transport_type = "http"
+        self.workers = 0
         self.use_jsondiff = True
         self.without_compare_results = False
         self.waiting_time = 0
@@ -322,12 +325,12 @@ class Config:
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iw:hfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:j",
+            opts, _ = getopt.getopt(argv[1:], "iw:hfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:jW:",
                                     ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                                      'api-list-with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
                                      'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff', 'waiting_time=',
-                                     'dump-response', 'without-compare-results'])
+                                     'dump-response', 'without-compare-results', 'workers'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
@@ -346,6 +349,8 @@ class Config:
                 elif option in ("-e", "--verify-external-provider"):
                     self.daemon_as_reference = EXTERNAL_PROVIDER
                     self.external_provider_url = optarg
+                elif option in ("-W", "--workers"):
+                    self.workers = int(optarg)
                 elif option in ("-H", "--host"):
                     self.daemon_on_host = optarg
                 elif option in ("-p", "--port"):
@@ -446,41 +451,34 @@ class Config:
             shutil.rmtree(self.output_dir)
 
 
-def get_json_from_response(msg, verbose_level: int, json_file, result: str, test_number, exit_on_fail: int):
+def get_json_from_response(msg, verbose_level: int, json_file, result: str, test_number):
     """ Retrieve JSON from response """
     if verbose_level > 2:
         print(msg + " :[" + result + "]")
 
     if len(result) == 0:
-        file = json_file.ljust(60)
-        if verbose_level == 0:
-            print(f"{test_number:04d}. {file} Failed [" + msg + "]  (json response is zero length, maybe server is down)")
-        else:
-            print("Failed [" + msg + "]  (response zero length, maybe server is down)")
-        if exit_on_fail:
-            print("TEST ABORTED!")
-            sys.exit(1)
-        return None
+        error_msg = "Failed (json response is zero length, maybe server is down)"
+        return None, error_msg
     try:
-        return result
+        return result, ""
     except json.decoder.JSONDecodeError:
         file = json_file.ljust(60)
-        print(f"{test_number:04d}. {file} Failed [" + msg + "]  (bad json format)")
+        error_msg = "Failed (bad json format)"
         if verbose_level:
             print(msg)
             print("Failed (bad json format)")
             print(result)
-        if exit_on_fail:
-            print("TEST ABORTED!")
-            sys.exit(1)
-        return None
+        return None, error_msg
 
 
 def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expected_response: str):
     """ dump jsons on result dir """
     if dump_json:
         if silk_file != "" and os.path.exists(output_dir) == 0:
-            os.mkdir(output_dir)
+            try:
+                os.mkdir(output_dir)
+            except:
+                pass
         if silk_file != "":
             with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
                 json_file_ptr.write(json.dumps(response, indent=2, sort_keys=True))
@@ -508,7 +506,8 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
                 return ""
             result = rsp.json()
         except:
-            print("\nhttp connection fail")
+            if verbose_level:
+                print("\nhttp connection fail")
             return ""
     else:
         ws_target = "ws://" + target  # use websocket
@@ -534,7 +533,8 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
                 result = json.loads(rsp)
 
         except:
-            print("\nwebsocket connection fail")
+            if verbose_level:
+                print("\nwebsocket connection fail")
             return ""
 
     if verbose_level > 1:
@@ -581,8 +581,11 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file):
 
 def compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file: str, test_number):
     """ Compare JSON response. """
-    temp_file1 = "/tmp/silk_lower_case"
-    temp_file2 = "/tmp/rpc_lower_case"
+    base_name = "/tmp/test_" + str(test_number) + "/"
+    if os.path.exists(base_name) == 0:
+        os.mkdir(base_name)
+    temp_file1 = base_name + "silk_lower_case.txt"
+    temp_file2 = base_name + "rpc_lower_case.txt"
 
     if "error" in response:
         to_lower_case(silk_file, temp_file1)
@@ -605,98 +608,78 @@ def compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file
     diff_result = run_compare(config.use_jsondiff, temp_file1, temp_file2, diff_file)
     diff_file_size = 0
     return_code = 1 # ok
+    error_msg = ""
     if diff_result == 1:
         diff_file_size = os.stat(diff_file).st_size
     if diff_file_size != 0 or diff_result == 0:
-        file = json_file.ljust(60)
         if diff_result == 0:
-            print(f"{test_number:04d}. {file} Failed Timeout")
+            error_msg = "Failed Timeout"
         else:
-            print(f"{test_number:04d}. {file} Failed")
-        if config.verbose_level:
-            print("Failed")
-        if config.exit_on_fail:
-            print("TEST ABORTED!")
-            sys.exit(1)
+            error_msg = "Failed"
         return_code = 0 # failed
-    elif config.verbose_level:
-        print("OK")
 
     if os.path.exists(temp_file1):
         os.remove(temp_file1)
     if os.path.exists(temp_file2):
         os.remove(temp_file2)
-    return return_code
+    return return_code, error_msg
 
 def process_response(result, result1, response_in_file: str, config,
                      output_dir: str, silk_file: str, exp_rsp_file: str, diff_file: str, json_file: str, test_number: int):
     """ Process the response If exact result or error don't care, they are null but present in expected_response. """
 
-    response = get_json_from_response(config.daemon_under_test, config.verbose_level, json_file, result, test_number, config.exit_on_fail)
+    response, error_msg  = get_json_from_response(config.daemon_under_test, config.verbose_level, json_file, result, test_number)
     if response is None:
-        return 0
+        return 0, error_msg
 
     if result1 != "":
-        expected_response = get_json_from_response(config.daemon_as_reference, config.verbose_level, json_file, result1, test_number,
-                                                   config.exit_on_fail)
+        expected_response, error_msg = get_json_from_response(config.daemon_as_reference, config.verbose_level, json_file, result1, test_number)
         if expected_response is None:
-            return 0
+            return 0, error_msg
     else:
         expected_response = response_in_file
 
     if config.without_compare_results is True:
-        if config.verbose_level:
-            print("OK")
         dump_jsons(config.force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
-        return 1
+        return 1, ""
 
     if response is None:
-        if config.verbose_level:
-            print("Failed [" + config.daemon_under_test + "] (server doesn't response)")
-        return 0
+        return 0, "Failed [" + config.daemon_under_test + "] (server doesn't response)"
 
     if expected_response is None:
-        if config.verbose_level:
-            print("Failed [" + config.daemon_as_reference + "] (server doesn't response)")
-        return 0
+        return 0, "Failed [" + config.daemon_as_reference + "] (server doesn't response)"
 
     if response != expected_response:
         if "result" in response and "result" in expected_response and expected_response["result"] is None and result1 == "":
             # response and expected_response are different but don't care
-            if config.verbose_level:
-                print("OK")
             dump_jsons(config.force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
-            return 1
+            return 1, ""
         if "error" in response and "error" in expected_response and expected_response["error"] is None:
             # response and expected_response are different but don't care
-            if config.verbose_level:
-                print("OK")
             dump_jsons(config.force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
-            return 1
+            return 1, ""
         if "error" not in expected_response and "result" not in expected_response:
             # response and expected_response are different but don't care
-            if config.verbose_level:
-                print("OK")
             dump_jsons(config.force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
-            return 1
+            return 1, ""
         dump_jsons(True, silk_file, exp_rsp_file, output_dir, response, expected_response)
 
-        same = compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file, test_number)
+        same, error_msg  = compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file, test_number)
         # cleanup
         if same:
             os.remove(silk_file)
             os.remove(exp_rsp_file)
             os.remove(diff_file)
         if not os.listdir(output_dir):
-            os.rmdir(output_dir)
+            try:
+                os.rmdir(output_dir)
+            except:
+                pass
 
-        return same
-
-    if config.verbose_level:
-        print("OK")
+        return same, error_msg
 
     dump_jsons(config.force_dump_jsons, silk_file, exp_rsp_file, output_dir, response, expected_response)
-    return 1
+    return 1, ""
 
 
 def run_test(json_file: str, test_number, transport_type, config):
@@ -708,8 +691,7 @@ def run_test(json_file: str, test_number, transport_type, config):
         with tarfile.open(json_filename, encoding='utf-8') as tar:
             files = tar.getmembers()
             if len(files) != 1:
-                print("bad archive file " + json_filename)
-                sys.exit(1)
+                return 0, "bad archive file " + json_filename
             file = tar.extractfile(files[0])
             buff = file.read()
             tar.close()
@@ -788,12 +770,19 @@ def main(argv) -> int:
 
     start_time = datetime.now()
     os.mkdir(config.output_dir)
-    match = 0
     executed_tests = 0
     failed_tests = 0
     success_tests = 0
     tests_not_executed = 0
     global_test_number = 1
+
+    tests_descr_list = []
+    if config.workers == 0:
+        exe = ProcessPoolExecutor()
+    else:
+        exe = ProcessPoolExecutor(max_workers=config.workers)
+
+
     for test_rep in range(0, config.loop_number):  # makes tests more times
         test_number_in_any_loop = 1
         if config.verbose_level:
@@ -832,31 +821,51 @@ def main(argv) -> int:
                                 if (config.start_test == "" or  # start from specific test
                                         (config.start_test != "" and test_number_in_any_loop >= int(
                                             config.start_test))):
-                                    file = json_test_full_name.ljust(60)
-                                    curr_tt = transport_type.ljust(15)
-                                    if config.verbose_level:
-                                        print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} ", end='', flush=True)
-                                    else:
-                                        print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file}\r", end='', flush=True)
-                                    ret = run_test(json_test_full_name, test_number_in_any_loop, transport_type, config)
+                                    # create process pool
+                                    future = exe.submit(run_test, json_test_full_name, test_number_in_any_loop, transport_type, config)
+                                    tests_descr_list.append({'name': json_test_full_name, 'number': test_number_in_any_loop, 'transport-type': transport_type, 'future': future})
                                     if config.waiting_time:
-                                       time.sleep(config.waiting_time/1000)
-                                    if ret == 1:
-                                        success_tests = success_tests + 1
-                                    else:
-                                        failed_tests = failed_tests + 1
+                                        time.sleep(config.waiting_time/1000)
                                     executed_tests = executed_tests + 1
 
                     global_test_number = global_test_number + 1
                     test_number_in_any_loop = test_number_in_any_loop + 1
                     test_number = test_number + 1
 
+
     if executed_tests == 0:
         print("ERROR: api-name or testNumber not found")
         return 1
 
+    cancel = 0
+    for test in tests_descr_list:
+        json_test_full_name = test['name']
+        test_number_in_any_loop = test['number']
+        transport_type = test['transport-type']
+        future = test['future']
+        file = json_test_full_name.ljust(60)
+        curr_tt = transport_type.ljust(15)
+        if cancel:
+            future.cancel()
+            continue
+        print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} ", end='', flush=True)
+
+        result, error_msg = future.result()
+        if result == 1:
+            success_tests = success_tests + 1
+            if config.verbose_level:
+                print("OK",flush=True)
+            else:
+                print("OK\r",end='', flush=True)
+        else:
+            failed_tests = failed_tests + 1
+            print(error_msg, "\r")
+            if config.exit_on_fail:
+                cancel = 1
+                print("TEST ABORTED!")
+
     elapsed = datetime.now() - start_time
-    print("                                                                                    \r")
+    print("                                                                                                                  \r")
     print(f"Test time-elapsed:            {str(elapsed)}")
     print(f"Number of executed tests:     {executed_tests}/{global_test_number - 1}")
     print(f"Number of NOT executed tests: {tests_not_executed}")
