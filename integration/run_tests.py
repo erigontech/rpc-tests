@@ -776,7 +776,6 @@ def main(argv) -> int:
     tests_not_executed = 0
     global_test_number = 1
 
-    tests_descr_list = []
     if config.workers == 0:
         exe = ProcessPoolExecutor()
     else:
@@ -784,11 +783,13 @@ def main(argv) -> int:
 
 
     for test_rep in range(0, config.loop_number):  # makes tests more times
-        test_number_in_any_loop = 1
-        if config.verbose_level:
-            print("Test iteration: ", test_rep + 1)
+        if config.loop_number != 1:
+            print("\r                                                                                                             ",end='', flush=True)
+            print(f"\nTest iteration: ", test_rep + 1, "                                                                      ")
         tokenize_transport_type = config.transport_type.split(",")
         for transport_type in tokenize_transport_type:
+            test_number_in_any_loop = 1
+            tests_descr_list = []
             dirs = sorted(os.listdir(config.json_dir))
             for curr_api in dirs:  # scans all api present in dir
                 # jump results folder or any hidden OS-specific folder
@@ -832,38 +833,39 @@ def main(argv) -> int:
                     test_number_in_any_loop = test_number_in_any_loop + 1
                     test_number = test_number + 1
 
+            # when all tests on specific transport type are spawned
+            if executed_tests == 0:
+               print("ERROR: api-name or testNumber not found")
+               return 1
 
-    if executed_tests == 0:
-        print("ERROR: api-name or testNumber not found")
-        return 1
+            # waits the future to check tests results
+            cancel = 0
+            for test in tests_descr_list:
+                curr_json_test_full_name = test['name']
+                curr_test_number_in_any_loop = test['number']
+                curr_transport_type = test['transport-type']
+                curr_future = test['future']
+                file = curr_json_test_full_name.ljust(60)
+                curr_tt = curr_transport_type.ljust(15)
+                if cancel:
+                    future.cancel()
+                    continue
+                print(f"{curr_test_number_in_any_loop:04d}. {curr_tt}::{file}   ", end='', flush=True)
+                result, error_msg = curr_future.result()
+                if result == 1:
+                    success_tests = success_tests + 1
+                    if config.verbose_level:
+                        print(f"OK                   ",flush=True)
+                    else:
+                        print(f"OK                   \r",end='', flush=True)
+                else:
+                    failed_tests = failed_tests + 1
+                    print(error_msg, "\r")
+                    if config.exit_on_fail:
+                        cancel = 1
+                        print("TEST ABORTED!")
 
-    cancel = 0
-    for test in tests_descr_list:
-        json_test_full_name = test['name']
-        test_number_in_any_loop = test['number']
-        transport_type = test['transport-type']
-        future = test['future']
-        file = json_test_full_name.ljust(60)
-        curr_tt = transport_type.ljust(15)
-        if cancel:
-            future.cancel()
-            continue
-        print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} ", end='', flush=True)
-
-        result, error_msg = future.result()
-        if result == 1:
-            success_tests = success_tests + 1
-            if config.verbose_level:
-                print("OK",flush=True)
-            else:
-                print("OK\r",end='', flush=True)
-        else:
-            failed_tests = failed_tests + 1
-            print(error_msg, "\r")
-            if config.exit_on_fail:
-                cancel = 1
-                print("TEST ABORTED!")
-
+    # print results at the end of all the tests
     elapsed = datetime.now() - start_time
     print("                                                                                                                  \r")
     print(f"Test time-elapsed:            {str(elapsed)}")
