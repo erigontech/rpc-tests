@@ -863,7 +863,9 @@ def main(argv) -> int:
                     print(error_msg, "\r")
                     if config.exit_on_fail:
                         cancel = 1
-                        print("TEST ABORTED!")
+        if config.exit_on_fail and failed_tests:
+            print("TEST ABORTED!")
+            break
 
     # print results at the end of all the tests
     elapsed = datetime.now() - start_time
