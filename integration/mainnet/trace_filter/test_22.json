@@ -1,0 +1,28 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_filter",
+      "params": [
+        {
+          "fromBlock": "0x2625A01",
+          "toBlock": "0x2625A00"
+        }
+      ]
+    },
+    "response": {
+      "error": {
+        "code": -32000,
+        "message": "invalid parameters: fromBlock cannot be greater than toBlock"
+      },
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null
+    },
+    "test": {
+      "description": "FROM block greather than TO block",
+      "reference": ""
+    }
+  }
+]

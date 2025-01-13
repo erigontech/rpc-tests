@@ -1,0 +1,24 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_filter",
+      "params": [
+        {
+          "fromBlock": "0x2625A00",
+          "toBlock": "0x2626A01"
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": []
+    },
+    "test": {
+      "description": "FROM block is not existent",
+      "reference": ""
+    }
+  }
+]
