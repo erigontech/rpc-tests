@@ -780,8 +780,10 @@ def main(argv) -> int:
     global_test_number = 1
 
     if config.workers == 0:
+        print ("Runs tests in parallel")
         exe = ProcessPoolExecutor()
     else:
+        print ("Runs tests on workers: ",config.workers)
         exe = ProcessPoolExecutor(max_workers=config.workers)
 
 
