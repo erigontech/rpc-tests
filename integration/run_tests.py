@@ -21,7 +21,7 @@ SILK = "silk"
 RPCDAEMON = "rpcdaemon"
 EXTERNAL_PROVIDER = "external-provider"
 TIME=0.1
-MAX_TIME = 100 # times of TIME secs
+MAX_TIME = 200 # times of TIME secs
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
@@ -545,14 +545,14 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
     return result
 
 
-def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file):
+def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file, test_number):
     """ run Compare command and verify if command complete. """
 
     if use_jsondiff:
+        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file + " 2> /dev/null &"
         already_failed = False
-        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
     else:
-        cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
+        cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " 2> /dev/null &"
         already_failed = True
     os.system(cmd)
     idx = 0
@@ -560,15 +560,18 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file):
         idx += 1
         time.sleep(TIME)
         # verify if json-diff or diff in progress
-        cmd = "ps aux | grep -v run_tests | grep 'diff' | grep -v 'grep' | awk '{print $2}'"
+        cmd = "ps aux | grep -v run_tests | grep 'diff' | grep -v 'grep' | grep test_" + str(test_number) + " | awk '{print $2}'"
         pid = os.popen(cmd).read()
         if pid == "":
             # json-diff or diff terminated
             return 1
         if idx >= MAX_TIME:
+            killing_pid = pid.strip()
             # reach timeout. kill it
-            cmd = "kill -9 " + pid
+            cmd = "kill -9 " + killing_pid + " >& /dev/null"
+            print ("kill: ", str(test_number), cmd)
             os.system(cmd)
+            print ("killed: ", str(test_number), cmd)
             if already_failed:
                 # timeout with json-diff and diff so return timeout->0
                 return 0
@@ -605,7 +608,7 @@ def compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file
         replace_message(exp_rsp_file, temp_file1, removed_line_string)
         replace_message(silk_file, temp_file2, removed_line_string)
 
-    diff_result = run_compare(config.use_jsondiff, temp_file1, temp_file2, diff_file)
+    diff_result = run_compare(config.use_jsondiff, temp_file1, temp_file2, diff_file, test_number)
     diff_file_size = 0
     return_code = 1 # ok
     error_msg = ""
