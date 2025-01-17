@@ -64,7 +64,7 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference
 -i,--without-compare-results: send request without compare results
 -w,--waiting_time: waiting after test execution (millisec)
-W,--workers: no of workers
+-S,--serial: runs tests in serial way
 
 ```
 

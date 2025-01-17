@@ -121,7 +121,7 @@ def usage(argv):
     print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
     print("-i,--without-compare-results: send request without compare results")
     print("-w,--waiting_time: waiting after test execution (millisec)")
-    print("-W,--workers: no of workers")
+    print("-S,--serial: all tests are runned in serial way")
 
 
 def get_target_name(target_type: str):
@@ -317,7 +317,7 @@ class Config:
         self.jwt_secret = ""
         self.display_only_fail = 0
         self.transport_type = "http"
-        self.workers = 0
+        self.parallel = True
         self.use_jsondiff = True
         self.without_compare_results = False
         self.waiting_time = 0
@@ -325,17 +325,22 @@ class Config:
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iw:hfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:jW:",
+            opts, _ = getopt.getopt(argv[1:], "iw:hfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:jS",
                                     ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                                      'api-list-with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
                                      'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff', 'waiting_time=',
-                                     'dump-response', 'without-compare-results', 'workers'])
+                                     'dump-response', 'without-compare-results', 'serial'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
                     sys.exit(1)
                 elif option in ("-w", "--waiting_time"):
+                    if self.parallel:
+                        print("Error on options: "
+                              "-w/--waiting_time is not compatible with parallel tests configuration (default config)")
+                        usage(argv)
+                        sys.exit(1)
                     self.waiting_time = int(optarg)
                 elif option in ("-c", "--continue"):
                     self.exit_on_fail = 0
@@ -349,8 +354,8 @@ class Config:
                 elif option in ("-e", "--verify-external-provider"):
                     self.daemon_as_reference = EXTERNAL_PROVIDER
                     self.external_provider_url = optarg
-                elif option in ("-W", "--workers"):
-                    self.workers = int(optarg)
+                elif option in ("-S", "--serial"):
+                    self.parallel = False
                 elif option in ("-H", "--host"):
                     self.daemon_on_host = optarg
                 elif option in ("-p", "--port"):
@@ -779,12 +784,12 @@ def main(argv) -> int:
     tests_not_executed = 0
     global_test_number = 1
 
-    if config.workers == 0:
+    if config.parallel == True:
         print ("Runs tests in parallel")
         exe = ProcessPoolExecutor()
     else:
-        print ("Runs tests on workers: ",config.workers)
-        exe = ProcessPoolExecutor(max_workers=config.workers)
+        print ("Runs tests in serial way")
+        exe = ProcessPoolExecutor(max_workers=1)
 
 
     for test_rep in range(0, config.loop_number):  # makes tests more times
