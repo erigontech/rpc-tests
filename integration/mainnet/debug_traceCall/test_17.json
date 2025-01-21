@@ -1,0 +1,40 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceCall",
+      "params": [
+        {
+          "data": "0x",
+          "from": "0x00cd20964d74850015300ddcc43394C2B0296260",
+          "gas": "0x5208",
+          "gasPrice": "0x1DAD1E397",
+          "to": "0x16c4ECbE41856FfA7874b5e039C958a94F85DC40",
+          "value": "0x100"
+        },
+        "0x1425556",
+        {
+          "TxIndex": "0x45",
+          "disableMemory": false,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "failed": false,
+        "gas": 21000,
+        "returnValue": "",
+        "structLogs": []
+      }
+    },
+    "test": {
+      "description": "From block 21124438 tnx 68. FROM has 0 eth before",
+      "reference": ""
+    }
+  }
+]
