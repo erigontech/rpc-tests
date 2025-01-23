@@ -38,8 +38,6 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_27",  # safe block, diff on transaction gas and very big
     "mainnet/debug_traceBlockByNumber/test_28",  # latestExecuted block, diff on transaction gas and very big
 
-    "mainnet/debug_traceCall/test_02", # must be complete implementaion on latest
-
     "mainnet/debug_traceBlockByHash/test_05",  # diff on 1 gas
     "mainnet/debug_traceBlockByHash/test_08",  # diff on 3 gasCost
     "mainnet/debug_traceBlockByHash/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
@@ -54,6 +52,10 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_11",  # diff on 1 gas and 1 gasCost
     "mainnet/debug_traceBlockByNumber/test_12",  # diff on 1 gas
     "mainnet/debug_traceBlockByNumber/test_29",  # diff on 42 gasCost, 12358 gas, 8 stack
+
+    "mainnet/debug_traceCall/test_16",  # diff on response with error (waiting for PR to handle insufficient funds)
+    "mainnet/debug_traceCall/test_20",  # diff on response with error (waiting for PR to handle insufficient funds)
+    "mainnet/debug_traceCall/test_21",  # check on TxIndex, diff on response (waiting for PR to handle out-of-range)
 
     "mainnet/debug_traceTransaction/test_25.json", # diff on error field
     "mainnet/debug_traceTransaction/test_36.json", # diff on error field
