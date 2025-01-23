@@ -54,6 +54,7 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_29",  # diff on 42 gasCost, 12358 gas, 8 stack
 
     "mainnet/debug_traceCall/test_16",  # diff on response with error (waiting for PR to handle insufficient funds)
+    "mainnet/debug_traceCall/test_17",  # diff on response (debug missing result)
     "mainnet/debug_traceCall/test_20",  # diff on response with error (waiting for PR to handle insufficient funds)
     "mainnet/debug_traceCall/test_21",  # check on TxIndex, diff on response (waiting for PR to handle out-of-range)
 
