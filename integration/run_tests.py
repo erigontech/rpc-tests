@@ -42,6 +42,13 @@ tests_not_compared = [
 
     "mainnet/debug_traceBlockByNumber/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
     "mainnet/debug_traceBlockByNumber/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
+
+    "mainnet/debug_traceBlockByNumber/test_24",  # latest block, diff on transaction gas and very big
+    "mainnet/debug_traceBlockByNumber/test_25",  # pending block, diff on transaction gas and very big
+    "mainnet/debug_traceBlockByNumber/test_26",  # finalized block, diff on transaction gas and very big
+    "mainnet/debug_traceBlockByNumber/test_27",  # safe block, diff on transaction gas and very big
+    "mainnet/debug_traceBlockByNumber/test_28",  # latestExecuted block, diff on transaction gas and very big
+
     "mainnet/debug_traceBlockByNumber/test_29",  # diff on 42 gasCost, 12358 gas, 8 stack
 
     "mainnet/debug_traceCall/test_16",  # diff on response with error (waiting for PR to handle insufficient funds)
@@ -567,10 +574,9 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file, test_number):
         if idx >= MAX_TIME:
             killing_pid = pid.strip()
             # reach timeout. kill it
-            cmd = "kill -9 " + killing_pid + " >& /dev/null"
-            print ("kill: ", str(test_number), cmd)
+            cmd = "kill " + killing_pid 
+            #print ("kill: test_number: ", str(test_number), " cmd: " , cmd)
             os.system(cmd)
-            print ("killed: ", str(test_number), cmd)
             if already_failed:
                 # timeout with json-diff and diff so return timeout->0
                 return 0
