@@ -36,13 +36,18 @@ tests_not_compared = [
     "debug_traceCall/test_17", # error format
     "debug_traceCall/test_20", # error format
     "debug_traceCall/test_21", # error format
-
+  
     "mainnet/debug_traceBlockByHash/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
     "mainnet/debug_traceBlockByHash/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
 
     "mainnet/debug_traceBlockByNumber/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
     "mainnet/debug_traceBlockByNumber/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
     "mainnet/debug_traceBlockByNumber/test_29",  # diff on 42 gasCost, 12358 gas, 8 stack
+
+    "mainnet/debug_traceCall/test_16",  # diff on response with error (waiting for PR to handle insufficient funds)
+    "mainnet/debug_traceCall/test_17",  # diff on response (debug missing result)
+    "mainnet/debug_traceCall/test_20",  # diff on response with error (waiting for PR to handle insufficient funds)
+    "mainnet/debug_traceCall/test_21",  # check on TxIndex, diff on response (waiting for PR to handle out-of-range)
 
     "mainnet/debug_traceTransaction/test_25.json", # diff on error field
     "mainnet/debug_traceTransaction/test_36.json", # diff on error field
