@@ -1,0 +1,43 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_callMany",
+      "params": [
+        [
+          {
+            "blockOverride": {
+              "blockNumber": "0x4366AC"
+            },
+            "transactions": [
+              {
+                "data": "0x41c0e1b505684bf5",
+                "from": "0xC1cBA74D5ac02531aBfaB6353dB26EC7c572BebA",
+                "gas": "0x19891",
+               "gasPrice": "0x29900DC6C0",
+               "to": "0xAE6814472DAc803B82d4Ea4588Cf7aF8B2b12d1d",
+               "value": "0x0"
+              }
+            ]
+          }
+        ],
+        {
+          "blockNumber": "latest",
+          "transactionIndex": -1
+        },
+        {
+          "0xB5772B3A6Be702D0387770C64bf17e36a4D38188": {
+            "balance": "0x165AF8666"
+          }
+        },
+        -1
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null 
+    }
+  }
+]
