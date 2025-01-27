@@ -1,0 +1,49 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_callMany",
+      "params": [
+        [
+          [
+            {
+              "data": "0x41c0e1b505684bf5",
+              "from": "0xC1cBA74D5ac02531aBfaB6353dB26EC7c572BebA",
+              "gas": "0x19891",
+              "gasPrice": "0x29900DC6C0",
+              "to": "0xAE6814472DAc803B82d4Ea4588Cf7aF8B2b12d1d",
+              "value": "0x0"
+            },
+            [
+              "vmTrace",
+              "trace",
+              "stateDiff"
+            ]
+          ],
+          [
+            {
+              "data": "0x41c0e1b505684bf5",
+              "from": "0xC1cBA74D5ac02531aBfaB6353dB26EC7c572BebA",
+              "gas": "0x19891",
+              "gasPrice": "0x29900DC6C0",
+              "to": "0xAE6814472DAc803B82d4Ea4588Cf7aF8B2b12d1d",
+              "value": "0x0"
+            },
+            [
+              "vmTrace",
+              "trace",
+              "stateDiff"
+            ]
+          ]
+        ],
+        "latest"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null
+    }
+  }
+]
