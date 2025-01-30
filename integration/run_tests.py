@@ -32,11 +32,11 @@ api_not_compared = [
 tests_not_compared = [
     "mainnet/eth_syncing/test_01.json",  # different stages, json response is null but response different with erigon
 
-    "mainnet/eth_getLogs/test_16", # disable temporary waiting fix on erigon DB on RCEIPT DOMAIN Table
-    "mainnet/eth_getLogs/test_17", # disable temporary waiting fix on erigon DB on RCEIPT DOMAIN Table
-    "mainnet/eth_getLogs/test_18", # disable temporary waiting fix on erigon DB on RCEIPT DOMAIN Table
-    "mainnet/eth_getLogs/test_19", # disable temporary waiting fix on erigon DB on RCEIPT DOMAIN Table
-    "mainnet/eth_getLogs/test_20", # disable temporary waiting fix on erigon DB on RCEIPT DOMAIN Table
+    "mainnet/eth_getLogs/test_16", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_17", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_18", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_19", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_20", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
 
     "mainnet/debug_traceBlockByHash/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
     "mainnet/debug_traceBlockByHash/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
@@ -45,11 +45,11 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
     "mainnet/debug_traceBlockByNumber/test_29",  # diff on 42 gasCost, 12358 gas, 8 stack
 
-    "mainnet/debug_traceBlockByNumber/test_24",  # latest block, diff on transaction gas and very big, json response is null but respopnse different with erigon
-    "mainnet/debug_traceBlockByNumber/test_25",  # pending block, diff on transaction gas and very big, json response is null but respopnse different with erigon
-    "mainnet/debug_traceBlockByNumber/test_26",  # finalized block, diff on transaction gas and very big, json response is null but respopnse different with erigon
-    "mainnet/debug_traceBlockByNumber/test_27",  # safe block, diff on transaction gas and very big, json response is null but respopnse different with erigon
-    "mainnet/debug_traceBlockByNumber/test_28",  # latestExecuted block, diff on transaction gas and very big, json response is null but respopnse different with erigon
+    "mainnet/debug_traceBlockByNumber/test_24",  # latest block, diff on transaction gas and very big, json response is null but response different wrt erigon
+    "mainnet/debug_traceBlockByNumber/test_25",  # pending block, diff on transaction gas and very big, json response is null but response different wrt erigon
+    "mainnet/debug_traceBlockByNumber/test_26",  # finalized block, diff on transaction gas and very big, json response is null but response different wrt erigon
+    "mainnet/debug_traceBlockByNumber/test_27",  # safe block, diff on transaction gas and very big, json response is null but response different wrt erigon
+    "mainnet/debug_traceBlockByNumber/test_28",  # latestExecuted block, diff on transaction gas and very big, json response is null but response different wrt erigon
 
     "mainnet/debug_traceCall/test_21",  # check on TxIndex, diff on response (waiting for PR to handle out-of-range)
 
