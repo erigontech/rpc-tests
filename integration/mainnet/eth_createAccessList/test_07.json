@@ -23,17 +23,22 @@
             "id":1,
             "jsonrpc":"2.0",
             "result": {
-          "accessList": [
+                "accessList": [
+                {
+                      "address": "0xcd4ec7b66fbc029c116ba9ffb3e59351c20b5b06",
+                      "storageKeys": [
+                            "0x0000000000000000000000000000000000000000000000000000000000000006"
+                      ] 
+               },
                {
-                    "address": "0xed1f5f8724cc185d4e48a71a7fac64fa5216e4a8",
-                    "storageKeys": [
-                         "0xf40f5e2401058bfdc31bbacb0248b6a03f5426d4eea1d186407a66a2f38980fc",
-                         "0x709e139aeb5d383ca0e0df36acc1d61ac99a675d596922df85ea2f6171b0d344"
-                    ]
+                      "address": "0xed1f5f8724cc185d4e48a71a7fac64fa5216e4a8",
+                      "storageKeys": [
+                        "0xf40f5e2401058bfdc31bbacb0248b6a03f5426d4eea1d186407a66a2f38980fc",
+                        "0x709e139aeb5d383ca0e0df36acc1d61ac99a675d596922df85ea2f6171b0d344"
+                      ]
                }
-          ],
-          "gasUsed": "0xb354"
-
+               ],
+               "gasUsed": "0xb354"
             }
         }
     }
