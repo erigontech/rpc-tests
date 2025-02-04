@@ -23,8 +23,15 @@
             "id":1,
             "jsonrpc":"2.0",
             "result": {
-               "accessList": [],
-                "gasUsed": "0x6687"
+                 "accessList": [
+                {
+                  "address": "0xcde4de4d3baa9f2cb0253de1b86271152fbf7864",
+                  "storageKeys": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000001"
+                  ]
+                }
+              ],
+              "gasUsed": "0x6687"
             }
         }
     }

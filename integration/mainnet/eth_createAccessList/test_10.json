@@ -24,9 +24,18 @@
             "id":1,
             "jsonrpc":"2.0",
             "result": {
-               "accessList": [],
-                "error": "execution reverted",
-                "gasUsed": "0x82a2"
+               "accessList": [
+                {
+                  "address": "0x283af0b28c62c092c9727f1ee09c02ca627eb7f5",
+                  "storageKeys": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000003",
+                    "0x34ccb2b352944e3090da3c84b1adc01fdd386854029bd325067b54db2c00c44e",
+                    "0x0000000000000000000000000000000000000000000000000000000000000004"
+                  ]
+                }
+              ],
+              "error": "execution reverted",
+              "gasUsed": "0x82a2"
             }
         }
     }

@@ -23,9 +23,29 @@
             "id":1,
             "jsonrpc":"2.0",
             "result": {
-              "accessList": [],
-              "error": "execution reverted",
-              "gasUsed": "0x122cf" 
+               "accessList": [
+                     {
+                       "address": "0x892555e75350e11f2058d086c72b9c94c9493d72",
+                       "storageKeys": [
+                         "0x350993b65eed3eaf3a908f86322f141923458e4d3a8972f5c97bb672b3e8a8d4",
+                         "0xc89ccd72b2ea792f2c0dc9ba6996788435e505ab2cd1301b2b5d0160803b08e1",
+                         "0x000000000000000000000000000000000000000000000000000000000000000e",
+                         "0x000000000000000000000000000000000000000000000000000000000000000a",
+                         "0xa7b4ccdf81bc32d1e2176af73ef4736186f278bed4fab7b9d6ab189c3903fc37",
+                         "0xe464df08b1a6bc4a7efd0b57900b5ac59bc86655560732a1d4391a671c7e1d1a",
+                         "0xbfbe8310fe66eba55e1ee378a9036bf3e4896a07d911027a46be0497ba92bb28",
+                         "0x3342f3943919b6eca1851ee5f59c35336e7e5e165bc32724ba642e82a03ac18d",
+                         "0x6fd6796dd663538e711579bcb56d95f71a67ae65ad5431ec94f9719699da063c",
+                         "0x9843988e4fcb784b0f01aa741314ab445dfb55418f4b7d9897fc7ab2d2e018b2",
+                         "0x000000000000000000000000000000000000000000000000000000000000000f",
+                         "0x4ce2dac29b7f62ea47a3d2578f10d0788b17a133cfdc1e280432bad7529ad4d7",
+                         "0xe1120b0b1e1850317111b310cc89571b7ccf1195feb3aaf638ee0f03f5d97c7b",
+                         "0x000000000000000000000000000000000000000000000000000000000000000d"
+                       ]
+                     }
+                   ],
+                   "error": "execution reverted",
+                   "gasUsed": "0x122cf"
             }
         }
     }
