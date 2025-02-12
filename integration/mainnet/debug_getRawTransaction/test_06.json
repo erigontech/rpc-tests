@@ -11,10 +11,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": {
-          "code": -32000,
-          "message": "transaction not found"
-      }
+      "result": "0x"
     }
   }
 ]
