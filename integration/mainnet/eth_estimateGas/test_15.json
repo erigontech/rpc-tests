@@ -13,7 +13,12 @@
                   "to":  "0x252568abdeb9de59fd8963dfcd87be2db65f1ce1",
                   "gasPrice": "0xBA43B7400"
                 },
-                "0xFFFFFFFF"
+                "0x41b57c",
+                {
+                  "0xB5772B3A6Be702D0387770C64bf17e36a4D38188": {
+                     "balance": "0x165AF8666"
+                  }
+               }
             ],
             "id":1
         },
