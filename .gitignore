@@ -1,5 +1,7 @@
 .vscode
 .vs
+.idea
 integration/goerli/results
 integration/mainnet/results
 output
+*/**/.DS_Store
