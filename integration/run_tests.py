@@ -38,10 +38,8 @@ tests_not_compared = [
     "mainnet/eth_getLogs/test_19", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
     "mainnet/eth_getLogs/test_20", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
 
-    "mainnet/debug_traceBlockByHash/test_09__",  # diff on 60 gasCost, 8473 gas, 16 stack
     "mainnet/debug_traceBlockByHash/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
 
-    "mainnet/debug_traceBlockByNumber/test_09__",  # diff on 60 gasCost, 8473 gas, 16 stack
     "mainnet/debug_traceBlockByNumber/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
     "mainnet/debug_traceBlockByNumber/test_24",  # latest block, diff on transaction gas and very big, json response is null but response different wrt erigon
     "mainnet/debug_traceBlockByNumber/test_25",  # pending block, diff on transaction gas and very big, json response is null but response different wrt erigon
