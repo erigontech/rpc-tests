@@ -462,7 +462,6 @@ def get_json_from_response(msg, verbose_level: int, json_file, result: str):
     try:
         return result, ""
     except json.decoder.JSONDecodeError:
-        file = json_file.ljust(60)
         error_msg = "Failed (bad json format)"
         if verbose_level:
             print(msg)
@@ -532,9 +531,9 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
                 rsp = websocket.recv(None)
                 result = json.loads(rsp)
 
-        except:
+        except Exception as e:
             if verbose_level:
-                print("\nwebsocket connection fail")
+                print("\nwebsocket connection fail:",e)
             return ""
 
     if verbose_level > 1:
@@ -792,7 +791,7 @@ def main(argv) -> int:
     for test_rep in range(0, config.loop_number):  # makes tests more times
         if config.loop_number != 1:
             print("\r                                                                                                             ",end='', flush=True)
-            print(f"\nTest iteration: ", test_rep + 1, "                                                                      ")
+            print("\nTest iteration: ", test_rep + 1, "                                                                      ")
         tokenize_transport_type = config.transport_type.split(",")
         for transport_type in tokenize_transport_type:
             test_number_in_any_loop = 1
@@ -838,7 +837,8 @@ def main(argv) -> int:
                                         time.sleep(config.waiting_time/1000)
                                     executed_tests = executed_tests + 1
 
-                    global_test_number = global_test_number + 1
+                    if test_rep == 0:
+                        global_test_number = global_test_number + 1
                     test_number_in_any_loop = test_number_in_any_loop + 1
                     test_number = test_number + 1
 
@@ -864,9 +864,9 @@ def main(argv) -> int:
                 if result == 1:
                     success_tests = success_tests + 1
                     if config.verbose_level:
-                        print(f"OK                   ",flush=True)
+                        print("OK                   ",flush=True)
                     else:
-                        print(f"OK                   \r",end='', flush=True)
+                        print("OK                   \r",end='', flush=True)
                 else:
                     failed_tests = failed_tests + 1
                     print(error_msg, "\r")
@@ -880,7 +880,9 @@ def main(argv) -> int:
     elapsed = datetime.now() - start_time
     print("                                                                                                                  \r")
     print(f"Test time-elapsed:            {str(elapsed)}")
-    print(f"Number of executed tests:     {executed_tests}/{global_test_number - 1}")
+    print(f"Avalable_tests:               {global_test_number - 1}")
+    print(f"Number of loop:               {test_rep + 1}")
+    print(f"Number of executed tests:     {executed_tests}")
     print(f"Number of NOT executed tests: {tests_not_executed}")
     print(f"Number of success tests:      {success_tests}")
     print(f"Number of failed tests:       {failed_tests}")
