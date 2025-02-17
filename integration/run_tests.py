@@ -6,6 +6,7 @@ import getopt
 import gzip
 import json
 import os
+import re
 import shutil
 import sys
 import tarfile
@@ -454,7 +455,7 @@ class Config:
             shutil.rmtree(self.output_dir)
 
 
-def get_json_from_response(msg, verbose_level: int, json_file, result: str, test_number):
+def get_json_from_response(msg, verbose_level: int, json_file, result: str):
     """ Retrieve JSON from response """
     if verbose_level > 2:
         print(msg + " :[" + result + "]")
@@ -465,7 +466,6 @@ def get_json_from_response(msg, verbose_level: int, json_file, result: str, test
     try:
         return result, ""
     except json.decoder.JSONDecodeError:
-        file = json_file.ljust(60)
         error_msg = "Failed (bad json format)"
         if verbose_level:
             print(msg)
@@ -535,9 +535,9 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
                 rsp = websocket.recv(None)
                 result = json.loads(rsp)
 
-        except:
+        except Exception as e:
             if verbose_level:
-                print("\nwebsocket connection fail")
+                print("\nwebsocket connection fail:",e)
             return ""
 
     if verbose_level > 1:
@@ -571,7 +571,7 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file, test_number):
         if idx >= MAX_TIME:
             killing_pid = pid.strip()
             # reach timeout. kill it
-            cmd = "kill " + killing_pid 
+            cmd = "kill " + killing_pid
             #print ("kill: test_number: ", str(test_number), " cmd: " , cmd)
             os.system(cmd)
             if already_failed:
@@ -633,12 +633,12 @@ def process_response(result, result1, response_in_file: str, config,
                      output_dir: str, silk_file: str, exp_rsp_file: str, diff_file: str, json_file: str, test_number: int):
     """ Process the response If exact result or error don't care, they are null but present in expected_response. """
 
-    response, error_msg  = get_json_from_response(config.daemon_under_test, config.verbose_level, json_file, result, test_number)
+    response, error_msg  = get_json_from_response(config.daemon_under_test, config.verbose_level, json_file, result)
     if response is None:
         return 0, error_msg
 
     if result1 != "":
-        expected_response, error_msg = get_json_from_response(config.daemon_as_reference, config.verbose_level, json_file, result1, test_number)
+        expected_response, error_msg = get_json_from_response(config.daemon_as_reference, config.verbose_level, json_file, result1)
         if expected_response is None:
             return 0, error_msg
     else:
@@ -763,13 +763,16 @@ def run_test(json_file: str, test_number, transport_type, config):
             json_file,
             test_number)
 
+def extract_number(filename):
+    """ Extract number from filename """
+    match = re.search(r'\d+', filename)
+    return int(match.group())
 
 #
 # main
 #
 def main(argv) -> int:
-    """ parse command line and execute tests
-    """
+    """ Run integration tests. """
     config = Config()
     config.select_user_options(argv)
 
@@ -781,7 +784,7 @@ def main(argv) -> int:
     tests_not_executed = 0
     global_test_number = 1
 
-    if config.parallel == True:
+    if config.parallel is True:
         print ("Runs tests in parallel")
         exe = ProcessPoolExecutor()
     else:
@@ -792,7 +795,7 @@ def main(argv) -> int:
     for test_rep in range(0, config.loop_number):  # makes tests more times
         if config.loop_number != 1:
             print("\r                                                                                                             ",end='', flush=True)
-            print(f"\nTest iteration: ", test_rep + 1, "                                                                      ")
+            print("\nTest iteration: ", test_rep + 1, "                                                                      ")
         tokenize_transport_type = config.transport_type.split(",")
         for transport_type in tokenize_transport_type:
             test_number_in_any_loop = 1
@@ -805,10 +808,12 @@ def main(argv) -> int:
                 test_dir = config.json_dir + curr_api
                 if not os.path.isdir(test_dir):  # jump if not dir
                     continue
-                test_lists = sorted(os.listdir(test_dir))
+                test_lists = sorted(os.listdir(test_dir), key=extract_number)
                 test_number = 1
                 for test_name in test_lists:  # scan all json test present in the dir
-                    if (test_name in ["json", "zip", "gzip"] == 0):  # if file doesn't terminate with .json, .gzip, .tar jump it
+                    if not test_name.startswith("test_"):
+                        continue
+                    if not test_name.endswith((".zip", ".gzip", ".json", ".tar")):
                         continue
                     if api_under_test(curr_api, config):  # -a/-A or any api
                         json_test_full_name = curr_api + "/" + test_name
@@ -836,14 +841,15 @@ def main(argv) -> int:
                                         time.sleep(config.waiting_time/1000)
                                     executed_tests = executed_tests + 1
 
-                    global_test_number = global_test_number + 1
+                    if test_rep == 0:
+                        global_test_number = global_test_number + 1
                     test_number_in_any_loop = test_number_in_any_loop + 1
                     test_number = test_number + 1
 
             # when all tests on specific transport type are spawned
             if executed_tests == 0:
-               print("ERROR: api-name or testNumber not found")
-               return 1
+                print("ERROR: api-name or testNumber not found")
+                return 1
 
             # waits the future to check tests results
             cancel = 0
@@ -862,9 +868,9 @@ def main(argv) -> int:
                 if result == 1:
                     success_tests = success_tests + 1
                     if config.verbose_level:
-                        print(f"OK                   ",flush=True)
+                        print("OK                   ",flush=True)
                     else:
-                        print(f"OK                   \r",end='', flush=True)
+                        print("OK                   \r",end='', flush=True)
                 else:
                     failed_tests = failed_tests + 1
                     print(error_msg, "\r")
@@ -878,7 +884,9 @@ def main(argv) -> int:
     elapsed = datetime.now() - start_time
     print("                                                                                                                  \r")
     print(f"Test time-elapsed:            {str(elapsed)}")
-    print(f"Number of executed tests:     {executed_tests}/{global_test_number - 1}")
+    print(f"Avalable_tests:               {global_test_number - 1}")
+    print(f"Number of loop:               {test_rep + 1}")
+    print(f"Number of executed tests:     {executed_tests}")
     print(f"Number of NOT executed tests: {tests_not_executed}")
     print(f"Number of success tests:      {success_tests}")
     print(f"Number of failed tests:       {failed_tests}")
