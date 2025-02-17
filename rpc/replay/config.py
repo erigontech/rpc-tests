@@ -12,8 +12,8 @@ from typing import Self
 class Options:
     """ Replay configuration options """
 
-    SHORT_LIST = 'hi:m:j:p:u:'
-    LONG_LIST = ['help', 'index=', 'method=', 'jwt=', 'path=', 'url=']
+    SHORT_LIST = 'hi:m:j:p:tu:v'
+    LONG_LIST = ['help', 'index=', 'method=', 'jwt=', 'path=', 'url=', 'verbose', 'pretend']
 
     @staticmethod
     def usage(argv: List[str]):
@@ -27,7 +27,9 @@ class Options:
         print('-m,--method: JSONRPC method to replay, empty means all [default: engine_newPayloadV3]')
         print('-j,--jwt: path of JWT secret file [default: $HOME/prysm/jwt.hex]')
         print('-p,--path: path of Engine API interface log file to extract from [default: logs/engine_rpc_api.log]')
+        print('-t,--pretend: do not send any HTTP request, just pretend to [default: false]')
         print('-u,--url: HTTP URL of Engine API endpoint to send request to [default: http://localhost:8551]')
+        print('-v,--verbose: print verbose output [default: false]')
 
     @staticmethod
     def get_home_folder() -> str:
@@ -59,6 +61,8 @@ class Options:
         self.jwt_secret_file = Options.get_home_folder() + '/prysm/jwt.hex'
         self.method = 'engine_newPayloadV3'
         self.method_index = 1
+        self.pretend = False
+        self.verbose = False
 
     def parse(self: Self, argv: List[str]) -> Optional[str]:
         try:
@@ -74,8 +78,12 @@ class Options:
                     self.jwt_secret_file = opt_arg
                 elif opt in ('-p', '--path'):
                     self.interface_log_file_path = opt_arg
+                elif opt in ('-t', '--pretend'):
+                    self.pretend = True
                 elif opt in ('-u', '--url'):
                     self.url = opt_arg
+                elif opt in ('-v', '--verbose'):
+                    self.verbose = True
                 else:
                     assert False, "getopt.GetoptError not raised for option: " + opt
         except getopt.GetoptError as err:
