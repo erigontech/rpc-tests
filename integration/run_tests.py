@@ -221,7 +221,7 @@ def is_skipped(curr_api, test_name: str, global_test_number, config):
         config.exclude_api_list == ""  and config.exclude_test_list == ""): # if not -t and -x and -X are null -x or -X
         for curr_test_name in api_not_compared:
             if curr_test_name in api_full_name:
-                return 0
+                return 1
         for curr_test in tests_not_compared:
             if curr_test in api_full_test_name:
                 return 1
