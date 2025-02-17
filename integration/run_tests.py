@@ -133,14 +133,9 @@ def get_target_name(target_type: str):
 def get_target(target_type: str, method: str, external_provider_url: str, host: str, port: int = 0):
     """ determine target
     """
-    if "engine_" in method and target_type == SILK:
-        return host + ":" + str(port if port > 0 else 51516)
 
     if "engine_" in method and target_type == RPCDAEMON:
         return host + ":" + str(port if port > 0 else 8551)
-
-    if target_type == SILK:
-        return host + ":" + str(port if port > 0 else 51515)
 
     if target_type == EXTERNAL_PROVIDER:
         return external_provider_url
@@ -226,7 +221,7 @@ def is_skipped(curr_api, test_name: str, global_test_number, config):
         config.exclude_api_list == ""  and config.exclude_test_list == ""): # if not -t and -x and -X are null -x or -X
         for curr_test_name in api_not_compared:
             if curr_test_name in api_full_name:
-                return 1
+                return 0
         for curr_test in tests_not_compared:
             if curr_test in api_full_test_name:
                 return 1
