@@ -18,8 +18,9 @@ import requests
 from websockets.sync.client import connect
 from websockets.extensions import permessage_deflate
 
-SILK = "silk"
-RPCDAEMON = "rpcdaemon"
+DAEMON_ON_OTHER_PORT = "silk"
+DAEMON_ON_DEFAULT_PORT = "rpcdaemon"
+NONE = "none"
 EXTERNAL_PROVIDER = "external-provider"
 TIME=0.1
 MAX_TIME = 200 # times of TIME secs
@@ -28,6 +29,16 @@ api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
     "mainnet/trace_rawTransaction"       # not supported by erigon
 ]
+
+#    "mainnet/debug_accountRange", # temporary
+#    "mainnet/debug_storageRangeAt", # temporary
+#    "mainnet/debug_getModifiedAccountsByHash", # temporary
+#    "mainnet/debug_getModifiedAccountsByNumber", # temporary
+#    "mainnet/erigon_getBalanceChangesInBlock", # temporary
+#    "mainnet/ots_getContractCreator", # temporary
+#    "mainnet/ots_getTransactionBySenderAndNonce", # temporary
+#    "mainnet/ots_searchTransactionsBefore", # temporary
+#    "mainnet/parity_listStorageKeys", # temporary
 
 tests_not_compared = [
     "mainnet/eth_syncing/test_01.json",  # different stages, json response is null but response different with erigon
@@ -111,45 +122,47 @@ def usage(argv):
     print("-o,--dump-response: dump JSON RPC response")
     print("-H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)")
     print("-p,--port: port where the RpcDaemon is located (e.g.: 8545)")
-    print("-r,--erigon-rpcdaemon: connect to Erigon RpcDaemon [default: connect to Silkrpc] ")
+    print("-I,--silk-port: Use 51515/51516 ports to server")
     print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
     print("-i,--without-compare-results: send request without compare results")
     print("-w,--waiting_time: waiting after test execution (millisec)")
     print("-S,--serial: all tests are runned in serial way")
 
 
-def get_target_name(target_type: str):
-    """ Return name server """
-    if target_type == SILK:
-        return "Silk"
-    if target_type == RPCDAEMON:
-        return "RpcDaemon"
-    if target_type == EXTERNAL_PROVIDER:
-        return "Infura"
-    return "Undef"
-
-
-def get_target(target_type: str, method: str, external_provider_url: str, host: str, port: int = 0):
+def get_target(target_type: str, method: str, config):
     """ determine target
     """
 
-    if "engine_" in method and target_type == RPCDAEMON:
-        return host + ":" + str(port if port > 0 else 8551)
-
     if target_type == EXTERNAL_PROVIDER:
-        return external_provider_url
+        return config.external_provider_url
 
-    return host + ":" + str(port if port > 0 else 8545)
+    if config.verify_with_daemon and target_type == DAEMON_ON_OTHER_PORT and "engine_" in method:
+        return config.daemon_on_host + ":" + str(51516)
+
+    if config.verify_with_daemon and target_type == DAEMON_ON_OTHER_PORT:
+        return config.daemon_on_host + ":" + str(51515)
+
+    if target_type == DAEMON_ON_OTHER_PORT and "engine_" in method:
+        return config.daemon_on_host + ":" + str(51516)
+
+    if target_type == DAEMON_ON_OTHER_PORT:
+        return config.daemon_on_host + ":" + str(51515)
+
+    if "engine_" in method:
+        return config.daemon_on_host + ":" + str(config.engine_port if config.engine_port > 0 else 8551)
+
+    return config.daemon_on_host + ":" + str(config.server_port if config.server_port > 0 else 8545)
 
 
-def get_json_filename_ext(target_type: str):
+def get_json_filename_ext(target_type: str, target):
     """ determine json file name
     """
-    if target_type == SILK:
-        return "-silk.json"
+    port = target.split(":")
+    if target_type == DAEMON_ON_OTHER_PORT:
+        return "_" + port[1] + "-silk.json"
     if target_type == EXTERNAL_PROVIDER:
         return "-external_provider_url.json"
-    return "-rpcdaemon.json"
+    return "_" + port[1] + "-rpcdaemon.json"
 
 
 def get_jwt_secret(name):
@@ -284,15 +297,16 @@ class Config:
     def __init__(self):
         """ init the configuration params """
         self.exit_on_fail = True
-        self.daemon_under_test = SILK
-        self.daemon_as_reference = RPCDAEMON
+        self.daemon_under_test = DAEMON_ON_DEFAULT_PORT
+        self.daemon_as_reference = NONE
         self.loop_number = 1
         self.verbose_level = 0
         self.req_test_number = -1
         self.force_dump_jsons = False
         self.external_provider_url = ""
         self.daemon_on_host = "localhost"
-        self.daemon_on_port = 0
+        self.server_port = 0
+        self.engine_port = 0
         self.testing_apis_with = ""
         self.testing_apis = ""
         self.verify_with_daemon = False
@@ -314,8 +328,8 @@ class Config:
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iw:hfrcv:t:l:a:de:b:ox:X:H:k:s:p:T:A:jS",
-                                    ['help', 'continue', 'erigon-rpcdaemon', 'verify-external-provider', 'host=',
+            opts, _ = getopt.getopt(argv[1:], "iw:hfIcv:t:l:a:de:b:ox:X:H:k:s:p:P:T:A:jS",
+                                    ['help', 'continue', 'silk-port', 'verify-external-provider', 'host=', 'engine-port=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                                      'api-list-with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
                                      'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff', 'waiting_time=',
@@ -333,13 +347,13 @@ class Config:
                     self.waiting_time = int(optarg)
                 elif option in ("-c", "--continue"):
                     self.exit_on_fail = 0
-                elif option in ("-r", "--erigon-rpcdaemon"):
-                    if self.verify_with_daemon == 1:
+                elif option in ("-I", "--silk-port"):
+                    if self.verify_with_daemon is True:
                         print("Error on options: "
-                              "-r/--erigon-rpcdaemon is not compatible with -d/--compare-erigon-rpcdaemon")
+                              "-I/--silk-port is not compatible with -d/--compare-erigon-rpcdaemon")
                         usage(argv)
                         sys.exit(1)
-                    self.daemon_under_test = RPCDAEMON
+                    self.daemon_under_test = DAEMON_ON_OTHER_PORT
                 elif option in ("-e", "--verify-external-provider"):
                     self.daemon_as_reference = EXTERNAL_PROVIDER
                     self.external_provider_url = optarg
@@ -348,7 +362,9 @@ class Config:
                 elif option in ("-H", "--host"):
                     self.daemon_on_host = optarg
                 elif option in ("-p", "--port"):
-                    self.daemon_on_port = int(optarg)
+                    self.server_port = int(optarg)
+                elif option in ("-P", "--engine-port"):
+                    self.engine_port = int(optarg)
                 elif option in ("-f", "--display-only-fail"):
                     self.display_only_fail = 1
                 elif option in ("-v", "--verbose"):
@@ -375,9 +391,9 @@ class Config:
                 elif option in ("-l", "--loops"):
                     self.loop_number = int(optarg)
                 elif option in ("-d", "--compare-erigon-rpcdaemon"):
-                    if self.daemon_under_test != SILK:
+                    if self.daemon_under_test != DAEMON_ON_DEFAULT_PORT:
                         print("Error in options: "
-                              "-d/--compare-erigon-rpcdaemon is not compatible with -r/--erigon-rpcdaemon")
+                              "-d/--compare-erigon-rpcdaemon is not compatible with -I/--silk-port")
                         usage(argv)
                         sys.exit(1)
                     if self.without_compare_results is True:
@@ -385,7 +401,8 @@ class Config:
                               "-d/--compare-erigon-rpcdaemon is not compatible with -i/--without_compare_results")
                         usage(argv)
                         sys.exit(1)
-                    self.verify_with_daemon = 1
+                    self.verify_with_daemon = True
+                    self.daemon_as_reference = DAEMON_ON_DEFAULT_PORT
                     self.use_jsondiff = True
                 elif option in ("-o", "--dump-response"):
                     self.force_dump_jsons = 1
@@ -424,7 +441,7 @@ class Config:
                 elif option in ("-j", "--json-diff"):
                     self.use_jsondiff = True
                 elif option in ("-i", "--without-compare-results"):
-                    if self.verify_with_daemon == 1:
+                    if self.verify_with_daemon is True:
                         print("Error on options: "
                               "-i/--without-compare-results is not compatible with -d/--compare-erigon-rpcdaemon")
                         usage(argv)
@@ -445,18 +462,18 @@ class Config:
             shutil.rmtree(self.output_dir)
 
 
-def get_json_from_response(msg, verbose_level: int, json_file, result: str):
+def get_json_from_response(target, msg, verbose_level: int, json_file, result: str):
     """ Retrieve JSON from response """
     if verbose_level > 2:
         print(msg + " :[" + result + "]")
 
     if len(result) == 0:
-        error_msg = "Failed (json response is zero length, maybe server is down)"
+        error_msg = "Failed (json response is zero length, maybe server is down) on " + target
         return None, error_msg
     try:
         return result, ""
     except json.decoder.JSONDecodeError:
-        error_msg = "Failed (bad json format)"
+        error_msg = "Failed (bad json format) + target"
         if verbose_level:
             print(msg)
             print("Failed (bad json format)")
@@ -500,7 +517,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             result = rsp.json()
         except:
             if verbose_level:
-                print("\nhttp connection fail")
+                print("\nhttp connection failç: ", target_url)
             return ""
     else:
         ws_target = "ws://" + target  # use websocket
@@ -619,16 +636,16 @@ def compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file
         os.remove(temp_file2)
     return return_code, error_msg
 
-def process_response(result, result1, response_in_file: str, config,
+def process_response(target, target1, result, result1, response_in_file: str, config,
                      output_dir: str, silk_file: str, exp_rsp_file: str, diff_file: str, json_file: str, test_number: int):
     """ Process the response If exact result or error don't care, they are null but present in expected_response. """
 
-    response, error_msg  = get_json_from_response(config.daemon_under_test, config.verbose_level, json_file, result)
+    response, error_msg  = get_json_from_response(target, config.daemon_under_test, config.verbose_level, json_file, result)
     if response is None:
         return 0, error_msg
 
     if result1 != "":
-        expected_response, error_msg = get_json_from_response(config.daemon_as_reference, config.verbose_level, json_file, result1)
+        expected_response, error_msg = get_json_from_response(target1, config.daemon_as_reference, config.verbose_level, json_file, result1)
         if expected_response is None:
             return 0, error_msg
     else:
@@ -708,7 +725,8 @@ def run_test(json_file: str, test_number, transport_type, config):
         except KeyError:
             method = ""
         request_dumps = json.dumps(request)
-        target = get_target(config.daemon_under_test, method, config.external_provider_url, config.daemon_on_host, config.daemon_on_port)
+        target = get_target(config.daemon_under_test, method, config)
+        target1 = ""
         if config.jwt_secret == "":
             jwt_auth = ""
             encoded = ""
@@ -716,7 +734,7 @@ def run_test(json_file: str, test_number, transport_type, config):
             byte_array_secret = bytes.fromhex(config.jwt_secret)
             encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
             jwt_auth = "Bearer " + str(encoded)
-        if config.verify_with_daemon == 0:  # compare daemon result with file
+        if config.verify_with_daemon is False:  # compare daemon result with file
             result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, config.verbose_level)
             result1 = ""
             response_in_file = json_rpc["response"]
@@ -727,10 +745,10 @@ def run_test(json_file: str, test_number, transport_type, config):
 
             silk_file = output_api_filename + "response.json"
             exp_rsp_file = output_api_filename + "expResponse.json"
-        else:  # run tests with both servers
-            target = get_target(SILK, method, config.external_provider_url, config.daemon_on_host, config.daemon_on_port)
+        else:  # run tests with two servers
+            target = get_target(DAEMON_ON_OTHER_PORT, method, config)
             result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, config.verbose_level)
-            target1 = get_target(config.daemon_as_reference, method, config.external_provider_url, config.daemon_on_host, config.daemon_on_port)
+            target1 = get_target(config.daemon_as_reference, method, config)
             result1 = execute_request(transport_type, jwt_auth, encoded, request_dumps, target1, config.verbose_level)
             response_in_file = None
 
@@ -738,10 +756,12 @@ def run_test(json_file: str, test_number, transport_type, config):
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
             diff_file = output_api_filename + "-diff.json"
 
-            silk_file = output_api_filename + get_json_filename_ext(SILK)
-            exp_rsp_file = output_api_filename + get_json_filename_ext(config.daemon_as_reference)
+            silk_file = output_api_filename + get_json_filename_ext(DAEMON_ON_OTHER_PORT, target)
+            exp_rsp_file = output_api_filename + get_json_filename_ext(config.daemon_as_reference, target1)
 
         return process_response(
+            target,
+            target1,
             result,
             result1,
             response_in_file,
@@ -772,13 +792,16 @@ def main(argv) -> int:
     failed_tests = 0
     success_tests = 0
     tests_not_executed = 0
-    global_test_number = 1
 
+    if config.verify_with_daemon is True:
+        target = "both servers"
+    else:
+        target = get_target(config.daemon_under_test, "eth_call", config)
     if config.parallel is True:
-        print ("Runs tests in parallel")
+        print ("Runs tests in parallel on",target)
         exe = ProcessPoolExecutor()
     else:
-        print ("Runs tests in serial way")
+        print ("Runs tests in serial way on",target)
         exe = ProcessPoolExecutor(max_workers=1)
 
 
@@ -791,6 +814,8 @@ def main(argv) -> int:
             test_number_in_any_loop = 1
             tests_descr_list = []
             dirs = sorted(os.listdir(config.json_dir))
+            global_test_number = 0
+            available_tested_apis = 0
             for curr_api in dirs:  # scans all api present in dir
                 # jump results folder or any hidden OS-specific folder
                 if curr_api == config.results_dir or curr_api.startswith("."):
@@ -798,6 +823,7 @@ def main(argv) -> int:
                 test_dir = config.json_dir + curr_api
                 if not os.path.isdir(test_dir):  # jump if not dir
                     continue
+                available_tested_apis = available_tested_apis + 1
                 test_lists = sorted(os.listdir(test_dir), key=extract_number)
                 test_number = 1
                 for test_name in test_lists:  # scan all json test present in the dir
@@ -831,8 +857,7 @@ def main(argv) -> int:
                                         time.sleep(config.waiting_time/1000)
                                     executed_tests = executed_tests + 1
 
-                    if test_rep == 0:
-                        global_test_number = global_test_number + 1
+                    global_test_number = global_test_number + 1
                     test_number_in_any_loop = test_number_in_any_loop + 1
                     test_number = test_number + 1
 
@@ -874,7 +899,8 @@ def main(argv) -> int:
     elapsed = datetime.now() - start_time
     print("                                                                                                                  \r")
     print(f"Test time-elapsed:            {str(elapsed)}")
-    print(f"Avalable_tests:               {global_test_number - 1}")
+    print(f"Avalable tests:               {global_test_number - 1}")
+    print(f"Avalable tested api:          {available_tested_apis}")
     print(f"Number of loop:               {test_rep + 1}")
     print(f"Number of executed tests:     {executed_tests}")
     print(f"Number of NOT executed tests: {tests_not_executed}")
