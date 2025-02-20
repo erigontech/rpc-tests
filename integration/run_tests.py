@@ -30,16 +30,6 @@ api_not_compared = [
     "mainnet/trace_rawTransaction"       # not supported by erigon
 ]
 
-#    "mainnet/debug_accountRange", # temporary
-#    "mainnet/debug_storageRangeAt", # temporary
-#    "mainnet/debug_getModifiedAccountsByHash", # temporary
-#    "mainnet/debug_getModifiedAccountsByNumber", # temporary
-#    "mainnet/erigon_getBalanceChangesInBlock", # temporary
-#    "mainnet/ots_getContractCreator", # temporary
-#    "mainnet/ots_getTransactionBySenderAndNonce", # temporary
-#    "mainnet/ots_searchTransactionsBefore", # temporary
-#    "mainnet/parity_listStorageKeys", # temporary
-
 tests_not_compared = [
     "mainnet/eth_syncing/test_01.json",  # different stages, json response is null but response different with erigon
 
