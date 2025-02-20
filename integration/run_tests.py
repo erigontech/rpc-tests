@@ -784,14 +784,16 @@ def main(argv) -> int:
     tests_not_executed = 0
 
     if config.verify_with_daemon is True:
-        target = "both servers"
+        server_endpoints = "both servers"
     else:
         target = get_target(config.daemon_under_test, "eth_call", config)
+        target1 = get_target(config.daemon_under_test, "engine_", config)
+        server_endpoints = target + "/" + target1
     if config.parallel is True:
-        print ("Runs tests in parallel on",target)
+        print ("Runs tests in parallel on",server_endpoints)
         exe = ProcessPoolExecutor()
     else:
-        print ("Runs tests in serial way on",target)
+        print ("Runs tests in serial way on",server_endpoints)
         exe = ProcessPoolExecutor(max_workers=1)
 
 
