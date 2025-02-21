@@ -60,11 +60,11 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -o,--dump-response: dump JSON RPC response
 -H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)
 -p,--port: port where the RpcDaemon is located (e.g.: 8545)
--r,--erigon-rpcdaemon: connect to Erigon RpcDaemon [default: connect to Silkrpc] 
+-I,--silk-port: Use 51515/51516 ports to server
 -e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference
 -i,--without-compare-results: send request without compare results
 -w,--waiting_time: waiting after test execution (millisec)
--S,--serial: runs tests in serial way
+-S,--serial: all tests are run in serial way
 
 ```
 
