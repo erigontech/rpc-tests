@@ -39,9 +39,6 @@ tests_not_compared = [
     "mainnet/eth_getLogs/test_19", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
     "mainnet/eth_getLogs/test_20", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
 
-    "mainnet/debug_traceBlockByHash/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
-
-    "mainnet/debug_traceBlockByNumber/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
     "mainnet/debug_traceBlockByNumber/test_24",  # latest block, diff on transaction gas and very big, json response is null but response different wrt erigon
     "mainnet/debug_traceBlockByNumber/test_25",  # pending block, diff on transaction gas and very big, json response is null but response different wrt erigon
     "mainnet/debug_traceBlockByNumber/test_26",  # finalized block, diff on transaction gas and very big, json response is null but response different wrt erigon
@@ -50,17 +47,12 @@ tests_not_compared = [
 
     "mainnet/debug_traceCall/test_21",  # check on TxIndex, diff on response (waiting for PR to handle out-of-range)
 
-    "mainnet/debug_traceTransaction/test_25.json", # diff on error field
-    "mainnet/debug_traceTransaction/test_36.json", # diff on error field
-    "mainnet/debug_traceTransaction/test_43.json",  # diff on 1 gasCost
-    "mainnet/debug_traceTransaction/test_62.json", # diff on error field
-    "mainnet/debug_traceTransaction/test_74.tar",  # diff on error field
-    "mainnet/debug_traceTransaction/test_75.tar",  # diff on error field
-    "mainnet/debug_traceTransaction/test_77.json", # diff on error field
-    "mainnet/debug_traceTransaction/test_90.tar",  # diff on 1 gas and 1 gasCost and too big
-    "mainnet/debug_traceTransaction/test_91.tar",  # diff on 1 gas and 1 gasCost and too big
-    "mainnet/debug_traceTransaction/test_92.tar",  # diff on 1 gas and 1 gasCost and too big
-    "mainnet/debug_traceTransaction/test_96.json", # diff on 1 gas and 1 gasCost and too big
+    "mainnet/debug_traceTransaction/test_25", # diff on error field
+    "mainnet/debug_traceTransaction/test_36", # diff on error field
+    "mainnet/debug_traceTransaction/test_62", # diff on error field
+    "mainnet/debug_traceTransaction/test_74",  # diff on error field
+    "mainnet/debug_traceTransaction/test_75",  # diff on error field
+    "mainnet/debug_traceTransaction/test_77", # diff on error field
 
     "mainnet/trace_replayBlockTransactions/test_29",  # diff on stack info 
 
