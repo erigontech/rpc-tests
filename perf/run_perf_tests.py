@@ -390,8 +390,12 @@ class PerfTest:
                 print(" [ Ratio="+ratio+", MaxLatency="+max_latency+"]")
         finally:
             file.close()
+            
+        if error != "":
+            print ("test failed: " + error)
+            return 1
 
-        if error != "" or ratio != "100.00%":
+        if ratio != "100.00%":
             print ("test failed: ratio is not 100.00%")
             return 1
 
