@@ -532,7 +532,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             if jwt_auth:
                 http_headers['Authorization' ] =  jwt_auth
             with connect(ws_target, max_size=1000048576, compression=selected_compression,
-                         extensions=curr_extensions) as websocket:
+                         extensions=curr_extensions, open_timeout=None) as websocket:
                 websocket.send(request_dumps)
                 rsp = websocket.recv(None)
                 result = json.loads(rsp)
@@ -848,11 +848,15 @@ def main(argv) -> int:
                                         (config.start_test != "" and test_number_in_any_loop >= int(
                                             config.start_test))):
                                     # create process pool
-                                    future = exe.submit(run_test, json_test_full_name, test_number_in_any_loop, transport_type, config)
-                                    tests_descr_list.append({'name': json_test_full_name, 'number': test_number_in_any_loop, 'transport-type': transport_type, 'future': future})
-                                    if config.waiting_time:
-                                        time.sleep(config.waiting_time/1000)
-                                    executed_tests = executed_tests + 1
+                                    try:
+                                        future = exe.submit(run_test, json_test_full_name, test_number_in_any_loop, transport_type, config)
+                                        tests_descr_list.append({'name': json_test_full_name, 'number': test_number_in_any_loop, 'transport-type': transport_type, 'future': future})
+                                        if config.waiting_time:
+                                            time.sleep(config.waiting_time/1000)
+                                        executed_tests = executed_tests + 1
+                                    except Exception as e:
+                                        print(f"An error occurred: {e}")
+                                        return 100
 
                     global_test_number = global_test_number + 1
                     test_number_in_any_loop = test_number_in_any_loop + 1
