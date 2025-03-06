@@ -1,0 +1,20 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0xe4733eb7834d1e62a2ff484065f1fd07bbb8905c41c1ed963fa139a25cd683dd",
+        {
+          "borTraceEnabled": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": []
+    }
+  }
+]

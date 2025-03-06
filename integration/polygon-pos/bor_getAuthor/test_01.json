@@ -1,0 +1,21 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "bor_getAuthor",
+            "params": [
+                "0x417ebce"
+            ]
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "result": "0xa8b52f02108aa5f4b675bdcc973760022d7c6020"
+            }
+        }
+    }
+]
