@@ -36,7 +36,8 @@ git pull
 ```
 update the dependencies as well by running
 ```
-pip3 install -r requirements.txt
+python3 -m venv .
+./bin/pip3 install -r requirements.txt
 ```
 
 ## Integration Testing
