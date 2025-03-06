@@ -36,6 +36,7 @@ git pull
 ```
 update the dependencies as well by running
 ```
+python3 -m venv .
 pip3 install -r requirements.txt
 ```
 
