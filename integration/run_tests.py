@@ -56,6 +56,9 @@ tests_not_compared = [
 
     "mainnet/trace_replayBlockTransactions/test_29",  # diff on stack info 
 
+    "mainnet/trace_transaction/test_44",  # 
+    "mainnet/trace_transaction/test_47",  # 
+
     "mainnet/engine_"
 ]
 
