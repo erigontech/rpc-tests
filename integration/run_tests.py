@@ -56,8 +56,8 @@ tests_not_compared = [
 
     "mainnet/trace_replayBlockTransactions/test_29",  # diff on stack info 
 
-    "mainnet/trace_transaction/test_44",  # 
-    "mainnet/trace_transaction/test_47",  # 
+    "mainnet/trace_transaction/test_44",  # diff on error message (S: out of gas E3: contract creation code storage out of gas)
+    "mainnet/trace_transaction/test_47",  # diff on error message (S: out of gas E3: gas uint64 overflow)
 
     "mainnet/engine_"
 ]
