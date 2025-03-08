@@ -1,0 +1,65 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0xe55072bfbe599f866015f2c4a27bab1654c2c78f3ac7a2573ecf4b0e7c163a2d",
+        {
+          "disableMemory": false,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "failed": true,
+        "gas": 23200,
+        "returnValue": "",
+        "structLogs": [
+          {
+            "depth": 1,
+            "gas": 8,
+            "gasCost": 3,
+            "memory": [],
+            "op": "PUSH1",
+            "pc": 0,
+            "stack": []
+          },
+          {
+            "depth": 1,
+            "gas": 5,
+            "gasCost": 3,
+            "memory": [],
+            "op": "PUSH1",
+            "pc": 2,
+            "stack": [
+              "0x60"
+            ]
+          },
+          {
+            "depth": 1,
+            "error": "out of gas",
+            "gas": 2,
+            "gasCost": 3,
+            "memory": [],
+            "op": "MSTORE",
+            "pc": 4,
+            "stack": [
+              "0x60",
+              "0x40"
+            ]
+          }
+        ]
+      }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
+    }
+  }
+]
