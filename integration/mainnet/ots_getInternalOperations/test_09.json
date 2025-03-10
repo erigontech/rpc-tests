@@ -1,25 +1,30 @@
 [
   {
-    "request":{
-      "jsonrpc":"2.0",
-      "method":"ots_getInternalOperations",
-      "params":[
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "ots_getInternalOperations",
+      "params": [
         "0xbd5bdee301f3013fc151be3c3b93fcdb88069e31889fd1eed87fa6009888f917"
       ],
-      "id":1
+      "id": 1
     },
-    "response":{
-      "jsonrpc":"2.0",
-      "id":1,
-  "result": [
-    {  
-      "from": "0x283af0b28c62c092c9727f1ee09c02ca627eb7f5",
-      "to": "0xb37b548519983b0eec623a11df42644a25068c09",
-      "type": 0,
-      "value": "0x7ecfbf42b56c2"
-    }
-  ]
-
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": [
+        {
+          "from": "0xb37b548519983b0eec623a11df42644a25068c09",
+          "to": "0x283af0b28c62c092c9727f1ee09c02ca627eb7f5",
+          "type": 0,
+          "value": "0x572ed37ddcba5d"
+        },
+        {
+          "from": "0x283af0b28c62c092c9727f1ee09c02ca627eb7f5",
+          "to": "0xb37b548519983b0eec623a11df42644a25068c09",
+          "type": 0,
+          "value": "0x7ecfbf42b56c2"
+        }
+      ]
     }
   }
 ]
