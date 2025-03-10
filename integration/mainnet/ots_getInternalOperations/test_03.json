@@ -1,42 +1,42 @@
 [
   {
-    "request":{
-      "jsonrpc":"2.0",
-      "method":"ots_getInternalOperations",
-      "params":[
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "ots_getInternalOperations",
+      "params": [
         "0x850f401b4bb93a577e620c7d429677ef5c46770ae4307cfd19ea8b7ec9753087"
       ],
-      "id":1
+      "id": 1
     },
-    "response":{
-      "jsonrpc":"2.0",
-      "id":1,
-  "result": [
-    {
-      "from": "0xbd6d5c6fa8103b4fbc6381f6f3e0ef1205574935",
-      "to": "0x0000000000b3f879cb30fe243b4dfee438691c04",
-      "type": 1,
-      "value": "0x0"
-    },
-    {
-      "from": "0x37d80f145efdafddcf3ca676c89f4775b98df809",
-      "to": "0x0000000000b3f879cb30fe243b4dfee438691c04",
-      "type": 1,
-      "value": "0x0"
-    },
-    {
-      "from": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-      "to": "0x59903993ae67bf48f10832e9be28935fee04d6f6",
-      "type": 0,
-      "value": "0x56bf14a388c290"
-    },
-    {
-      "from": "0x59903993ae67bf48f10832e9be28935fee04d6f6",
-      "to": "0x1ad91ee08f21be3de0ba2ba6918e714da6b45836",
-      "type": 0,
-      "value": "0x56bf14a388c290"
-    }
-  ]
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": [
+        {
+          "from": "0xbd6d5c6fa8103b4fbc6381f6f3e0ef1205574935",
+          "to": "0x0000000000b3f879cb30fe243b4dfee438691c04",
+          "type": 1,
+          "value": "0x0"
+        },
+        {
+          "from": "0x37d80f145efdafddcf3ca676c89f4775b98df809",
+          "to": "0x0000000000b3f879cb30fe243b4dfee438691c04",
+          "type": 1,
+          "value": "0x0"
+        },
+        {
+          "from": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "to": "0x59903993ae67bf48f10832e9be28935fee04d6f6",
+          "type": 0,
+          "value": "0x56bf14a388c290"
+        },
+        {
+          "from": "0x59903993ae67bf48f10832e9be28935fee04d6f6",
+          "to": "0x1ad91ee08f21be3de0ba2ba6918e714da6b45836",
+          "type": 0,
+          "value": "0x56bf14a388c290"
+        }
+      ]
     }
   }
 ]
