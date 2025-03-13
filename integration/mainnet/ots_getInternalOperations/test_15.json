@@ -13,12 +13,6 @@
       "jsonrpc": "2.0",
       "result": [
         {
-          "from": "0xea3ea09394f5e925ae7592dff1d675558d0831fd",
-          "to": "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
-          "type": 0,
-          "value": "0x470de4df820000"
-        },
-        {
           "from": "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
           "to": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
           "type": 0,
