@@ -1,36 +1,31 @@
 [
   {
-    "request": {
-      "jsonrpc": "2.0",
-      "method": "ots_getInternalOperations",
-      "params": [
+    "request":{
+      "jsonrpc":"2.0",
+      "method":"ots_getInternalOperations",
+      "params":[
         "0x7e39092974678d474386b3e0084574e87846c75dbd1a81e0c2a15763e3595762"
       ],
-      "id": 1
+      "id":1
     },
-    "response": {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "result": [
-        {
-          "from": "0x49c44a25894f8ed7130506a4efd2a5c88d36c178",
-          "to": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
-          "type": 0,
-          "value": "0x9253be6b33af61d"
-        },
-        {
-          "from": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
-          "to": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-          "type": 0,
-          "value": "0x8b5bf24db751b28"
-        },
-        {
-          "from": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
-          "to": "0x49c44a25894f8ed7130506a4efd2a5c88d36c178",
-          "type": 0,
-          "value": "0x6f7cc1d7c5daf5"
-        }
-      ]
+    "response":{
+      "jsonrpc":"2.0",
+      "id":1,
+  "result": [
+    {  
+      "from": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+      "to": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "type": 0,
+      "value": "0x8b5bf24db751b28"
+    },
+    {
+      "from": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+      "to": "0x49c44a25894f8ed7130506a4efd2a5c88d36c178",
+      "type": 0,
+      "value": "0x6f7cc1d7c5daf5"
+    }
+  ]
+
     }
   }
 ]
