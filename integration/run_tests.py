@@ -512,7 +512,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             result = rsp.json()
         except:
             if verbose_level:
-                print("\nhttp connection failç: ", target_url)
+                print("\nhttp connection fail: ", target_url)
             return ""
     else:
         ws_target = "ws://" + target  # use websocket
@@ -900,8 +900,8 @@ def main(argv) -> int:
     elapsed = datetime.now() - start_time
     print("                                                                                                                  \r")
     print(f"Test time-elapsed:            {str(elapsed)}")
-    print(f"Avalable tests:               {global_test_number - 1}")
-    print(f"Avalable tested api:          {available_tested_apis}")
+    print(f"Available tests:              {global_test_number - 1}")
+    print(f"Available tested api:         {available_tested_apis}")
     print(f"Number of loop:               {test_rep + 1}")
     print(f"Number of executed tests:     {executed_tests}")
     print(f"Number of NOT executed tests: {tests_not_executed}")
