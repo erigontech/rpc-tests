@@ -6,7 +6,7 @@
       "method": "eth_feeHistory",
       "params": [
         "0x1",
-        "0xD38F376",
+        "0xFFFFFFF0",
         [
           0,
           50,
@@ -15,10 +15,7 @@
       ]
     },
     "response": {
-      "error": {
-        "code": -32000,
-        "message": "request beyond head block: requested 221836150, head 21818975"
-      },
+      "error": null,
       "id": 1,
       "jsonrpc": "2.0"
     },
