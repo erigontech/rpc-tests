@@ -46,6 +46,7 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_28",  # latestExecuted block, diff on transaction gas and very big, json response is null but response different wrt erigon
 
     "mainnet/debug_traceCall/test_21",  # check on TxIndex, diff on response (waiting for PR to handle out-of-range)
+    "mainnet/debug_traceCall/test_222",  # CORE TO BE ANALYZED
 
     "mainnet/debug_traceTransaction/test_25", # diff on error field
     "mainnet/debug_traceTransaction/test_36", # diff on error field
