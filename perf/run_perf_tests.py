@@ -372,6 +372,8 @@ class PerfTest:
         file = open(test_report_filename, encoding='utf8')
         try:
             file_rows = file.readlines()
+            if len(file_rows) == 0:
+                return 1
             newline = file_rows[2].replace('\n', ' ')
             latency_values = newline.split(',')
             min_latency = latency_values[6].split(']')[1]
