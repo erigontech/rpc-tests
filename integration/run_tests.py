@@ -55,8 +55,6 @@ tests_not_compared = [
     "mainnet/debug_traceTransaction/test_75",  # diff on error field
     "mainnet/debug_traceTransaction/test_77", # diff on error field
 
-    "mainnet/eth_feeHistory/test_08NO",
-    
     "mainnet/trace_replayBlockTransactions/test_29",  # diff on stack info 
 
     "mainnet/trace_transaction/test_44",  # diff on error message (S: out of gas E3: contract creation code storage out of gas)
