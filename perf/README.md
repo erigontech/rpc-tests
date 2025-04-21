@@ -80,7 +80,8 @@ Usage: ./run_perf_tests.py -p vegetaPatternTarFile -y <api_name>
 
 Launch an automated performance test sequence on Silkrpc and RPCDaemon using Vegeta
 
--h,--help:                            print this help
+
+h,--help:                            print this help
 -Z,--not-verify-server-alive:         doesn't verify server is still active
 -R,--tmp-test-report:                 generate Report on tmp
 -u,--test-report:                     generate Report in reports area ready to be inserted into Git repo
@@ -94,16 +95,16 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 -m,--test-mode <0,1,2>:               silkworm(1), erigon(2), both(3)                                    [default: 3]
 -p,--pattern-file <file-name>:        path to the request file for Vegeta attack                         [default: ]
 -r,--repetitions <number>:            number of repetitions for each element in test sequence (e.g. 10)  [default: 10]
--t,--test-sequence <seq>:             list of qps/timeas <qps1>:<t1>,... (e.g. 200:30,400:10)            [default: 50:30,1000:30,2500:20,10000:20]
+-t,--test-sequence <seq>:             list of qps/time as <qps1>:<t1>,... (e.g. 200:30,400:10)           [default: 50:30,1000:30,2500:20,10000:20]
 -w,--wait-after-test-sequence <secs>: time interval between successive test iterations in sec            [default: 5]
--d,--rpc-daemon-address <addr>:       address of RPCDaemonc (e.g. 192.2.3.1)                             [default: localhost]
+-d,--rpc-daemon-address <addr>:       address of RPCDaemon (e.g. 192.2.3.1)                              [default: localhost]
 -g,--erigon-dir <path>:               path to erigon folder (e.g. /home/erigon)                          [default: ]
 -s,--silk-dir <path>:                 path to silk folder (e.g. /home/silkworm)                          [default: ]
 -c,--run-vegeta-on-core <...>         taskset format for vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: -:-]
 -T,--response-timeout <timeout>:      vegeta response timeout                                            [default: 300]
 -M,--max-body-rsp <size>:             max number of bytes to read from response bodies                   [default: 1500]
 -j,--json-report <file-name>:         generate json report
-
+-P,--more-percentiles:                print more percentiles in console report
 ```
 
 Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`
@@ -111,11 +112,9 @@ Results are written on output and in case -u option is specified also in a CSV f
 
 Invokation examples
 ./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  
-
 Runs perf eth_call test according input pattern making a default tests sequence (50:30,1000:30,2500:20,10000:30) each sequence is repeated default times (10)
 
 ./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  -r 5 -t 50:30,1000:30,2500:20,5000:20
-
 Runs perf eth_call test according input pattern making a tests sequence according the input (50 qps: 30 seconds, ...) each sequence is repeated 5 times
 
 ./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  -s /project/silkworm -g /project/erigon -r 3 -R -b mainnet -t 50:30,1000:30
@@ -123,7 +122,6 @@ Runs perf eth_call test according input pattern making a tests sequence accordin
 the report is generated in tmp area(according: chain_name, machine).
 
 ./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  -s /project/silkworm -g /project/erigon -r 3 -u -b mainnet -t 50:30,1000:30,2500:20,5000:20
-
 Runs perf eth_call test according input pattern making a tests sequence according the input (50 qps: 30 seconds, ...) each sequence is repeated 3 times 
 the report is generated in reports area(according: chain_name, machine) ready to be saved on git repository 
 
