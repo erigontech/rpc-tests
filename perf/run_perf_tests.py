@@ -296,14 +296,6 @@ class PerfTest:
         else:
             pattern = VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
 
-        # retrieve port where load tests is provided
-        with open(pattern, "r") as file:
-            data = file.readline().strip()
-            parsed_data = json.loads(data)
-            url = parsed_data.get("url")
-            print ("Test on port: ",url)
-            print ("\n")
-
         on_core = self.config.daemon_vegeta_on_core.split(':')
         self.config.binary_file = datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.chain_name + "_" + self.config.testing_daemon + "_" +  self.config.test_type + \
                                                                "_" + qps_value + "_" + duration + "_" + str(repetition+1) + ".bin"
@@ -362,6 +354,18 @@ class PerfTest:
     def execute_sequence(self, sequence, tag):
         """ Execute the sequence of tests """
         test_number = 1
+        if tag == SILKWORM:
+            pattern = VEGETA_PATTERN_SILKWORM_BASE + self.config.test_type + ".txt"
+        else:
+            pattern = VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
+
+        # retrieve port where load tests is provided
+        with open(pattern, "r") as file:
+            data = file.readline().strip()
+            parsed_data = json.loads(data)
+            url = parsed_data.get("url")
+            print ("Test on port: ",url)
+
         for test in sequence:
             for test_rep in range(0, self.config.repetitions):
                 qps = test.split(':')[0]
