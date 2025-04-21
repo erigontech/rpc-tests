@@ -27,17 +27,14 @@ MAX_TIME = 200 # times of TIME secs
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
-    "mainnet/trace_rawTransaction"       # not supported by erigon
+    "mainnet/trace_rawTransaction",       # not supported by erigon
+    "mainnet/debug_accountRange",         # disable temporary
+    "mainnet/debug_storageRangeAt",        # disable temporary
+    "mainnet/parity_listStorageKeys"        # disable temporary
 ]
 
 tests_not_compared = [
     "mainnet/eth_syncing/test_01.json",  # different stages, json response is null but response different with erigon
-
-    "mainnet/eth_getLogs/test_16", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_17", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_18", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_19", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_20", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
 
     "mainnet/debug_traceBlockByNumber/test_24",  # latest block, diff on transaction gas and very big, json response is null but response different wrt erigon
     "mainnet/debug_traceBlockByNumber/test_25",  # pending block, diff on transaction gas and very big, json response is null but response different wrt erigon
@@ -501,9 +498,9 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
                     print("post result=",rsp.status_code)
                 return ""
             result = rsp.json()
-        except:
+        except Exception as e:
             if verbose_level:
-                print("\nhttp connection fail: ", target_url)
+                print("\nhttp connection fail: ", target_url,e)
             return ""
     else:
         ws_target = "ws://" + target  # use websocket
@@ -792,6 +789,8 @@ def main(argv) -> int:
         print ("Runs tests in serial way on",server_endpoints)
         exe = ProcessPoolExecutor(max_workers=1)
 
+    if config.transport_type in ('http_comp', 'websocket_comp' ):
+        print ("Runs tests using compression")
 
     for test_rep in range(0, config.loop_number):  # makes tests more times
         if config.loop_number != 1:
