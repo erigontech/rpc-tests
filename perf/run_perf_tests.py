@@ -157,11 +157,11 @@ class Config:
     def __parse_args(self, argv):
         """ This methods parse input args """
         try:
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:D:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j:",
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:D:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j:P",
                    ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'testing-daemon=', 'max-connections=',
                     'run-vegeta-on-core=', 'empty-cache', 'erigon-dir=', 'silk-dir=', 'repetitions=', 'test-sequence=',
                     'tmp-test-report', 'test-report', 'blockchain=', 'verbose', 'tracing', 'wait-after-test-sequence=', 'test-type=',
-                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'json-report='])
+                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'json-report=', 'more-percentiles'])
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -295,6 +295,15 @@ class PerfTest:
             pattern = VEGETA_PATTERN_SILKWORM_BASE + self.config.test_type + ".txt"
         else:
             pattern = VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
+
+        # retrieve port where load tests is provided
+        with open(pattern, "r") as file:
+            data = file.readline().strip()
+            parsed_data = json.loads(data)
+            url = parsed_data.get("url")
+            print ("Test on port: ",url)
+            print ("\n")
+
         on_core = self.config.daemon_vegeta_on_core.split(':')
         self.config.binary_file = datetime.today().strftime('%Y%m%d%H%M%S') + "_" + self.config.chain_name + "_" + self.config.testing_daemon + "_" +  self.config.test_type + \
                                                                "_" + qps_value + "_" + duration + "_" + str(repetition+1) + ".bin"
