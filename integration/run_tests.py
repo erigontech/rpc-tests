@@ -22,19 +22,22 @@ DAEMON_ON_OTHER_PORT = "silk"
 DAEMON_ON_DEFAULT_PORT = "rpcdaemon"
 NONE = "none"
 EXTERNAL_PROVIDER = "external-provider"
-TIME=0.1
-MAX_TIME = 200 # times of TIME secs
+TIME = 0.1
+MAX_TIME = 200  # times of TIME secs
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
-    "mainnet/trace_rawTransaction",       # not supported by erigon
-    "mainnet/debug_accountRange",         # disable temporary
-    "mainnet/debug_storageRangeAt",        # disable temporary
-    "mainnet/parity_listStorageKeys"        # disable temporary
+    "mainnet/trace_rawTransaction"        # not supported by erigon
 ]
 
 tests_not_compared = [
     "mainnet/eth_syncing/test_01.json",  # different stages, json response is null but response different with erigon
+
+    "mainnet/eth_getLogs/test_16",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_17",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_18",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_19",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_20",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
 
     "mainnet/debug_traceBlockByNumber/test_24",  # latest block, diff on transaction gas and very big, json response is null but response different wrt erigon
     "mainnet/debug_traceBlockByNumber/test_25",  # pending block, diff on transaction gas and very big, json response is null but response different wrt erigon
@@ -43,14 +46,14 @@ tests_not_compared = [
     "mainnet/debug_traceBlockByNumber/test_28",  # latestExecuted block, diff on transaction gas and very big, json response is null but response different wrt erigon
 
     "mainnet/debug_traceCall/test_21",  # check on TxIndex, diff on response (waiting for PR to handle out-of-range)
-    "mainnet/debug_traceCall/test_222",  # CORE TO BE ANALYZED
+    "mainnet/debug_traceCall/test_22",  # CORE TO BE ANALYZED
 
-    "mainnet/debug_traceTransaction/test_25", # diff on error field
-    "mainnet/debug_traceTransaction/test_36", # diff on error field
-    "mainnet/debug_traceTransaction/test_62", # diff on error field
+    "mainnet/debug_traceTransaction/test_25",  # diff on error field
+    "mainnet/debug_traceTransaction/test_36",  # diff on error field
+    "mainnet/debug_traceTransaction/test_62",  # diff on error field
     "mainnet/debug_traceTransaction/test_74",  # diff on error field
     "mainnet/debug_traceTransaction/test_75",  # diff on error field
-    "mainnet/debug_traceTransaction/test_77", # diff on error field
+    "mainnet/debug_traceTransaction/test_77",  # diff on error field
 
     "mainnet/trace_replayBlockTransactions/test_29",  # diff on stack info 
 
@@ -75,6 +78,7 @@ tests_not_compared_error = [
     "mainnet/eth_callMany/test_15.json"   # diff on opcode not defined (erigon print opcode in error message)
 
 ]
+
 
 #
 # usage
@@ -500,7 +504,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
             result = rsp.json()
         except Exception as e:
             if verbose_level:
-                print("\nhttp connection fail: ", target_url,e)
+                print("\nhttp connection fail: ", target_url, e)
             return ""
     else:
         ws_target = "ws://" + target  # use websocket
@@ -756,10 +760,12 @@ def run_test(json_file: str, test_number, transport_type, config):
             json_file,
             test_number)
 
+
 def extract_number(filename):
     """ Extract number from filename """
     match = re.search(r'\d+', filename)
     return int(match.group())
+
 
 #
 # main
@@ -783,14 +789,14 @@ def main(argv) -> int:
         target1 = get_target(config.daemon_under_test, "engine_", config)
         server_endpoints = target + "/" + target1
     if config.parallel is True:
-        print ("Runs tests in parallel on",server_endpoints)
+        print("Run tests in parallel on", server_endpoints)
         exe = ProcessPoolExecutor()
     else:
-        print ("Runs tests in serial way on",server_endpoints)
+        print("Run tests in serial on", server_endpoints)
         exe = ProcessPoolExecutor(max_workers=1)
 
     if config.transport_type in ('http_comp', 'websocket_comp' ):
-        print ("Runs tests using compression")
+        print("Run tests using compression")
 
     for test_rep in range(0, config.loop_number):  # makes tests more times
         if config.loop_number != 1:
