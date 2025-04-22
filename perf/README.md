@@ -13,9 +13,16 @@ ulimit -c unlimited
 ulimit -n 999999
 ```
 * check current IP local port range and increase it (writing permanently in /etc/sysctl.conf)
+
+### Linux
 ```
 cat /proc/sys/net/ipv4/ip_local_port_range
 sudo sysctl -w "net.ipv4.ip_local_port_range=5000 65000"
+```
+### macOS
+```
+sudo sysctl net.inet.ip.portrange
+sudo sysctl net.inet.ip.portrange.first=5000 net.inet.ip.portrange.last=65535
 ```
 
 ## Software Versions
@@ -31,7 +38,7 @@ Follow the instructions for building:
 * Silkworm RPCDaemon (a.k.a. Silkrpc) [build](https://github.com/torquem-ch/silkworm)
 
 ## Setup
-Currently our setup for performance tests is "all-in-one", executing Erigon Core, Erigon RPCDaemon and/or Silkworm RPCDaemon all on the same host.
+Currently, our setup for performance tests is "all-in-one", executing Erigon Core, Erigon RPCDaemon and/or Silkworm RPCDaemon all on the same host.
 These are the instructions to execute the performance comparison tests.
 
 ### Activation
@@ -109,7 +116,7 @@ Launch an automated performance test sequence on Silkrpc and RPCDaemon using Veg
 Results are written on output and in case -R option is specified also in a CSV file `/tmp/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`
 Results are written on output and in case -u option is specified also in a CSV file in ./reports area  `./reports/<network>/<machine>/<test_type><date_time>_<additional test>_perf.csv`
 
-Invokation examples
+Invocation examples
 ./run_perf_tests.py -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar  
 
 Runs perf eth_call test according input pattern making a default tests sequence (50:30,1000:30,2500:20,10000:30) each sequence is repeated default times (10)
