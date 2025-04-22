@@ -22,8 +22,8 @@ DAEMON_ON_OTHER_PORT = "silk"
 DAEMON_ON_DEFAULT_PORT = "rpcdaemon"
 NONE = "none"
 EXTERNAL_PROVIDER = "external-provider"
-TIME=0.1
-MAX_TIME = 200 # times of TIME secs
+TIME = 0.1
+MAX_TIME = 200  # times of TIME secs
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
@@ -34,11 +34,11 @@ api_not_compared = [
 tests_not_compared = [
     "mainnet/eth_syncing/test_01.json",  # different stages, json response is null but response different with erigon
 
-    "mainnet/eth_getLogs/test_16", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_17", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_18", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_19", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_20", # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_16",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_17",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_18",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_19",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
+    "mainnet/eth_getLogs/test_20",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
 
     "mainnet/debug_traceBlockByHash/test_09",  # diff on 60 gasCost, 8473 gas, 16 stack
     "mainnet/debug_traceBlockByHash/test_10",  # diff on 42 gasCost, 12358 gas, 8 stack
@@ -87,6 +87,7 @@ tests_not_compared_error = [
     "mainnet/eth_callMany/test_15.json"   # diff on opcode not defined (erigon print opcode in error message)
 
 ]
+
 
 #
 # usage
@@ -510,9 +511,9 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
                     print("post result=",rsp.status_code)
                 return ""
             result = rsp.json()
-        except:
+        except Exception as e:
             if verbose_level:
-                print("\nhttp connection fail: ", target_url)
+                print("\nhttp connection fail: ", target_url, e)
             return ""
     else:
         ws_target = "ws://" + target  # use websocket
@@ -768,10 +769,12 @@ def run_test(json_file: str, test_number, transport_type, config):
             json_file,
             test_number)
 
+
 def extract_number(filename):
     """ Extract number from filename """
     match = re.search(r'\d+', filename)
     return int(match.group())
+
 
 #
 # main
@@ -795,12 +798,14 @@ def main(argv) -> int:
         target1 = get_target(config.daemon_under_test, "engine_", config)
         server_endpoints = target + "/" + target1
     if config.parallel is True:
-        print ("Runs tests in parallel on",server_endpoints)
+        print("Run tests in parallel on", server_endpoints)
         exe = ProcessPoolExecutor()
     else:
-        print ("Runs tests in serial way on",server_endpoints)
+        print("Run tests in serial on", server_endpoints)
         exe = ProcessPoolExecutor(max_workers=1)
 
+    if config.transport_type in ('http_comp', 'websocket_comp' ):
+        print("Run tests using compression")
 
     for test_rep in range(0, config.loop_number):  # makes tests more times
         if config.loop_number != 1:
