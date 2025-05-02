@@ -72,15 +72,15 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -S,--serial: all tests are runned in serial way [default: the seleceted files are runned in parallel] 
 
 Note:
-- in case of authentication it is necessary use option k or (--jwt) to read authentication token if present or create a new one token using option -K ( --create-jwt) 
+* in case of authentication it is necessary use option k or (--jwt) to read authentication token if present or create a new one token using option -K ( --create-jwt) 
 
 ```
 
 
 # Invoke examples
 
-Runs all tests on main net in parallel way; and compare the response with the saved json response; it shows only failed test (not success and skipped test)
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Runs all tests in parallel way; and compare the response with the expected response; it shows only failed test (not success and skipped test)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
 ./run_tests.py -c -f
@@ -96,8 +96,8 @@ Number of success tests:      1132
 Number of failed tests:       0
 ```
 
-Runs all tests on main net in serial way; and compare the response with the saved json response; shows only failed test (not success and skipped test)
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Runs all tests in serial way; and compare the response with the expeceted json response; it shows only failed test (not success and skipped test)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
 ./run_tests.py -c -f -S
@@ -113,8 +113,8 @@ Number of success tests:      1132
 Number of failed tests:       0
 ```
 
-Runs all tests of eth_getLogs() on main net in parallel way; and compare the response with the saved json; printing only failed and skipped tests 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Runs all tests of eth_getLogs() in parallel way; and compare the response with the expected json response; it prints only failed and skipped tests 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
 ./run_tests.py -c -A eth_getLogs
@@ -135,8 +135,8 @@ Number of success tests:      15
 Number of failed tests:       0
 ```
 
-Runs test 1 of eth_getLogs() on main net; and compare the response with the saved json; printing test result 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Runs test 1 of eth_getLogs() and compare the response with the expected json response; it prints tests result (failed, ok, skipped) 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
 ./run_tests.py -c -A eth_getLogs -t 1 -v 1
@@ -154,8 +154,8 @@ Number of failed tests:       0
 
 ```
 
-Runs tests 5 of eth_call 3 times on main net in parallel way; and compare the response with the saved json; printing only failed and skipped tests 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Runs tests 5 of eth_call 3 times (each iteration is executed in parallel); and compare the response with the expected json response; it prints test result
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
 ./run_tests.py -c -A eth_call -t 5 -l 3 -v 1
@@ -181,8 +181,8 @@ Number of failed tests:       0
 ```
 
 
-Runs global test 246(debug_trace_transaction test 46) on main net; and compare the response with the saved json; printing test result 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Runs global test 246(debug_trace_transaction test 46); and compare the response with the expected json response; it prints test result 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
 ./run_tests.py  -c -t 246 -v 1
@@ -199,8 +199,8 @@ Number of success tests:      1
 Number of failed tests:       0
 ```
 
-Runs all tests (excluding global test number 181) on main net chain in parallel way comparing the response with saved response file
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Runs all tests (excluding global test number 181) in parallel way comparing the response with expected json response file. it prints failed and skipped test
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
 ./run_tests.py -c -X 335,336,337
@@ -220,8 +220,8 @@ Number of failed tests:       0
 
 ```
 
-Runs all tests (excluding tests with engin_, admin_ and eth_getLogs/test_05) on main net chain in parallel way comparing response with expected json response, printing failed and skiped test
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Runs all tests (excluding tests with engin_, admin_ and eth_getLogs/test_05) in parallel way comparing response with expected json response, it prints failed and skipped test
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
 ./run_tests.py -c -x engine_,admin_,eth_getLogs/test_05
