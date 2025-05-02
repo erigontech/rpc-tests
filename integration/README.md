@@ -57,7 +57,7 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon
 -T,--transport_type: <http,http_comp,https,websocket,websocket_comp> [default http]
 -k,--jwt: authentication token file (i.e -k /tmp/jwt_file.hex)
--K,--jwt: generate authentication token file and use it (-K /tmp/jwt_file.hex) 
+-K,--create-jwt: generate authentication token file and use it (-K /tmp/jwt_file.hex) 
 -a,--api-list-with: <apis>: run all tests of the specified API that contains string (e.g.: eth_,debug_)
 -A,--api-list: <apis>: run all tests of the specified API that match full name (e.g.: eth_call,eth_getLogs)
 -x,--exclude-api-list < list of tested api>: exclude API list (e.g.: txpool_content,txpool_status,engine_)
@@ -71,10 +71,16 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -w,--waiting_time: waiting after test execution (millisec) (can be used only for serial test see -S)
 -S,--serial: all tests are runned in serial way [default: the seleceted files are runned in parallel] 
 
+Note:
+- in case of authentication it is necessary use option k or (--jwt) to read authentication token if present or create a new one token using option -K ( --create-jwt) 
 
 ```
 
+
 # Invoke examples
+
+Runs all tests on main net in parallel way; and compare the response with the saved json response; it shows only failed test (not success and skipped test)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
 ./run_tests.py -c -f
@@ -90,7 +96,7 @@ Number of success tests:      1132
 Number of failed tests:       0
 ```
 
-Runs all tests on main net in parallel way; and compare the response with the saved json response; it hows only failed test (not success and skipped test)
+Runs all tests on main net in serial way; and compare the response with the saved json response; shows only failed test (not success and skipped test)
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
@@ -107,7 +113,7 @@ Number of success tests:      1132
 Number of failed tests:       0
 ```
 
-Runs all tests on main net in serial way; and compare the response with the saved json response; shows only failed test (not success and skipped test)
+Runs all tests of eth_getLogs() on main net in parallel way; and compare the response with the saved json; printing only failed and skipped tests 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
@@ -129,7 +135,7 @@ Number of success tests:      15
 Number of failed tests:       0
 ```
 
-Runs all tests of eth_getLogs() on main net in parallel way; and compare the response with the saved json; printing only failed and skipped tests 
+Runs test 1 of eth_getLogs() on main net; and compare the response with the saved json; printing test result 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
@@ -148,7 +154,7 @@ Number of failed tests:       0
 
 ```
 
-Runs test 1 of eth_getLogs() on main net; and compare the response with the saved json; printing test result 
+Runs tests 5 of eth_call 3 times on main net in parallel way; and compare the response with the saved json; printing only failed and skipped tests 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
@@ -174,9 +180,9 @@ Number of success tests:      3
 Number of failed tests:       0
 ```
 
-Runs tests 5 of eth_call 3 times on main net in parallel way; and compare the response with the saved json; printing only failed and skipped tests 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+Runs global test 246(debug_trace_transaction test 46) on main net; and compare the response with the saved json; printing test result 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
 ./run_tests.py  -c -t 246 -v 1
@@ -193,7 +199,7 @@ Number of success tests:      1
 Number of failed tests:       0
 ```
 
-Runs global test 246(debug_trace_transaction test 46) on main net; and compare the response with the saved json; printing test result 
+Runs all tests (excluding global test number 181) on main net chain in parallel way comparing the response with saved response file
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
@@ -214,7 +220,7 @@ Number of failed tests:       0
 
 ```
 
-Runs all tests (excluding global test number 181) on main net chain in parallel way comparing the response with saved response file
+Runs all tests (excluding tests with engin_, admin_ and eth_getLogs/test_05) on main net chain in parallel way comparing response with expected json response, printing failed and skiped test
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
@@ -247,7 +253,4 @@ Number of success tests:      1188
 Number of failed tests:       0
 
 ```
-
-Runs all tests (excluding tests with engin_, admin_ and eth_getLogs/test_05) on main net chain in parallel way comparing response with expected json response, printing failed and skiped test
----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
