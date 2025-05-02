@@ -103,7 +103,7 @@ def usage(argv):
     print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
     print("-T,--transport_type: <http,http_comp,https,websocket,websocket_comp> [default http]")
     print("-k,--jwt: authentication token file (i.e -k /tmp/jwt_file.hex) ")
-    print("-K,--jwt: generate authentication token file and use it (-K /tmp/jwt_file.hex) ")
+    print("-K,--create-jwt: generate authentication token file and use it (-K /tmp/jwt_file.hex) ")
     print("-a,--api-list-with: <apis>: run all tests of the specified API that contains string (e.g.: eth_,debug_)")
     print("-A,--api-list: <apis>: run all tests of the specified API that match full name (e.g.: eth_call,eth_getLogs)")
     print("-x,--exclude-api-list < list of tested api>: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
