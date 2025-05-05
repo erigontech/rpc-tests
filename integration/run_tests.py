@@ -6,6 +6,7 @@ import getopt
 import gzip
 import json
 import os
+import random
 import re
 import shutil
 import sys
@@ -100,29 +101,30 @@ def usage(argv):
     print("Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon")
     print("")
     print("-h,--help: print this help")
-    print("-j,--json-diff: use json-diff to make compare (default use diff)")
-    print("-f,--display-only-fail: shows only failed tests (not Skipped)")
-    print("-v,--verbose: <verbose_level>")
-    print("-c,--continue: runs all tests even if one test fails [default: exit at first test fail]")
-    print("-l,--loops: <number of loops>")
+    print("-j,--json-diff: use json-diff to make compare [default use json-diff]")
+    print("-f,--display-only-fail: shows only failed tests (not Skipped) [default: print all] ")
+    print("-v,--verbose: <verbose_level> 0: no message for each test; 1: print operation result; 2: print request and response message) [default verbose_level 0]")
+    print("-c,--continue: runs all tests even if one test fails [default: exit at first failed test]")
+    print("-l,--loops: <number of loops> [default loop 1]")
     print("-b,--blockchain: [default: mainnet]")
-    print("-s,--start-from-test: <test_number>: run tests starting from input")
-    print("-t,--run-single-test: <test_number>: run single test")
+    print("-s,--start-from-test: <test_number>: run tests starting from specified test number [default starts from 1]")
+    print("-t,--run-test: <test_number>: run single test using global test number (i.e: -t 256 runs 256 test) or test number of one specified APi used in combination with -a or -A (i.e -a eth_getLogs() -t 3: run test 3 of eth_getLogs())")
     print("-d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon")
-    print("-T,--transport_type: <http,http_comp,https,websocket,websocket_comp>")
-    print("-k,--jwt: authentication token file")
+    print("-T,--transport_type: <http,http_comp,https,websocket,websocket_comp> [default http]")
+    print("-k,--jwt: authentication token file (i.e -k /tmp/jwt_file.hex) ")
+    print("-K,--create-jwt: generate authentication token file and use it (-K /tmp/jwt_file.hex) ")
     print("-a,--api-list-with: <apis>: run all tests of the specified API that contains string (e.g.: eth_,debug_)")
     print("-A,--api-list: <apis>: run all tests of the specified API that match full name (e.g.: eth_call,eth_getLogs)")
-    print("-x,--exclude-api-list: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
-    print("-X,--exclude-test-list: exclude test list (e.g.: 18,22)")
-    print("-o,--dump-response: dump JSON RPC response")
+    print("-x,--exclude-api-list < list of tested api>: exclude API list (e.g.: txpool_content,txpool_status,engine_)")
+    print("-X,--exclude-test-list <test-list>: exclude test list (e.g.: 18,22, 18,22 are global test number)")
+    print("-o,--dump-response: dump JSON RPC response even if the response are the same")
     print("-H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)")
     print("-p,--port: port where the RpcDaemon is located (e.g.: 8545)")
     print("-I,--silk-port: Use 51515/51516 ports to server")
     print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
-    print("-i,--without-compare-results: send request without compare results")
-    print("-w,--waiting_time: waiting after test execution (millisec)")
-    print("-S,--serial: all tests are runned in serial way")
+    print("-i,--without-compare-results: send request and waits response without compare results (used only to see the response time to execuet one api or more apis)")
+    print("-w,--waiting_time: waiting after test execution (millisec) (can be used only for serial test see -S)")
+    print("-S,--serial: all tests are runned in serial way [default: the seleceted files are runned in parallel] ")
 
 
 def get_target(target_type: str, method: str, config):
@@ -324,10 +326,10 @@ class Config:
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iw:hfIcv:t:l:a:de:b:ox:X:H:k:s:p:P:T:A:jS",
+            opts, _ = getopt.getopt(argv[1:], "iw:hfIcv:t:l:a:de:b:ox:X:H:k:s:p:P:T:A:jSK:",
                                     ['help', 'continue', 'silk-port', 'verify-external-provider', 'host=', 'engine-port=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
-                                     'api-list-with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'blockchain=',
+                                     'api-list-with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'create-jwt=', 'blockchain=',
                                      'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff', 'waiting_time=',
                                      'dump-response', 'without-compare-results', 'serial'])
             for option, optarg in opts:
@@ -364,6 +366,10 @@ class Config:
                 elif option in ("-f", "--display-only-fail"):
                     self.display_only_fail = 1
                 elif option in ("-v", "--verbose"):
+                    if int (optarg) > 2:
+                        print("Error on verbose level: permitted values: 0,1,2")
+                        usage(argv)
+                        sys.exit(1)
                     self.verbose_level = int(optarg)
                 elif option in ("-t", "--run-single-test"):
                     if self.exclude_test_list != "" or self.exclude_api_list != "":
@@ -428,10 +434,17 @@ class Config:
                         usage(argv)
                         sys.exit(1)
                     self.exclude_test_list = optarg
+                elif option in ("-K", "--create-jwt"):
+                    generate_jwt_secret(optarg)
+                    self.jwt_secret = get_jwt_secret(optarg)
+                    if self.jwt_secret == "":
+                        print("secret file not found:",optarg)
+                        usage(argv)
+                        sys.exit(1)
                 elif option in ("-k", "--jwt"):
                     self.jwt_secret = get_jwt_secret(optarg)
                     if self.jwt_secret == "":
-                        print("secret file not found")
+                        print("secret file not found:",optarg)
                         usage(argv)
                         sys.exit(1)
                 elif option in ("-j", "--json-diff"):
@@ -458,10 +471,19 @@ class Config:
             shutil.rmtree(self.output_dir)
 
 
-def get_json_from_response(target, msg, verbose_level: int, json_file, result: str):
+def generate_jwt_secret(filename, length=64):
+    """generates a  file contains 64 hex digit"""
+    random_hex = "0x"+ ''.join(random.choices('0123456789abcdef', k=length))
+    with open(filename, 'w', encoding='utf8') as file:
+        file.write(random_hex)
+
+    print(f"Secret File '{filename}' created with success!")
+
+
+def get_json_from_response(target, msg, verbose_level: int, result: str):
     """ Retrieve JSON from response """
     if verbose_level > 2:
-        print(msg + " :[" + result + "]")
+        print(msg + " :[" + str(result) + "]")
 
     if len(result) == 0:
         error_msg = "Failed (json response is zero length, maybe server is down) on " + target
@@ -505,7 +527,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
 
         target_url = ("https://" if transport_type == "https" else "http://") + target
         try:
-            rsp = requests.post(target_url, data=request_dumps, headers=http_headers)
+            rsp = requests.post(target_url, data=request_dumps, headers=http_headers, timeout=100)
             if rsp.status_code != 200:
                 if verbose_level:
                     print("post result=",rsp.status_code)
@@ -636,12 +658,12 @@ def process_response(target, target1, result, result1, response_in_file: str, co
                      output_dir: str, silk_file: str, exp_rsp_file: str, diff_file: str, json_file: str, test_number: int):
     """ Process the response If exact result or error don't care, they are null but present in expected_response. """
 
-    response, error_msg  = get_json_from_response(target, config.daemon_under_test, config.verbose_level, json_file, result)
+    response, error_msg  = get_json_from_response(target, config.daemon_under_test, config.verbose_level, result)
     if response is None:
         return 0, error_msg
 
     if result1 != "":
-        expected_response, error_msg = get_json_from_response(target1, config.daemon_as_reference, config.verbose_level, json_file, result1)
+        expected_response, error_msg = get_json_from_response(target1, config.daemon_as_reference, config.verbose_level, result1)
         if expected_response is None:
             return 0, error_msg
     else:
