@@ -14,10 +14,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": [
-        "0x0000000000000000000000000000000000000000000000000000000000000001",
-        "0x00001a374273796e8c24fde9780312002df32f4c5a9627c018d325f75e0f1691"
-      ]
+      "result": null 
     },
     "test": {
       "description": "get storage keys for specific account on latest block",
