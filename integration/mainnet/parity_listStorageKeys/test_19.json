@@ -1,0 +1,24 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "parity_listStorageKeys",
+      "params": [
+        "0x738ACaF48938C42D9c0f6cE23dF56b0F00dbe860",
+        0,
+        null,
+        "latest"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [] 
+    },
+    "test": {
+      "description": "get storage keys for specific account on latest block",
+      "reference": ""
+    }
+  }
+]
