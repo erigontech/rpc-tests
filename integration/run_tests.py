@@ -492,18 +492,30 @@ def get_json_from_response(target, msg, verbose_level: int, result: str):
 
 def dump_jsons(dump_json, silk_file, exp_rsp_file, output_dir, response, expected_response: str):
     """ dump jsons on result dir """
-    if dump_json:
-        if silk_file != "" and os.path.exists(output_dir) == 0:
-            try:
-                os.mkdir(output_dir)
-            except:
-                pass
-        if silk_file != "":
-            with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
-                json_file_ptr.write(json.dumps(response, indent=2, sort_keys=True))
-        if exp_rsp_file != "":
-            with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                json_file_ptr.write(json.dumps(expected_response, indent=2, sort_keys=True))
+    if not dump_json:
+        return
+
+    for attempt in range(10):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except Exception as e:
+            print ("Exception on makedirs: ", output_dir, {e})
+
+        try:
+            if silk_file != "":
+                if os.path.exists(silk_file):
+                    os.remove(silk_file)
+                with open(silk_file, 'w', encoding='utf8') as json_file_ptr:
+                    json_file_ptr.write(json.dumps(response, indent=2, sort_keys=True))
+            if exp_rsp_file != "":
+                if os.path.exists(exp_rsp_file):
+                    os.remove(exp_rsp_file)
+                with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
+                    json_file_ptr.write(json.dumps(expected_response, indent=2, sort_keys=True))
+            break
+
+        except Exception as e:
+            print ("Exception on file write: ..  ", {e})
 
 
 def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int):
@@ -518,7 +530,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
 
         target_url = ("https://" if transport_type == "https" else "http://") + target
         try:
-            rsp = requests.post(target_url, data=request_dumps, headers=http_headers, timeout=100)
+            rsp = requests.post(target_url, data=request_dumps, headers=http_headers, timeout=300)
             if rsp.status_code != 200:
                 if verbose_level:
                     print("post result=",rsp.status_code)
@@ -604,7 +616,7 @@ def compare_json(config, response, json_file, silk_file, exp_rsp_file, diff_file
     """ Compare JSON response. """
     base_name = "/tmp/test_" + str(test_number) + "/"
     if os.path.exists(base_name) == 0:
-        os.mkdir(base_name)
+        os.makedirs(base_name, exist_ok=True)
     temp_file1 = base_name + "silk_lower_case.txt"
     temp_file2 = base_name + "rpc_lower_case.txt"
 
@@ -798,7 +810,7 @@ def main(argv) -> int:
     config.select_user_options(argv)
 
     start_time = datetime.now()
-    os.mkdir(config.output_dir)
+    os.makedirs(config.output_dir, exist_ok=True)
     executed_tests = 0
     failed_tests = 0
     success_tests = 0
