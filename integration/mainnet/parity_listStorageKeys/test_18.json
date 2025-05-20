@@ -5,16 +5,19 @@
       "jsonrpc": "2.0",
       "method": "parity_listStorageKeys",
       "params": [
-        "0x4D9079Bb4165aeb4084c526a32695dCfd2F77381",
-        8,
-        "0x000000",
+        "0x1867598ADaf424C1FE7207E548eb09a1e6540534",
+        2,
+        null,
         "latest"
       ]
     },
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": null
+      "result": [
+         "0x0000000000000000000000000000000000000000000000000000000000000000",
+         "0x0000000000000000000000000000000000000000000000000000000000000002"
+      ] 
     },
     "test": {
       "description": "get storage keys for specific account on latest block",

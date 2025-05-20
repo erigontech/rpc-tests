@@ -1,0 +1,45 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "parity_listStorageKeys",
+      "params": [
+        "0x1867598ADaf424C1FE7207E548eb09a1e6540534",
+        20,
+        "0x000b",
+        "latest"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+          "0x00ea3d58f044696d674763f292a49c9cfa741fb7070cabe187f38fdcc800c0cb",
+          "0x0131a0c3b2f06f4ecfe0fae09b6b09807cda9bb6ba9edfa38257c7d734a94a11",
+          "0x01a9ce9a787439ada188628a090bcd56e1411612622e1fe51529725cde7297da",
+          "0x01cfe0ba1d4da653ef8a7ab5d2a3402d8db1168df71d673a190abb97a3ed47ae",
+          "0x02885dc4c1f654f4d98ac6fdabaf448ad799cdaee8e670aa09ba1f2a8d2c9c7b",
+          "0x02beb43c3e602130fdb4b9d64009d28f0355f8676b68c24ed5340821819adaa5",
+          "0x0347d9946b164ae2678419164af80ea6dcf6c8da4422c742e8b110f1572480d8",
+          "0x05ecdfbbe4adf14365e1f81d196fe6d1f08d0a3ffcde5793e687ac3b7b9b31b7",
+          "0x05fafef3d688cfdfe8da3653e48d75dd514a228b16d0d926ede2650e4e8ff87c",
+          "0x07a28d917fab28dd4295944d520e0d7872ce88e72c33c7d6d1180f7181593ac4",
+          "0x07ec98d3f1eb6b6123378d424fab246aef661f1bd5ada0d6177dabbe8fe927a1",
+          "0x08002ee71025e660f1f89519f860d00aa1691415865304c8df5979b40e8212f6",
+          "0x08cd6b743b932d9dd99793f31a598734ca8b4089e81204d6d47aac254a368dd5",
+          "0x091888717aebdd26c577dc8577c0119a6eba79d5a1ea63a08d5ba99934312016",
+          "0x0aa58787437d41f4598b8935f5d436118f7fd2818db68df79b45522c0e01a32c",
+          "0x0b1726bc87a24e379e0a58ebaba299ac1f85bb197eb46bf7a893a1a0f20376c6",
+          "0x0d484df9f7c5937e2deadd5db15b7aaaf65565de1fd90ba531caa0db4309b68e",
+          "0x0e6b064400bad291969284cd1df023c7985973fe334ea95deaa219d795ffe745",
+          "0x0e799c777ee90f05c8d7b02e1e8c96afa1ec0c27eab488092facd6cb02a92750",
+          "0x0ed20aadb96b8ff631e1fab92e36ba75d32ba9bdadf79deb199d55474cfa376e"
+      ] 
+    },
+    "test": {
+      "description": "get storage keys for specific account on latest block  list differs from erigon reply",
+      "reference": ""
+    }
+  }
+]
