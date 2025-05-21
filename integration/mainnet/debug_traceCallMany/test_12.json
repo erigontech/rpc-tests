@@ -1,0 +1,41 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceCallMany",
+      "params": [
+        [
+          {
+            "transactions": [
+              {
+                "from": "0x01230334cdeb19cb0f3b017e46994e393312c3c6",
+                "to": "0x01230334cdeb19cb0f3b017e46994e393312c3c7",
+                "value": "0x1"
+              }
+            ]
+          }
+        ],
+        {
+          "blockNumber": "latest"
+        },
+        {
+          "stateOverrides": {
+            "0x01230334cdeb19cb0f3b017e46994e393312c3c6": {
+              "balance": "0x1"
+            }
+          }
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [[{"structLogs": [], "gas": 21000, "failed": false, "returnValue": ""}]]
+    },
+    "test": {
+      "description": "request contains stateOverrides see issue erigon#13705",
+      "reference": ""
+    }
+  }
+]
