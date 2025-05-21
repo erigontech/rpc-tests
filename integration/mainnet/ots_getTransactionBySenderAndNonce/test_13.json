@@ -3,13 +3,13 @@
         "request":{
             "jsonrpc":"2.0",
             "method":"ots_getTransactionBySenderAndNonce",
-            "params":["0x6e7738D8EBB59Add7B00E019604646faa53AdA28", 8],
+            "params":["0x3f5ACD0413E557501289Aa8f59616a5905C2636a", 1],
             "id":1
         },
         "response":{
             "jsonrpc":"2.0",
             "id":1,
-            "result":"0x979443919cab0f3fa62483ae51fb6dd433582ada3032e4759f3dc44f0f8d03f9"
+            "result": "0x983160029e62c86e6576d4fadfd1836a9c3cc5912fa346797c39a4eed4ebabf9" 
         }
     }
 ]
