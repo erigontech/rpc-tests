@@ -1,0 +1,20 @@
+[
+    {
+        "test": {
+           "reference": "",
+           "description": "invalid filter id"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_getFilterChanges",
+            "params": ["0xFF"],
+            "id":1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "error": {"code": -32000, "message": "filter not found"}
+        }
+    }
+]
+
