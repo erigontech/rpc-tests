@@ -1,0 +1,24 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "ots_getContractCreator",
+      "params": [
+        "0xDAE5047277a2cc3d0013Fc0cF4A12817b9b85C33"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "creator": "0x6b4971f56172fe56565fd3d6b56f8ca3c91b2bad",
+        "hash": "0x5745c4c7496340394114a6a01c48c2860499b10f1ce208a44183edd38e963349"
+      }
+    },
+    "test": {
+      "description": " This tests the contract is deployed and no tx is present",
+      "reference": "https://etherscan.io/txs?block=48827"
+    }
+  }
+]
