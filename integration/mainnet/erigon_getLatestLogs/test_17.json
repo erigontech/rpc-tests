@@ -23,7 +23,7 @@
       "result": []
     },
     "test": {
-      "description": "Latest logs for blocks [from  to] and address",
+      "description": "Latest logs for blocks [from  to] and address and default blockCount = 1",
       "reference": ""
     }
   }

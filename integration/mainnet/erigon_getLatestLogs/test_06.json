@@ -24,7 +24,7 @@
       "result": []
     },
     "test": {
-      "description": "Latest logs for blocks [from  to] and 2 topics",
+      "description": "Latest logs for blocks [from  to] and 2 topics and default blockCount=1",
       "reference": ""
     }
   }
