@@ -12,6 +12,7 @@
           "topics": []
         },
         {
+          "blockCount": 2
         }
       ]
     },
@@ -644,11 +645,44 @@
       ],
       "transactionHash": "0x53497a175e9ed1f457af6386e0ca88f99bcba4e6fa7d7fc6d9a418c83bb3315f",
       "transactionIndex": "0x3"
+    },
+    {
+      "address": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
+      "blockHash": "0x0621386f998fd3cfd761657ff81d72b1e465b314971febc088cf607037232938",
+      "blockNumber": "0x52a0b3",
+      "data": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000044a9059cbb00000000000000000000000048e96290dc78bcb3994ea4fa3093d539a57e856000000000000000000000000000000000000000000000000564d702d38f5e0000",
+      "logIndex": "0x0",
+      "removed": false,
+      "timestamp": "0x5acca2a6",
+      "topics": [
+        "0xa9059cbb00000000000000000000000000000000000000000000000000000000",
+        "0x000000000000000000000000e93381fb4c4f14bda253907b18fad305d799241a",
+        "0x00000000000000000000000048e96290dc78bcb3994ea4fa3093d539a57e8560",
+        "0x00000000000000000000000000000000000000000000000564d702d38f5e0000"
+      ],
+      "transactionHash": "0x6897d7991a8fca8d2c0654cfeaeeefed87f80308407f32f8da3d6aba9c2cede2",
+      "transactionIndex": "0x0"
+    },
+    {
+      "address": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
+      "blockHash": "0x0621386f998fd3cfd761657ff81d72b1e465b314971febc088cf607037232938",
+      "blockNumber": "0x52a0b3",
+      "data": "0x00000000000000000000000000000000000000000000000564d702d38f5e0000",
+      "logIndex": "0x1",
+      "removed": false,
+      "timestamp": "0x5acca2a6",
+      "topics": [
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+        "0x000000000000000000000000e93381fb4c4f14bda253907b18fad305d799241a",
+        "0x00000000000000000000000048e96290dc78bcb3994ea4fa3093d539a57e8560"
+      ],
+      "transactionHash": "0x6897d7991a8fca8d2c0654cfeaeeefed87f80308407f32f8da3d6aba9c2cede2",
+      "transactionIndex": "0x0"
     }
   ]
     },
     "test": {
-      "description": "latest logs for blocks [from  to] with default blockCount=1",
+      "description": "Latest logs for blocks [from  to] & blockCount",
       "reference": ""
     }
   }

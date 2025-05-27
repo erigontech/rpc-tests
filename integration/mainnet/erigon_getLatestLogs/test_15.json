@@ -38,7 +38,7 @@
       ]
     },
     "test": {
-      "description": "Latest logs for blocks [from  to] in hex and address",
+      "description": "Latest logs for blocks [from  to] in hex and address with default block count",
       "reference": ""
     }
   }
