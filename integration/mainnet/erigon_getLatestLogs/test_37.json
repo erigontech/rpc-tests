@@ -1,0 +1,52 @@
+[
+  {
+    "test": {
+      "description": "Latest logs for blocks [from  to] and default BlockCount = 1 and topics with subtopic",
+      "reference": ""
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "erigon_getLatestLogs",
+      "params": [
+        {
+          "address": [],
+          "fromBlock": "18000000",
+          "toBlock": "18000005",
+          "topics": [
+            [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+            ],
+            [
+              "0x00000000000000000000000010aae54e3f84c39c51936538b64c90c780315306"
+            ]
+          ]
+        },
+        {
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+    "result": [
+    {  
+      "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "blockHash": "0x127c6b9794874d7011770b3aa2a0a640e1db201c2d677d01b2b3b19e7ad427c7",
+      "blockNumber": "0x112a885",
+      "data": "0x000000000000000000000000000000000000000000000000000000010c388d00",
+      "logIndex": "0x0",
+      "removed": false,
+      "timestamp": "0x64ea26cb",
+      "topics": [
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+        "0x00000000000000000000000010aae54e3f84c39c51936538b64c90c780315306",
+        "0x000000000000000000000000d37bbe5744d730a1d98d8dc97c42f0ca46ad7146"
+      ],
+      "transactionHash": "0xc64a5186cb559b9ff0331c301f0a14b20592a8cd827d02977be2e23014c33dbd",
+      "transactionIndex": "0x71"
+    }
+   ]
+    }
+  }
+]
