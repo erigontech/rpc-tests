@@ -523,18 +523,20 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
     if transport_type in ("http", 'http_comp', 'https'):
         http_headers = {'content-type': 'application/json'}
         if transport_type != 'http_comp':
-            http_headers['Accept-Encoding' ] =  'Identity'
+            http_headers['Accept-Encoding'] = 'Identity'
 
         if jwt_auth:
-            http_headers['Authorization' ] =  jwt_auth
+            http_headers['Authorization'] = jwt_auth
 
         target_url = ("https://" if transport_type == "https" else "http://") + target
         try:
             rsp = requests.post(target_url, data=request_dumps, headers=http_headers, timeout=300)
             if rsp.status_code != 200:
                 if verbose_level:
-                    print("post result=",rsp.status_code)
+                    print("\npost result status_code: ", rsp.status_code)
                 return ""
+            if verbose_level:
+                print("\npost result content: ", rsp.content)
             result = rsp.json()
         except Exception as e:
             if verbose_level:
@@ -612,6 +614,7 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file, test_number):
             idx = 0
             continue
 
+
 def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_file: str, test_number):
     """ Compare JSON response. """
     base_name = "/tmp/test_" + str(test_number) + "/"
@@ -640,7 +643,7 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
 
     diff_result = run_compare(config.use_jsondiff, temp_file1, temp_file2, diff_file, test_number)
     diff_file_size = 0
-    return_code = 1 # ok
+    return_code = 1  # ok
     error_msg = ""
     if diff_result == 1:
         diff_file_size = os.stat(diff_file).st_size
@@ -649,7 +652,7 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
             error_msg = "Failed Timeout"
         else:
             error_msg = "Failed"
-        return_code = 0 # failed
+        return_code = 0  # failed
 
     if os.path.exists(temp_file1):
         os.remove(temp_file1)
@@ -657,11 +660,12 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
         os.remove(temp_file2)
     return return_code, error_msg
 
+
 def process_response(target, target1, result, result1, response_in_file: str, config,
                      output_dir: str, daemon_file: str, exp_rsp_file: str, diff_file: str, json_file: str, test_number: int):
     """ Process the response If exact result or error don't care, they are null but present in expected_response. """
 
-    response, error_msg  = get_json_from_response(target, config.daemon_under_test, config.verbose_level, result)
+    response, error_msg = get_json_from_response(target, config.daemon_under_test, config.verbose_level, result)
     if response is None:
         return 0, error_msg
 
@@ -832,99 +836,111 @@ def main(argv) -> int:
     if config.transport_type in ('http_comp', 'websocket_comp' ):
         print("Run tests using compression")
 
-    for test_rep in range(0, config.loop_number):  # makes tests more times
-        if config.loop_number != 1:
-            print("\r                                                                                                             ",end='', flush=True)
-            print("\nTest iteration: ", test_rep + 1, "                                                                      ")
-        tokenize_transport_type = config.transport_type.split(",")
-        for transport_type in tokenize_transport_type:
-            test_number_in_any_loop = 1
-            tests_descr_list = []
-            dirs = sorted(os.listdir(config.json_dir))
-            global_test_number = 0
-            available_tested_apis = 0
-            for curr_api in dirs:  # scans all api present in dir
-                # jump results folder or any hidden OS-specific folder
-                if curr_api == config.results_dir or curr_api.startswith("."):
-                    continue
-                test_dir = config.json_dir + curr_api
-                if not os.path.isdir(test_dir):  # jump if not dir
-                    continue
-                available_tested_apis = available_tested_apis + 1
-                test_lists = sorted(os.listdir(test_dir), key=extract_number)
-                test_number = 1
-                for test_name in test_lists:  # scan all json test present in the dir
-                    if not test_name.startswith("test_"):
+    try:
+        for test_rep in range(0, config.loop_number):  # makes tests more times
+            if config.loop_number != 1:
+                print(
+                    "\r                                                                                                             ",
+                    end='', flush=True)
+                print("\nTest iteration: ", test_rep + 1,
+                      "                                                                      ")
+            tokenize_transport_type = config.transport_type.split(",")
+            for transport_type in tokenize_transport_type:
+                test_number_in_any_loop = 1
+                tests_descr_list = []
+                dirs = sorted(os.listdir(config.json_dir))
+                global_test_number = 0
+                available_tested_apis = 0
+                for curr_api in dirs:  # scans all api present in dir
+                    # jump results folder or any hidden OS-specific folder
+                    if curr_api == config.results_dir or curr_api.startswith("."):
                         continue
-                    if not test_name.endswith((".zip", ".gzip", ".json", ".tar")):
+                    test_dir = config.json_dir + curr_api
+                    if not os.path.isdir(test_dir):  # jump if not dir
                         continue
-                    if api_under_test(curr_api, config):  # -a/-A or any api
-                        json_test_full_name = curr_api + "/" + test_name
-                        if is_skipped(curr_api, json_test_full_name, test_number_in_any_loop, config) == 1:
-                            if config.start_test == "" or test_number_in_any_loop >= int(config.start_test):
-                                if config.display_only_fail == 0 and config.req_test_number != "":
-                                    file = json_test_full_name.ljust(60)
-                                    curr_tt = transport_type.ljust(15)
-                                    print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} Skipped")
-                                tests_not_executed = tests_not_executed + 1
+                    available_tested_apis = available_tested_apis + 1
+                    test_lists = sorted(os.listdir(test_dir), key=extract_number)
+                    test_number = 1
+                    for test_name in test_lists:  # scan all json test present in the dir
+                        if not test_name.startswith("test_"):
+                            continue
+                        if not test_name.endswith((".zip", ".gzip", ".json", ".tar")):
+                            continue
+                        if api_under_test(curr_api, config):  # -a/-A or any api
+                            json_test_full_name = curr_api + "/" + test_name
+                            if is_skipped(curr_api, json_test_full_name, test_number_in_any_loop, config) == 1:
+                                if config.start_test == "" or test_number_in_any_loop >= int(config.start_test):
+                                    if config.display_only_fail == 0 and config.req_test_number != "":
+                                        file = json_test_full_name.ljust(60)
+                                        curr_tt = transport_type.ljust(15)
+                                        print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} Skipped")
+                                    tests_not_executed = tests_not_executed + 1
+                            else:
+                                # runs all tests or
+                                # runs single global test
+                                # runs only tests a specific test_number in the testing_apis list
+                                if ((
+                                        config.testing_apis_with == "" and config.testing_apis == "" and config.req_test_number in (
+                                -1, test_number_in_any_loop)) or
+                                        (config.testing_apis_with != "" and config.req_test_number in (
+                                        -1, test_number)) or
+                                        (config.testing_apis != "" and config.req_test_number in (-1, test_number))):
+                                    if (config.start_test == "" or  # start from specific test
+                                            (config.start_test != "" and test_number_in_any_loop >= int(
+                                                config.start_test))):
+                                        # create process pool
+                                        try:
+                                            future = exe.submit(run_test, json_test_full_name, test_number_in_any_loop,
+                                                                transport_type, config)
+                                            tests_descr_list.append(
+                                                {'name': json_test_full_name, 'number': test_number_in_any_loop,
+                                                 'transport-type': transport_type, 'future': future})
+                                            if config.waiting_time:
+                                                time.sleep(config.waiting_time / 1000)
+                                            executed_tests = executed_tests + 1
+                                        except Exception as e:
+                                            print(f"An error occurred: {e}")
+                                            return 100
+
+                        global_test_number = global_test_number + 1
+                        test_number_in_any_loop = test_number_in_any_loop + 1
+                        test_number = test_number + 1
+
+                # when all tests on specific transport type are spawned
+                if executed_tests == 0:
+                    print("ERROR: api-name or testNumber not found")
+                    return 1
+
+                # waits the future to check tests results
+                cancel = 0
+                for test in tests_descr_list:
+                    curr_json_test_full_name = test['name']
+                    curr_test_number_in_any_loop = test['number']
+                    curr_transport_type = test['transport-type']
+                    curr_future = test['future']
+                    file = curr_json_test_full_name.ljust(60)
+                    curr_tt = curr_transport_type.ljust(15)
+                    if cancel:
+                        future.cancel()
+                        continue
+                    print(f"{curr_test_number_in_any_loop:04d}. {curr_tt}::{file}   ", end='', flush=True)
+                    result, error_msg = curr_future.result()
+                    if result == 1:
+                        success_tests = success_tests + 1
+                        if config.verbose_level:
+                            print("OK                   ", flush=True)
                         else:
-                            # runs all tests or
-                            # runs single global test
-                            # runs only tests a specific test_number in the testing_apis list
-                            if ((config.testing_apis_with == "" and config.testing_apis == "" and config.req_test_number in (-1, test_number_in_any_loop)) or
-                                    (config.testing_apis_with != "" and config.req_test_number in (-1, test_number)) or
-                                    (config.testing_apis != "" and config.req_test_number in (-1, test_number))):
-                                if (config.start_test == "" or  # start from specific test
-                                        (config.start_test != "" and test_number_in_any_loop >= int(
-                                            config.start_test))):
-                                    # create process pool
-                                    try:
-                                        future = exe.submit(run_test, json_test_full_name, test_number_in_any_loop, transport_type, config)
-                                        tests_descr_list.append({'name': json_test_full_name, 'number': test_number_in_any_loop, 'transport-type': transport_type, 'future': future})
-                                        if config.waiting_time:
-                                            time.sleep(config.waiting_time/1000)
-                                        executed_tests = executed_tests + 1
-                                    except Exception as e:
-                                        print(f"An error occurred: {e}")
-                                        return 100
-
-                    global_test_number = global_test_number + 1
-                    test_number_in_any_loop = test_number_in_any_loop + 1
-                    test_number = test_number + 1
-
-            # when all tests on specific transport type are spawned
-            if executed_tests == 0:
-                print("ERROR: api-name or testNumber not found")
-                return 1
-
-            # waits the future to check tests results
-            cancel = 0
-            for test in tests_descr_list:
-                curr_json_test_full_name = test['name']
-                curr_test_number_in_any_loop = test['number']
-                curr_transport_type = test['transport-type']
-                curr_future = test['future']
-                file = curr_json_test_full_name.ljust(60)
-                curr_tt = curr_transport_type.ljust(15)
-                if cancel:
-                    future.cancel()
-                    continue
-                print(f"{curr_test_number_in_any_loop:04d}. {curr_tt}::{file}   ", end='', flush=True)
-                result, error_msg = curr_future.result()
-                if result == 1:
-                    success_tests = success_tests + 1
-                    if config.verbose_level:
-                        print("OK                   ",flush=True)
+                            print("OK                   \r", end='', flush=True)
                     else:
-                        print("OK                   \r",end='', flush=True)
-                else:
-                    failed_tests = failed_tests + 1
-                    print(error_msg, "\r")
-                    if config.exit_on_fail:
-                        cancel = 1
-        if config.exit_on_fail and failed_tests:
-            print("TEST ABORTED!")
-            break
+                        failed_tests = failed_tests + 1
+                        print(error_msg, "\r")
+                        if config.exit_on_fail:
+                            cancel = 1
+            if config.exit_on_fail and failed_tests:
+                print("TEST ABORTED!")
+                break
+    except KeyboardInterrupt:
+        print("TEST INTERRUPTED!")
 
     # print results at the end of all the tests
     elapsed = datetime.now() - start_time
