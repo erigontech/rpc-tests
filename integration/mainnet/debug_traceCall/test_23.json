@@ -21,7 +21,7 @@
                 "onlyTopCall": false
             },
             "blockOverrides": {
-                "baseFee": "0xffffff",
+                "baseFeePerGas": "0xffffff",
                 "blobBaseFee": "0xffffff"
             }
         }

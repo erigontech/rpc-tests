@@ -11,7 +11,7 @@
             "maxPriorityFeePerGas": "0xf4240",
             "from": "0x8727c4aed1bc733bcd6fabf6627791c10d1a969f",
             "to": "0x1111111254eeb25477b68fb85ed929f73a960582",
-            "maxFeePerGas": "0x1c7847cdb",
+            "maxFeePerGas": "0x1c7847c",
             "value": "0x0"
         },
         "0x130054d",
@@ -22,7 +22,8 @@
             },
             "blockOverrides": {
                 "baseFeePerGas": "0xffffff",
-                "blobBaseFee": "0xffffff"
+                "blobBaseFee": "0xffffff",
+                "withdrawals": []
             }
         }
         ]
@@ -30,11 +31,11 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": null,
       "error": {
-         "code": -32000,
-         "message": "tracing failed: insufficient funds for gas * price + value: address 0x8727c4AeD1Bc733BCd6fabF6627791C10D1A969F have 486222726306273 want 1753804528428570"
-       }
+          "code": -32000,
+          "message": "BlockOverrides.Withdrawals not supported"
+      },
+      "result": null
     }
   }
 ]
