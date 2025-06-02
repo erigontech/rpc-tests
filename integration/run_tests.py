@@ -541,10 +541,10 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
         try:
             rsp = requests.post(target_url, data=request_dumps, headers=http_headers, timeout=300)
             if rsp.status_code != 200:
-                if verbose_level:
+                if verbose_level > 1:
                     print("\npost result status_code: ", rsp.status_code)
                 return ""
-            if verbose_level:
+            if verbose_level > 1:
                 print("\npost result content: ", rsp.content)
             result = rsp.json()
         except Exception as e:
