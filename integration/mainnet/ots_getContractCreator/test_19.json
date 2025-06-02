@@ -1,0 +1,24 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "ots_getContractCreator",
+      "params": [
+        "0x5256AD78C2E8A98CD2D6A1AF8D90739A859B9A51"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "creator": "0x7715592be525a8ce67ec14c2b13bf50c9ee10ba4",
+        "hash": "0x1e7accf889e5d6ff48bb834ce80f1dcd21c88b867692209154251eb39b327bc9"
+      }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
+    }
+  }
+]
