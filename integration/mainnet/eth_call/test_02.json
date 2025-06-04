@@ -25,7 +25,7 @@
             "jsonrpc":"2.0",
             "error": {
                "code": -32000,
-               "message": "fee cap less than block base fee: address 0xd3181ddbb2cea7b4954b8d4a05dbf85d8fc36aef, gasfeecap: 140000000000 basefee: 146283608928"
+               "message": "fee cap less than block base fee: address 0xd3181ddbb2cea7b4954b8d4a05dbf85d8fc36aef, feeCap: 140000000000 baseFee: 146283608928"
             }
         }
     }
