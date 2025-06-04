@@ -74,6 +74,10 @@
         "vmTrace": null,
         "transactionHash": "0x9da5e2c5da5e44fbe867d4784f2a935139028efe58b1d31b7884d55551478ec8"
       }
+    },
+    "test": {
+      "description": "contract creation silently failed for code storage out of gas at block 235706 (pre-Homestead)",
+      "reference": "https://etherscan.io/tx/0x9da5e2c5da5e44fbe867d4784f2a935139028efe58b1d31b7884d55551478ec8"
     }
   }
 ]
