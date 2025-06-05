@@ -471,7 +471,7 @@ def generate_jwt_secret(filename, length=64):
     print(f"Secret File '{filename}' created with success!")
 
 
-def get_json_from_response(target, msg, verbose_level: int, result: str):
+def get_json_from_response(target, msg, verbose_level: int, result):
     """ Retrieve JSON from response """
     if verbose_level > 2:
         print(msg + " :[" + str(result) + "]")
@@ -661,7 +661,7 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
     return return_code, error_msg
 
 
-def process_response(target, target1, result, result1, response_in_file: str, config,
+def process_response(target, target1, result, result1: str, response_in_file, config,
                      output_dir: str, daemon_file: str, exp_rsp_file: str, diff_file: str, json_file: str, test_number: int):
     """ Process the response If exact result or error don't care, they are null but present in expected_response. """
 
