@@ -113,9 +113,9 @@ def usage(argv):
     print("-p,--port: port where the RpcDaemon is located (e.g.: 8545)")
     print("-I,--daemon-port: Use 51515/51516 ports to server")
     print("-e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference")
-    print("-i,--without-compare-results: send request and waits response without compare results (used only to see the response time to execuet one api or more apis)")
-    print("-w,--waiting_time: waiting after test execution (millisec) (can be used only for serial test see -S)")
-    print("-S,--serial: all tests are runned in serial way [default: the seleceted files are runned in parallel] ")
+    print("-i,--without-compare-results: send request and waits response without compare results (used only to see the response time to execute one api or more apis)")
+    print("-w,--waiting_time: wait time after test execution in milliseconds (can be used only for serial test see -S)")
+    print("-S,--serial: all tests run in serial way [default: the selected files run in parallel]")
 
 
 def get_target(target_type: str, method: str, config):
@@ -217,9 +217,9 @@ def is_skipped(curr_api, test_name: str, global_test_number, config):
     """
     api_full_name = config.net + "/" + curr_api
     api_full_test_name = config.net + "/" + test_name
-    if ((config.req_test_number == -1 or config.testing_apis != "" or config.testing_apis_with != "") and  #  -t or -a, or -A
-        not(config.req_test_number != -1 and (config.testing_apis != "" or config.testing_apis_with != "")) and #  NOT (-t and (-A or -a))
-        config.exclude_api_list == ""  and config.exclude_test_list == ""): # if not -t and -x and -X are null -x or -X
+    if ((config.req_test_number == -1 or config.testing_apis != "" or config.testing_apis_with != "") and  # -t or -a, or -A
+        not (config.req_test_number != -1 and (config.testing_apis != "" or config.testing_apis_with != "")) and  # NOT (-t and (-A or -a))
+            config.exclude_api_list == "" and config.exclude_test_list == ""):  # if not -t and -x and -X are null -x or -X
         for curr_test_name in api_not_compared:
             if curr_test_name in api_full_name:
                 return 1
@@ -320,7 +320,7 @@ class Config:
             opts, _ = getopt.getopt(argv[1:], "iw:hfIcv:t:l:a:de:b:ox:X:H:k:s:p:P:T:A:jSK:",
                                     ['help', 'continue', 'daemon-port', 'verify-external-provider', 'host=', 'engine-port=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
-                                     'api-list-with=', 'api-list=','loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'create-jwt=', 'blockchain=',
+                                     'api-list-with=', 'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'create-jwt=', 'blockchain=',
                                      'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff', 'waiting_time=',
                                      'dump-response', 'without-compare-results', 'serial'])
             for option, optarg in opts:
@@ -357,7 +357,7 @@ class Config:
                 elif option in ("-f", "--display-only-fail"):
                     self.display_only_fail = 1
                 elif option in ("-v", "--verbose"):
-                    if int (optarg) > 2:
+                    if int(optarg) > 2:
                         print("Error on verbose level: permitted values: 0,1,2")
                         usage(argv)
                         sys.exit(1)
@@ -429,13 +429,13 @@ class Config:
                     generate_jwt_secret(optarg)
                     self.jwt_secret = get_jwt_secret(optarg)
                     if self.jwt_secret == "":
-                        print("secret file not found:",optarg)
+                        print("secret file not found:", optarg)
                         usage(argv)
                         sys.exit(1)
                 elif option in ("-k", "--jwt"):
                     self.jwt_secret = get_jwt_secret(optarg)
                     if self.jwt_secret == "":
-                        print("secret file not found:",optarg)
+                        print("secret file not found:", optarg)
                         usage(argv)
                         sys.exit(1)
                 elif option in ("-j", "--json-diff"):
@@ -464,7 +464,7 @@ class Config:
 
 def generate_jwt_secret(filename, length=64):
     """generates a  file contains 64 hex digit"""
-    random_hex = "0x"+ ''.join(random.choices('0123456789abcdef', k=length))
+    random_hex = "0x" + ''.join(random.choices('0123456789abcdef', k=length))
     with open(filename, 'w', encoding='utf8') as file:
         file.write(random_hex)
 
@@ -499,7 +499,7 @@ def dump_jsons(dump_json, daemon_file, exp_rsp_file, output_dir, response, expec
         try:
             os.makedirs(output_dir, exist_ok=True)
         except Exception as e:
-            print ("Exception on makedirs: ", output_dir, {e})
+            print("Exception on makedirs: ", output_dir, {e})
 
         try:
             if daemon_file != "":
@@ -515,10 +515,10 @@ def dump_jsons(dump_json, daemon_file, exp_rsp_file, output_dir, response, expec
             break
 
         except Exception as e:
-            print ("Exception on file write: ..  ", {e}, attempt)
+            print("Exception on file write: ..  ", {e}, attempt)
 
 
-def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, target: str, verbose_level: int):
+def execute_request(transport_type: str, jwt_auth, request_dumps, target: str, verbose_level: int):
     """ execute request on server identified by target """
     if transport_type in ("http", 'http_comp', 'https'):
         http_headers = {'content-type': 'application/json'}
@@ -558,7 +558,7 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
         try:
             http_headers = {}
             if jwt_auth:
-                http_headers['Authorization' ] =  jwt_auth
+                http_headers['Authorization'] = jwt_auth
             with connect(ws_target, max_size=1000048576, compression=selected_compression,
                          extensions=curr_extensions, open_timeout=None) as websocket:
                 websocket.send(request_dumps)
@@ -567,14 +567,14 @@ def execute_request(transport_type: str, jwt_auth, encoded, request_dumps, targe
 
         except Exception as e:
             if verbose_level:
-                print("\nwebsocket connection fail:",e)
+                print("\nwebsocket connection fail:", e)
             return ""
 
     if verbose_level > 1:
         print("\n target:", target)
         print(request_dumps)
         print("Response.len:", len(result))
-        print("Response:",result)
+        print("Response:", result)
     return result
 
 
@@ -602,7 +602,7 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file, test_number):
             killing_pid = pid.strip()
             # reach timeout. kill it
             cmd = "kill " + killing_pid
-            #print ("kill: test_number: ", str(test_number), " cmd: " , cmd)
+            # print ("kill: test_number: ", str(test_number), " cmd: " , cmd)
             os.system(cmd)
             if already_failed:
                 # timeout with json-diff and diff so return timeout->0
@@ -701,7 +701,7 @@ def process_response(target, target1, result, result1, response_in_file: str, co
             return 1, ""
         dump_jsons(True, daemon_file, exp_rsp_file, output_dir, response, expected_response)
 
-        same, error_msg  = compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_file, test_number)
+        same, error_msg = compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_file, test_number)
         # cleanup
         if same:
             os.remove(daemon_file)
@@ -710,7 +710,7 @@ def process_response(target, target1, result, result1, response_in_file: str, co
         if not os.listdir(output_dir):
             try:
                 os.rmdir(output_dir)
-            except:
+            except OSError:
                 pass
 
         return same, error_msg
@@ -754,13 +754,12 @@ def run_test(json_file: str, test_number, transport_type, config):
         target1 = ""
         if config.jwt_secret == "":
             jwt_auth = ""
-            encoded = ""
         else:
             byte_array_secret = bytes.fromhex(config.jwt_secret)
             encoded = jwt.encode({"iat": datetime.now(pytz.utc)}, byte_array_secret, algorithm="HS256")
             jwt_auth = "Bearer " + str(encoded)
         if config.verify_with_daemon is False:  # compare daemon result with file
-            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, config.verbose_level)
+            result = execute_request(transport_type, jwt_auth, request_dumps, target, config.verbose_level)
             result1 = ""
             response_in_file = json_rpc["response"]
 
@@ -772,9 +771,9 @@ def run_test(json_file: str, test_number, transport_type, config):
             exp_rsp_file = output_api_filename + "expResponse.json"
         else:  # run tests with two servers
             target = get_target(DAEMON_ON_OTHER_PORT, method, config)
-            result = execute_request(transport_type, jwt_auth, encoded, request_dumps, target, config.verbose_level)
+            result = execute_request(transport_type, jwt_auth, request_dumps, target, config.verbose_level)
             target1 = get_target(config.daemon_as_reference, method, config)
-            result1 = execute_request(transport_type, jwt_auth, encoded, request_dumps, target1, config.verbose_level)
+            result1 = execute_request(transport_type, jwt_auth, request_dumps, target1, config.verbose_level)
             response_in_file = None
 
             output_api_filename = config.output_dir + json_file[:-4]
@@ -833,9 +832,12 @@ def main(argv) -> int:
         print("Run tests in serial on", server_endpoints)
         exe = ProcessPoolExecutor(max_workers=1)
 
-    if config.transport_type in ('http_comp', 'websocket_comp' ):
+    if config.transport_type in ('http_comp', 'websocket_comp'):
         print("Run tests using compression")
 
+    global_test_number = 0
+    available_tested_apis = 0
+    test_rep = 0
     try:
         for test_rep in range(0, config.loop_number):  # makes tests more times
             if config.loop_number != 1:
@@ -879,15 +881,11 @@ def main(argv) -> int:
                                 # runs all tests or
                                 # runs single global test
                                 # runs only tests a specific test_number in the testing_apis list
-                                if ((
-                                        config.testing_apis_with == "" and config.testing_apis == "" and config.req_test_number in (
-                                -1, test_number_in_any_loop)) or
-                                        (config.testing_apis_with != "" and config.req_test_number in (
-                                        -1, test_number)) or
+                                if ((config.testing_apis_with == "" and config.testing_apis == "" and config.req_test_number in (-1, test_number_in_any_loop)) or
+                                    (config.testing_apis_with != "" and config.req_test_number in (-1, test_number)) or
                                         (config.testing_apis != "" and config.req_test_number in (-1, test_number))):
                                     if (config.start_test == "" or  # start from specific test
-                                            (config.start_test != "" and test_number_in_any_loop >= int(
-                                                config.start_test))):
+                                            (config.start_test != "" and test_number_in_any_loop >= int(config.start_test))):
                                         # create process pool
                                         try:
                                             future = exe.submit(run_test, json_test_full_name, test_number_in_any_loop,
@@ -912,7 +910,7 @@ def main(argv) -> int:
                     return 1
 
                 # waits the future to check tests results
-                cancel = 0
+                cancel = False
                 for test in tests_descr_list:
                     curr_json_test_full_name = test['name']
                     curr_test_number_in_any_loop = test['number']
@@ -921,7 +919,7 @@ def main(argv) -> int:
                     file = curr_json_test_full_name.ljust(60)
                     curr_tt = curr_transport_type.ljust(15)
                     if cancel:
-                        future.cancel()
+                        curr_future.cancel()
                         continue
                     print(f"{curr_test_number_in_any_loop:04d}. {curr_tt}::{file}   ", end='', flush=True)
                     result, error_msg = curr_future.result()
@@ -935,7 +933,7 @@ def main(argv) -> int:
                         failed_tests = failed_tests + 1
                         print(error_msg, "\r")
                         if config.exit_on_fail:
-                            cancel = 1
+                            cancel = True
             if config.exit_on_fail and failed_tests:
                 print("TEST ABORTED!")
                 break
