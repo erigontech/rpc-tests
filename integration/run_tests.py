@@ -591,6 +591,9 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file, test_number):
     """ run Compare command and verify if command complete. """
 
     if use_jsondiff:
+        cmd_result = os.system("json-diff --help > /dev/null")
+        if cmd_result:
+            return 0
         cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file + " 2> /dev/null &"
         already_failed = False
     else:
