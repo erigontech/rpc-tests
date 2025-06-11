@@ -1,0 +1,21 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_block",
+      "params": [
+        "0xed175b"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": []
+    },
+    "test": {
+      "description": "empty block after The Merge",
+      "reference": "https://etherscan.io/block/15538011"
+    }
+  }
+]
