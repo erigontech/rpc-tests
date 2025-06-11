@@ -1,10 +1,11 @@
 cpplint
+eth-typing>=5.2.1,<6.0.0
 jsondiff
 psutil
 pylint
 pytz
 pyjwt
-requests
-web3
+requests>=2.32.4,<3.0.0
+web3>=7.7.0,<8.0.0
 websocket-client
 websockets
