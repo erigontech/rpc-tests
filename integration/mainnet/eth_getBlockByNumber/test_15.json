@@ -2,12 +2,12 @@
     {
         "test": {
             "reference": "",
-            "description": "retrieve latest block"
+            "description": "retrieve safe block"
         },
         "request": {
             "jsonrpc": "2.0",
             "method": "eth_getBlockByNumber",
-            "params": ["latest", false],
+            "params": ["safe", false],
             "id": 1
         },
         "response": {
