@@ -14,7 +14,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": []
+      "result": null
     },
     "test": {
       "description": "get storage keys for specific account on latest block",
