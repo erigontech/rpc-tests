@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 """
-Ethereum WebSocket Subscription Script
+Ethereum WebSocket getBlockByNumber Script
 
-This script connects to an Ethereum node via WebSocket, sends an eth_subscribe
-JSON-RPC request, and listens for notifications until interrupted with Ctrl+C.
+This script connects to an Ethereum node via WebSocket and queries latest/safe/finalized blocks
+until interrupted with Ctrl+C.
 
 Requirements:
-    pip install asyncio eth_typing web3
+    pip install asyncio web3
 """
 
 import asyncio
-import eth_typing
 import logging
 import signal
 import sys
@@ -22,13 +21,14 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-class EthereumWebSocketSubscriber:
+class EthereumWebSocketClient:
     def __init__(self, websocket_url):
         """ Initialize the WebSocket subscriber.
             websocket_url (str): WebSocket URL of the Ethereum node
         """
         self.websocket_url = websocket_url
         self.w3 = None
+        self.running = False
 
     async def connect(self):
         """Establish WebSocket connection to Ethereum node."""
@@ -52,17 +52,30 @@ class EthereumWebSocketSubscriber:
             logger.error(f"Connection failed: {e}")
             raise
 
-    async def subscribe(self, subscriptions):
+    async def query_blocks(self, delay: float):
         """ """
-        return await self.w3.subscription_manager.subscribe(subscriptions)
+        self.running = True
+        try:
+            while self.running:
+                # Get the latest/safe/finalized blocks just to extract the number but whatever
+                latest_block = await self.w3.eth.get_block("latest", False)
+                safe_block = await self.w3.eth.get_block("safe", False)
+                finalized_block = await self.w3.eth.get_block("finalized", False)
+                latest_number = latest_block.number
+                safe_number = safe_block.number
+                finalized_number = finalized_block.number
 
-    async def unsubscribe(self):
-        """ """
-        return await self.w3.subscription_manager.unsubscribe(self.w3.subscription_manager.subscriptions)
+                logger.info(f"Block latest: {latest_number} safe: {safe_number} finalized: {finalized_number}")
 
-    async def handle_subscriptions(self, run_forever=False):
+                # Wait for some time before iterating
+                await asyncio.sleep(delay)
+        except Exception as e:
+            logger.error(f"query_blocks failed: {e}")
+            raise
+
+    async def stop(self):
         """ """
-        return await self.w3.subscription_manager.handle_subscriptions(run_forever)
+        self.running = False
 
     async def disconnect(self):
         """Close the WebSocket connection."""
@@ -75,64 +88,43 @@ class EthereumWebSocketSubscriber:
 
 
 async def main():
-    """Main function to run the WebSocket subscription."""
+    """Main function to query the blocks via WebSocket."""
 
     # Configuration - Replace with your actual WebSocket URL
     websocket_url = "ws://127.0.0.1:8546"
-    subscriber = EthereumWebSocketSubscriber(websocket_url)
+    client = EthereumWebSocketClient(websocket_url)
 
     # Setup signal handler for graceful shutdown
     async def signal_handler():
         logger.info("Received interrupt signal (Ctrl+C)")
-        await subscriber.unsubscribe()
+        await client.stop()
 
     loop = asyncio.get_running_loop()
     for sig in [signal.SIGINT, signal.SIGTERM]:
         loop.add_signal_handler(sig, lambda: asyncio.create_task(signal_handler()))
 
-    # Prepare the subscription event handlers
-    async def new_heads_handler(handler_context: web3.utils.subscriptions.NewHeadsSubscriptionContext) -> None:
-        header = handler_context.result
-        print(f"New block header: {header}\n")
-
-    async def log_handler(handler_context: web3.utils.subscriptions.LogsSubscriptionContext) -> None:
-        log_receipt = handler_context.result
-        print(f"Log receipt: {log_receipt}\n")
-
     status = 0
     try:
         # Connect to Ethereum node
-        await subscriber.connect()
+        await client.connect()
 
-        # Subscribe to event notifications for new headers and USDT logs
-        subscriptions = await subscriber.subscribe(
-            [
-                web3.utils.subscriptions.NewHeadsSubscription(
-                    label="new-heads-mainnet",
-                    handler=new_heads_handler),
-                web3.utils.subscriptions.LogsSubscription(
-                    label="USDT transfers",
-                    address=subscriber.w3.to_checksum_address("0xdac17f958d2ee523a2206206994597c13d831ec7"),
-                    topics=[eth_typing.HexStr("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef")],
-                    handler=log_handler),
-            ]
-        )
-        logger.info(f"Handle subscriptions started: {len(subscriptions)}")
+        # Run a timed loop of eth_blockByNumber queries for latest/safe/finalized blocks
+        logger.info(f"Query blocks started")
 
-        # Listen for incoming subscription events
-        await subscriber.handle_subscriptions()
-        logger.info(f"Handle subscriptions terminated")
+        await client.query_blocks(2)
+
+        logger.info(f"Query blocks terminated")
     except KeyboardInterrupt:
         logger.info("Interrupted by user")
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        status = e
+        status = 1
     finally:
         # Cleanup
-        await subscriber.disconnect()
+        await client.disconnect()
         sys.exit(status)
 
 
 if __name__ == "__main__":
-    """ Usage: python subscriptions.py """
+    """ Usage: python block_by_number.py """
     asyncio.run(main())
