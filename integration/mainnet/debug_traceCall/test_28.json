@@ -1,0 +1,43 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceCall",
+      "params": [
+        {
+          "from": "0xE4fAAa80CcF723976655C1815386d1b13303Cc64",
+          "to": "0xCE636F6e46b75694ad28f8Cb53536771f9C2843f",
+          "data": "0xe60e338d70e74a160cf77f11ff8f3dccb83c5aa167c4ca4b83dedfe9ca3ca3eaf6d6f01b2d2bcc7f0000000001d9e8d06df87d690000000001e1355f0fe3c6ec00000000000000000000000000000000000000000037e46fd7cb3ceb878b4a66",
+          "value": "0x1",
+          "gas": "0x32187"
+        },
+        "0x159DEFF",
+        {
+          "tracer": "callTracer",
+          "tracerConfig": {
+            "onlyTopCall": true
+          },
+          "txIndex": "0x1"
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result" : {
+        "from": "0xe4faaa80ccf723976655c1815386d1b13303cc64",
+        "gas": "0x32187",
+        "gasUsed": "0x31688",
+        "to": "0xce636f6e46b75694ad28f8cb53536771f9c2843f",
+        "input": "0xe60e338d70e74a160cf77f11ff8f3dccb83c5aa167c4ca4b83dedfe9ca3ca3eaf6d6f01b2d2bcc7f0000000001d9e8d06df87d690000000001e1355f0fe3c6ec00000000000000000000000000000000000000000037e46fd7cb3ceb878b4a66",
+        "value": "0x1",
+        "type": "CALL"
+      }
+    },
+    "test": {
+      "description": "successful but internal calls failed with out of gas: not enough gas for reentrancy sentry",
+      "reference": "https://etherscan.io/tx/0x89fd14f57848c96e9a47a84f3330dbf070d001e269d3c61e1e8e6a3ed6782176"
+    }
+  }
+]
