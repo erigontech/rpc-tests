@@ -9,6 +9,7 @@ Requirements:
     pip install asyncio eth_typing web3
 """
 
+import argparse
 import asyncio
 import eth_typing
 import logging
@@ -34,7 +35,7 @@ class EthereumWebSocketSubscriber:
         """Establish WebSocket connection to Ethereum node."""
         try:
             # Create WebSocket provider
-            provider = web3.WebSocketProvider(self.websocket_url)
+            provider = web3.WebSocketProvider(self.websocket_url, max_connection_retries=1)
             self.w3 = web3.AsyncWeb3(provider)
 
             # Connect to the provider
@@ -77,9 +78,21 @@ class EthereumWebSocketSubscriber:
 async def main():
     """Main function to run the WebSocket subscription."""
 
-    # Configuration - Replace with your actual WebSocket URL
-    websocket_url = "ws://127.0.0.1:8546"
-    subscriber = EthereumWebSocketSubscriber(websocket_url)
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(
+        description="Connects to an Ethereum node via WebSocket and subscribes to events."
+    )
+    parser.add_argument(
+        "websocket_url",
+        type=str,
+        nargs='?',  # Make the argument optional
+        default="ws://127.0.0.1:8545",  # Set the default value
+        help="The WebSocket URL of the Ethereum node (default: ws://127.0.0.1:8545)",
+    )
+    args = parser.parse_args()
+
+    # Create the WebSocket event subscriber
+    subscriber = EthereumWebSocketSubscriber(args.websocket_url)
 
     # Setup signal handler for graceful shutdown
     async def signal_handler():
