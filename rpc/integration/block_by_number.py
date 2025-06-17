@@ -9,6 +9,7 @@ Requirements:
     pip install asyncio web3
 """
 
+import argparse
 import asyncio
 import logging
 import signal
@@ -34,7 +35,7 @@ class EthereumWebSocketClient:
         """Establish WebSocket connection to Ethereum node."""
         try:
             # Create WebSocket provider
-            provider = web3.WebSocketProvider(self.websocket_url)
+            provider = web3.WebSocketProvider(self.websocket_url, max_connection_retries=1)
             self.w3 = web3.AsyncWeb3(provider)
 
             # Connect to the provider
@@ -58,9 +59,9 @@ class EthereumWebSocketClient:
         try:
             while self.running:
                 # Get the latest/safe/finalized blocks just to extract the number but whatever
-                latest_block = await self.w3.eth.get_block("latest", False)
-                safe_block = await self.w3.eth.get_block("safe", False)
-                finalized_block = await self.w3.eth.get_block("finalized", False)
+                latest_block = await self.w3.eth.get_block("latest", full_transactions=False)
+                safe_block = await self.w3.eth.get_block("safe", full_transactions=False)
+                finalized_block = await self.w3.eth.get_block("finalized", full_transactions=False)
                 latest_number = latest_block.number
                 safe_number = safe_block.number
                 finalized_number = finalized_block.number
@@ -90,9 +91,21 @@ class EthereumWebSocketClient:
 async def main():
     """Main function to query the blocks via WebSocket."""
 
-    # Configuration - Replace with your actual WebSocket URL
-    websocket_url = "ws://127.0.0.1:8546"
-    client = EthereumWebSocketClient(websocket_url)
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(
+        description="Connects to an Ethereum node via WebSocket and subscribes to events."
+    )
+    parser.add_argument(
+        "websocket_url",
+        type=str,
+        nargs='?',  # Make the argument optional
+        default="ws://127.0.0.1:8545",  # Set the default value
+        help="The WebSocket URL of the Ethereum node (default: ws://127.0.0.1:8545)",
+    )
+    args = parser.parse_args()
+
+    # Create the WebSocket client
+    client = EthereumWebSocketClient(args.websocket_url)
 
     # Setup signal handler for graceful shutdown
     async def signal_handler():
