@@ -1,0 +1,41 @@
+[
+   {
+        "test": {
+           "reference": "https://etherscan.io/tx/0x89fd14f57848c96e9a47a84f3330dbf070d001e269d3c61e1e8e6a3ed6782176",
+           "description": "successful but internal calls failed with [out of gas: not enough gas for reentrancy sentry]"
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getTransactionByHash",
+            "params":["0x89fd14f57848c96e9a47a84f3330dbf070d001e269d3c61e1e8e6a3ed6782176"],
+            "id":1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+              "accessList": [],
+              "blockHash": "0x53d191d046de1735b83c3c1e9345ddc1fd8aadc09015dc518530e78fbc0824fa",
+              "blockNumber": "0x159deff",
+              "chainId": "0x1",
+              "from": "0xe4faaa80ccf723976655c1815386d1b13303cc64",
+              "gas": "0x32187",
+              "gasPrice": "0x26d19abcc",
+              "hash": "0x89fd14f57848c96e9a47a84f3330dbf070d001e269d3c61e1e8e6a3ed6782176",
+              "input": "0xe60e338d70e74a160cf77f11ff8f3dccb83c5aa167c4ca4b83dedfe9ca3ca3eaf6d6f01b2d2bcc7f0000000001d9e8d06df87d690000000001e1355f0fe3c6ec00000000000000000000000000000000000000000037e46fd7cb3ceb878b4a66",
+              "maxFeePerGas": "0x26d19abcc",
+              "maxPriorityFeePerGas": "0x26d19abcb",
+              "nonce": "0x8d",
+              "r": "0xee4d26d373f35ef46db6f22e506d1a42c648f72f71f4414b8bbe47eb01d58c38",
+              "s": "0x574f11380acc13cbb4f13723aea5c0293ff90e1d3d7b033dc48f0a1aa1c4826e",
+              "to": "0xce636f6e46b75694ad28f8cb53536771f9c2843f",
+              "transactionIndex": "0x1",
+              "type": "0x2",
+              "v": "0x1",
+              "value": "0x1",
+              "yParity": "0x1"
+            }
+        }
+    }
+]
+
