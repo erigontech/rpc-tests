@@ -5,8 +5,8 @@
       "jsonrpc": "2.0",
       "method": "debug_getModifiedAccountsByNumber",
       "params": [
-        "0x1A0040",
-        "0x1A0041"
+        1704000,
+        1704001
       ]
     },
     "response": {
