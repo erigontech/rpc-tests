@@ -94,6 +94,7 @@ def usage(argv):
     print("-h,--help: print this help")
     print("-j,--json-diff: use json-diff to make compare [default use json-diff]")
     print("-f,--display-only-fail: shows only failed tests (not Skipped) [default: print all] ")
+    print("-E,--do-not-compare-error: do not compare error")
     print("-v,--verbose: <verbose_level> 0: no message for each test; 1: print operation result; 2: print request and response message) [default verbose_level 0]")
     print("-c,--continue: runs all tests even if one test fails [default: exit at first failed test]")
     print("-l,--loops: <number of loops> [default loop 1]")
@@ -313,16 +314,17 @@ class Config:
         self.use_jsondiff = True
         self.without_compare_results = False
         self.waiting_time = 0
+        self.do_not_compare_error = False
 
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iw:hfIcv:t:l:a:de:b:ox:X:H:k:s:p:P:T:A:jSK:",
+            opts, _ = getopt.getopt(argv[1:], "iw:hfIcv:t:l:a:de:b:ox:X:H:k:s:p:P:T:A:jSK:E",
                                     ['help', 'continue', 'daemon-port', 'verify-external-provider', 'host=', 'engine-port=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                                      'api-list-with=', 'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'create-jwt=', 'blockchain=',
                                      'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff', 'waiting_time=',
-                                     'dump-response', 'without-compare-results', 'serial'])
+                                     'dump-response', 'without-compare-results', 'serial', 'do-not-compare-error'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
@@ -438,6 +440,8 @@ class Config:
                         print("secret file not found:", optarg)
                         usage(argv)
                         sys.exit(1)
+                elif option in ("-E", "--do-not-compare-error"):
+                    self.do_not_compare_error = True
                 elif option in ("-j", "--json-diff"):
                     self.use_jsondiff = True
                 elif option in ("-i", "--without-compare-results"):
@@ -700,6 +704,9 @@ def process_response(target, target1, result, result1: str, response_in_file, co
             return 1, ""
         if "error" not in expected_response and "result" not in expected_response:
             # response and expected_response are different but don't care
+            dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
+            return 1, ""
+        if "error" in response and "error" in expected_response and config.do_not_compare_error:
             dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
             return 1, ""
         dump_jsons(True, daemon_file, exp_rsp_file, output_dir, response, expected_response)
