@@ -13,7 +13,9 @@ import argparse
 import asyncio
 import logging
 import signal
+import ssl
 import sys
+import urllib.parse
 import web3
 import web3.utils
 
@@ -23,11 +25,13 @@ logger = logging.getLogger(__name__)
 
 
 class EthereumWebSocketClient:
-    def __init__(self, websocket_url):
+    def __init__(self, websocket_url: str, server_ca_file: str):
         """ Initialize the WebSocket subscriber.
             websocket_url (str): WebSocket URL of the Ethereum node
+            server_ca_file (str): *public* certificate file of the WSS server
         """
         self.websocket_url = websocket_url
+        self.server_ca_file = server_ca_file
         self.w3 = None
         self.running = False
 
@@ -35,7 +39,20 @@ class EthereumWebSocketClient:
         """Establish WebSocket connection to Ethereum node."""
         try:
             # Create WebSocket provider
-            provider = web3.WebSocketProvider(self.websocket_url, max_connection_retries=1)
+            parsed_url = urllib.parse.urlparse(self.websocket_url)
+            if parsed_url.scheme not in ['ws', 'wss']:
+                raise ValueError(f"Invalid WebSocket URL scheme: {parsed_url.scheme}. Must be 'ws' or 'wss'.")
+            if parsed_url.scheme == 'wss':
+                if self.server_ca_file is None:
+                    raise ValueError(f"You must specify a non-empty server CA file as second parameter.")
+                logger.info(f"Server CA file: {self.server_ca_file}")
+                ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+                ssl_context.load_verify_locations(cafile=self.server_ca_file)
+                ssl_context.check_hostname = False
+                websocket_kwargs = {"ssl": ssl_context}
+            else:
+                websocket_kwargs = None
+            provider = web3.WebSocketProvider(self.websocket_url, websocket_kwargs, max_connection_retries=1)
             self.w3 = web3.AsyncWeb3(provider)
 
             # Connect to the provider
@@ -102,10 +119,17 @@ async def main():
         default="ws://127.0.0.1:8545",  # Set the default value
         help="The WebSocket URL of the Ethereum node (default: ws://127.0.0.1:8545)",
     )
+    parser.add_argument(
+        "ca_file",
+        type=str,
+        nargs='?',  # Make the argument optional
+        default=None,  # Set the default value
+        help="The path to your WSS server's *public* certificate file .pem or .crt (default: None)",
+    )
     args = parser.parse_args()
 
     # Create the WebSocket client
-    client = EthereumWebSocketClient(args.websocket_url)
+    client = EthereumWebSocketClient(args.websocket_url, args.ca_file)
 
     # Setup signal handler for graceful shutdown
     async def signal_handler():
