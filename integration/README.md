@@ -48,6 +48,7 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -h,--help: print this help
 -j,--json-diff: use json-diff to make compare [default use json-diff]
 -f,--display-only-fail: shows only failed tests (not Skipped) [default: print all] 
+-E,--do-not-compare-error: do not compare error
 -v,--verbose: <verbose_level> 0: no message for each test; 1: print operation result; 2: print request and response message) [default verbose_level 0]
 -c,--continue: runs all tests even if one test fails [default: exit at first failed test]
 -l,--loops: <number of loops> [default loop 1]
@@ -56,7 +57,7 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -t,--run-test: <test_number>: run single test using global test number (i.e: -t 256 runs 256 test) or test number of one specified APi used in combination with -a or -A (i.e -a eth_getLogs() -t 3: run test 3 of eth_getLogs())
 -d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon
 -T,--transport_type: <http,http_comp,https,websocket,websocket_comp> [default http]
--k,--jwt: authentication token file (i.e -k /tmp/jwt_file.hex)
+-k,--jwt: authentication token file (i.e -k /tmp/jwt_file.hex) 
 -K,--create-jwt: generate authentication token file and use it (-K /tmp/jwt_file.hex) 
 -a,--api-list-with: <apis>: run all tests of the specified API that contains string (e.g.: eth_,debug_)
 -A,--api-list: <apis>: run all tests of the specified API that match full name (e.g.: eth_call,eth_getLogs)
@@ -65,11 +66,13 @@ Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon 
 -o,--dump-response: dump JSON RPC response even if the response are the same
 -H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)
 -p,--port: port where the RpcDaemon is located (e.g.: 8545)
--I,--silk-port: Use 51515/51516 ports to server
+-I,--daemon-port: Use 51515/51516 ports to server
 -e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference
--i,--without-compare-results: send request and waits response without compare results (used only to see the response time to execuet one api or more apis)
--w,--waiting_time: waiting after test execution (millisec) (can be used only for serial test see -S)
--S,--serial: all tests are runned in serial way [default: the seleceted files are runned in parallel] 
+-i,--without-compare-results: send request and waits response without compare results (used only to see the response time to execute one api or more apis)
+-w,--waiting_time: wait time after test execution in milliseconds (can be used only for serial test see -S)
+-S,--serial: all tests run in serial way [default: the selected files run in parallel]
+-L,--tests-on-latest-block: runs only test on latest block]
+
 
 Note:
 * in case of authentication it is necessary use option k or (--jwt) to read authentication token if present or create a new one token using option -K ( --create-jwt) 
