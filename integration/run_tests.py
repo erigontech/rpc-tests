@@ -28,56 +28,53 @@ MAX_TIME = 200  # times of TIME secs
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
-    "mainnet/trace_rawTransaction"        # not supported by erigon
+    "mainnet/trace_rawTransaction",       # not supported by erigon
+    "mainnet/engine_"                     # not supported on external EP
 ]
 
 tests_not_compared = [
-    "mainnet/eth_syncing/test_01.json",  # different stages, json response is null but response different with erigon
-
-    "mainnet/eth_getLogs/test_16",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_17",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_18",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_19",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-    "mainnet/eth_getLogs/test_20",  # waiting erigon fix on wrong FirstLogIndex in ReceiptsDomain
-
-    "mainnet/debug_traceBlockByNumber/test_24",  # latest block, diff on transaction gas and very big, json response is null but response different wrt erigon
-    "mainnet/debug_traceBlockByNumber/test_25",  # pending block, diff on transaction gas and very big, json response is null but response different wrt erigon
-    "mainnet/debug_traceBlockByNumber/test_26",  # finalized block, diff on transaction gas and very big, json response is null but response different wrt erigon
-    "mainnet/debug_traceBlockByNumber/test_27",  # safe block, diff on transaction gas and very big, json response is null but response different wrt erigon
-    "mainnet/debug_traceBlockByNumber/test_28",  # latestExecuted block, diff on transaction gas and very big, json response is null but response different wrt erigon
-
-    "mainnet/debug_traceCall/test_21",  # check on TxIndex, diff on response (waiting for PR to handle out-of-range)
-    "mainnet/debug_traceCall/test_22",  # CORE TO BE ANALYZED
-
-    "mainnet/debug_traceTransaction/test_25",  # diff on error field
-    "mainnet/debug_traceTransaction/test_36",  # diff on error field
-    "mainnet/debug_traceTransaction/test_62",  # diff on error field
-    "mainnet/debug_traceTransaction/test_74",  # diff on error field
-    "mainnet/debug_traceTransaction/test_75",  # diff on error field
-    "mainnet/debug_traceTransaction/test_77",  # diff on error field
-
-    "mainnet/trace_replayBlockTransactions/test_29",  # diff on stack info 
-
-    "mainnet/trace_transaction/test_44",  # diff on error message (S: out of gas E3: contract creation code storage out of gas)
-    "mainnet/trace_transaction/test_47",  # diff on error message (S: out of gas E3: gas uint64 overflow)
-
-    "mainnet/engine_"
 ]
 
 tests_not_compared_message = [
-    "mainnet/eth_callMany/test_02.json",  # diff message on intrinsic gas
-    "mainnet/eth_callMany/test_04.json",  # diff message on intrinsic gas
-    "mainnet/eth_callMany/test_07.json",  # diff message on intrinsic gas
-    "mainnet/eth_callMany/test_08.json",  # diff message on intrinsic gas
-    "mainnet/eth_callMany/test_12.json",  # diff message on intrinsic gas
 ]
 
 tests_not_compared_error = [
-    "mainnet/eth_callMany/test_06.json",  # diff on opcode not defined (erigon print opcode in error message)
-    "mainnet/eth_callMany/test_13.json",  # diff on opcode not defined (erigon print opcode in error message)
-    "mainnet/eth_callMany/test_14.json",  # diff on stack underflow message (erigon print depth)
-    "mainnet/eth_callMany/test_15.json"   # diff on opcode not defined (erigon print opcode in error message)
+]
 
+
+    
+tests_on_latest = [
+    "mainnet/debug_traceBlockByNumber/test_24.json",
+    "mainnet/debug_traceBlockByNumber/test_28.json",
+    "mainnet/debug_traceCall/test_22.json",
+    "mainnet/debug_traceCallMany/test_11.json",
+    "mainnet/debug_traceCallMany/test_12.json",
+    "mainnet/eth_block_number",                                                  # works always on latest block
+    "mainnet/eth_call/test_20.json",
+    "mainnet/eth_callBundle/test_09.json",
+    "mainnet/eth_createAccessList/test_18.json",
+    "mainnet/eth_estimateGas",                                                   # works always on latest block
+    "mainnet/eth_feeHistory/test_07.json",
+    "mainnet/eth_getBalance/test_03.json",
+    "mainnet/eth_getBlockTransactionCountByNumber/test_03.json",
+    "mainnet/eth_getBlockByNumber/test_10.json",
+    "mainnet/eth_getBlockReceipts/test_07.json",
+    "mainnet/eth_getCode/test_05.json",
+    "mainnet/eth_getRawTransactionByBlockNumberAndIndex/test_11.json",
+    "mainnet/eth_getStorageAt/test_04.json",
+    "mainnet/eth_getTransactionByBlockNumberAndIndex/test_02.json",
+    "mainnet/eth_getTransactionCount/test_02.json",
+    "mainnet/eth_getUncleCountByBlockNumber/test_03.json",
+    "mainnet/eth_getUncleByBlockNumberAndIndex/test_02.json",
+    "mainnet/erigon_blockNumber/test_4.json",
+    "mainnet/erigon_blockNumber/test_6.json",
+    "mainnet/erigon_getLatestLogs/test_01.json",
+    "mainnet/ots_hasCode/test_10.json",
+    "mainnet/ots_searchTransactionsAfter/test_02.json",
+    "mainnet/ots_searchTransactionsBefore/test_02.json",
+    "mainnet/parity_listStorageKeys",
+    "mainnet/trace_call/test_26.json",
+    "mainnet/trace_callMany/test_15.json",
 ]
 
 
@@ -117,6 +114,7 @@ def usage(argv):
     print("-i,--without-compare-results: send request and waits response without compare results (used only to see the response time to execute one api or more apis)")
     print("-w,--waiting_time: wait time after test execution in milliseconds (can be used only for serial test see -S)")
     print("-S,--serial: all tests run in serial way [default: the selected files run in parallel]")
+    print("-L,--tests-on-latest-block: runs only test on latest block]")
 
 
 def get_target(target_type: str, method: str, config):
@@ -240,10 +238,10 @@ def is_skipped(curr_api, test_name: str, global_test_number, config):
     return 0
 
 
-def api_under_test(curr_api, config):
+def api_under_test(curr_api, test_name, config):
     """ determine if curr_api is in testing_apis_with or == testing_apis
     """
-    if config.testing_apis_with == "" and config.testing_apis == "":
+    if config.testing_apis_with == "" and config.testing_apis == "" and config.tests_on_latest_block is False:
         return 1
 
     if config.testing_apis_with != "":
@@ -257,6 +255,13 @@ def api_under_test(curr_api, config):
         for test in tokenize_list:
             if test == curr_api:
                 return 1
+
+    api_full_test_name = config.net + "/" + test_name
+    if config.tests_on_latest_block is True:
+        for curr_test in tests_on_latest:
+            if curr_test in api_full_test_name:
+                return 1
+
     return 0
 
 
@@ -315,16 +320,17 @@ class Config:
         self.without_compare_results = False
         self.waiting_time = 0
         self.do_not_compare_error = False
+        self.tests_on_latest_block = False
 
     def select_user_options(self, argv):
         """ process user command """
         try:
-            opts, _ = getopt.getopt(argv[1:], "iw:hfIcv:t:l:a:de:b:ox:X:H:k:s:p:P:T:A:jSK:E",
+            opts, _ = getopt.getopt(argv[1:], "iw:hfIcv:t:l:a:de:b:ox:X:H:k:s:p:P:T:A:jSK:EL",
                                     ['help', 'continue', 'daemon-port', 'verify-external-provider', 'host=', 'engine-port=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                                      'api-list-with=', 'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'create-jwt=', 'blockchain=',
                                      'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff', 'waiting_time=',
-                                     'dump-response', 'without-compare-results', 'serial', 'do-not-compare-error'])
+                                     'dump-response', 'without-compare-results', 'serial', 'do-not-compare-error', 'tests-on-latest-block'])
             for option, optarg in opts:
                 if option in ("-h", "--help"):
                     usage(argv)
@@ -352,6 +358,8 @@ class Config:
                     self.parallel = False
                 elif option in ("-H", "--host"):
                     self.daemon_on_host = optarg
+                elif option in ("-L", "--tests-on-latest-block"):
+                    self.tests_on_latest_block = True
                 elif option in ("-p", "--port"):
                     self.server_port = int(optarg)
                 elif option in ("-P", "--engine-port"):
@@ -814,6 +822,19 @@ def extract_number(filename):
     return int(match.group())
 
 
+def check_test_name_for_number(test_name, req_test_number):
+    """
+    Verify that string test_name contains the number req_test_number,
+    do not consider the initial zero 
+    """
+    if req_test_number == -1:
+        return True
+    pattern = r"_" + r"0*" + str(req_test_number) + r"($|[^0-9])"
+
+    if re.search(pattern, test_name):
+        return True
+    return False
+
 #
 # main
 #
@@ -878,8 +899,8 @@ def main(argv) -> int:
                             continue
                         if not test_name.endswith((".zip", ".gzip", ".json", ".tar")):
                             continue
-                        if api_under_test(curr_api, config):  # -a/-A or any api
-                            json_test_full_name = curr_api + "/" + test_name
+                        json_test_full_name = curr_api + "/" + test_name
+                        if api_under_test(curr_api, json_test_full_name, config):  # -a/-A or any api
                             if is_skipped(curr_api, json_test_full_name, test_number_in_any_loop, config) == 1:
                                 if config.start_test == "" or test_number_in_any_loop >= int(config.start_test):
                                     if config.display_only_fail == 0 and config.req_test_number != "":
@@ -892,8 +913,8 @@ def main(argv) -> int:
                                 # runs single global test
                                 # runs only tests a specific test_number in the testing_apis list
                                 if ((config.testing_apis_with == "" and config.testing_apis == "" and config.req_test_number in (-1, test_number_in_any_loop)) or
-                                    (config.testing_apis_with != "" and config.req_test_number in (-1, test_number)) or
-                                        (config.testing_apis != "" and config.req_test_number in (-1, test_number))):
+                                    (config.testing_apis_with != "" and check_test_name_for_number(test_name, config.req_test_number)) or
+                                    (config.testing_apis != "" and check_test_name_for_number(test_name, config.req_test_number))):
                                     if (config.start_test == "" or  # start from specific test
                                             (config.start_test != "" and test_number_in_any_loop >= int(config.start_test))):
                                         # create process pool
