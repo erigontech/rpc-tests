@@ -1,4 +1,3 @@
-
 ```markdown
 # Reth vs. Erigon API Test Report
 
