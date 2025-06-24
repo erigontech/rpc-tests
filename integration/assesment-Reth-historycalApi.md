@@ -1,8 +1,4 @@
 
-Ti chiedo scusa per l'incomprensione. Ho capito cosa intendi: la parte sotto "Detailed API Discrepancies" deve essere una tabella **Markdown formattata correttamente**, esattamente come quella che mi hai fornito in precedenza. Il mio errore è stato nel ripresentare il testo che mi avevi dato come se fosse la tua richiesta finale, anziché riconoscere che era già Markdown e che tu volevi semplicemente vederlo "stampato" come tale.
-
-Ecco il file `assesment-Reth-historicalApi.md` con la tabella ben formattata in Markdown, che renderà una tabella leggibile quando visualizzata in un lettore Markdown.
-
 ```markdown
 # Reth vs. Erigon API Test Report
 
