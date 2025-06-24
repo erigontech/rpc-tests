@@ -37,7 +37,7 @@
       "result": [
         [
           {
-            "error": "invalid opcode"
+            "error": "invalid opcode: opcode 0xe4 not defined"
           }
         ]
       ]

@@ -34,7 +34,7 @@
     "response": {
       "error": {
         "code": -32000,
-        "message": "intrinsic gas too low: address 0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0, have 30000, want 53000"
+        "message": "intrinsic gas too low: have 30000, want 53000"
       },
       "id": 1,
       "jsonrpc": "2.0"
