@@ -41,8 +41,6 @@ tests_not_compared_message = [
 tests_not_compared_error = [
 ]
 
-
-    
 tests_on_latest = [
     "mainnet/debug_traceBlockByNumber/test_24.json",
     "mainnet/debug_traceBlockByNumber/test_28.json",
@@ -823,10 +821,7 @@ def extract_number(filename):
 
 
 def check_test_name_for_number(test_name, req_test_number):
-    """
-    Verify that string test_name contains the number req_test_number,
-    do not consider the initial zero 
-    """
+    """ Verify that string test_name contains the number req_test_number, do not consider the initial zero """
     if req_test_number == -1:
         return True
     pattern = r"_" + r"0*" + str(req_test_number) + r"($|[^0-9])"
@@ -834,6 +829,7 @@ def check_test_name_for_number(test_name, req_test_number):
     if re.search(pattern, test_name):
         return True
     return False
+
 
 #
 # main
