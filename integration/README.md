@@ -257,3 +257,10 @@ Number of failed tests:       0
 
 ```
 
+Running CI rpc e3 script:
+
+```shell
+./../../erigon/.github/workflows/scripts/run_rpc_tests.sh --manual # for mainnet
+./../../erigon/.github/workflows/scripts/run_rpc_tests_gnosis.sh --manual # for gnosis
+./../../erigon/.github/workflows/scripts/run_rpc_tests_polygon.sh --manual # for polygon
+```
