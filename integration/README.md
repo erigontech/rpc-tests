@@ -257,3 +257,8 @@ Number of failed tests:       0
 
 ```
 
+Running CI rpc e3 script:
+
+```shell
+./../../erigon/.github/workflows/scripts/run_rpc_tests.sh --manual
+```
