@@ -1,0 +1,25 @@
+[
+    {
+        "test": {
+           "reference": "",
+           "description": "call without blockNumber - latest- " 
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_call",
+            "params":[
+                {
+                  "to":"0x3df625042350422329eb751c67d9b0523feeb2c7",
+                  "data":"0xa0b7967b"
+                }
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result":  null
+        }
+    }
+]
+
