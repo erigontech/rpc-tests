@@ -14,9 +14,6 @@
             "jsonrpc":"2.0",
             "id":1,
             "result": {
-              "Verkle": false,
-              "VerkleKeyVals": null,
-              "VerkleProof": null,
               "requestsHash": null,
               "baseFeePerGas": "0x347cd1939",
               "blobGasUsed": "0xc0000",
