@@ -1,0 +1,52 @@
+[
+   {
+        "test": {
+           "reference": "https://gnosisscan.io/block/20000000",
+           "description": ""
+        },
+
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getBlockByNumber",
+            "params":["0x1312d00", false],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": {
+               "auraSeal": "0xed367fa02ebc30cb7b5df919cfd48389e7419de5030b06ac4f845c424f1382b013ebc2f51f2e2bce475d3f324c4bee17b5237d61dfc3a0fd38a8de674209af5901",
+               "auraStep": "0x1391ec5a",
+               "baseFeePerGas": "0x7",
+               "difficulty": "0xfffffffffffffffffffffffffffffffe",
+               "extraData": "0xdb830303028c4f70656e457468657265756d86312e34372e30826c69",
+               "gasLimit": "0x1c9c380",
+               "gasUsed": "0x253f13",
+               "hash": "0xb649b4279dd6c141fbe002520ed14dfcb96377cd9111045618788836a805128e",
+               "logsBloom": "0x1020000010000004000020208800000000000000000020180000002020000020000000028040042000a400008000008004000040000000000000010000200008000c00001000020000000808010000202000000400000000000000002010008000000000020000008000000000040800080400010000010000000010002002088000000000010000000008800000002000400000104048080201484000208000820002010000000100810000010000100000000400000010000000000000000044080002200000000000000001400004000200404010001000000002080020080010000000000040000000000000000000008000400000002000000040008000",
+               "miner": "0x010101685223dd44a6ea8545209bcdaab157b540",
+               "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+               "nonce": "0x0000000000000000",
+               "number": "0x1312d00",
+               "parentHash": "0x1f2e58a71e27bbd65ee6de9855e95e4435cb2d2853068983d49fd2bc5d736ee5",
+               "receiptsRoot": "0x9de880a260703fa0dbc8f9a2eb656f0087d4c74832a7c71d0761683c02e5dc3c",
+               "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+               "size": "0xb7e",
+               "stateRoot": "0xec63354b2855447b8d3ed4f48d0ad9ca913a2f4f9ce3ce3f079bc9b45790664e",
+               "timestamp": "0x61d99dc2",
+               "transactions": [
+                 "0x0a8a8c10e89ce8763977a04e195dd07f278181d40607ce1b6acd46129194a14f",
+                 "0xc5f6e40594c33b7181b5c1e908e0c32309734863116dd12acf6978c079828921",
+                 "0x36f39ddaf580100f63515da7333ffce50147b2f2bb5d01bdb72460b6b6fb4a4a",
+                 "0x1b0968a6f06c11c38f0922a3300abbcbad45d34423133f4796729671224fd444",
+                 "0x937b1af50be7ee9c1df91a81055b6383763b074fb533ae81a5e457a06bb7df86",
+                 "0xadd8f535a289181a1ca7f55f154c2e8dabff1c992695b00b9e2180366c80b25c",
+                 "0x9d69cf53a8320c9d2b633bf20e8c9da0606ef43ff83d17d6eaec63a3985fba5c"
+               ],
+               "transactionsRoot": "0x898b199b6cfdac15532f919af6742cea2135cc15efd3dd39e9c7cf647f23523a",
+               "uncles": []
+            }
+        }
+    }
+]
+
