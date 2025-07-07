@@ -1,0 +1,93 @@
+[
+   {
+        "test": {
+           "reference": "https://gnosisscan.io/block/30000000",
+           "description": ""
+        },
+
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getBlockByNumber",
+            "params":["0x1c9c380", false],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": {
+              "baseFeePerGas": "0x8", 
+              "difficulty": "0x0",
+              "extraData": "0x4e65746865726d696e64",
+              "gasLimit": "0x1c9c380",
+              "gasUsed": "0x0",
+              "hash": "0x078232a65de9992d94812d507fef62c26c8a9bcafd77429babd5de980875ab13",
+              "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              "miner": "0x564e604eda8c878021126c06084a4da4e1a960cb",
+              "mixHash": "0xf3608afccb61aca54be8f1a244f3dfff430a086eaa5092a0194b5bee855efe4e",
+              "nonce": "0x0000000000000000",
+              "number": "0x1c9c380",
+              "parentHash": "0xe2715845877a9a54789a1c36d7fb254f26711c45ea5cda6e0d7c70b92d5a7ae2",
+              "receiptsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+              "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+              "size": "0x33a",
+              "stateRoot": "0xcbeaf2e7995de213b2f81fb03406d93d55c76f32aa771a70b4ae79adcda79349",
+              "timestamp": "0x650571bf",
+              "transactions": [],
+              "transactionsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+              "uncles": [],
+              "withdrawals": [
+                {
+                  "address": "0x5112d584a1c72fc250176b57aeba5ffbbb287d8f",
+                  "amount": "0x956ba2",
+                  "index": "0x5c6a60",
+                  "validatorIndex": "0xa35f"
+                },
+                {
+                  "address": "0x5112d584a1c72fc250176b57aeba5ffbbb287d8f",
+                  "amount": "0x951c6b",
+                  "index": "0x5c6a61",
+                  "validatorIndex": "0xa360"
+                },
+                {
+                  "address": "0x5112d584a1c72fc250176b57aeba5ffbbb287d8f",
+                  "amount": "0x92bd08",
+                  "index": "0x5c6a62",
+                  "validatorIndex": "0xa361"
+                },
+                {
+                  "address": "0x5112d584a1c72fc250176b57aeba5ffbbb287d8f",
+                  "amount": "0x14523e0",
+                  "index": "0x5c6a63",
+                  "validatorIndex": "0xa362"
+                },
+                {
+                  "address": "0x5112d584a1c72fc250176b57aeba5ffbbb287d8f",
+                  "amount": "0x95632f",
+                  "index": "0x5c6a64",
+                  "validatorIndex": "0xa363"
+                },
+                {
+                  "address": "0x5112d584a1c72fc250176b57aeba5ffbbb287d8f",
+                  "amount": "0x14686f2",
+                  "index": "0x5c6a65",
+                  "validatorIndex": "0xa364"
+                },
+                {
+                  "address": "0x5112d584a1c72fc250176b57aeba5ffbbb287d8f",
+                  "amount": "0x944a65",
+                  "index": "0x5c6a66",
+                  "validatorIndex": "0xa365"
+                },
+                {
+                  "address": "0x5112d584a1c72fc250176b57aeba5ffbbb287d8f",
+                  "amount": "0x94a2ee",
+                  "index": "0x5c6a67",
+                  "validatorIndex": "0xa366"
+                }
+              ],
+              "withdrawalsRoot": "0xbef3aff947abac85d567d00c00caac189840120e6c80bd40b767fb25753f0208"
+            }
+        }
+    }
+]
+
