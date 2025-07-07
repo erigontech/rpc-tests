@@ -1,0 +1,20 @@
+[
+   {
+        "test": {
+           "reference": "",
+           "description": ""
+        },
+        "request":{
+            "jsonrpc":"2.0",
+            "method":"eth_chainId",
+            "params":[],
+            "id":1
+        },
+        "response":{
+            "jsonrpc":"2.0",
+            "id":1,
+            "result":"0x64"
+        }
+    }
+]
+
