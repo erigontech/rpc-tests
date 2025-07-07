@@ -1,0 +1,46 @@
+[
+   {
+        "test": {
+           "reference": "https://gnosisscan.io/block/10000000",
+           "description": ""
+        },
+
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"erigon_getHeaderByNumber",
+            "params":["0x989680"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": {
+               "auraSeal": "0x47625be95bdbe96c4de67ac908fadc2e450c4d082b81ec85a0925aebbeb5252d16be5b31d8520b889e919102da6bce1178d617fafbe6142cf4ef82e83fbabcc200",
+               "auraStep": "0x12f4263f",
+               "baseFeePerGas": null,
+               "blobGasUsed": null,
+               "difficulty": "0xfffffffffffffffffffffffffffffffe",
+               "excessBlobGas": null,
+               "extraData": "0xde830207028f5061726974792d457468657265756d86312e34312e30826c69",
+               "gasLimit": "0x989680",
+               "gasUsed": "0x0",
+               "hash": "0xcc1b69d2c643a429bf1874f735b30b8ce60c2d37c37e9bff947c2ce838d380ef",
+               "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+               "miner": "0xa13d45301207711b7c0328c6b2b64862abfe9b7a",
+               "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+               "nonce": "0x0000000000000000",
+               "number": "0x989680",
+               "parentBeaconBlockRoot": null,
+               "parentHash": "0x79270d50b0b4134ef8cb73314bdceef3daf5e048601f149d831d9344f1778b81",
+               "receiptsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+               "requestsHash": null,
+               "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+               "stateRoot": "0x0b272061871fe3b4a855380c6d79645682ae6e30206004e2dad48f8039dc4425",
+               "timestamp": "0x5ec4bf3b",
+               "transactionsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+               "withdrawalsRoot": null
+            }
+        }
+    }
+]
+
