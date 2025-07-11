@@ -15,8 +15,6 @@
             "jsonrpc":"2.0",
             "id":1,
             "result": {
-              "auraSeal": "0x47625be95bdbe96c4de67ac908fadc2e450c4d082b81ec85a0925aebbeb5252d16be5b31d8520b889e919102da6bce1178d617fafbe6142cf4ef82e83fbabcc200",
-              "auraStep": "0x12f4263f",
               "difficulty": "0xfffffffffffffffffffffffffffffffe",
               "extraData": "0xde830207028f5061726974792d457468657265756d86312e34312e30826c69",
               "gasLimit": "0x989680",
