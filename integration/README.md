@@ -257,10 +257,12 @@ Number of failed tests:       0
 
 ```
 
-Running CI rpc e3 script:
+Run all CI tests within any Erigon installation
+-----------------------------------------------
+Assuming you have `erigon` installed beside `rpc-tests`:
 
 ```shell
-./../../erigon/.github/workflows/scripts/run_rpc_tests.sh --manual # for mainnet
-./../../erigon/.github/workflows/scripts/run_rpc_tests_gnosis.sh --manual # for gnosis
-./../../erigon/.github/workflows/scripts/run_rpc_tests_polygon.sh --manual # for polygon
+./../../erigon/.github/workflows/scripts/run_rpc_tests_ethereum.sh # for Ethereum mainnet
+./../../erigon/.github/workflows/scripts/run_rpc_tests_gnosis.sh # for Gnosis mainnet
+./../../erigon/.github/workflows/scripts/run_rpc_tests_polygon.sh # for Polygon Bor mainnet
 ```
