@@ -45,7 +45,6 @@ tests_not_compared_error = [
     
 tests_on_latest = [
     "mainnet/debug_traceBlockByNumber/test_24.json",
-    "mainnet/debug_traceBlockByNumber/test_28.json",
     "mainnet/debug_traceCall/test_22.json",
     "mainnet/debug_traceCallMany/test_11.json",
     "mainnet/debug_traceCallMany/test_12.json",
@@ -68,9 +67,7 @@ tests_on_latest = [
     "mainnet/eth_getUncleByBlockNumberAndIndex/test_02.json",
     "mainnet/erigon_blockNumber/test_4.json",
     "mainnet/erigon_blockNumber/test_6.json",
-    "mainnet/erigon_getLatestLogs/test_01.json",
     "mainnet/ots_hasCode/test_10.json",
-    "mainnet/ots_searchTransactionsAfter/test_02.json",
     "mainnet/ots_searchTransactionsBefore/test_02.json",
     "mainnet/parity_listStorageKeys",
     "mainnet/trace_call/test_26.json",
