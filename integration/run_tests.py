@@ -849,7 +849,10 @@ def main(argv) -> int:
     tests_not_executed = 0
 
     if config.verify_with_daemon is True:
-        server_endpoints = "both servers"
+        if config.daemon_as_reference == EXTERNAL_PROVIDER:
+            server_endpoints = "both servers (rpcdaemon with " + config.external_provider_url + ")"
+        else:
+            server_endpoints = "both servers (rpcdaemon with " + config.daemon_under_test + ")"
     else:
         target = get_target(config.daemon_under_test, "eth_call", config)
         target1 = get_target(config.daemon_under_test, "engine_", config)
