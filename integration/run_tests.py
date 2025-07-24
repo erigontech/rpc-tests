@@ -235,6 +235,16 @@ def is_skipped(curr_api, test_name: str, global_test_number, config):
     return 0
 
 
+def verify_in_latest_list(curr_api, test_name, config):
+    api_full_test_name = config.net + "/" + test_name
+    if config.tests_on_latest_block is True:
+        for curr_test in tests_on_latest:
+            if curr_test in api_full_test_name:
+                return 1
+
+    return 0
+
+
 def api_under_test(curr_api, test_name, config):
     """ determine if curr_api is in testing_apis_with or == testing_apis
     """
@@ -245,21 +255,26 @@ def api_under_test(curr_api, test_name, config):
         tokenize_list = config.testing_apis_with.split(",")
         for test in tokenize_list:
             if test in curr_api:
-                return 1
+                if config.tests_on_latest_block and verify_in_latest_list(curr_api, test_name, config):
+                    return 1
+                return 0
+        return 0
 
     if config.testing_apis != "":
         tokenize_list = config.testing_apis.split(",")
         for test in tokenize_list:
             if test == curr_api:
-                return 1
+                if config.tests_on_latest_block and verify_in_latest_list(curr_api, test_name, config):
+                    return 1
+                return 0
 
-    api_full_test_name = config.net + "/" + test_name
+        return 0
+
+    in_latest_list = 0
     if config.tests_on_latest_block is True:
-        for curr_test in tests_on_latest:
-            if curr_test in api_full_test_name:
-                return 1
+        in_latest_list = verify_in_latest_list(curr_api, test_name, config)
 
-    return 0
+    return in_latest_list
 
 
 def is_not_compared_message(test_name, net: str):
