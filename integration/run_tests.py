@@ -44,6 +44,7 @@ tests_not_compared_error = [
 
     
 tests_on_latest = [
+    "mainnet/eth_blockNumber",
     "mainnet/debug_traceBlockByNumber/test_24.json",
     "mainnet/debug_traceCall/test_22.json",
     "mainnet/debug_traceCallMany/test_11.json",
@@ -257,7 +258,9 @@ def api_under_test(curr_api, test_name, config):
             if test in curr_api:
                 if config.tests_on_latest_block and verify_in_latest_list(curr_api, test_name, config):
                     return 1
-                return 0
+                elif config.tests_on_latest_block:
+                    return 0
+                return 1
         return 0
 
     if config.testing_apis != "":
@@ -266,7 +269,9 @@ def api_under_test(curr_api, test_name, config):
             if test == curr_api:
                 if config.tests_on_latest_block and verify_in_latest_list(curr_api, test_name, config):
                     return 1
-                return 0
+                elif config.tests_on_latest_block:
+                    return 0
+                return 1
 
         return 0
 
