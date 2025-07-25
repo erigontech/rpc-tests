@@ -60,6 +60,7 @@ tests_on_latest = [
     "mainnet/eth_getBlockByNumber/test_10.json",
     "mainnet/eth_getBlockReceipts/test_07.json",
     "mainnet/eth_getCode/test_05.json",
+    "mainnet/eth_getLogs/test_21.json",
     "mainnet/eth_getRawTransactionByBlockNumberAndIndex/test_11.json",
     "mainnet/eth_getStorageAt/test_04.json",
     "mainnet/eth_getTransactionByBlockNumberAndIndex/test_02.json",
