@@ -836,9 +836,12 @@ def run_test(json_file: str, test_number, transport_type, config):
 
 
 def extract_number(filename):
-    """ Extract number from filename """
-    match = re.search(r'\d+', filename)
-    return int(match.group())
+    match = re.search(r'\d+', filename) # Look for one or more digits
+    if match:
+        return int(match.group())
+    else:
+        return 0 # Or some other default value, like float('inf') if you want them at the end
+                 # Or even just the filename itself if you want alphabetical sort for non-numeric names
 
 
 def check_test_name_for_number(test_name, req_test_number):
