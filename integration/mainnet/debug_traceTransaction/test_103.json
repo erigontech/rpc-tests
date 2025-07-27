@@ -1,42 +1,42 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceTransaction",
-      "params": [
-        "0x25e8dbdd82ccc7d11e63e9b9ae1798121084b7fe2be11eaf507a80055d0c2438",
-        {
-          "disableMemory": false,
-          "disableStack": false,
-          "disableStorage": false
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceTransaction",
+            "params": [
+                "0x25e8dbdd82ccc7d11e63e9b9ae1798121084b7fe2be11eaf507a80055d0c2438",
+                {
+                    "disableMemory": false,
+                    "disableStack": false,
+                    "disableStorage": false
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "failed": true,
+                "gas": 90000,
+                "returnValue": "0x",
+                "structLogs": [
+                    {
+                        "depth": 1,
+                        "error": "stack underflow (0 <=> 1)",
+                        "gas": 68280,
+                        "gasCost": 3,
+                        "memory": [],
+                        "op": "MLOAD",
+                        "pc": 0,
+                        "stack": []
+                    }
+                ]
+            }
+        },
+        "test": {
+            "description": "",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "failed": true,
-        "gas": 90000,
-        "returnValue": "",
-        "structLogs": [
-          {
-            "depth": 1,
-            "error": "stack underflow (0 <=> 1)",
-            "gas": 68280,
-            "gasCost": 3,
-            "memory": [],
-            "op": "MLOAD",
-            "pc": 0,
-            "stack": []
-          }
-        ]
-      }
-    },
-    "test": {
-      "description": "",
-      "reference": ""
     }
-  }
 ]

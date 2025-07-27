@@ -1,47 +1,47 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceTransaction",
-      "params": [
-        "0x34fe986227f215b2290924862b1dd4e664e5f13ee069c4eaf22c72c4ce2467fd",
-        {
-          "disableMemory": true,
-          "disableStack": true,
-          "disableStorage": true
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceTransaction",
+            "params": [
+                "0x34fe986227f215b2290924862b1dd4e664e5f13ee069c4eaf22c72c4ce2467fd",
+                {
+                    "disableMemory": true,
+                    "disableStack": true,
+                    "disableStorage": true
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "failed": true,
+                "gas": 210000,
+                "returnValue": "0x",
+                "structLogs": [
+                    {
+                        "depth": 1,
+                        "gas": 188728,
+                        "gasCost": 2,
+                        "op": "ADDRESS",
+                        "pc": 0
+                    },
+                    {
+                        "depth": 1,
+                        "error": "stack underflow (1 <=> 2)",
+                        "gas": 188726,
+                        "gasCost": 3,
+                        "op": "SGT",
+                        "pc": 1
+                    }
+                ]
+            }
+        },
+        "test": {
+            "description": "",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "failed": true,
-        "gas": 210000,
-        "returnValue": "",
-        "structLogs": [
-          {
-            "depth": 1,
-            "gas": 188728,
-            "gasCost": 2,
-            "op": "ADDRESS",
-            "pc": 0
-          },
-          {
-            "depth": 1,
-            "error": "stack underflow (1 <=> 2)",
-            "gas": 188726,
-            "gasCost": 3,
-            "op": "SGT",
-            "pc": 1
-          }
-        ]
-      }
-    },
-    "test": {
-      "description": "",
-      "reference": ""
     }
-  }
 ]
