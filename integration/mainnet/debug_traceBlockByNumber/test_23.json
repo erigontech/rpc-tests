@@ -1,26 +1,26 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceBlockByNumber",
-      "params": [
-        "earliest",
-        {
-          "disableMemory": false,
-          "disableStack": false,
-          "disableStorage": false
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceBlockByNumber",
+            "params": [
+                "earliest",
+                {
+                    "disableMemory": false,
+                    "disableStack": false,
+                    "disableStorage": false
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": []
+        },
+        "test": {
+            "description": "trace the earliest block",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": []
-    },
-    "test": {
-      "description": "trace the earliest block",
-      "reference": ""
     }
-  }
 ]
