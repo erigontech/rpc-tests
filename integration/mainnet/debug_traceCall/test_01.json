@@ -1,80 +1,80 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceCall",
-      "params": [
-        {
-          "data": "0x6ea056a90000000000000000000000004470bb87d77b963a013db939be332f927f2b992e0000000000000000000000000000000000000000000000000000000001ec7535",
-          "from": "0xFBb1b73C4f0BDa4f67dcA266ce6Ef42f520fBB98",
-          "gas": "0x33869",
-          "gasPrice": "0x1F",
-          "value": "0x0"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceCall",
+            "params": [
+                {
+                    "data": "0x6ea056a90000000000000000000000004470bb87d77b963a013db939be332f927f2b992e0000000000000000000000000000000000000000000000000000000001ec7535",
+                    "from": "0xFBb1b73C4f0BDa4f67dcA266ce6Ef42f520fBB98",
+                    "gas": "0x33869",
+                    "gasPrice": "0x1F",
+                    "value": "0x0"
+                },
+                "0x4366AC",
+                {
+                    "disableMemory": false,
+                    "disableStack": false,
+                    "disableStorage": false
+                }
+            ]
         },
-        "0x4366AC",
-        {
-          "disableMemory": false,
-          "disableStack": false,
-          "disableStorage": false
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "failed": true,
+                "gas": 211049,
+                "returnValue": "0x",
+                "structLogs": [
+                    {
+                        "depth": 1,
+                        "gas": 155985,
+                        "gasCost": 3,
+                        "memory": [],
+                        "op": "PUSH15",
+                        "pc": 0,
+                        "stack": []
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 155982,
+                        "gasCost": 2,
+                        "memory": [],
+                        "op": "DIFFICULTY",
+                        "pc": 16,
+                        "stack": [
+                            "0xa056a9000000000000000000000000"
+                        ]
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 155980,
+                        "gasCost": 3,
+                        "memory": [],
+                        "op": "PUSH17",
+                        "pc": 17,
+                        "stack": [
+                            "0xa056a9000000000000000000000000",
+                            "0x52efc5604c289"
+                        ]
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 155977,
+                        "gasCost": 0,
+                        "memory": [],
+                        "op": "opcode 0x2e not defined",
+                        "pc": 35,
+                        "stack": [
+                            "0xa056a9000000000000000000000000",
+                            "0x52efc5604c289",
+                            "0xbb87d77b963a013db939be332f927f2b99"
+                        ]
+                    }
+                ]
+            }
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "failed": true,
-        "gas": 211049,
-        "returnValue": "",
-        "structLogs": [
-          {
-            "depth": 1,
-            "gas": 155985,
-            "gasCost": 3,
-            "memory": [],
-            "op": "PUSH15",
-            "pc": 0,
-            "stack": []
-          },
-          {
-            "depth": 1,
-            "gas": 155982,
-            "gasCost": 2,
-            "memory": [],
-            "op": "DIFFICULTY",
-            "pc": 16,
-            "stack": [
-              "0xa056a9000000000000000000000000"
-            ]
-          },
-          {
-            "depth": 1,
-            "gas": 155980,
-            "gasCost": 3,
-            "memory": [],
-            "op": "PUSH17",
-            "pc": 17,
-            "stack": [
-              "0xa056a9000000000000000000000000",
-              "0x52efc5604c289"
-            ]
-          },
-          {
-            "depth": 1,
-            "gas": 155977,
-            "gasCost": 0,
-            "memory": [],
-            "op": "opcode 0x2e not defined",
-            "pc": 35,
-            "stack": [
-              "0xa056a9000000000000000000000000",
-              "0x52efc5604c289",
-              "0xbb87d77b963a013db939be332f927f2b99"
-            ]
-          }
-        ]
-      }
     }
-  }
 ]
