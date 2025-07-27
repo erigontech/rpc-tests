@@ -1,41 +1,41 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceBlockByHash",
-      "params": [
-        "0x9bd94399952e621eb9ab6a142b4cd7b49fc78226d2de08405ca62a7ca4abe05b",
-        {
-          "disableMemory": false,
-          "disableStack": false,
-          "disableStorage": false
-        }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": [
-        {
-          "result": {
-            "failed": false,
-            "gas": 21000,
-            "returnValue": "",
-            "structLogs": []
-          },
-          "txHash": "0xb22e857c99f4abd007ff135cdeb365317337204f036d4d4820046d82ad67ee2a"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceBlockByHash",
+            "params": [
+                "0x9bd94399952e621eb9ab6a142b4cd7b49fc78226d2de08405ca62a7ca4abe05b",
+                {
+                    "disableMemory": false,
+                    "disableStack": false,
+                    "disableStorage": false
+                }
+            ]
         },
-        {
-          "result": {
-            "failed": false,
-            "gas": 21000,
-            "returnValue": "",
-            "structLogs": []
-          },
-          "txHash": "0xe10ab4a5727f94d897c734c29b61afeb74792d5d93cac9ab7b1fbff9b4b9d6cd"
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "result": {
+                        "failed": false,
+                        "gas": 21000,
+                        "returnValue": "0x",
+                        "structLogs": []
+                    },
+                    "txHash": "0xb22e857c99f4abd007ff135cdeb365317337204f036d4d4820046d82ad67ee2a"
+                },
+                {
+                    "result": {
+                        "failed": false,
+                        "gas": 21000,
+                        "returnValue": "0x",
+                        "structLogs": []
+                    },
+                    "txHash": "0xe10ab4a5727f94d897c734c29b61afeb74792d5d93cac9ab7b1fbff9b4b9d6cd"
+                }
+            ]
         }
-      ]
     }
-  }
 ]

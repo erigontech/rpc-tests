@@ -1,50 +1,50 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceBlockByHash",
-      "params": [
-        "0x9d0c56b2748ed146c4e96232af5dca991368df76c630f029cff2517d920b1cfe",
-        {
-          "disableMemory": false,
-          "disableStack": false,
-          "disableStorage": false
-        }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": [
-        {
-          "result": {
-            "failed": false,
-            "gas": 21000,
-            "returnValue": "",
-            "structLogs": []
-          },
-          "txHash": "0xe526c26788c7235d96f6cb7812dc875433ad03bc498e83aa86050e351679fda4"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceBlockByHash",
+            "params": [
+                "0x9d0c56b2748ed146c4e96232af5dca991368df76c630f029cff2517d920b1cfe",
+                {
+                    "disableMemory": false,
+                    "disableStack": false,
+                    "disableStorage": false
+                }
+            ]
         },
-        {
-          "result": {
-            "failed": false,
-            "gas": 21000,
-            "returnValue": "",
-            "structLogs": []
-          },
-          "txHash": "0x5a9691aff9af6123adccf6d11ad02e8e9692d77bb2480a9130181f02940d1dfb"
-        },
-        {
-          "result": {
-            "failed": false,
-            "gas": 21000,
-            "returnValue": "",
-            "structLogs": []
-          },
-          "txHash": "0xf6282a70ba30fce9b486c5afda8709379f8888ae2c1db5e1888d241ed50132fc"
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "result": {
+                        "failed": false,
+                        "gas": 21000,
+                        "returnValue": "0x",
+                        "structLogs": []
+                    },
+                    "txHash": "0xe526c26788c7235d96f6cb7812dc875433ad03bc498e83aa86050e351679fda4"
+                },
+                {
+                    "result": {
+                        "failed": false,
+                        "gas": 21000,
+                        "returnValue": "0x",
+                        "structLogs": []
+                    },
+                    "txHash": "0x5a9691aff9af6123adccf6d11ad02e8e9692d77bb2480a9130181f02940d1dfb"
+                },
+                {
+                    "result": {
+                        "failed": false,
+                        "gas": 21000,
+                        "returnValue": "0x",
+                        "structLogs": []
+                    },
+                    "txHash": "0xf6282a70ba30fce9b486c5afda8709379f8888ae2c1db5e1888d241ed50132fc"
+                }
+            ]
         }
-      ]
     }
-  }
 ]
