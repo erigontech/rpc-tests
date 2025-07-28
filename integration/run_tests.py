@@ -44,8 +44,8 @@ tests_not_compared_error = [
 
     
 tests_on_latest = [
+    "mainnet/eth_blockNumber",
     "mainnet/debug_traceBlockByNumber/test_24.json",
-    "mainnet/debug_traceBlockByNumber/test_28.json",
     "mainnet/debug_traceCall/test_22.json",
     "mainnet/debug_traceCallMany/test_11.json",
     "mainnet/debug_traceCallMany/test_12.json",
@@ -60,6 +60,7 @@ tests_on_latest = [
     "mainnet/eth_getBlockByNumber/test_10.json",
     "mainnet/eth_getBlockReceipts/test_07.json",
     "mainnet/eth_getCode/test_05.json",
+    "mainnet/eth_getLogs/test_21.json",
     "mainnet/eth_getRawTransactionByBlockNumberAndIndex/test_11.json",
     "mainnet/eth_getStorageAt/test_04.json",
     "mainnet/eth_getTransactionByBlockNumberAndIndex/test_02.json",
@@ -68,9 +69,7 @@ tests_on_latest = [
     "mainnet/eth_getUncleByBlockNumberAndIndex/test_02.json",
     "mainnet/erigon_blockNumber/test_4.json",
     "mainnet/erigon_blockNumber/test_6.json",
-    "mainnet/erigon_getLatestLogs/test_01.json",
     "mainnet/ots_hasCode/test_10.json",
-    "mainnet/ots_searchTransactionsAfter/test_02.json",
     "mainnet/ots_searchTransactionsBefore/test_02.json",
     "mainnet/parity_listStorageKeys",
     "mainnet/trace_call/test_26.json",
@@ -238,6 +237,16 @@ def is_skipped(curr_api, test_name: str, global_test_number, config):
     return 0
 
 
+def verify_in_latest_list(curr_api, test_name, config):
+    api_full_test_name = config.net + "/" + test_name
+    if config.tests_on_latest_block is True:
+        for curr_test in tests_on_latest:
+            if curr_test in api_full_test_name:
+                return 1
+
+    return 0
+
+
 def api_under_test(curr_api, test_name, config):
     """ determine if curr_api is in testing_apis_with or == testing_apis
     """
@@ -248,21 +257,30 @@ def api_under_test(curr_api, test_name, config):
         tokenize_list = config.testing_apis_with.split(",")
         for test in tokenize_list:
             if test in curr_api:
+                if config.tests_on_latest_block and verify_in_latest_list(curr_api, test_name, config):
+                    return 1
+                elif config.tests_on_latest_block:
+                    return 0
                 return 1
+        return 0
 
     if config.testing_apis != "":
         tokenize_list = config.testing_apis.split(",")
         for test in tokenize_list:
             if test == curr_api:
+                if config.tests_on_latest_block and verify_in_latest_list(curr_api, test_name, config):
+                    return 1
+                elif config.tests_on_latest_block:
+                    return 0
                 return 1
 
-    api_full_test_name = config.net + "/" + test_name
+        return 0
+
+    in_latest_list = 0
     if config.tests_on_latest_block is True:
-        for curr_test in tests_on_latest:
-            if curr_test in api_full_test_name:
-                return 1
+        in_latest_list = verify_in_latest_list(curr_api, test_name, config)
 
-    return 0
+    return in_latest_list
 
 
 def is_not_compared_message(test_name, net: str):
@@ -354,6 +372,7 @@ class Config:
                 elif option in ("-e", "--verify-external-provider"):
                     self.daemon_as_reference = EXTERNAL_PROVIDER
                     self.external_provider_url = optarg
+                    self.verify_with_daemon = True
                 elif option in ("-S", "--serial"):
                     self.parallel = False
                 elif option in ("-H", "--host"):
@@ -788,7 +807,7 @@ def run_test(json_file: str, test_number, transport_type, config):
             daemon_file = output_api_filename + "response.json"
             exp_rsp_file = output_api_filename + "expResponse.json"
         else:  # run tests with two servers
-            target = get_target(DAEMON_ON_OTHER_PORT, method, config)
+            target = get_target(DAEMON_ON_DEFAULT_PORT, method, config)
             result = execute_request(transport_type, jwt_auth, request_dumps, target, config.verbose_level)
             target1 = get_target(config.daemon_as_reference, method, config)
             result1 = execute_request(transport_type, jwt_auth, request_dumps, target1, config.verbose_level)
@@ -798,7 +817,7 @@ def run_test(json_file: str, test_number, transport_type, config):
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
             diff_file = output_api_filename + "-diff.json"
 
-            daemon_file = output_api_filename + get_json_filename_ext(DAEMON_ON_OTHER_PORT, target)
+            daemon_file = output_api_filename + get_json_filename_ext(DAEMON_ON_DEFAULT_PORT, target)
             exp_rsp_file = output_api_filename + get_json_filename_ext(config.daemon_as_reference, target1)
 
         return process_response(
@@ -817,9 +836,12 @@ def run_test(json_file: str, test_number, transport_type, config):
 
 
 def extract_number(filename):
-    """ Extract number from filename """
-    match = re.search(r'\d+', filename)
-    return int(match.group())
+    match = re.search(r'\d+', filename) # Look for one or more digits
+    if match:
+        return int(match.group())
+    else:
+        return 0 # Or some other default value, like float('inf') if you want them at the end
+                 # Or even just the filename itself if you want alphabetical sort for non-numeric names
 
 
 def check_test_name_for_number(test_name, req_test_number):
@@ -851,7 +873,10 @@ def main(argv) -> int:
     tests_not_executed = 0
 
     if config.verify_with_daemon is True:
-        server_endpoints = "both servers"
+        if config.daemon_as_reference == EXTERNAL_PROVIDER:
+            server_endpoints = "both servers (rpcdaemon with " + config.external_provider_url + ")"
+        else:
+            server_endpoints = "both servers (rpcdaemon with " + config.daemon_under_test + ")"
     else:
         target = get_target(config.daemon_under_test, "eth_call", config)
         target1 = get_target(config.daemon_under_test, "engine_", config)
