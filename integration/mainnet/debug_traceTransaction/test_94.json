@@ -1,53 +1,53 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceTransaction",
-      "params": [
-        "0x7f456e68e02393dd9fa3fd852c779df6dbfd710042c2cc19eced476a35b4a870",
-        {
-          "disableMemory": true,
-          "disableStack": true,
-          "disableStorage": true
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceTransaction",
+            "params": [
+                "0x7f456e68e02393dd9fa3fd852c779df6dbfd710042c2cc19eced476a35b4a870",
+                {
+                    "disableMemory": true,
+                    "disableStack": true,
+                    "disableStorage": true
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "failed": true,
+                "gas": 121000,
+                "returnValue": "0x",
+                "structLogs": [
+                    {
+                        "depth": 1,
+                        "gas": 99456,
+                        "gasCost": 2,
+                        "op": "ORIGIN",
+                        "pc": 0
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 99454,
+                        "gasCost": 2,
+                        "op": "ADDRESS",
+                        "pc": 1
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 99452,
+                        "gasCost": 0,
+                        "op": "opcode 0x2d not defined",
+                        "pc": 2
+                    }
+                ]
+            }
+        },
+        "test": {
+            "description": "",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "failed": true,
-        "gas": 121000,
-        "returnValue": "",
-        "structLogs": [
-          {
-            "depth": 1,
-            "gas": 99456,
-            "gasCost": 2,
-            "op": "ORIGIN",
-            "pc": 0
-          },
-          {
-            "depth": 1,
-            "gas": 99454,
-            "gasCost": 2,
-            "op": "ADDRESS",
-            "pc": 1
-          },
-          {
-            "depth": 1,
-            "gas": 99452,
-            "gasCost": 0,
-            "op": "opcode 0x2d not defined",
-            "pc": 2
-          }
-        ]
-      }
-    },
-    "test": {
-      "description": "",
-      "reference": ""
     }
-  }
 ]

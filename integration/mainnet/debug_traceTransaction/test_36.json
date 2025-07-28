@@ -1,131 +1,131 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceTransaction",
-      "params": [
-        "0xacb09f1c58f6cec5e6a9a2411b00ca16b2fff8d92bf74457a80361e99d82dc0b",
-        {
-          "disableMemory": true,
-          "disableStack": true,
-          "disableStorage": true
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceTransaction",
+            "params": [
+                "0xacb09f1c58f6cec5e6a9a2411b00ca16b2fff8d92bf74457a80361e99d82dc0b",
+                {
+                    "disableMemory": true,
+                    "disableStack": true,
+                    "disableStorage": true
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "failed": true,
+                "gas": 29244,
+                "returnValue": "0x",
+                "structLogs": [
+                    {
+                        "depth": 1,
+                        "gas": 8244,
+                        "gasCost": 2,
+                        "op": "CALLDATASIZE",
+                        "pc": 0
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8242,
+                        "gasCost": 3,
+                        "op": "PUSH1",
+                        "pc": 1
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8239,
+                        "gasCost": 3,
+                        "op": "DUP1",
+                        "pc": 3
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8236,
+                        "gasCost": 3,
+                        "op": "CALLDATACOPY",
+                        "pc": 4
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8233,
+                        "gasCost": 3,
+                        "op": "PUSH1",
+                        "pc": 5
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8230,
+                        "gasCost": 3,
+                        "op": "PUSH1",
+                        "pc": 7
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8227,
+                        "gasCost": 2,
+                        "op": "CALLDATASIZE",
+                        "pc": 9
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8225,
+                        "gasCost": 3,
+                        "op": "PUSH1",
+                        "pc": 10
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8222,
+                        "gasCost": 2,
+                        "op": "CALLVALUE",
+                        "pc": 12
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8220,
+                        "gasCost": 3,
+                        "op": "PUSH20",
+                        "pc": 13
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8217,
+                        "gasCost": 3,
+                        "op": "PUSH2",
+                        "pc": 34
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8214,
+                        "gasCost": 2,
+                        "op": "GAS",
+                        "pc": 37
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 8212,
+                        "gasCost": 3,
+                        "op": "SUB",
+                        "pc": 38
+                    },
+                    {
+                        "depth": 1,
+                        "error": "out of gas: gas uint64 overflow",
+                        "gas": 8209,
+                        "gasCost": 40,
+                        "op": "CALLCODE",
+                        "pc": 39
+                    }
+                ]
+            }
+        },
+        "test": {
+            "description": "",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "failed": true,
-        "gas": 29244,
-        "returnValue": "",
-        "structLogs": [
-          {
-            "depth": 1,
-            "gas": 8244,
-            "gasCost": 2,
-            "op": "CALLDATASIZE",
-            "pc": 0
-          },
-          {
-            "depth": 1,
-            "gas": 8242,
-            "gasCost": 3,
-            "op": "PUSH1",
-            "pc": 1
-          },
-          {
-            "depth": 1,
-            "gas": 8239,
-            "gasCost": 3,
-            "op": "DUP1",
-            "pc": 3
-          },
-          {
-            "depth": 1,
-            "gas": 8236,
-            "gasCost": 3,
-            "op": "CALLDATACOPY",
-            "pc": 4
-          },
-          {
-            "depth": 1,
-            "gas": 8233,
-            "gasCost": 3,
-            "op": "PUSH1",
-            "pc": 5
-          },
-          {
-            "depth": 1,
-            "gas": 8230,
-            "gasCost": 3,
-            "op": "PUSH1",
-            "pc": 7
-          },
-          {
-            "depth": 1,
-            "gas": 8227,
-            "gasCost": 2,
-            "op": "CALLDATASIZE",
-            "pc": 9
-          },
-          {
-            "depth": 1,
-            "gas": 8225,
-            "gasCost": 3,
-            "op": "PUSH1",
-            "pc": 10
-          },
-          {
-            "depth": 1,
-            "gas": 8222,
-            "gasCost": 2,
-            "op": "CALLVALUE",
-            "pc": 12
-          },
-          {
-            "depth": 1,
-            "gas": 8220,
-            "gasCost": 3,
-            "op": "PUSH20",
-            "pc": 13
-          },
-          {
-            "depth": 1,
-            "gas": 8217,
-            "gasCost": 3,
-            "op": "PUSH2",
-            "pc": 34
-          },
-          {
-            "depth": 1,
-            "gas": 8214,
-            "gasCost": 2,
-            "op": "GAS",
-            "pc": 37
-          },
-          {
-            "depth": 1,
-            "gas": 8212,
-            "gasCost": 3,
-            "op": "SUB",
-            "pc": 38
-          },
-          {
-            "depth": 1,
-            "error": "out of gas: gas uint64 overflow",
-            "gas": 8209,
-            "gasCost": 40,
-            "op": "CALLCODE",
-            "pc": 39
-          }
-        ]
-      }
-    },
-    "test": {
-      "description": "",
-      "reference": ""
     }
-  }
 ]

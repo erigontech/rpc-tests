@@ -1,55 +1,55 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceCall",
-      "params": [
-        {
-          "data": "0x41c0e1b505684bf5",
-          "from": "0xFBb1b73C4f0BDa4f67dcA266ce6Ef42f520fBB98",
-          "gas": "0x33869",
-          "gasPrice": "0x871FF62626",
-          "value": "0x0"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceCall",
+            "params": [
+                {
+                    "data": "0x41c0e1b505684bf5",
+                    "from": "0xFBb1b73C4f0BDa4f67dcA266ce6Ef42f520fBB98",
+                    "gas": "0x33869",
+                    "gasPrice": "0x871FF62626",
+                    "value": "0x0"
+                },
+                "0x1312CAA",
+                {
+                    "disableMemory": false,
+                    "disableStack": false,
+                    "disableStorage": false
+                }
+            ]
         },
-        "0x1312CAA",
-        {
-          "disableMemory": false,
-          "disableStack": false,
-          "disableStorage": false
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "failed": true,
+                "gas": 211049,
+                "returnValue": "0x",
+                "structLogs": [
+                    {
+                        "depth": 1,
+                        "gas": 157919,
+                        "gasCost": 2,
+                        "memory": [],
+                        "op": "COINBASE",
+                        "pc": 0,
+                        "stack": []
+                    },
+                    {
+                        "depth": 1,
+                        "gas": 157917,
+                        "gasCost": 0,
+                        "memory": [],
+                        "op": "opcode 0xc0 not defined",
+                        "pc": 1,
+                        "stack": [
+                            "0x1f9090aae28b8a3dceadf281b0f12828e676c326"
+                        ]
+                    }
+                ]
+            }
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-  "result": {
-    "failed": true,
-    "gas": 211049,
-    "returnValue": "",
-    "structLogs": [
-      {
-        "depth": 1,
-        "gas": 157919,
-        "gasCost": 2,
-        "memory": [],
-        "op": "COINBASE",
-        "pc": 0,
-        "stack": []
-      },
-      {
-        "depth": 1,
-        "gas": 157917,
-        "gasCost": 0,
-        "memory": [],
-        "op": "opcode 0xc0 not defined",
-        "pc": 1,
-        "stack": [
-          "0x1f9090aae28b8a3dceadf281b0f12828e676c326"
-        ]
-      }
-    ]
-  }
     }
-  }
 ]

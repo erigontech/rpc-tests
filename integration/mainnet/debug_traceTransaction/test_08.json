@@ -1,31 +1,31 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceTransaction",
-      "params": [
-        "0xd94d8fc4e1e37cd3094390e25b85856ddde5df4e1474c3910945ffa87e46f7d4",
-        {
-          "disableMemory": true,
-          "disableStack": true,
-          "disableStorage": true
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceTransaction",
+            "params": [
+                "0xd94d8fc4e1e37cd3094390e25b85856ddde5df4e1474c3910945ffa87e46f7d4",
+                {
+                    "disableMemory": true,
+                    "disableStack": true,
+                    "disableStorage": true
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "failed": false,
+                "gas": 21000,
+                "returnValue": "0x",
+                "structLogs": []
+            }
+        },
+        "test": {
+            "description": "",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "failed": false,
-        "gas": 21000,
-        "returnValue": "",
-        "structLogs": []
-      }
-    },
-    "test": {
-      "description": "",
-      "reference": ""
     }
-  }
 ]
