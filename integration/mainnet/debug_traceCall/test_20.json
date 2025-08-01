@@ -29,9 +29,7 @@
       },
       "id": 1,
       "jsonrpc": "2.0",
-      "result": {
-        "structLogs": []
-      }
+      "result": null 
     },
     "test": {
       "description": "From block 4417196 tnx 5. FROM has 1.12016671 eth before  0.000000000000004992 eth after",
