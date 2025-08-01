@@ -15,9 +15,9 @@
         },
         "latest",
         {
-          "disableMemory": false,
-          "disableStack": false,
-          "disableStorage": false
+          "disableMemory": true,
+          "disableStack": true,
+          "disableStorage": true
         }
       ]
     },
