@@ -44,18 +44,40 @@ tests_not_compared_error = [
 
     
 tests_on_latest = [
-    "mainnet/eth_blockNumber",
+   "mainnet/eth_blockNumber",
     "mainnet/debug_traceBlockByNumber/test_24.json",
     "mainnet/debug_traceCall/test_22.json",
+    "mainnet/debug_traceCall/test_33.json",
+    "mainnet/debug_traceCall/test_34.json",
     "mainnet/debug_traceCallMany/test_11.json",
     "mainnet/debug_traceCallMany/test_12.json",
     "mainnet/eth_block_number",                                                  # works always on latest block
     "mainnet/eth_call/test_20.json",
+    "mainnet/eth_call/test_28.json",
+    "mainnet/eth_call/test_29.json",
     "mainnet/eth_callBundle/test_09.json",
     "mainnet/eth_createAccessList/test_18.json",
-    "mainnet/eth_estimateGas",                                                   # works always on latest block
+    "mainnet/eth_createAccessList/test_19.json",
+    "mainnet/eth_createAccessList/test_20.json",
+    "mainnet/eth_estimateGas/test_01",
+    "mainnet/eth_estimateGas/test_02",
+    "mainnet/eth_estimateGas/test_03",
+    "mainnet/eth_estimateGas/test_04",
+    "mainnet/eth_estimateGas/test_05",
+    "mainnet/eth_estimateGas/test_06",
+    "mainnet/eth_estimateGas/test_07",
+    "mainnet/eth_estimateGas/test_08",
+    "mainnet/eth_estimateGas/test_09",
+    "mainnet/eth_estimateGas/test_10",
+    "mainnet/eth_estimateGas/test_11",
+    "mainnet/eth_estimateGas/test_12",
+    "mainnet/eth_estimateGas/test_21",
+    "mainnet/eth_estimateGas/test_22",
+    "mainnet/eth_estimateGas/test_23",
     "mainnet/eth_feeHistory/test_07.json",
     "mainnet/eth_getBalance/test_03.json",
+    "mainnet/eth_getBalance/test_26.json",
+    "mainnet/eth_getBalance/test_27.json",
     "mainnet/eth_getBlockTransactionCountByNumber/test_03.json",
     "mainnet/eth_getBlockByNumber/test_10.json",
     "mainnet/eth_getBlockReceipts/test_07.json",
@@ -238,6 +260,8 @@ def is_skipped(curr_api, test_name: str, global_test_number, config):
 
 
 def verify_in_latest_list(curr_api, test_name, config):
+    """ verify if the test in test from latest block
+    """
     api_full_test_name = config.net + "/" + test_name
     if config.tests_on_latest_block is True:
         for curr_test in tests_on_latest:
@@ -259,7 +283,7 @@ def api_under_test(curr_api, test_name, config):
             if test in curr_api:
                 if config.tests_on_latest_block and verify_in_latest_list(curr_api, test_name, config):
                     return 1
-                elif config.tests_on_latest_block:
+                if config.tests_on_latest_block:
                     return 0
                 return 1
         return 0
@@ -270,7 +294,7 @@ def api_under_test(curr_api, test_name, config):
             if test == curr_api:
                 if config.tests_on_latest_block and verify_in_latest_list(curr_api, test_name, config):
                     return 1
-                elif config.tests_on_latest_block:
+                if config.tests_on_latest_block:
                     return 0
                 return 1
 
@@ -331,7 +355,7 @@ class Config:
         self.exclude_test_list = ""
         self.start_test = ""
         self.jwt_secret = ""
-        self.display_only_fail = 0
+        self.display_only_fail = False
         self.transport_type = "http"
         self.parallel = True
         self.use_jsondiff = True
@@ -361,7 +385,7 @@ class Config:
                         sys.exit(1)
                     self.waiting_time = int(optarg)
                 elif option in ("-c", "--continue"):
-                    self.exit_on_fail = 0
+                    self.exit_on_fail = False
                 elif option in ("-I", "--daemon-port"):
                     if self.verify_with_daemon is True:
                         print("Error on options: "
@@ -384,7 +408,7 @@ class Config:
                 elif option in ("-P", "--engine-port"):
                     self.engine_port = int(optarg)
                 elif option in ("-f", "--display-only-fail"):
-                    self.display_only_fail = 1
+                    self.display_only_fail = True
                 elif option in ("-v", "--verbose"):
                     if int(optarg) > 2:
                         print("Error on verbose level: permitted values: 0,1,2")
@@ -529,7 +553,7 @@ def dump_jsons(dump_json, daemon_file, exp_rsp_file, output_dir, response, expec
     for attempt in range(10):
         try:
             os.makedirs(output_dir, exist_ok=True)
-        except Exception as e:
+        except OSError as e:
             print("Exception on makedirs: ", output_dir, {e})
 
         try:
@@ -545,7 +569,7 @@ def dump_jsons(dump_json, daemon_file, exp_rsp_file, output_dir, response, expec
                     json_file_ptr.write(json.dumps(expected_response, indent=2, sort_keys=True))
             break
 
-        except Exception as e:
+        except OSError as e:
             print("Exception on file write: ..  ", {e}, attempt)
 
 
@@ -569,7 +593,7 @@ def execute_request(transport_type: str, jwt_auth, request_dumps, target: str, v
             if verbose_level > 1:
                 print("\npost result content: ", rsp.content)
             result = rsp.json()
-        except Exception as e:
+        except OSError as e:
             if verbose_level:
                 print("\nhttp connection fail: ", target_url, e)
             return ""
@@ -596,7 +620,7 @@ def execute_request(transport_type: str, jwt_auth, request_dumps, target: str, v
                 rsp = websocket.recv(None)
                 result = json.loads(rsp)
 
-        except Exception as e:
+        except OSError as e:
             if verbose_level:
                 print("\nwebsocket connection fail:", e)
             return ""
@@ -836,12 +860,14 @@ def run_test(json_file: str, test_number, transport_type, config):
 
 
 def extract_number(filename):
+    """
+    Extract test number from filename
+    """
     match = re.search(r'\d+', filename) # Look for one or more digits
     if match:
         return int(match.group())
-    else:
-        return 0 # Or some other default value, like float('inf') if you want them at the end
-                 # Or even just the filename itself if you want alphabetical sort for non-numeric names
+    return 0 # Or some other default value, like float('inf') if you want them at the end
+             # Or even just the filename itself if you want alphabetical sort for non-numeric names
 
 
 def check_test_name_for_number(test_name, req_test_number):
@@ -928,7 +954,7 @@ def main(argv) -> int:
                         if api_under_test(curr_api, json_test_full_name, config):  # -a/-A or any api
                             if is_skipped(curr_api, json_test_full_name, test_number_in_any_loop, config) == 1:
                                 if config.start_test == "" or test_number_in_any_loop >= int(config.start_test):
-                                    if config.display_only_fail == 0 and config.req_test_number != "":
+                                    if config.display_only_fail is False and config.req_test_number != "":
                                         file = json_test_full_name.ljust(60)
                                         curr_tt = transport_type.ljust(15)
                                         print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} Skipped")
