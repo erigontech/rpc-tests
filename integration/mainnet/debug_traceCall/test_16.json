@@ -29,9 +29,7 @@
       },
       "id": 1,
       "jsonrpc": "2.0",
-      "result": {
-        "structLogs": []
-      }
+      "result": null
     },
     "test": {
       "description": "From block 21124438 tnx 68. FROM has 0 eth before",

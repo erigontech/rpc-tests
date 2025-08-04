@@ -26,9 +26,7 @@
         "code": -32000,
         "message": "tracing failed: fee cap less than block base fee: address 0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13, feeCap: 4686886751 baseFee: 4756259370"
       },
-      "result": {
-        "structLogs": []
-      }
+      "result": null
     }
   }
 ]
