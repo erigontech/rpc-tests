@@ -824,14 +824,13 @@ def run_test(json_file: str, test_number, transport_type, config):
             result1 = ""
             response_in_file = json_rpc["response"]
 
-            test_name = os.path.basename(json_file)
-            test_name_without_ext = os.path.splitext(test_name)[0]
-            output_api_filename = config.output_dir + test_name_without_ext
+            output_api_filename = config.output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
-            diff_file = output_api_filename + ".diff.json"
+            diff_file = output_api_filename + "-diff.json"
 
-            daemon_file = output_api_filename + ".response.json"
-            exp_rsp_file = output_api_filename + ".expResponse.json"
+            daemon_file = output_api_filename + "response.json"
+            exp_rsp_file = output_api_filename + "expResponse.json"
+
         else:  # run tests with two servers
             target = get_target(DAEMON_ON_DEFAULT_PORT, method, config)
             result = execute_request(transport_type, jwt_auth, request_dumps, target, config.verbose_level)
@@ -839,11 +838,9 @@ def run_test(json_file: str, test_number, transport_type, config):
             result1 = execute_request(transport_type, jwt_auth, request_dumps, target1, config.verbose_level)
             response_in_file = None
 
-            test_name = os.path.basename(json_file)
-            test_name_without_ext = os.path.splitext(test_name)[0]
-            output_api_filename = config.output_dir + test_name_without_ext
+            output_api_filename = config.output_dir + json_file[:-4]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
-            diff_file = output_api_filename + ".diff.json"
+            diff_file = output_api_filename + "-diff.json"
 
             daemon_file = output_api_filename + get_json_filename_ext(DAEMON_ON_DEFAULT_PORT, target)
             exp_rsp_file = output_api_filename + get_json_filename_ext(config.daemon_as_reference, target1)
