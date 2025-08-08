@@ -1,0 +1,21 @@
+[
+   {
+	"test": {
+           "reference": "https://etherscan.io/tx/0xe9ebfecc2fa10100db51a4408d18193b3ac504584b51a4e55bdef1318f0a30f9",
+           "description": "getCode in latest block"
+        },
+
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getCode",
+            "params":["0xbD9a7da852ff7D99F2093c73E6bcF9d4cdb2086a", "latest"],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": null
+        }
+    }
+]
+

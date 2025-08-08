@@ -1,0 +1,16 @@
+[
+   {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getTransactionCount",
+            "params":["0x2Fc617E933a52713247CE25730f6695920B3befe", "latest"],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result":null
+        }
+    }
+]
+

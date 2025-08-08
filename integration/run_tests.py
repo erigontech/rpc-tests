@@ -42,13 +42,19 @@ tests_not_compared_error = [
 ]
 
 
-    
 tests_on_latest = [
    "mainnet/eth_blockNumber",
     "mainnet/debug_traceBlockByNumber/test_24.json",
+    "mainnet/debug_traceBlockByNumber/test_30.json",
     "mainnet/debug_traceCall/test_22.json",
     "mainnet/debug_traceCall/test_33.json",
     "mainnet/debug_traceCall/test_34.json",
+    "mainnet/debug_traceCall/test_35.json",
+    "mainnet/debug_traceCall/test_36.json",
+    "mainnet/debug_traceCall/test_37.json",
+    "mainnet/debug_traceCall/test_38.json",
+    "mainnet/debug_traceCall/test_39.json",
+    "mainnet/debug_traceCall/test_40.json",
     "mainnet/debug_traceCallMany/test_11.json",
     "mainnet/debug_traceCallMany/test_12.json",
     "mainnet/eth_block_number",                                                  # works always on latest block
@@ -75,18 +81,30 @@ tests_on_latest = [
     "mainnet/eth_estimateGas/test_22",
     "mainnet/eth_estimateGas/test_23",
     "mainnet/eth_feeHistory/test_07.json",
+    "mainnet/eth_feeHistory/test_22.json",
     "mainnet/eth_getBalance/test_03.json",
     "mainnet/eth_getBalance/test_26.json",
     "mainnet/eth_getBalance/test_27.json",
     "mainnet/eth_getBlockTransactionCountByNumber/test_03.json",
     "mainnet/eth_getBlockByNumber/test_10.json",
+    "mainnet/eth_getBlockByNumber/test_27.json",
     "mainnet/eth_getBlockReceipts/test_07.json",
     "mainnet/eth_getCode/test_05.json",
+    "mainnet/eth_getCode/test_06.json",
+    "mainnet/eth_getCode/test_07.json",
     "mainnet/eth_getLogs/test_21.json",
     "mainnet/eth_getRawTransactionByBlockNumberAndIndex/test_11.json",
+    "mainnet/eth_getRawTransactionByBlockNumberAndIndex/test_12.json",
+    "mainnet/eth_getRawTransactionByBlockNumberAndIndex/test_13.json",
     "mainnet/eth_getStorageAt/test_04.json",
+    "mainnet/eth_getStorageAt/test_07.json",
+    "mainnet/eth_getStorageAt/test_08.json",
     "mainnet/eth_getTransactionByBlockNumberAndIndex/test_02.json",
+    "mainnet/eth_getTransactionByBlockNumberAndIndex/test_08.json",
+    "mainnet/eth_getTransactionByBlockNumberAndIndex/test_09.json",
     "mainnet/eth_getTransactionCount/test_02.json",
+    "mainnet/eth_getTransactionCount/test_07.json",
+    "mainnet/eth_getTransactionCount/test_08.json",
     "mainnet/eth_getUncleCountByBlockNumber/test_03.json",
     "mainnet/eth_getUncleByBlockNumberAndIndex/test_02.json",
     "mainnet/erigon_blockNumber/test_4.json",
@@ -824,7 +842,7 @@ def run_test(json_file: str, test_number, transport_type, config):
             result1 = ""
             response_in_file = json_rpc["response"]
 
-            output_api_filename = config.output_dir + json_file[:-4]
+            output_api_filename = config.output_dir + os.path.splitext(json_file)[0]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
             diff_file = output_api_filename + "-diff.json"
 
@@ -838,7 +856,7 @@ def run_test(json_file: str, test_number, transport_type, config):
             result1 = execute_request(transport_type, jwt_auth, request_dumps, target1, config.verbose_level)
             response_in_file = None
 
-            output_api_filename = config.output_dir + json_file[:-4]
+            output_api_filename = config.output_dir + os.path.splitext(json_file)[0]
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
             diff_file = output_api_filename + "-diff.json"
 
