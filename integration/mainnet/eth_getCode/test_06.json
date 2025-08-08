@@ -8,7 +8,7 @@
         "request": {
             "jsonrpc":"2.0",
             "method":"eth_getCode",
-            "params":["0xbD9a7da852ff7D99F2093c73E6bcF9d4cdb2086a ", "latest"],
+            "params":["0xbD9a7da852ff7D99F2093c73E6bcF9d4cdb2086a", "latest"],
             "id":1
         },
         "response": {
