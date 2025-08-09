@@ -1,49 +1,46 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_call",
-      "params": [
-        {
-          "data": "0x",
-          "from": "0xB5772B3A6Be702D0387770C64bf17e36a4D38188",
-          "gas": "0x52080",
-          "gasPrice": "0x4A817C800",
-          "value": "0x46E4DEB133863000"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_call",
+            "params": [
+                {
+                    "data": "0x",
+                    "from": "0xB5772B3A6Be702D0387770C64bf17e36a4D38188",
+                    "gas": "0x52080",
+                    "gasPrice": "0x4A817C800",
+                    "value": "0x46E4DEB133863000"
+                },
+                [
+                    "trace"
+                ],
+                "0x4366AC"
+            ]
         },
-        [
-          "trace"
-        ],
-        "0x4366AC"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "output": "0x",
-        "stateDiff": null,
-        "trace": [
-          {
-            "action": {
-              "from": "0xb5772b3a6be702d0387770c64bf17e36a4d38188",
-              "gas": "0x45178",
-              "init": "0x",
-              "value": "0x46e4deb133863000"
-            },
-            "result": {
-              "address": "0xf33cd02c8682f0c1f5d3f05c89aba0d5f38db8de",
-              "code": "0x",
-              "gasUsed": "0x0"
-            },
-            "subtraces": 0,
-            "traceAddress": [],
-            "type": "create"
-          }
-        ],
-        "vmTrace": null
-      }
+        "response": {
+            "output": "0x",
+            "stateDiff": null,
+            "trace": [
+                {
+                    "action": {
+                        "creationMethod": "create",
+                        "from": "0xb5772b3a6be702d0387770c64bf17e36a4d38188",
+                        "gas": "0x45178",
+                        "init": "0x",
+                        "value": "0x46e4deb133863000"
+                    },
+                    "result": {
+                        "address": "0xf33cd02c8682f0c1f5d3f05c89aba0d5f38db8de",
+                        "code": "0x",
+                        "gasUsed": "0x0"
+                    },
+                    "subtraces": 0,
+                    "traceAddress": [],
+                    "type": "create"
+                }
+            ],
+            "vmTrace": null
+        }
     }
-  }
 ]

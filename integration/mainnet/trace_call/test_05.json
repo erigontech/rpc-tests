@@ -1,88 +1,85 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_call",
-      "params": [
-        {
-          "data": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
-          "from": "0x268b374261aC5b9eA3bB9d7c4d06b569D0804FAD",
-          "gas": "0x740609",
-          "gasPrice": "0x3B9ACA00",
-          "value": "0x0"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_call",
+            "params": [
+                {
+                    "data": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
+                    "from": "0x268b374261aC5b9eA3bB9d7c4d06b569D0804FAD",
+                    "gas": "0x740609",
+                    "gasPrice": "0x3B9ACA00",
+                    "value": "0x0"
+                },
+                [
+                    "vmTrace",
+                    "trace",
+                    "stateDiff"
+                ],
+                "0x52a0b3"
+            ]
         },
-        [
-          "vmTrace",
-          "trace",
-          "stateDiff"
-        ],
-        "0x52a0b3"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-  "result": {
-    "output": "0x",
-    "stateDiff": {
-      "0x268b374261ac5b9ea3bb9d7c4d06b569d0804fad": {
-        "balance": "=",
-        "code": "=",
-        "nonce": {
-          "*": {
-            "from": "0x2b",
-            "to": "0x2c"
-          }
-        },
-        "storage": {}
-      },
-      "0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
-        "balance": {
-          "*": {
-            "from": "0x2f7b74ae167dfe45e4",
-            "to": "0x2f7b8fb1a1bf2b5fe4"
-          }
-        },
-        "code": "=",
-        "nonce": "=",
-        "storage": {}
-      }
-    },
-    "trace": [
-      {
-        "action": {
-          "from": "0x268b374261ac5b9ea3bb9d7c4d06b569d0804fad",
-          "gas": "0x733571",
-          "init": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
-          "value": "0x0"
-        },
-        "error": "invalid opcode: opcode 0xe4 not defined",
-        "result": null,
-        "subtraces": 0,
-        "traceAddress": [],
-        "type": "create"
-      }
-    ],
-    "vmTrace": {
-      "code": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
-      "ops": [
-        {
-          "cost": 0,
-          "ex": {
-            "mem": null,
-            "push": [],
-            "store": null,
-            "used": 7550321
-          },
-          "idx": "0",
-          "op": "opcode 0xe4 not defined",
-          "pc": 0,
-          "sub": null
+        "response": {
+            "output": "0x",
+            "stateDiff": {
+                "0x268b374261ac5b9ea3bb9d7c4d06b569d0804fad": {
+                    "balance": "=",
+                    "code": "=",
+                    "nonce": {
+                        "*": {
+                            "from": "0x2b",
+                            "to": "0x2c"
+                        }
+                    },
+                    "storage": {}
+                },
+                "0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
+                    "balance": {
+                        "*": {
+                            "from": "0x2f7b74ae167dfe45e4",
+                            "to": "0x2f7b8fb1a1bf2b5fe4"
+                        }
+                    },
+                    "code": "=",
+                    "nonce": "=",
+                    "storage": {}
+                }
+            },
+            "trace": [
+                {
+                    "action": {
+                        "creationMethod": "create",
+                        "from": "0x268b374261ac5b9ea3bb9d7c4d06b569d0804fad",
+                        "gas": "0x733571",
+                        "init": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
+                        "value": "0x0"
+                    },
+                    "error": "invalid opcode: opcode 0xe4 not defined",
+                    "result": null,
+                    "subtraces": 0,
+                    "traceAddress": [],
+                    "type": "create"
+                }
+            ],
+            "vmTrace": {
+                "code": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
+                "ops": [
+                    {
+                        "cost": 0,
+                        "ex": {
+                            "mem": null,
+                            "push": [],
+                            "store": null,
+                            "used": 7550321
+                        },
+                        "idx": "0",
+                        "op": "opcode 0xe4 not defined",
+                        "pc": 0,
+                        "sub": null
+                    }
+                ]
+            }
         }
-      ]
     }
-  }
-    }
-  }
 ]
