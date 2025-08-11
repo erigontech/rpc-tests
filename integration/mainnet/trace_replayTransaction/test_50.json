@@ -1,45 +1,44 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_replayTransaction",
-      "params": [
-        "0x6f2609eb724d839119b9753ea456c37ef3e21d27553243b069c694c1d7ed3ed8",
-        ["trace"]
-      ]
-    },
-    "response": {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "result": {
-        "output": "0x",
-        "trace": [
-          {
-            "action": {
-              "from": "0x3cf99b53bbd529b9d4c3418874e4efbdaa334dab",
-              "gas": "0xaed0",
-              "init": "0x60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff0219169083021790555060006001600050819055506000600260006101000a81548160ff021916908302179055505b6101cf806100636000396000f360606040526000357c01000000000000000000000000000000000000000000000000000000009004806312065fe014610065578063481c6a7514610088578063b69ef8a8146100c1578063d0e30db0146100e4578063fa89401a146100f357610063565b005b610072600480505061014f565b6040518082815260200191505060405180910390f35b610095600480505061010b565b604051808273ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6100ce6004805050610131565b6040518082815260200191505060405180910390f35b6100f1600480505061013a565b005b610109600480803590602001909190505061015c565b005b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60016000505481565b3460016000828282505401925050819055505b565b6000809050610159565b90565b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614156101cb578073ffffffffffffffffffffffffffffffffffffffff16ff5b5b5056",
-              "value": "0x0"
-            },
-            "result": {
-              "address": "0xfc4465f84b29a1f8794dc753f41bef1f4b025ed2",
-              "code": "0x",
-              "gasUsed": "0x7697"
-            },
-            "subtraces": 0,
-            "traceAddress": [],
-            "type": "create"
-          }
-        ],
-        "stateDiff": null,
-        "vmTrace": null,
-        "transactionHash": "0x6f2609eb724d839119b9753ea456c37ef3e21d27553243b069c694c1d7ed3ed8"
-      }
-    },
-    "test": {
-      "description": "contract creation silently failed for code storage out of gas at block 974584 (pre-Homestead)",
-      "reference": "https://etherscan.io/tx/0x6f2609eb724d839119b9753ea456c37ef3e21d27553243b069c694c1d7ed3ed8"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_replayTransaction",
+            "params": [
+                "0x6f2609eb724d839119b9753ea456c37ef3e21d27553243b069c694c1d7ed3ed8",
+                [
+                    "trace"
+                ]
+            ]
+        },
+        "response": {
+            "output": "0x",
+            "stateDiff": null,
+            "trace": [
+                {
+                    "action": {
+                        "creationMethod": "create",
+                        "from": "0x3cf99b53bbd529b9d4c3418874e4efbdaa334dab",
+                        "gas": "0xaed0",
+                        "init": "0x60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff0219169083021790555060006001600050819055506000600260006101000a81548160ff021916908302179055505b6101cf806100636000396000f360606040526000357c01000000000000000000000000000000000000000000000000000000009004806312065fe014610065578063481c6a7514610088578063b69ef8a8146100c1578063d0e30db0146100e4578063fa89401a146100f357610063565b005b610072600480505061014f565b6040518082815260200191505060405180910390f35b610095600480505061010b565b604051808273ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6100ce6004805050610131565b6040518082815260200191505060405180910390f35b6100f1600480505061013a565b005b610109600480803590602001909190505061015c565b005b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60016000505481565b3460016000828282505401925050819055505b565b6000809050610159565b90565b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614156101cb578073ffffffffffffffffffffffffffffffffffffffff16ff5b5b5056",
+                        "value": "0x0"
+                    },
+                    "result": {
+                        "address": "0xfc4465f84b29a1f8794dc753f41bef1f4b025ed2",
+                        "code": "0x",
+                        "gasUsed": "0x7697"
+                    },
+                    "subtraces": 0,
+                    "traceAddress": [],
+                    "type": "create"
+                }
+            ],
+            "transactionHash": "0x6f2609eb724d839119b9753ea456c37ef3e21d27553243b069c694c1d7ed3ed8",
+            "vmTrace": null
+        },
+        "test": {
+            "description": "contract creation silently failed for code storage out of gas at block 974584 (pre-Homestead)",
+            "reference": "https://etherscan.io/tx/0x6f2609eb724d839119b9753ea456c37ef3e21d27553243b069c694c1d7ed3ed8"
+        }
     }
-  }
 ]

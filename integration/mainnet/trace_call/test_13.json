@@ -1,46 +1,43 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_call",
-      "params": [
-        {
-          "data": "0x602a6000556101c960015560068060166000396000f3600035600055",
-          "from": "0x21f510D475787ABCFc6ca646A8Ea15f7d2cF7167",
-          "gas": "0x15F90",
-          "gasPrice": "0x9502F9000",
-          "value": "0x8AC7230489E80000"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_call",
+            "params": [
+                {
+                    "data": "0x602a6000556101c960015560068060166000396000f3600035600055",
+                    "from": "0x21f510D475787ABCFc6ca646A8Ea15f7d2cF7167",
+                    "gas": "0x15F90",
+                    "gasPrice": "0x9502F9000",
+                    "value": "0x8AC7230489E80000"
+                },
+                [
+                    "trace"
+                ],
+                "0x5279A7"
+            ]
         },
-        [
-          "trace"
-        ],
-        "0x5279A7"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "output": "0x",
-        "stateDiff": null,
-        "trace": [
-          {
-            "action": {
-              "from": "0x21f510d475787abcfc6ca646a8ea15f7d2cf7167",
-              "gas": "0x8a58",
-              "init": "0x602a6000556101c960015560068060166000396000f3600035600055",
-              "value": "0x8ac7230489e80000"
-            },
-            "error": "out of gas",
-            "result": null,
-            "subtraces": 0,
-            "traceAddress": [],
-            "type": "create"
-          }
-        ],
-        "vmTrace": null
-      }
+        "response": {
+            "output": "0x",
+            "stateDiff": null,
+            "trace": [
+                {
+                    "action": {
+                        "creationMethod": "create",
+                        "from": "0x21f510d475787abcfc6ca646a8ea15f7d2cf7167",
+                        "gas": "0x8a58",
+                        "init": "0x602a6000556101c960015560068060166000396000f3600035600055",
+                        "value": "0x8ac7230489e80000"
+                    },
+                    "error": "out of gas",
+                    "result": null,
+                    "subtraces": 0,
+                    "traceAddress": [],
+                    "type": "create"
+                }
+            ],
+            "vmTrace": null
+        }
     }
-  }
 ]
