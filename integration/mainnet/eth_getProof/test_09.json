@@ -1,0 +1,26 @@
+[
+    {
+        "test": {
+           "reference": "",
+           "description": ""
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getProof",
+            "params":[
+                   "0x0644c4a7e73a7923e1620df43cb032dbdeddb24e",
+                   [
+		      "0x0000000000000000000000000000000000000000000000000000000000000000"
+                   ],
+                   "latest"
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+             "result": null 
+        }
+    }
+]
+

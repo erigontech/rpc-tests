@@ -1,0 +1,28 @@
+[
+    {
+        "test": {
+           "reference": "",
+           "description": ""
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getProof",
+            "params":[
+                   "0x000000000001a36777f9930aaeff623771b13e70",
+                   [
+		      "0x0a8147dedbd185977bcab16f8b64501b8ec0ea75e31d73b656cb8b3b4da54950",
+		      "0x1b3995281c91f027a7eee4f4fde48a7eb0f8b73d4b36beb850c2af7e27477931",
+		      "0x4525a583ac3461f4495d6472a312c7b55e8b1b6f0cb426ae4b7df8cc09bfb3f0"
+                   ],
+                   "latest"
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+             "result": null 
+        }
+    }
+]
+
