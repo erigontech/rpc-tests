@@ -70,11 +70,12 @@ def usage(argv):
     print("-d,--rpc-daemon-address <addr>:       address of RPCDaemon (e.g. 192.2.3.1)                              [default: " + DEFAULT_ERIGON_ADDRESS + "]")
     print("-g,--erigon-dir <path>:               path to erigon folder (e.g. /home/erigon)                          [default: " + DEFAULT_ERIGON_BUILD_DIR + "]")
     print("-s,--silk-dir <path>:                 path to silk folder (e.g. /home/silkworm)                          [default: " + DEFAULT_SILKWORM_BUILD_DIR + "]")
-    print("-c,--run-vegeta-on-core <...>         taskset format for vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE + "]")
-    print("-T,--response-timeout <timeout>:      vegeta response timeout                                            [default: " + DEFAULT_VEGETA_RESPONSE_TIMEOUT + "]")
+    print("-c,--run-vegeta-on-core <...>         taskset format for Vegeta (e.g. 0-1:2-3 or 0-2:3-4)                [default: " + DEFAULT_DAEMON_VEGETA_ON_CORE + "]")
+    print("-T,--response-timeout <timeout>:      Vegeta response timeout                                            [default: " + DEFAULT_VEGETA_RESPONSE_TIMEOUT + "]")
     print("-M,--max-body-rsp <size>:             max number of bytes to read from response bodies                   [default: " + DEFAULT_MAX_BODY_RSP + "]")
     print("-j,--json-report <file-name>:         generate json report")
     print("-P,--more-percentiles:                print more percentiles in console report")
+    print("-H,--halt-on-vegeta-error:            consider test failed if Vegeta reports any error")
     sys.exit(1)
 
 
@@ -118,6 +119,7 @@ class Config:
         self.binary_file = ""
         self.chain_name = "mainnet"
         self.more_percentiles = False
+        self.halt_on_vegeta_error = False
 
         self.__parse_args(argv)
 
@@ -157,11 +159,12 @@ class Config:
     def __parse_args(self, argv):
         """ This methods parse input args """
         try:
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:D:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j:P",
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:D:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j:PH",
                    ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'testing-daemon=', 'max-connections=',
                     'run-vegeta-on-core=', 'empty-cache', 'erigon-dir=', 'silk-dir=', 'repetitions=', 'test-sequence=',
-                    'tmp-test-report', 'test-report', 'blockchain=', 'verbose', 'tracing', 'wait-after-test-sequence=', 'test-type=',
-                    'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'json-report=', 'more-percentiles'])
+                    'tmp-test-report', 'test-report', 'blockchain=', 'verbose', 'tracing', 'wait-after-test-sequence=',
+                    'test-type=', 'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'json-report=',
+                    'more-percentiles', 'halt-on-vegeta-error'])
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -214,6 +217,8 @@ class Config:
                     self.max_body_rsp = optarg
                 elif option in ("-P", "--more-percentiles"):
                     self.more_percentiles = True
+                elif option in ("-H", "--halt-on-vegeta-error"):
+                    self.halt_on_vegeta_error = True
                 else:
                     usage(argv)
         except getopt.GetoptError as err:
@@ -417,7 +422,7 @@ class PerfTest:
         finally:
             file.close()
             
-        if error != "":
+        if error != "" and self.config.halt_on_vegeta_error:
             print("test failed: " + error)
             return 1
 
