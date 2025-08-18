@@ -1,0 +1,18 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "net_peerCount",
+      "params": []
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "error": {
+        "code": -32601,
+        "message": "the method net_peerCount does not exist/is not available"
+      }
+    }
+  }
+]

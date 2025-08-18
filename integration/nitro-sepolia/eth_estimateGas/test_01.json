@@ -1,0 +1,17 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_estimateGas",
+      "params": [
+        {}
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0xd231"
+    }
+  }
+]
