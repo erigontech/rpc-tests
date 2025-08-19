@@ -1,0 +1,29 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_call",
+      "params": [
+        {
+          "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
+          "to": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
+          "value": "0x1",
+          "gas": "0x5207"
+        },
+        "0xb0a6c25"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "error": {
+        "code": -32000,
+        "message": "err: intrinsic gas too low: have 20999, want 21000 (supplied gas 20999)"
+      }
+    },
+    "meta": {
+      "description": "Insufficient gas: intrinsic gas too low (expect error)"
+    }
+  }
+]

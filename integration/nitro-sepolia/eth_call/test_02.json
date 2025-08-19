@@ -7,7 +7,8 @@
       "params": [
         {
           "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
-          "to": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af"
+          "to": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
+          "value": "0x2386f26fc10000"
         },
         "0xb0a6c25"
       ]
@@ -18,7 +19,7 @@
       "result": "0x"
     },
     "meta": {
-      "description": "EOA call; empty data"
+      "description": "EOA call; non-zero value"
     }
   }
 ]

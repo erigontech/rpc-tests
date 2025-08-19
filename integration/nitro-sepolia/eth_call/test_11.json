@@ -7,7 +7,8 @@
       "params": [
         {
           "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
-          "to": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af"
+          "to": "0x248ab79bbb9bc29bb72f7cd42f17e054fc40188e",
+          "data": "0x8da5cb5b"
         },
         "0xb0a6c25"
       ]
@@ -15,10 +16,10 @@
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "result": "0x"
+      "result": "0x00000000000000000000000011014296ed71103be2d53d5391ed00a2a78a7c46"
     },
     "meta": {
-      "description": "EOA call; empty data"
+      "description": "UniswapV3Factory.owner()"
     }
   }
 ]

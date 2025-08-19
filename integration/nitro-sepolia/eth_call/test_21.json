@@ -1,0 +1,31 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_call",
+      "params": [
+        {
+          "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
+          "to": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
+          "value": "0xde0b6b3a7640000"
+        },
+        "0xb0a6c25",
+        {
+          "0xef7bdeb92846ef2e86116ec451437fb4e71d76af": {
+            "balance": "0x3635c9adc5dea00000",
+            "nonce": "0x0"
+          }
+        }
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0x"
+    },
+    "meta": {
+      "description": "stateOverride: rich+nonce reset; EOA value send (expect success)"
+    }
+  }
+]

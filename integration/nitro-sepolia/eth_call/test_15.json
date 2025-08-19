@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_call",
+      "params": [
+        {
+          "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
+          "to": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
+          "data": "0x70a08231000000000000000000000000ef7bdeb92846ef2e86116ec451437fb4e71d76af"
+        },
+        "0xb0a6c25",
+        {
+          "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d": {
+            "code": "0x"
+          }
+        }
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0x"
+    },
+    "meta": {
+      "description": "USDC.balanceOf with stateOverride (code wiped)"
+    }
+  }
+]

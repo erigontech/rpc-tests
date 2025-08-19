@@ -7,7 +7,8 @@
       "params": [
         {
           "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
-          "to": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af"
+          "to": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
+          "data": "0x18160ddd"
         },
         "0xb0a6c25"
       ]
@@ -15,10 +16,10 @@
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "result": "0x"
+      "result": "0x0000000000000000000000000000000000000000000000000117cc58a9535573"
     },
     "meta": {
-      "description": "EOA call; empty data"
+      "description": "USDC.totalSupply()"
     }
   }
 ]
