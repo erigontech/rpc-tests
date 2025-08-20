@@ -7,9 +7,9 @@
       "params": [
         {
           "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
-          "to": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
-          "value": "0x1",
-          "gas": "0x5207"
+          "to": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
+          "data": "0x70a08231000000000000000000000000ef7bdeb92846ef2e86116ec451437fb4e71d76af",
+          "gas": "0x5208"
         },
         "0xb0a6c25"
       ]
@@ -19,11 +19,11 @@
       "id": 1,
       "error": {
         "code": -32000,
-        "message": "err: intrinsic gas too low: have 20999, want 21000 (supplied gas 20999)"
+        "message": "err: intrinsic gas too low: have 21000, want 21432 (supplied gas 21000)"
       }
     },
     "meta": {
-      "description": "Insufficient gas: intrinsic gas too low (expect error)"
+      "description": "eth_call params=[{'from': '0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'to': '0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d', 'data': '0x70a08231000000000000000000000000ef7bdeb92846ef2e86116ec451437fb4e71d76af', 'gas': '0x5208'}, '0xb0a6c25']"
     }
   }
 ]

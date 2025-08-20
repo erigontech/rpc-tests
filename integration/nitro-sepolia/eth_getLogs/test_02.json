@@ -1,0 +1,27 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_getLogs",
+      "params": [
+        {
+          "fromBlock": "0xb0a6c25",
+          "toBlock": "0xb0a6c25",
+          "address": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+          ]
+        }
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": []
+    },
+    "meta": {
+      "description": "eth_getLogs params=[{'fromBlock': '0xb0a6c25', 'toBlock': '0xb0a6c25', 'address': '0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d', 'topics': ['0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef']}]"
+    }
+  }
+]

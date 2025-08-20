@@ -5,17 +5,17 @@
       "id": 1,
       "method": "eth_getBlockByHash",
       "params": [
-        "0x00",
+        "0x2222222222222222222222222222222222222222222222222222222222222222",
         false
       ]
     },
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "error": {
-        "code": -32602,
-        "message": "invalid argument 0: hex string has length 2, want 64 for common.Hash"
-      }
+      "result": null
+    },
+    "meta": {
+      "description": "eth_getBlockByHash params=['0x2222222222222222222222222222222222222222222222222222222222222222', False]"
     }
   }
 ]

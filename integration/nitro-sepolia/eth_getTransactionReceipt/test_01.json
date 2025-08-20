@@ -30,6 +30,9 @@
         "transactionIndex": "0x0",
         "type": "0x6a"
       }
+    },
+    "meta": {
+      "description": "eth_getTransactionReceipt params=['0x6e023aa27c1b6c1e842a66f3d238b514b36dc597cbab7ed3d823dc6b59e6f241']"
     }
   }
 ]

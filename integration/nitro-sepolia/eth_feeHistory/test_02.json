@@ -6,15 +6,24 @@
       "method": "eth_feeHistory",
       "params": [
         "0x1",
-        "latest",
-        []
+        "0x5",
+        [
+          25,
+          75
+        ]
       ]
     },
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
       "result": {
-        "oldestBlock": "0xb0a85ce",
+        "oldestBlock": "0x5",
+        "reward": [
+          [
+            "0x0",
+            "0x0"
+          ]
+        ],
         "baseFeePerGas": [
           "0x5f5e100",
           "0x5f5e100"
@@ -23,6 +32,9 @@
           1
         ]
       }
+    },
+    "meta": {
+      "description": "eth_feeHistory params=['0x1', '0x5', [25, 75]]"
     }
   }
 ]

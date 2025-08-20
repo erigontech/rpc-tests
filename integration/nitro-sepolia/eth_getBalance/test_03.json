@@ -5,14 +5,17 @@
       "id": 1,
       "method": "eth_getBalance",
       "params": [
-        "0xcEF0A1318076191e19feE547A106D05676CD23E7",
-        "0xa0a6c25"
+        "0x000000000000000000000000000000000000dead",
+        "latest"
       ]
     },
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "result": "0x4f0b94f915f3540"
+      "result": "0xfcb8b410450f5e1"
+    },
+    "meta": {
+      "description": "eth_getBalance params=['0x000000000000000000000000000000000000dead', 'latest']"
     }
   }
 ]

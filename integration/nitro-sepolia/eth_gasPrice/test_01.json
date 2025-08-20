@@ -10,6 +10,9 @@
       "jsonrpc": "2.0",
       "id": 1,
       "result": "0x5f5e100"
+    },
+    "meta": {
+      "description": "eth_gasPrice params=[]"
     }
   }
 ]

@@ -8,7 +8,7 @@
         {
           "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
           "to": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
-          "data": "0xa9059cbb000000000000000000000000ef7bdeb92846ef2e86116ec451437fb4e71d76af00000000000000000000000000000000000000000000000000000000000f4240"
+          "data": "0x18160ddd"
         },
         "0xb0a6c25"
       ]
@@ -16,14 +16,10 @@
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "error": {
-        "code": 3,
-        "message": "execution reverted: ERC20: transfer amount exceeds balance",
-        "data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002645524332303a207472616e7366657220616d6f756e7420657863656564732062616c616e63650000000000000000000000000000000000000000000000000000"
-      }
+      "result": "0x0000000000000000000000000000000000000000000000000117cc58a9535573"
     },
     "meta": {
-      "description": "USDC.transfer(self, 1 USDC) simulation"
+      "description": "eth_call params=[{'from': '0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'to': '0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d', 'data': '0x18160ddd'}, '0xb0a6c25']"
     }
   }
 ]

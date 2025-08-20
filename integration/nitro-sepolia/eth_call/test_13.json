@@ -7,8 +7,8 @@
       "params": [
         {
           "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
-          "to": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
-          "value": "0x56bc75e2d63100000"
+          "to": "0x248ab79bbb9bc29bb72f7cd42f17e054fc40188e",
+          "data": "0x8da5cb5b"
         },
         "0xb0a6c25"
       ]
@@ -16,13 +16,10 @@
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "error": {
-        "code": -32000,
-        "message": "err: insufficient funds for gas * price + value: address 0xef7bDeB92846eF2e86116eC451437Fb4e71d76af have 869716069094479998 want 100000000000000000000 (supplied gas 600000059)"
-      }
+      "result": "0x00000000000000000000000011014296ed71103be2d53d5391ed00a2a78a7c46"
     },
     "meta": {
-      "description": "EOA value send; expect failure without override"
+      "description": "eth_call params=[{'from': '0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'to': '0x248ab79bbb9bc29bb72f7cd42f17e054fc40188e', 'data': '0x8da5cb5b'}, '0xb0a6c25']"
     }
   }
 ]

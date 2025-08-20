@@ -43,6 +43,9 @@
         "transactionsRoot": "0xa2ff71fb7765a262d1d841a27b1c2634a36b1edae0c04a18d3ca23f7223b752b",
         "uncles": []
       }
+    },
+    "meta": {
+      "description": "eth_getBlockByHash params=['0xb0ae4f21537e3e5f1f21c9a5fe22da1af68d2860cc737b590a405deed9439cc0', False]"
     }
   }
 ]

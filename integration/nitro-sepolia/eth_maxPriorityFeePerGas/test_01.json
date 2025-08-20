@@ -1,0 +1,18 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_maxPriorityFeePerGas",
+      "params": []
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0x0"
+    },
+    "meta": {
+      "description": "eth_maxPriorityFeePerGas params=[]"
+    }
+  }
+]
