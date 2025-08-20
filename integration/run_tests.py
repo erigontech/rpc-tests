@@ -287,7 +287,7 @@ def is_skipped(curr_api, test_name: str, global_test_number, config):
     return 0
 
 
-def verify_in_latest_list(curr_api, test_name, config):
+def verify_in_latest_list(test_name, config):
     """ verify if the test in test from latest block
     """
     api_full_test_name = config.net + "/" + test_name
@@ -309,7 +309,7 @@ def api_under_test(curr_api, test_name, config):
         tokenize_list = config.testing_apis_with.split(",")
         for test in tokenize_list:
             if test in curr_api:
-                if config.tests_on_latest_block and verify_in_latest_list(curr_api, test_name, config):
+                if config.tests_on_latest_block and verify_in_latest_list(test_name, config):
                     return 1
                 if config.tests_on_latest_block:
                     return 0
@@ -320,7 +320,7 @@ def api_under_test(curr_api, test_name, config):
         tokenize_list = config.testing_apis.split(",")
         for test in tokenize_list:
             if test == curr_api:
-                if config.tests_on_latest_block and verify_in_latest_list(curr_api, test_name, config):
+                if config.tests_on_latest_block and verify_in_latest_list(test_name, config):
                     return 1
                 if config.tests_on_latest_block:
                     return 0
@@ -330,7 +330,7 @@ def api_under_test(curr_api, test_name, config):
 
     in_latest_list = 0
     if config.tests_on_latest_block is True:
-        in_latest_list = verify_in_latest_list(curr_api, test_name, config)
+        in_latest_list = verify_in_latest_list(test_name, config)
 
     return in_latest_list
 
@@ -661,17 +661,16 @@ def execute_request(transport_type: str, jwt_auth, request_dumps, target: str, v
     return result
 
 
-def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file, test_number):
+def run_compare(use_jsondiff, error_file, temp_file1, temp_file2, diff_file, test_number):
     """ run Compare command and verify if command complete. """
-
     if use_jsondiff:
         cmd_result = os.system("json-diff --help > /dev/null")
         if cmd_result:
             return 0
-        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file + " 2> /dev/null &"
+        cmd = "json-diff -s " + temp_file2 + " " + temp_file1 + " > " + diff_file + " 2> " + error_file + "&"
         already_failed = False
     else:
-        cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " 2> /dev/null &"
+        cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " 2> " + error_file + " &"
         already_failed = True
     os.system(cmd)
     idx = 0
@@ -683,6 +682,17 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file, test_number):
         pid = os.popen(cmd).read()
         if pid == "":
             # json-diff or diff terminated
+            error_file_size = os.stat(error_file).st_size
+            if error_file_size != 0:
+                if already_failed:
+                    # timeout with json-diff and diff so return timeout->0
+                    return 0
+                already_failed = True
+                # try json diffs with diff
+                cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " 2> " + error_file + " &"
+                os.system(cmd)
+                idx = 0
+                continue
             return 1
         if idx >= MAX_TIME:
             killing_pid = pid.strip()
@@ -695,7 +705,7 @@ def run_compare(use_jsondiff, temp_file1, temp_file2, diff_file, test_number):
                 return 0
             already_failed = True
             # try json diffs with diff
-            cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " &"
+            cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " 2> " + error_file + " &"
             os.system(cmd)
             idx = 0
             continue
@@ -708,6 +718,7 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
         os.makedirs(base_name, exist_ok=True)
     temp_file1 = base_name + "daemon_lower_case.txt"
     temp_file2 = base_name + "rpc_lower_case.txt"
+    error_file = base_name + "ERROR.txt"
 
     if "error" in response:
         to_lower_case(daemon_file, temp_file1)
@@ -727,7 +738,7 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
         replace_message(exp_rsp_file, temp_file1, removed_line_string)
         replace_message(daemon_file, temp_file2, removed_line_string)
 
-    diff_result = run_compare(config.use_jsondiff, temp_file1, temp_file2, diff_file, test_number)
+    diff_result = run_compare(config.use_jsondiff, error_file, temp_file1, temp_file2, diff_file, test_number)
     diff_file_size = 0
     return_code = 1  # ok
     error_msg = ""
@@ -802,6 +813,7 @@ def process_response(target, target1, result, result1: str, response_in_file, co
             except OSError:
                 pass
 
+        dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
         return same, error_msg
 
     dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
