@@ -25,6 +25,7 @@ NONE = "none"
 EXTERNAL_PROVIDER = "external-provider"
 TIME = 0.1
 MAX_TIME = 200  # times of TIME secs
+TEMP_DIRNAME="/tmp/rpc_tests"
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
@@ -713,7 +714,7 @@ def run_compare(use_jsondiff, error_file, temp_file1, temp_file2, diff_file, tes
 
 def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_file: str, test_number):
     """ Compare JSON response. """
-    base_name = "/tmp/test_" + str(test_number) + "/"
+    base_name = TEMP_DIRNAME + "/test_" + str(test_number) + "/"
     if os.path.exists(base_name) == 0:
         os.makedirs(base_name, exist_ok=True)
     temp_file1 = base_name + "daemon_lower_case.txt"
@@ -755,6 +756,11 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
         os.remove(temp_file1)
     if os.path.exists(temp_file2):
         os.remove(temp_file2)
+    if os.path.exists(base_name):
+        try:
+            shutil.rmtree(base_name)
+        except OSError:
+            pass
     return return_code, error_msg
 
 
@@ -932,6 +938,12 @@ def main(argv) -> int:
     config = Config()
     config.select_user_options(argv)
 
+    # clean temp dirs if exists
+    if os.path.exists(TEMP_DIRNAME):
+        try:
+            shutil.rmtree(TEMP_DIRNAME)
+        except OSError:
+            pass
     start_time = datetime.now()
     os.makedirs(config.output_dir, exist_ok=True)
     executed_tests = 0
