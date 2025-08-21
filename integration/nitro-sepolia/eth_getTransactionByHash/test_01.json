@@ -1,0 +1,37 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_getTransactionByHash",
+      "params": [
+        "0x6e023aa27c1b6c1e842a66f3d238b514b36dc597cbab7ed3d823dc6b59e6f241"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "blockHash": "0xcd5d805a2c6cfbac4860f38d2d892fdd05bdc11f1b7d6f6e5b5cd89a46e42ec6",
+        "blockNumber": "0xb0a6c27",
+        "from": "0x00000000000000000000000000000000000a4b05",
+        "gas": "0x0",
+        "gasPrice": "0x0",
+        "hash": "0x6e023aa27c1b6c1e842a66f3d238b514b36dc597cbab7ed3d823dc6b59e6f241",
+        "input": "0x6bf6a42d00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000897f00000000000000000000000000000000000000000000000000000000000b0a6c270000000000000000000000000000000000000000000000000000000000000000",
+        "nonce": "0x0",
+        "to": "0x00000000000000000000000000000000000a4b05",
+        "transactionIndex": "0x0",
+        "value": "0x0",
+        "type": "0x6a",
+        "chainId": "0x66eee",
+        "v": "0x0",
+        "r": "0x0",
+        "s": "0x0"
+      }
+    },
+    "meta": {
+      "description": "eth_getTransactionByHash params=['0x6e023aa27c1b6c1e842a66f3d238b514b36dc597cbab7ed3d823dc6b59e6f241']"
+    }
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_getStorageAt",
+      "params": [
+        "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
+        "0x0",
+        "0xb0a6c25"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0x000000000000000000000000ab7dbf0fc9d32349c484419073098dcd52c14798"
+    },
+    "meta": {
+      "description": "eth_getStorageAt params=['0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d', '0x0', '0xb0a6c25']"
+    }
+  }
+]

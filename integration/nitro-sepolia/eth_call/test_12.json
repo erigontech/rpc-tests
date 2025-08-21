@@ -1,0 +1,25 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_call",
+      "params": [
+        {
+          "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
+          "to": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
+          "data": "0x095ea7b3000000000000000000000000248ab79bbb9bc29bb72f7cd42f17e054fc40188effffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        },
+        "latest"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0x0000000000000000000000000000000000000000000000000000000000000001"
+    },
+    "meta": {
+      "description": "eth_call params=[{'from': '0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'to': '0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d', 'data': '0x095ea7b3000000000000000000000000248ab79bbb9bc29bb72f7cd42f17e054fc40188effffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'}, 'latest']"
+    }
+  }
+]

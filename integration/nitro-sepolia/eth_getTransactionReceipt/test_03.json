@@ -1,0 +1,20 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_getTransactionReceipt",
+      "params": [
+        "0x5555555555555555555555555555555555555555555555555555555555555555"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": null
+    },
+    "meta": {
+      "description": "eth_getTransactionReceipt params=['0x5555555555555555555555555555555555555555555555555555555555555555']"
+    }
+  }
+]

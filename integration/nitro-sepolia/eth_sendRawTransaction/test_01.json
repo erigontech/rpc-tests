@@ -1,0 +1,23 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_sendRawTransaction",
+      "params": [
+        "0xdeadbeef"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "error": {
+        "code": -32000,
+        "message": "rlp: value size exceeds available input length"
+      }
+    },
+    "meta": {
+      "description": "eth_sendRawTransaction params=['0xdeadbeef']"
+    }
+  }
+]

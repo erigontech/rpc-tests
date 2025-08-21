@@ -1,0 +1,21 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_getTransactionCount",
+      "params": [
+        "0x000000000000000000000000000000000000dead",
+        "latest"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0x0"
+    },
+    "meta": {
+      "description": "eth_getTransactionCount params=['0x000000000000000000000000000000000000dead', 'latest']"
+    }
+  }
+]

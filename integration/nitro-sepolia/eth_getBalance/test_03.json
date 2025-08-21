@@ -1,0 +1,21 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_getBalance",
+      "params": [
+        "0x000000000000000000000000000000000000dead",
+        "latest"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0xfcb8b410450f5e1"
+    },
+    "meta": {
+      "description": "eth_getBalance params=['0x000000000000000000000000000000000000dead', 'latest']"
+    }
+  }
+]

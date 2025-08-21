@@ -1,0 +1,15 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "web3_clientVersion",
+      "params": []
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "nitro/v3.6.7-a7c9f1e/linux-amd64/go1.23.1"
+    }
+  }
+]

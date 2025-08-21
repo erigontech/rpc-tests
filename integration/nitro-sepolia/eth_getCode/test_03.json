@@ -1,0 +1,21 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_getCode",
+      "params": [
+        "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
+        "earliest"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0x"
+    },
+    "meta": {
+      "description": "eth_getCode params=['0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d', 'earliest']"
+    }
+  }
+]

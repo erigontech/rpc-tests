@@ -1,0 +1,25 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_call",
+      "params": [
+        {
+          "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
+          "to": "0x0000000000000000000000000000000000000004",
+          "data": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+        },
+        "0xb0a6c25"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+    },
+    "meta": {
+      "description": "eth_call params=[{'from': '0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'to': '0x0000000000000000000000000000000000000004', 'data': '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'}, '0xb0a6c25']"
+    }
+  }
+]

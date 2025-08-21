@@ -1,0 +1,20 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_getTransactionByHash",
+      "params": [
+        "0x4444444444444444444444444444444444444444444444444444444444444444"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": null
+    },
+    "meta": {
+      "description": "eth_getTransactionByHash params=['0x4444444444444444444444444444444444444444444444444444444444444444']"
+    }
+  }
+]
