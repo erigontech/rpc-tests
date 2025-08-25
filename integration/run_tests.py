@@ -397,7 +397,7 @@ class Config:
         """ process user command """
         try:
             opts, _ = getopt.getopt(argv[1:], "iw:hfIcv:t:l:a:de:b:ox:X:H:k:s:p:P:T:A:jSK:EL",
-                                    ['help', 'continue', 'daemon-port', 'verify-external-provider', 'host=', 'engine-port=',
+                                    ['help', 'continue', 'daemon-port', 'verify-external-provider=', 'host=', 'engine-port=',
                                      'port=', 'display-only-fail', 'verbose=', 'run-single-test=', 'start-from-test=',
                                      'api-list-with=', 'api-list=', 'loops=', 'compare-erigon-rpcdaemon', 'jwt=', 'create-jwt=', 'blockchain=',
                                      'transport_type=', 'exclude-api-list=', 'exclude-test-list=', 'json-diff', 'waiting_time=',
