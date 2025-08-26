@@ -1,0 +1,74 @@
+[
+  {
+    "test": {
+      "reference": "https://polygonscan.com/tx/0xc6bb4df4982ba2a43088e24e787e3e82c391f34162929d370e695cd5830370c2",
+      "description": "\"bor logs\" topics and log addressed are reported back -- indicates if logaddr/logtopics are indexed properly on system txs."
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_getLogs",
+      "params": [
+        {
+          "topics": [
+            "0x5a22725590b0a51c923940223f7458512164b1113359a735e86e7f27f44791ee"
+          ],
+          "blockHash": "0xa3544674a744ccf338954b5de7dcb278063daac5222bbf36a31c2fda82a7a578"
+        }
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": [
+        {
+          "address": "0x0000000000000000000000000000000000001001",
+          "topics": [
+            "0x5a22725590b0a51c923940223f7458512164b1113359a735e86e7f27f44791ee",
+            "0x00000000000000000000000000000000000000000000000000000000002f23b5"
+          ],
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": "0x4715dd0",
+          "transactionHash": "0xc6bb4df4982ba2a43088e24e787e3e82c391f34162929d370e695cd5830370c2",
+          "transactionIndex": "0xa5",
+          "blockHash": "0xa3544674a744ccf338954b5de7dcb278063daac5222bbf36a31c2fda82a7a578",
+          "logIndex": "0x5f3",
+          "removed": false
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "eth_getLogs",
+      "params": [
+        {
+          "address": "0x0000000000000000000000000000000000001001",
+          "blockHash": "0xa3544674a744ccf338954b5de7dcb278063daac5222bbf36a31c2fda82a7a578"
+        }
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": [
+        {
+          "address": "0x0000000000000000000000000000000000001001",
+          "topics": [
+            "0x5a22725590b0a51c923940223f7458512164b1113359a735e86e7f27f44791ee",
+            "0x00000000000000000000000000000000000000000000000000000000002f23b5"
+          ],
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": "0x4715dd0",
+          "transactionHash": "0xc6bb4df4982ba2a43088e24e787e3e82c391f34162929d370e695cd5830370c2",
+          "transactionIndex": "0xa5",
+          "blockHash": "0xa3544674a744ccf338954b5de7dcb278063daac5222bbf36a31c2fda82a7a578",
+          "logIndex": "0x5f3",
+          "removed": false
+        }
+      ]
+    }
+  }
+]
