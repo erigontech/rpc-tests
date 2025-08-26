@@ -9,7 +9,7 @@
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "result": "0xb142566"
+      "result": null
     },
     "meta": {
       "description": "eth_blockNumber params=[]"

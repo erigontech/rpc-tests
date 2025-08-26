@@ -14,8 +14,7 @@
     },
     "response": {
       "jsonrpc": "2.0",
-      "id": 1,
-      "result": "0x5d78"
+      "id": 1
     },
     "meta": {
       "description": "eth_estimateGas params=[{'from': '0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'to': '0x248ab79bbb9bc29bb72f7cd42f17e054fc40188e', 'data': '0x8da5cb5b'}]"
