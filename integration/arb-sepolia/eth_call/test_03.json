@@ -18,7 +18,7 @@
       "id": 1,
       "error": {
         "code": -32000,
-        "message": "err: intrinsic gas too low: have 20999, want 21000 (supplied gas 20999)"
+        "message": "intrinsic gas too low: have 20999, want 21000"
       }
     },
     "meta": {
