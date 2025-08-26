@@ -1,5 +1,9 @@
 [
   {
+    "test": {
+      "reference": "https://polygonscan.com/tx/0xc6bb4df4982ba2a43088e24e787e3e82c391f34162929d370e695cd5830370c2",
+      "description": "\"bor logs\" topics and log addressed are reported back -- indicates if logaddr/logtopics are indexed properly on system txs."
+    },
     "request": {
       "id": 1,
       "jsonrpc": "2.0",
