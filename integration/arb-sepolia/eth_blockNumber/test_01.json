@@ -3,16 +3,16 @@
     "request": {
       "jsonrpc": "2.0",
       "id": 1,
-      "method": "eth_gasPrice",
+      "method": "eth_blockNumber",
       "params": []
     },
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "result": "0x5f5e100"
+      "result": null
     },
     "meta": {
-      "description": "eth_gasPrice params=[]"
+      "description": "eth_blockNumber params=[]"
     }
   }
 ]

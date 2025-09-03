@@ -8,17 +8,16 @@
         {
           "from": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
           "to": "0xef7bdeb92846ef2e86116ec451437fb4e71d76af",
-          "nonce": "0x0"
+          "gas": "0x5207"
         }
       ]
     },
     "response": {
       "jsonrpc": "2.0",
-      "id": 1,
-      "result": "0x533c"
+      "id": 1
     },
     "meta": {
-      "description": "eth_estimateGas params=[{'from': '0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'to': '0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'nonce': '0x0'}]"
+      "description": "eth_estimateGas params=[{'from': '0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'to': '0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'gas': '0x5207'}]"
     }
   }
 ]
