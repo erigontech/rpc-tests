@@ -14,29 +14,28 @@
             ]
         },
         "response": {
-  "id": 1,
-  "jsonrpc": "2.0",
-  "result": [
-    {
-      "result": {
-        "failed": false,
-        "gas": 21000,
-        "returnValue": "0x",
-        "structLogs": []
-      },
-      "txHash": "0x2e0b721a24f7d99bd59d09e0b7e36809ab1c9b8a3e804932922f31b2a7a55bd3"
-    },
-    {
-      "result": {
-        "failed": false,
-        "gas": 21000,
-        "returnValue": "0x",
-        "structLogs": []
-      },
-      "txHash": "0x31509077e5314f9864f19b27a95d8b0d3dd361d51626ac02e2f884c89688160d"
-    }
-  ]
-}
-
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "result": {
+                        "failed": false,
+                        "gas": 21000,
+                        "returnValue": "0x",
+                        "structLogs": []
+                    },
+                    "txHash": "0x2e0b721a24f7d99bd59d09e0b7e36809ab1c9b8a3e804932922f31b2a7a55bd3"
+                },
+                {
+                    "result": {
+                        "failed": false,
+                        "gas": 21000,
+                        "returnValue": "0x",
+                        "structLogs": []
+                    },
+                    "txHash": "0x31509077e5314f9864f19b27a95d8b0d3dd361d51626ac02e2f884c89688160d"
+                }
+            ]
+        }
     }
 ]

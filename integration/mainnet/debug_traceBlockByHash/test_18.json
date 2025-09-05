@@ -13,16 +13,20 @@
                 }
             ]
         },
-        "response": [
-            {
-                "result": {
-                    "failed": false,
-                    "gas": 21000,
-                    "returnValue": "0x",
-                    "structLogs": []
-                },
-                "txHash": "0x9e7452e3a1efe2293f520648d88256e6fa28d140378e9a03dcc8d2b15b814529"
-            }
-        ]
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "result": {
+                        "failed": false,
+                        "gas": 21000,
+                        "returnValue": "0x",
+                        "structLogs": []
+                    },
+                    "txHash": "0x9e7452e3a1efe2293f520648d88256e6fa28d140378e9a03dcc8d2b15b814529"
+                }
+            ]
+        }
     }
 ]
