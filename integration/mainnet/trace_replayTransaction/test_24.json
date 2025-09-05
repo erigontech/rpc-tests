@@ -1,84 +1,84 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_replayTransaction",
-      "params": [
-        "0xff8fdcd975d1c4f7ded80777727480c7f499e72a9ac9c51aca2dc66e0f77dad4",
-        [
-          "vmTrace",
-          "trace",
-          "stateDiff"
-        ]
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "output": "0x",
-        "stateDiff": {
-          "0x40ba0dd32ef02315514a7859c49626750219acf4": {
-            "balance": {
-              "*": {
-                "from": "0x1b9de6773312e400",
-                "to": "0x1b9c5560e2ba5400"
-              }
-            },
-            "code": "=",
-            "nonce": {
-              "*": {
-                "from": "0x27",
-                "to": "0x28"
-              }
-            },
-            "storage": {}
-          },
-          "0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
-            "balance": {
-              "*": {
-                "from": "0x1a3d0a7c5adacf42e2",
-                "to": "0x1a3d0c0d712b27d2e2"
-              }
-            },
-            "code": "=",
-            "nonce": "=",
-            "storage": {}
-          }
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_replayTransaction",
+            "params": [
+                "0xff8fdcd975d1c4f7ded80777727480c7f499e72a9ac9c51aca2dc66e0f77dad4",
+                [
+                    "vmTrace",
+                    "trace",
+                    "stateDiff"
+                ]
+            ]
         },
-        "trace": [
-          {
-            "action": {
-              "callType": "call",
-              "from": "0x40ba0dd32ef02315514a7859c49626750219acf4",
-              "gas": "0x0",
-              "input": "0x",
-              "to": "0x9919d27045e0170a3baf247a2ad4342692126e6e",
-              "value": "0x16345785d8a0000"
-            },
-            "error": "out of gas",
-            "result": null,
-            "subtraces": 0,
-            "traceAddress": [],
-            "type": "call"
-          }
-        ],
-        "transactionHash": "0xff8fdcd975d1c4f7ded80777727480c7f499e72a9ac9c51aca2dc66e0f77dad4",
-        "vmTrace": {
-          "code": "0x606060405236156100495763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416636ea056a98114610052578063c0ee0b8a14610092575b6100505b5b565b005b341561005a57fe5b61007e73ffffffffffffffffffffffffffffffffffffffff60043516602435610104565b604080519115158252519081900360200190f35b341561009a57fe5b604080516020600460443581810135601f810184900484028501840190955284845261005094823573ffffffffffffffffffffffffffffffffffffffff169460248035956064949293919092019181908401838280828437509496506101ef95505050505050565b005b6000805460408051602090810184905281517f3c18d31800000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff878116600483015292519290931692633c18d318926024808301939282900301818787803b151561017b57fe5b6102c65a03f1151561018957fe5b5050506040518051905073ffffffffffffffffffffffffffffffffffffffff1660003660006040516020015260405180838380828437820191505092505050602060405180830381856102c65a03f415156101e057fe5b50506040515190505b92915050565b5b5050505600a165627a7a723058204cdd69fdcf3cf6cbee9677fe380fa5f044048aa9e060ec5619a21ca5a5bd4cd10029",
-          "ops": [
-            {
-              "cost": 3,
-              "ex": null,
-              "idx": "2-0",
-              "op": "PUSH1",
-              "pc": 0,
-              "sub": null
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "output": "0x",
+                "stateDiff": {
+                    "0x40ba0dd32ef02315514a7859c49626750219acf4": {
+                        "balance": {
+                            "*": {
+                                "from": "0x1b9de6773312e400",
+                                "to": "0x1b9c5560e2ba5400"
+                            }
+                        },
+                        "code": "=",
+                        "nonce": {
+                            "*": {
+                                "from": "0x27",
+                                "to": "0x28"
+                            }
+                        },
+                        "storage": {}
+                    },
+                    "0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
+                        "balance": {
+                            "*": {
+                                "from": "0x1a3d0a7c5adacf42e2",
+                                "to": "0x1a3d0c0d712b27d2e2"
+                            }
+                        },
+                        "code": "=",
+                        "nonce": "=",
+                        "storage": {}
+                    }
+                },
+                "trace": [
+                    {
+                        "action": {
+                            "callType": "call",
+                            "from": "0x40ba0dd32ef02315514a7859c49626750219acf4",
+                            "gas": "0x0",
+                            "input": "0x",
+                            "to": "0x9919d27045e0170a3baf247a2ad4342692126e6e",
+                            "value": "0x16345785d8a0000"
+                        },
+                        "error": "out of gas",
+                        "result": null,
+                        "subtraces": 0,
+                        "traceAddress": [],
+                        "type": "call"
+                    }
+                ],
+                "transactionHash": "0xff8fdcd975d1c4f7ded80777727480c7f499e72a9ac9c51aca2dc66e0f77dad4",
+                "vmTrace": {
+                    "code": "0x606060405236156100495763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416636ea056a98114610052578063c0ee0b8a14610092575b6100505b5b565b005b341561005a57fe5b61007e73ffffffffffffffffffffffffffffffffffffffff60043516602435610104565b604080519115158252519081900360200190f35b341561009a57fe5b604080516020600460443581810135601f810184900484028501840190955284845261005094823573ffffffffffffffffffffffffffffffffffffffff169460248035956064949293919092019181908401838280828437509496506101ef95505050505050565b005b6000805460408051602090810184905281517f3c18d31800000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff878116600483015292519290931692633c18d318926024808301939282900301818787803b151561017b57fe5b6102c65a03f1151561018957fe5b5050506040518051905073ffffffffffffffffffffffffffffffffffffffff1660003660006040516020015260405180838380828437820191505092505050602060405180830381856102c65a03f415156101e057fe5b50506040515190505b92915050565b5b5050505600a165627a7a723058204cdd69fdcf3cf6cbee9677fe380fa5f044048aa9e060ec5619a21ca5a5bd4cd10029",
+                    "ops": [
+                        {
+                            "cost": 3,
+                            "ex": null,
+                            "idx": "2-0",
+                            "op": "PUSH1",
+                            "pc": 0,
+                            "sub": null
+                        }
+                    ]
+                }
             }
-          ]
         }
-      }
     }
-  }
 ]
