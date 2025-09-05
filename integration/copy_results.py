@@ -18,34 +18,36 @@ def extract_number(filename):
 
 def find_and_read_response_json(search_dir, test_base_name):
     """
-    Cerca e legge il file JSON di risposta che contiene la parola 'response'
-    nella directory specificata.
+    Cerca e legge il file JSON di risposta, restituendo l'intero oggetto di risposta
+    JSON-RPC che contiene i campi 'id', 'jsonrpc' e 'result'.
     """
     # Costruisci il pattern di ricerca per il file di risposta
-    # Ad es. /home/simon/silkworm/tests/.../test_02*response*.json
     search_pattern = os.path.join(search_dir, f"{test_base_name}*response*.json")
-    
+
     # Usa glob per trovare il file corrispondente al pattern
     found_files = glob.glob(search_pattern)
 
     if not found_files:
         print(f"  Nessun file di risposta contenente 'response' trovato per '{test_base_name}' in {search_dir}")
         return None
-    
+
     # Prendi il primo file trovato
     file_path = found_files[0]
-    
+
     try:
         with open(file_path, 'r') as f:
             data = json.load(f)
-            if 'result' in data and data['result'] is not None:
-                print(f"  Trovato file di risposta: {file_path}")
-                return data.get('result')
+            # Verifica che il JSON sia un oggetto JSON-RPC valido e completo
+            if isinstance(data, dict) and 'id' in data and 'jsonrpc' in data and 'result' in data:
+                print(f"  Trovato file di risposta JSON-RPC: {file_path}")
+                return data
     except (json.JSONDecodeError, FileNotFoundError) as e:
         print(f"  Errore durante la lettura del file di risposta {file_path}: {e}")
         return None
     
+    # Se il file non è un oggetto JSON-RPC valido, ritorna None
     return None
+
 
 def update_response_in_json_data(data, new_response_data, test_base_name):
     """
