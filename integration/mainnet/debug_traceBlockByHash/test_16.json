@@ -1,22 +1,18 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceBlockByHash",
-      "params": [
-        "0x5d5837b5ce6768939d5d356a62b3435df0b6edbec6d0ed079fa15c97b1f2077a",
-        {
-          "disableMemory": false,
-          "disableStack": false,
-          "disableStorage": false
-        }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": []
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceBlockByHash",
+            "params": [
+                "0x5d5837b5ce6768939d5d356a62b3435df0b6edbec6d0ed079fa15c97b1f2077a",
+                {
+                    "disableMemory": false,
+                    "disableStack": false,
+                    "disableStorage": false
+                }
+            ]
+        },
+        "response": []
     }
-  }
 ]
