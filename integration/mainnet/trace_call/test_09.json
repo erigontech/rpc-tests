@@ -1,51 +1,51 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_call",
-      "params": [
-        {
-          "data": "0x",
-          "from": "0x264b09a49E97Ed8DD310816577f2De6Ae22Af5f4",
-          "gas": "0x5208",
-          "gasPrice": "0xB2D05E00",
-          "to": "0x9ea9b8a8c40d59DD55CD3AbB5Ebd7590bDCb9227",
-          "value": "0xF1539B63D3691"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_call",
+            "params": [
+                {
+                    "data": "0x",
+                    "from": "0x264b09a49E97Ed8DD310816577f2De6Ae22Af5f4",
+                    "gas": "0x5208",
+                    "gasPrice": "0xB2D05E00",
+                    "to": "0x9ea9b8a8c40d59DD55CD3AbB5Ebd7590bDCb9227",
+                    "value": "0xF1539B63D3691"
+                },
+                [
+                    "trace"
+                ],
+                "0x5279A7"
+            ]
         },
-        [
-          "trace"
-        ],
-        "0x5279A7"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "output": "0x",
-        "stateDiff": null,
-        "trace": [
-          {
-            "action": {
-              "callType": "call",
-              "from": "0x264b09a49e97ed8dd310816577f2de6ae22af5f4",
-              "gas": "0x0",
-              "input": "0x",
-              "to": "0x9ea9b8a8c40d59dd55cd3abb5ebd7590bdcb9227",
-              "value": "0xf1539b63d3691"
-            },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
             "result": {
-              "gasUsed": "0x0",
-              "output": "0x"
-            },
-            "subtraces": 0,
-            "traceAddress": [],
-            "type": "call"
-          }
-        ],
-        "vmTrace": null
-      }
+                "output": "0x",
+                "stateDiff": null,
+                "trace": [
+                    {
+                        "action": {
+                            "callType": "call",
+                            "from": "0x264b09a49e97ed8dd310816577f2de6ae22af5f4",
+                            "gas": "0x0",
+                            "input": "0x",
+                            "to": "0x9ea9b8a8c40d59dd55cd3abb5ebd7590bdcb9227",
+                            "value": "0xf1539b63d3691"
+                        },
+                        "result": {
+                            "gasUsed": "0x0",
+                            "output": "0x"
+                        },
+                        "subtraces": 0,
+                        "traceAddress": [],
+                        "type": "call"
+                    }
+                ],
+                "vmTrace": null
+            }
+        }
     }
-  }
 ]
