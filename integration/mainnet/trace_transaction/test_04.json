@@ -1,37 +1,37 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_transaction",
-      "params": [
-        "0x63952eb7c146c2143db56238b339486cd541aa23e677d71479633cb3685822e0"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": [
-        {
-          "action": {
-            "callType": "call",
-            "from": "0x268b374261ac5b9ea3bb9d7c4d06b569d0804fad",
-            "gas": "0x73b271",
-            "input": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
-            "to": "0xa146240bf2c04005a743032dc0d241ec0bb2ba2b",
-            "value": "0x0"
-          },
-          "blockHash": "0x0621386f998fd3cfd761657ff81d72b1e465b314971febc088cf607037232938",
-          "blockNumber": 5415091,
-          "error": "invalid opcode: INVALID",
-          "result": null,
-          "subtraces": 0,
-          "traceAddress": [],
-          "transactionHash": "0x63952eb7c146c2143db56238b339486cd541aa23e677d71479633cb3685822e0",
-          "transactionPosition": 1,
-          "type": "call"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_transaction",
+            "params": [
+                "0x63952eb7c146c2143db56238b339486cd541aa23e677d71479633cb3685822e0"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "action": {
+                        "callType": "call",
+                        "from": "0x268b374261ac5b9ea3bb9d7c4d06b569d0804fad",
+                        "gas": "0x73b271",
+                        "input": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
+                        "to": "0xa146240bf2c04005a743032dc0d241ec0bb2ba2b",
+                        "value": "0x0"
+                    },
+                    "blockHash": "0x0621386f998fd3cfd761657ff81d72b1e465b314971febc088cf607037232938",
+                    "blockNumber": 5415091,
+                    "error": "invalid opcode: INVALID",
+                    "result": null,
+                    "subtraces": 0,
+                    "traceAddress": [],
+                    "transactionHash": "0x63952eb7c146c2143db56238b339486cd541aa23e677d71479633cb3685822e0",
+                    "transactionPosition": 1,
+                    "type": "call"
+                }
+            ]
         }
-      ]
     }
-  }
 ]
