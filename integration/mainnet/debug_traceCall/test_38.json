@@ -1,27 +1,40 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceCall",
-      "params": [
-        {
-		"from": "0xa9Ac1233699BDae25abeBae4f9Fb54DbB1b44700",
-                "to": "0x4debB0dF4da8D1f51EF67B727c3F1c0eCC7ed009",
-                "gas": "0x5208",
-                "gasPrice": "0x2CB417800",
-                "value": "0x229322"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceCall",
+            "params": [
+                {
+                    "from": "0xa9Ac1233699BDae25abeBae4f9Fb54DbB1b44700",
+                    "to": "0x4debB0dF4da8D1f51EF67B727c3F1c0eCC7ed009",
+                    "gas": "0x5208",
+                    "gasPrice": "0x2CB417800",
+                    "value": "0x229322"
+                },
+                "latest",
+                {
+                    "tracer": "prestateTracer"
+                }
+            ]
         },
-        "latest",
-	{
-            "tracer": "prestateTracer"
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "0x4debb0df4da8d1f51ef67b727c3f1c0ecc7ed009": {
+                    "balance": "0x0",
+                    "nonce": 1
+                },
+                "0xa9ac1233699bdae25abebae4f9fb54dbb1b44700": {
+                    "balance": "0xa41fdfc19e3a9bc",
+                    "nonce": 175
+                },
+                "0xdadb0d80178819f2319190d340ce9a924f783711": {
+                    "balance": "0x165d925e3115aec52",
+                    "nonce": 871964
+                }
+            }
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": null 
     }
-  }
 ]

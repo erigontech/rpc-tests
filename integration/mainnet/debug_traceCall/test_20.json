@@ -1,39 +1,39 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceCall",
-      "params": [
-        {
-          "data": "0x",
-          "from": "0x86dfc310D4CC8E2b1e1161A46C4498Db49a0F18A",
-          "gas": "0x5208",
-          "gasPrice": "0x20",
-          "to": "0x70faa28A6B8d6829a4b1E649d26eC9a2a39ba413",
-          "value": "0x1381"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceCall",
+            "params": [
+                {
+                    "data": "0x",
+                    "from": "0x86dfc310D4CC8E2b1e1161A46C4498Db49a0F18A",
+                    "gas": "0x5208",
+                    "gasPrice": "0x20",
+                    "to": "0x70faa28A6B8d6829a4b1E649d26eC9a2a39ba413",
+                    "value": "0x1381"
+                },
+                "0x4366AC",
+                {
+                    "TxIndex": "0x6",
+                    "disableMemory": false,
+                    "disableStack": false,
+                    "disableStorage": false
+                }
+            ]
         },
-        "0x4366AC",
-        {
-          "TxIndex": "0x6",
-          "disableMemory": false,
-          "disableStack": false,
-          "disableStorage": false
+        "response": {
+            "error": {
+                "code": -32000,
+                "message": "tracing failed: insufficient funds for gas * price + value: address 0x86dfc310D4CC8E2b1e1161A46C4498Db49a0F18A have 4992 want 676993"
+            },
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null
+        },
+        "test": {
+            "description": "From block 4417196 tnx 5. FROM has 1.12016671 eth before  0.000000000000004992 eth after",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "error": {
-        "code": -32000,
-        "message": "tracing failed: insufficient funds for gas * price + value: address 0x86dfc310D4CC8E2b1e1161A46C4498Db49a0F18A have 4992 want 676993"
-      },
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": null 
-    },
-    "test": {
-      "description": "From block 4417196 tnx 5. FROM has 1.12016671 eth before  0.000000000000004992 eth after",
-      "reference": ""
     }
-  }
 ]

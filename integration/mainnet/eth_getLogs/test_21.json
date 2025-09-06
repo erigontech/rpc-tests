@@ -1,23 +1,21 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "eth_getLogs",
-      "params": [
-        {
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_getLogs",
+            "params": [
+                {}
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null 
+        },
+        "test": {
+            "description": "logs in the last block",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": null
-    },
-    "test": {
-      "description": "logs in the last block",
-      "reference": ""
     }
-  }
 ]
-

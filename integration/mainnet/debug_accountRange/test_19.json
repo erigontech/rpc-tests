@@ -1,66 +1,65 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_accountRange",
-      "params": [
-        "0x4fff7A",
-        [
-          118,
-          180,
-          144,
-          204,
-          30,
-          223,
-          106,
-          142,
-          87,
-          197,
-          141,
-          251,
-          109,
-          39,
-          105,
-          153,
-          93,
-          221,
-          174,
-          166
-        ],
-        3,
-        false,
-        false
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-    "accounts": { 
-      "0x76b49121b3e4f35b25653e47825a970844130f1c": {
-        "balance": "128814256882906149",
-        "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
-        "nonce": 1,
-        "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
-      },
-      "0x76b492fec827a6afe175689294533534c7812fb1": {
-        "balance": "0",
-        "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
-        "nonce": 3,
-        "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
-      },
-      "0x76b494159335e29d079a396c42b9a480a2a86229": {
-        "balance": "451250000000000",
-        "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
-        "nonce": 1,
-        "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
-      }
-    },
-    "next": "drSVk6Sk0Pq9lfl3njfsnwtdZcs=",
-    "root": "0x14ad82ffec2d2f1074cc604183190eabb895448edcc21898f0e0dc2869794415"
-
-      }
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_accountRange",
+            "params": [
+                "0x4fff7A",
+                [
+                    118,
+                    180,
+                    144,
+                    204,
+                    30,
+                    223,
+                    106,
+                    142,
+                    87,
+                    197,
+                    141,
+                    251,
+                    109,
+                    39,
+                    105,
+                    153,
+                    93,
+                    221,
+                    174,
+                    166
+                ],
+                3,
+                false,
+                false
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "accounts": {
+                    "0x76b49121b3e4f35b25653e47825a970844130f1c": {
+                        "balance": "128814256882906149",
+                        "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                        "nonce": 1,
+                        "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                    },
+                    "0x76b492fec827a6afe175689294533534c7812fb1": {
+                        "balance": "0",
+                        "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                        "nonce": 3,
+                        "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                    },
+                    "0x76b494159335e29d079a396c42b9a480a2a86229": {
+                        "balance": "451250000000000",
+                        "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                        "nonce": 1,
+                        "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                    }
+                },
+                "next": "drSVk6Sk0Pq9lfl3njfsnwtdZcs=",
+                "root": "0x14ad82ffec2d2f1074cc604183190eabb895448edcc21898f0e0dc2869794415"
+            }
+        }
     }
-  }
 ]

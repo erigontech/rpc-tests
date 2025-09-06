@@ -798,7 +798,7 @@ def process_response(target, target1, result, result1: str, response_in_file, co
             # response and expected_response are different but don't care
             dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
             return 1, ""
-        if "error" not in expected_response and "result" not in expected_response:
+        if "error" not in expected_response and "result" not in expected_response and not isinstance(expected_response, list) and len(expected_response) == 2:
             # response and expected_response are different but don't care
             dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
             return 1, ""

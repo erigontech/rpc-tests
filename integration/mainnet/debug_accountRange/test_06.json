@@ -1,54 +1,53 @@
 [
-  {
-   "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_accountRange",
-      "params": [
-        "0x3D08FF",
-        [
-          236,
-          231,
-          1,
-          199,
-          107,
-          208,
-          13,
-          28,
-          63,
-          150,
-          65,
-          10,
-          12,
-          105,
-          234,
-          141,
-          252,
-          245,
-          243,
-          78
-        ],
-        1,
-        true,
-        true
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-  "result": {
-    "accounts": {
-      "0xece701c76bd00d1c3f96410a0c69ea8dfcf5f34e": {
-        "balance": "1868317402361629371210",
-        "codeHash": "0x5ffee6f38fc3aecdd6a03f92fb6f05b24f10a5c91a5653e731c359819bb4acc6",
-        "nonce": 1,
-        "root": "0x0000000000000000000000000000000000000000000000000000000000000000"
-      }
-    },
-    "next": "7OcC3AyXISBGb05hUw3j4nvSuiE=",
-    "root": "0xab9325d81b9e613fe175173dfb03b5a3cad9cc86492237e9b71b18dc3d6d67a1"
-  }
-
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_accountRange",
+            "params": [
+                "0x3D08FF",
+                [
+                    236,
+                    231,
+                    1,
+                    199,
+                    107,
+                    208,
+                    13,
+                    28,
+                    63,
+                    150,
+                    65,
+                    10,
+                    12,
+                    105,
+                    234,
+                    141,
+                    252,
+                    245,
+                    243,
+                    78
+                ],
+                1,
+                true,
+                true
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "accounts": {
+                    "0xece701c76bd00d1c3f96410a0c69ea8dfcf5f34e": {
+                        "balance": "1868317402361629371210",
+                        "codeHash": "0x5ffee6f38fc3aecdd6a03f92fb6f05b24f10a5c91a5653e731c359819bb4acc6",
+                        "nonce": 1,
+                        "root": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                    }
+                },
+                "next": "7OcC3AyXISBGb05hUw3j4nvSuiE=",
+                "root": "0xab9325d81b9e613fe175173dfb03b5a3cad9cc86492237e9b71b18dc3d6d67a1"
+            }
+        }
     }
-  }
 ]

@@ -1,23 +1,23 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_filter",
-      "params": [
-        {
-          "fromAddress": [
-            "0x2031832e54a2200bf678286f560f49a950db2ad5"
-          ],
-          "fromBlock": "0x6DDD02",
-          "toBlock": "0x6DDD03"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_filter",
+            "params": [
+                {
+                    "fromAddress": [
+                        "0x2031832e54a2200bf678286f560f49a950db2ad5"
+                    ],
+                    "fromBlock": "0x6DDD02",
+                    "toBlock": "0x6DDD03"
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": []
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": []
     }
-  }
 ]

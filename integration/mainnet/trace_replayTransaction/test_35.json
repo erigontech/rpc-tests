@@ -1,65 +1,65 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_replayTransaction",
-      "params": [
-        "0x0f34c7cf6035d0748831d6b5969288a6648f72d227238bf009566d9d8f5a3854",
-        [
-          "stateDiff"
-        ]
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-  "result": {
-    "output": "0x",
-    "stateDiff": {
-      "0x1ad91ee08f21be3de0ba2ba6918e714da6b45836": {
-        "balance": {
-          "*": {
-            "from": "0xdb70706a29a7aa7adf",
-            "to": "0xdb707652c64f897e6f"
-          }
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_replayTransaction",
+            "params": [
+                "0x0f34c7cf6035d0748831d6b5969288a6648f72d227238bf009566d9d8f5a3854",
+                [
+                    "stateDiff"
+                ]
+            ]
         },
-        "code": "=",
-        "nonce": "=",
-        "storage": {}
-      },
-      "0x91962711a4d2e4a830b366ce7276d99001e8564b": {
-        "balance": {
-          "*": {
-            "from": "0x3feb3a31cb333c8772",
-            "to": "0x3fe72d0a279c69a3e2"
-          }
-        },
-        "code": "=",
-        "nonce": {
-          "*": {
-            "from": "0xf254",
-            "to": "0xf255"
-          }
-        },
-        "storage": {}
-      },
-      "0xa04a0480a97872649144878bdf602d0fbb107582": {
-        "balance": {
-          "*": {
-            "from": "0x0",
-            "to": "0x4073f06eef3e000"
-          }
-        },
-        "code": "=",
-        "nonce": "=",
-        "storage": {}
-      }
-    },
-    "trace": [],
-    "transactionHash": "0x0f34c7cf6035d0748831d6b5969288a6648f72d227238bf009566d9d8f5a3854",
-    "vmTrace": null
-  }
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "output": "0x",
+                "stateDiff": {
+                    "0x1ad91ee08f21be3de0ba2ba6918e714da6b45836": {
+                        "balance": {
+                            "*": {
+                                "from": "0xdb70706a29a7aa7adf",
+                                "to": "0xdb707652c64f897e6f"
+                            }
+                        },
+                        "code": "=",
+                        "nonce": "=",
+                        "storage": {}
+                    },
+                    "0x91962711a4d2e4a830b366ce7276d99001e8564b": {
+                        "balance": {
+                            "*": {
+                                "from": "0x3feb3a31cb333c8772",
+                                "to": "0x3fe72d0a279c69a3e2"
+                            }
+                        },
+                        "code": "=",
+                        "nonce": {
+                            "*": {
+                                "from": "0xf254",
+                                "to": "0xf255"
+                            }
+                        },
+                        "storage": {}
+                    },
+                    "0xa04a0480a97872649144878bdf602d0fbb107582": {
+                        "balance": {
+                            "*": {
+                                "from": "0x0",
+                                "to": "0x4073f06eef3e000"
+                            }
+                        },
+                        "code": "=",
+                        "nonce": "=",
+                        "storage": {}
+                    }
+                },
+                "trace": [],
+                "transactionHash": "0x0f34c7cf6035d0748831d6b5969288a6648f72d227238bf009566d9d8f5a3854",
+                "vmTrace": null
+            }
+        }
     }
-  }
 ]

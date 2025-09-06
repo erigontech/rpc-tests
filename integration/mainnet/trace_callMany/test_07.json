@@ -1,182 +1,182 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_callMany",
-      "params": [
-        [
-          [
-            {
-              "data": "0x",
-              "from": "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE",
-              "gas": "0x5208",
-              "gasPrice": "0xCCE416600",
-              "to": "0xd5d83B484DD581D085443f01E9C993c3682Cd52f",
-              "value": "0x2C8EF7C2B5598000"
-            },
-            [
-              "vmTrace",
-              "trace",
-              "stateDiff"
-            ]
-          ],
-          [
-            {
-              "data": "0x",
-              "from": "0x267be1C1D684F78cb4F6a176C4911b741E4Ffdc0",
-              "gas": "0x7530",
-              "gasPrice": "0x6FC23AC00",
-              "to": "0x09FDE500e9a489Bbe3e62bc919f59BC78394dF46",
-              "value": "0x23CFB4E356000"
-            },
-            [
-              "vmTrace",
-              "trace",
-              "stateDiff"
-            ]
-          ]
-        ],
-        "0x5431FD"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-  "result": [
     {
-      "output": "0x",
-      "stateDiff": {
-        "0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be": {
-          "balance": {
-            "*": {
-              "from": "0xdd4d49fd4c84f770a0a",
-              "to": "0xdd4a810dd059a1d8a0a"
-            }
-          },
-          "code": "=",
-          "nonce": {
-            "*": {
-              "from": "0x227905",
-              "to": "0x227906"
-            }
-          },
-          "storage": {}
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_callMany",
+            "params": [
+                [
+                    [
+                        {
+                            "data": "0x",
+                            "from": "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE",
+                            "gas": "0x5208",
+                            "gasPrice": "0xCCE416600",
+                            "to": "0xd5d83B484DD581D085443f01E9C993c3682Cd52f",
+                            "value": "0x2C8EF7C2B5598000"
+                        },
+                        [
+                            "vmTrace",
+                            "trace",
+                            "stateDiff"
+                        ]
+                    ],
+                    [
+                        {
+                            "data": "0x",
+                            "from": "0x267be1C1D684F78cb4F6a176C4911b741E4Ffdc0",
+                            "gas": "0x7530",
+                            "gasPrice": "0x6FC23AC00",
+                            "to": "0x09FDE500e9a489Bbe3e62bc919f59BC78394dF46",
+                            "value": "0x23CFB4E356000"
+                        },
+                        [
+                            "vmTrace",
+                            "trace",
+                            "stateDiff"
+                        ]
+                    ]
+                ],
+                "0x5431FD"
+            ]
         },
-        "0xb75d1e62b10e4ba91315c4aa3facc536f8a922f5": {
-          "balance": {
-            "*": {
-              "from": "0x6687ce581bddbb7b0",
-              "to": "0x66880fff92292e7b0"
-            }
-          },
-          "code": "=",
-          "nonce": "=",
-          "storage": {}
-        },
-        "0xd5d83b484dd581d085443f01e9c993c3682cd52f": {
-          "balance": {
-            "*": {
-              "from": "0x2c8ef7c2b5598000",
-              "to": "0x591def856ab30000"
-            }
-          },
-          "code": "=",
-          "nonce": "=",
-          "storage": {}
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "output": "0x",
+                    "stateDiff": {
+                        "0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be": {
+                            "balance": {
+                                "*": {
+                                    "from": "0xdd4d49fd4c84f770a0a",
+                                    "to": "0xdd4a810dd059a1d8a0a"
+                                }
+                            },
+                            "code": "=",
+                            "nonce": {
+                                "*": {
+                                    "from": "0x227905",
+                                    "to": "0x227906"
+                                }
+                            },
+                            "storage": {}
+                        },
+                        "0xb75d1e62b10e4ba91315c4aa3facc536f8a922f5": {
+                            "balance": {
+                                "*": {
+                                    "from": "0x6687ce581bddbb7b0",
+                                    "to": "0x66880fff92292e7b0"
+                                }
+                            },
+                            "code": "=",
+                            "nonce": "=",
+                            "storage": {}
+                        },
+                        "0xd5d83b484dd581d085443f01e9c993c3682cd52f": {
+                            "balance": {
+                                "*": {
+                                    "from": "0x2c8ef7c2b5598000",
+                                    "to": "0x591def856ab30000"
+                                }
+                            },
+                            "code": "=",
+                            "nonce": "=",
+                            "storage": {}
+                        }
+                    },
+                    "trace": [
+                        {
+                            "action": {
+                                "callType": "call",
+                                "from": "0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be",
+                                "gas": "0x0",
+                                "input": "0x",
+                                "to": "0xd5d83b484dd581d085443f01e9c993c3682cd52f",
+                                "value": "0x2c8ef7c2b5598000"
+                            },
+                            "result": {
+                                "gasUsed": "0x0",
+                                "output": "0x"
+                            },
+                            "subtraces": 0,
+                            "traceAddress": [],
+                            "type": "call"
+                        }
+                    ],
+                    "vmTrace": {
+                        "code": "0x",
+                        "ops": []
+                    }
+                },
+                {
+                    "output": "0x",
+                    "stateDiff": {
+                        "0x09fde500e9a489bbe3e62bc919f59bc78394df46": {
+                            "balance": {
+                                "*": {
+                                    "from": "0x4db7004c645f900",
+                                    "to": "0x4ddad00147b5900"
+                                }
+                            },
+                            "code": "=",
+                            "nonce": "=",
+                            "storage": {}
+                        },
+                        "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0": {
+                            "balance": {
+                                "*": {
+                                    "from": "0x3c1cb7b9b4dfc40bda2d",
+                                    "to": "0x3c1cb7b777e475d67a2d"
+                                }
+                            },
+                            "code": "=",
+                            "nonce": {
+                                "*": {
+                                    "from": "0xd5258",
+                                    "to": "0xd5259"
+                                }
+                            },
+                            "storage": {}
+                        },
+                        "0xb75d1e62b10e4ba91315c4aa3facc536f8a922f5": {
+                            "balance": {
+                                "*": {
+                                    "from": "0x66880fff92292e7b0",
+                                    "to": "0x668833cf470c847b0"
+                                }
+                            },
+                            "code": "=",
+                            "nonce": "=",
+                            "storage": {}
+                        }
+                    },
+                    "trace": [
+                        {
+                            "action": {
+                                "callType": "call",
+                                "from": "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0",
+                                "gas": "0x2328",
+                                "input": "0x",
+                                "to": "0x09fde500e9a489bbe3e62bc919f59bc78394df46",
+                                "value": "0x23cfb4e356000"
+                            },
+                            "result": {
+                                "gasUsed": "0x0",
+                                "output": "0x"
+                            },
+                            "subtraces": 0,
+                            "traceAddress": [],
+                            "type": "call"
+                        }
+                    ],
+                    "vmTrace": {
+                        "code": "0x",
+                        "ops": []
+                    }
+                }
+            ]
         }
-      },
-      "trace": [
-        {
-          "action": {
-            "callType": "call",
-            "from": "0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be",
-            "gas": "0x0",
-            "input": "0x",
-            "to": "0xd5d83b484dd581d085443f01e9c993c3682cd52f",
-            "value": "0x2c8ef7c2b5598000"
-          },
-          "result": {
-            "gasUsed": "0x0",
-            "output": "0x"
-          },
-          "subtraces": 0,
-          "traceAddress": [],
-          "type": "call"
-        }
-      ],
-      "vmTrace": {
-        "code": "0x",
-        "ops": []
-      }
-    },
-    {
-      "output": "0x",
-      "stateDiff": {
-        "0x09fde500e9a489bbe3e62bc919f59bc78394df46": {
-          "balance": {
-            "*": {
-              "from": "0x4db7004c645f900",
-              "to": "0x4ddad00147b5900"
-            }
-          },
-          "code": "=",
-          "nonce": "=",
-          "storage": {}
-        },
-        "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0": {
-          "balance": {
-            "*": {
-              "from": "0x3c1cb7b9b4dfc40bda2d",
-              "to": "0x3c1cb7b777e475d67a2d"
-            }
-          },
-          "code": "=",
-          "nonce": {
-            "*": {
-              "from": "0xd5258",
-              "to": "0xd5259"
-            }
-          },
-          "storage": {}
-        },
-        "0xb75d1e62b10e4ba91315c4aa3facc536f8a922f5": {
-          "balance": {
-            "*": {
-              "from": "0x66880fff92292e7b0",
-              "to": "0x668833cf470c847b0"
-            }
-          },
-          "code": "=",
-          "nonce": "=",
-          "storage": {}
-        }
-      },
-      "trace": [
-        {
-          "action": {
-            "callType": "call",
-            "from": "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0",
-            "gas": "0x2328",
-            "input": "0x",
-            "to": "0x09fde500e9a489bbe3e62bc919f59bc78394df46",
-            "value": "0x23cfb4e356000"
-          },
-          "result": {
-            "gasUsed": "0x0",
-            "output": "0x"
-          },
-          "subtraces": 0,
-          "traceAddress": [],
-          "type": "call"
-        }
-      ],
-      "vmTrace": {
-        "code": "0x",
-        "ops": []
-      }
     }
-  ]
-    }
-  }
 ]

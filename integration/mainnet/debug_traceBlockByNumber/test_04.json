@@ -5,7 +5,7 @@
             "jsonrpc": "2.0",
             "method": "debug_traceBlockByNumber",
             "params": [
-                1604003,
+                "0x1879A3",
                 {
                     "disableMemory": false,
                     "disableStack": false,

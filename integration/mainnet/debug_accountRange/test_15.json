@@ -1,58 +1,58 @@
 [
-  {
-   "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_accountRange",
-      "params": [
-        "0x795445",
-        [
-          1,
-          131,
-          138,
-          55,
-          71,
-          220,
-          23,
-          10,
-          103,
-          219,
-          150,
-          140,
-          140,
-          229,
-          12,
-          221,
-          232,
-          227,
-          188,
-          124
-        ],
-        1,
-        true,
-        false
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-  "result": {
-   "accounts": { 
-      "0x01838a64bedd52aa1ce0a89271808c4a4a1bdf7c": {
-        "balance": "0",
-        "codeHash": "0x337c29fd9976d67b66b28034c1414c04861ce13b19a267c6e01d66f2cdb6bfba",
-        "nonce": 1,
-        "root": "0xd688f868ce0e8c4881b6543797ad4cceef38e00cf858adb5a0db84d6fa678db1",
-        "storage": {
-          "0x0000000000000000000000000000000000000000000000000000000000000001": "e6a4f92579facb4026096f017243ee839ff72fd1",
-          "0x0000000000000000000000000000000000000000000000000000000000000002": "152b3fd5148ecdc7c12815be94af926624dec0b6",
-          "0x82971102ce7107cb5fb484892be1dc9bd5f65eb022508b75d2e46a0fcea55c75": "01"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_accountRange",
+            "params": [
+                "0x795445",
+                [
+                    1,
+                    131,
+                    138,
+                    55,
+                    71,
+                    220,
+                    23,
+                    10,
+                    103,
+                    219,
+                    150,
+                    140,
+                    140,
+                    229,
+                    12,
+                    221,
+                    232,
+                    227,
+                    188,
+                    124
+                ],
+                1,
+                true,
+                false
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "accounts": {
+                    "0x01838a64bedd52aa1ce0a89271808c4a4a1bdf7c": {
+                        "balance": "0",
+                        "codeHash": "0x337c29fd9976d67b66b28034c1414c04861ce13b19a267c6e01d66f2cdb6bfba",
+                        "nonce": 1,
+                        "root": "0xd688f868ce0e8c4881b6543797ad4cceef38e00cf858adb5a0db84d6fa678db1",
+                        "storage": {
+                            "0x0000000000000000000000000000000000000000000000000000000000000001": "e6a4f92579facb4026096f017243ee839ff72fd1",
+                            "0x0000000000000000000000000000000000000000000000000000000000000002": "152b3fd5148ecdc7c12815be94af926624dec0b6",
+                            "0x82971102ce7107cb5fb484892be1dc9bd5f65eb022508b75d2e46a0fcea55c75": "01"
+                        }
+                    }
+                },
+                "next": "AYOLI1PBsmaDCrP4pFJV0QcU1zo=",
+                "root": "0x44ee52439482f6d4cb658ae19269078fc0158e33c1e21da9a63abdb0498706ea"
+            }
         }
-      }
-    },
-    "next": "AYOLI1PBsmaDCrP4pFJV0QcU1zo=",
-    "root": "0x44ee52439482f6d4cb658ae19269078fc0158e33c1e21da9a63abdb0498706ea"
-  }
-  }
- }
+    }
 ]

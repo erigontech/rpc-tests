@@ -1,27 +1,34 @@
 [
-   {
+    {
         "test": {
-           "reference": "https://etherscan.io/tx/0x9d8f6d549e0535182df15788954e1f67bde03df49096457b4ba5cda0a68cbed3 on block https://etherscan.io/block/17999969",
-           "description": "tx post EIP-1559 on block post EIP-1559"
+            "reference": "https://etherscan.io/tx/0x9d8f6d549e0535182df15788954e1f67bde03df49096457b4ba5cda0a68cbed3 on block https://etherscan.io/block/17999969",
+            "description": "tx post EIP-1559 on block post EIP-1559"
         },
-
         "request": {
             "jsonrpc": "2.0",
             "method": "eth_callBundle",
-            "params": [["0x9d8f6d549e0535182df15788954e1f67bde03df49096457b4ba5cda0a68cbed3"], "0x112A861", 50000],
+            "params": [
+                [
+                    "0x9d8f6d549e0535182df15788954e1f67bde03df49096457b4ba5cda0a68cbed3"
+                ],
+                "0x112A861",
+                50000
+            ],
             "id": 1
         },
         "response": {
-            "results": [
-               {
-                 "error": "execution reverted",
-                 "gasUsed": 43219,
-                 "txHash": "0x9d8f6d549e0535182df15788954e1f67bde03df49096457b4ba5cda0a68cbed3"
-               }
-             ],
             "id": 1,
-            "jsonrpc": "2.0"
+            "jsonrpc": "2.0",
+            "result": {
+                "bundleHash": "0x0e8a26811c97e2fa483d977da139a0410ae696e4f90c64ee8935f98c1a35819e",
+                "results": [
+                    {
+                        "error": "execution reverted",
+                        "gasUsed": 43219,
+                        "txHash": "0x9d8f6d549e0535182df15788954e1f67bde03df49096457b4ba5cda0a68cbed3"
+                    }
+                ]
+            }
         }
-  }
+    }
 ]
-

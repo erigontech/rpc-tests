@@ -1,39 +1,39 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_transaction",
-      "params": [
-        "0xc4cbf9ecc049722a1f6b71bf0e815ed544997c08fad33b1694d3ef1b5af9ded3"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": [
-        {
-          "action": {
-            "callType": "call",
-            "from": "0x6aa36553f97d5965566697bafcfda5d69a5bc6d7",
-            "gas": "0x10d88",
-            "input": "0x",
-            "to": "0xfb9292b4a262e380e75bbb0426ec6edfdeb6b8e6",
-            "value": "0xb1a2bc2ec50000"
-          },
-          "blockHash": "0x0d3b10fa73bb129c6bfbd631a3b9bd4fba0d658ba2be11a3255608cc8d2d19e7",
-          "blockNumber": 5415092,
-          "result": {
-            "gasUsed": "0x0",
-            "output": "0x"
-          },
-          "subtraces": 0,
-          "traceAddress": [],
-          "transactionHash": "0xc4cbf9ecc049722a1f6b71bf0e815ed544997c08fad33b1694d3ef1b5af9ded3",
-          "transactionPosition": 2,
-          "type": "call"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_transaction",
+            "params": [
+                "0xc4cbf9ecc049722a1f6b71bf0e815ed544997c08fad33b1694d3ef1b5af9ded3"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "action": {
+                        "callType": "call",
+                        "from": "0x6aa36553f97d5965566697bafcfda5d69a5bc6d7",
+                        "gas": "0x10d88",
+                        "input": "0x",
+                        "to": "0xfb9292b4a262e380e75bbb0426ec6edfdeb6b8e6",
+                        "value": "0xb1a2bc2ec50000"
+                    },
+                    "blockHash": "0x0d3b10fa73bb129c6bfbd631a3b9bd4fba0d658ba2be11a3255608cc8d2d19e7",
+                    "blockNumber": 5415092,
+                    "result": {
+                        "gasUsed": "0x0",
+                        "output": "0x"
+                    },
+                    "subtraces": 0,
+                    "traceAddress": [],
+                    "transactionHash": "0xc4cbf9ecc049722a1f6b71bf0e815ed544997c08fad33b1694d3ef1b5af9ded3",
+                    "transactionPosition": 2,
+                    "type": "call"
+                }
+            ]
         }
-      ]
     }
-  }
 ]
