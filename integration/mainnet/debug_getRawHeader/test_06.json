@@ -11,7 +11,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": {
+     "error": {
          "code": -32000,
          "message": "header not found"
      }
