@@ -5,33 +5,83 @@ import tarfile
 
 def find_invalid_json(directory):
     """
-    Scansiona una directory per trovare file .json e .tar che contengono JSON
-    con la chiave 'response' senza i campi 'id' o 'jsonrpc'.
+    Scansiona una directory per trovare file .json e .tar che contengono un oggetto 'response'
+    con JSON-RPC non validi (mancano le chiavi 'id' o 'jsonrpc').
     """
     invalid_files = []
-    
-    # Cammina attraverso la directory e le sottodirectory
+
+    def is_invalid_jsonrpc_response(item):
+        """Valida un singolo oggetto di risposta JSON-RPC con una logica meno stringente."""
+        # Un oggetto è invalido se non è un dizionario o se mancano le chiavi 'id' o 'jsonrpc'.
+        if not isinstance(item, dict) or 'id' not in item or 'jsonrpc' not in item:
+            return True
+        # Rimuoviamo il controllo su 'result'/'error' per renderlo più permissivo.
+        return False
+
+    def process_json_data(data, source_path):
+        """Processa i dati JSON e aggiunge il file alla lista se la risposta è invalida."""
+        is_invalid = False
+        
+        if isinstance(data, list):
+            for top_level_item in data:
+                if not isinstance(top_level_item, dict):
+                    is_invalid = True
+                    break
+                
+                response_data = top_level_item.get('response')
+                if response_data is None:
+                    # Se non c'è una chiave 'response', l'oggetto stesso deve essere una risposta valida.
+                    if is_invalid_jsonrpc_response(top_level_item):
+                        is_invalid = True
+                        break
+                elif isinstance(response_data, list):
+                    for item in response_data:
+                        if is_invalid_jsonrpc_response(item):
+                            is_invalid = True
+                            break
+                elif isinstance(response_data, dict):
+                    if is_invalid_jsonrpc_response(response_data):
+                        is_invalid = True
+                else:
+                    is_invalid = True
+                
+                if is_invalid:
+                    break
+        elif isinstance(data, dict):
+            response_data = data.get('response')
+            if response_data is None:
+                # Se non c'è una chiave 'response', l'oggetto stesso deve essere una risposta valida.
+                if is_invalid_jsonrpc_response(data):
+                    is_invalid = True
+            elif isinstance(response_data, list):
+                for item in response_data:
+                    if is_invalid_jsonrpc_response(item):
+                        is_invalid = True
+                        break
+            elif isinstance(response_data, dict):
+                if is_invalid_jsonrpc_response(response_data):
+                    is_invalid = True
+            else:
+                is_invalid = True
+        else:
+            is_invalid = True
+        
+        if is_invalid:
+            invalid_files.append(source_path)
+
+    # Scansione della directory
     for root, _, files in os.walk(directory):
         for filename in files:
             filepath = os.path.join(root, filename)
             
-            # Controlla i file .json
             if filename.endswith('.json'):
                 try:
-                    with open(filepath, 'r') as f:
+                    with open(filepath, 'r', encoding='utf-8') as f:
                         data = json.load(f)
-                        if isinstance(data, list):
-                            for item in data:
-                                if 'response' in item and ('id' not in item['response'] or 'jsonrpc' not in item['response']):
-                                    invalid_files.append(filepath)
-                                    break  # Passa al prossimo file una volta trovato un errore
-                        elif isinstance(data, dict):
-                            if 'response' in data and ('id' not in data['response'] or 'jsonrpc' not in data['response']):
-                                invalid_files.append(filepath)
+                        process_json_data(data, filepath)
                 except (json.JSONDecodeError, KeyError) as e:
-                    print(f"Errore di lettura o decodifica JSON in {filepath}: {e}")
-            
-            # Controlla i file .tar
+                    print(f"Errore durante la lettura di {filepath}: {e}")
+                    invalid_files.append(filepath)
             elif filename.endswith('.tar'):
                 try:
                     with tarfile.open(filepath, 'r') as tar:
@@ -40,20 +90,15 @@ def find_invalid_json(directory):
                                 f = tar.extractfile(member)
                                 if f:
                                     content = f.read()
-                                    data = json.loads(content)
-                                    if isinstance(data, list):
-                                        for item in data:
-                                            if 'response' in item and ('id' not in item['response'] or 'jsonrpc' not in item['response']):
-                                                invalid_files.append(f"{filepath} (dentro {member.name})")
-                                                break
-                                    elif isinstance(data, dict):
-                                        if 'response' in data and ('id' not in data['response'] or 'jsonrpc' not in data['response']):
-                                            invalid_files.append(f"{filepath} (dentro {member.name})")
+                                    try:
+                                        data = json.loads(content.decode('utf-8'))
+                                        process_json_data(data, f"{filepath} (dentro {member.name})")
+                                    except (json.JSONDecodeError, KeyError) as e:
+                                        print(f"Errore durante la lettura di un file in {filepath}: {e}")
+                                        invalid_files.append(f"{filepath} (dentro {member.name})")
                 except tarfile.TarError as e:
                     print(f"Errore nella lettura del file tar {filepath}: {e}")
-                except (json.JSONDecodeError, KeyError) as e:
-                    print(f"Errore di decodifica JSON in un file dentro {filepath}: {e}")
-    
+                    invalid_files.append(filepath)
     return invalid_files
 
 if __name__ == "__main__":
