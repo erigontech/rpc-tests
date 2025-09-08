@@ -1,24 +1,24 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_filter",
-      "params": [
-        {
-          "fromBlock": "0x6DDD03",
-          "toBlock": "0x6DDD02"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_filter",
+            "params": [
+                {
+                    "fromBlock": "0x6DDD03",
+                    "toBlock": "0x6DDD02"
+                }
+            ]
+        },
+        "response": {
+            "error": {
+                "code": -32000,
+                "message": "invalid parameters: fromBlock cannot be greater than toBlock"
+            },
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null
         }
-      ]
-    },
-    "response": {
-      "error": {
-        "code": -32000,
-        "message": "invalid parameters: fromBlock cannot be greater than toBlock"
-      },
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": null
     }
-  }
 ]

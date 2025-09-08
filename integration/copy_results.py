@@ -18,34 +18,55 @@ def extract_number(filename):
 
 def find_and_read_response_json(search_dir, test_base_name):
     """
-    Cerca e legge il file JSON di risposta che contiene la parola 'response'
-    nella directory specificata.
+    Cerca e legge il file JSON di risposta, restituendo l'intero oggetto o lista di risposte
+    JSON-RPC.
     """
-    # Costruisci il pattern di ricerca per il file di risposta
-    # Ad es. /home/simon/silkworm/tests/.../test_02*response*.json
+    if not os.path.isdir(search_dir):
+        print(f"Errore: La directory '{search_dir}' non esiste.")
+        return None
+
     search_pattern = os.path.join(search_dir, f"{test_base_name}*response*.json")
-    
-    # Usa glob per trovare il file corrispondente al pattern
     found_files = glob.glob(search_pattern)
 
     if not found_files:
-        print(f"  Nessun file di risposta contenente 'response' trovato per '{test_base_name}' in {search_dir}")
+        print(f"Nessun file di risposta trovato per il pattern '{test_base_name}*response*.json' in {search_dir}")
         return None
-    
-    # Prendi il primo file trovato
+
     file_path = found_files[0]
-    
+    print(f"Trovato potenziale file di risposta: {file_path}")
+
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            if 'result' in data and data['result'] is not None:
-                print(f"  Trovato file di risposta: {file_path}")
-                return data.get('result')
-    except (json.JSONDecodeError, FileNotFoundError) as e:
-        print(f"  Errore durante la lettura del file di risposta {file_path}: {e}")
+
+        # Function to validate a single JSON-RPC response object
+        def is_valid_jsonrpc_response(item):
+            if not isinstance(item, dict):
+                return False
+            # Check for 'id' and 'jsonrpc' keys
+            if 'id' not in item or 'jsonrpc' not in item:
+                return False
+            # Check for either 'result' or 'error' key
+            if ('result' not in item and 'error' not in item) or \
+               ('result' in item and 'error' in item):
+                return False
+            return True
+
+        # Check for both a single object and a list of objects
+        if isinstance(data, list):
+            if data and all(is_valid_jsonrpc_response(item) for item in data):
+                print(f"Trovata lista di risposte JSON-RPC valide in: {file_path}")
+                return data
+        elif is_valid_jsonrpc_response(data):
+            print(f"Trovato oggetto di risposta JSON-RPC valido in: {file_path}")
+            return data
+        
+        print(f"Il file '{file_path}' non è un oggetto di risposta JSON-RPC valido o una lista di tali oggetti.")
         return None
-    
-    return None
+        
+    except (json.JSONDecodeError, FileNotFoundError) as e:
+        print(f"Errore durante la lettura del file di risposta {file_path}: {e}")
+        return None
 
 def update_response_in_json_data(data, new_response_data, test_base_name):
     """

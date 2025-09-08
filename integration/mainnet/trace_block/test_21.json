@@ -1,35 +1,35 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_block",
-      "params": [
-        "0xed0af6"
-      ]
-    },
-    "response": {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "result": [
-        {
-          "action": {
-            "author": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
-            "rewardType": "block",
-            "value": "0x1bc16d674ec80000"
-          },
-          "blockHash": "0x4eb297c1d4b9894f9a5b50c9d00bcc35bf2ad2585e304c107d3bc3cfc4d39681",
-          "blockNumber": 15534838,
-          "result": null,
-          "subtraces": 0,
-          "traceAddress": [],
-          "type": "reward"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_block",
+            "params": [
+                "0xed0af6"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "action": {
+                        "author": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+                        "rewardType": "block",
+                        "value": "0x1bc16d674ec80000"
+                    },
+                    "blockHash": "0x4eb297c1d4b9894f9a5b50c9d00bcc35bf2ad2585e304c107d3bc3cfc4d39681",
+                    "blockNumber": 15534838,
+                    "result": null,
+                    "subtraces": 0,
+                    "traceAddress": [],
+                    "type": "reward"
+                }
+            ]
+        },
+        "test": {
+            "description": "empty block before The Merge",
+            "reference": "https://etherscan.io/block/15534838"
         }
-      ]
-    },
-    "test": {
-      "description": "empty block before The Merge",
-      "reference": "https://etherscan.io/block/15534838"
     }
-  }
 ]

@@ -1,43 +1,43 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_transaction",
-      "params": [
-        "0x020dd9b9d2d4c5c8833b5c197656751c31092ced32c8b49e05333eff8618cbfd"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": [
-        {
-          "action": {
-            "callType": "call",
-            "from": "0xadb2b42f6bd96f5c65920b9ac88619dce4166f94",
-            "gas": "0x1ce84",
-            "input": "0xa9059cbb00000000000000000000000018493b8a9117555f5bd3c96dae747d5f6fd314e7000000000000000000000000000000000000000000000000000000001dcd6500",
-            "to": "0xdac17f958d2ee523a2206206994597c13d831ec7",
-            "value": "0x0"
-          },
-          "blockHash": "0xfd233684d9cbabc563ccc5c3b316ab1f3a22c46cb1495777264f191f5fb96115",
-          "blockNumber": 9500000,
-          "result": {
-            "gasUsed": "0x4c91",
-            "output": "0x"
-          },
-          "subtraces": 0,
-          "traceAddress": [],
-          "transactionHash": "0x020dd9b9d2d4c5c8833b5c197656751c31092ced32c8b49e05333eff8618cbfd",
-          "transactionPosition": 4,
-          "type": "call"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_transaction",
+            "params": [
+                "0x020dd9b9d2d4c5c8833b5c197656751c31092ced32c8b49e05333eff8618cbfd"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "action": {
+                        "callType": "call",
+                        "from": "0xadb2b42f6bd96f5c65920b9ac88619dce4166f94",
+                        "gas": "0x1ce84",
+                        "input": "0xa9059cbb00000000000000000000000018493b8a9117555f5bd3c96dae747d5f6fd314e7000000000000000000000000000000000000000000000000000000001dcd6500",
+                        "to": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+                        "value": "0x0"
+                    },
+                    "blockHash": "0xfd233684d9cbabc563ccc5c3b316ab1f3a22c46cb1495777264f191f5fb96115",
+                    "blockNumber": 9500000,
+                    "result": {
+                        "gasUsed": "0x4c91",
+                        "output": "0x"
+                    },
+                    "subtraces": 0,
+                    "traceAddress": [],
+                    "transactionHash": "0x020dd9b9d2d4c5c8833b5c197656751c31092ced32c8b49e05333eff8618cbfd",
+                    "transactionPosition": 4,
+                    "type": "call"
+                }
+            ]
+        },
+        "test": {
+            "description": "",
+            "reference": ""
         }
-      ]
-    },
-    "test": {
-      "description": "",
-      "reference": ""
     }
-  }
 ]

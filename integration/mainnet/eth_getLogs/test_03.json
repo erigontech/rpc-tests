@@ -19,24 +19,28 @@
                 }
             ]
         },
-        "response": [
-            {
-                "address": "0xfd7f243f315b3c5b6e45f8383cbb20d71c9661d4",
-                "blockHash": "0xa60d4fb05516ddbb026d5d866c7a27e196e7674911c0f45e9753d2d675f0ee44",
-                "blockNumber": "0x10b10b2",
-                "blockTimestamp": "0x648e2ddb",
-                "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-                "logIndex": "0x138",
-                "removed": false,
-                "topics": [
-                    "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
-                    "0x0000000000000000000000001c7e7d614001575bf1b1c9f8a4e2ff79c8088888",
-                    "0x000000000000000000000000000000000022d473030f116ddee9f6b43ac78ba3"
-                ],
-                "transactionHash": "0x7da53ecc9d091339a9d95f4cb6a84f91b5f476532895de62ee04148d74c3e120",
-                "transactionIndex": "0xfb"
-            }
-        ],
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "address": "0xfd7f243f315b3c5b6e45f8383cbb20d71c9661d4",
+                    "blockHash": "0xa60d4fb05516ddbb026d5d866c7a27e196e7674911c0f45e9753d2d675f0ee44",
+                    "blockNumber": "0x10b10b2",
+                    "blockTimestamp": "0x648e2ddb",
+                    "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                    "logIndex": "0x138",
+                    "removed": false,
+                    "topics": [
+                        "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                        "0x0000000000000000000000001c7e7d614001575bf1b1c9f8a4e2ff79c8088888",
+                        "0x000000000000000000000000000000000022d473030f116ddee9f6b43ac78ba3"
+                    ],
+                    "transactionHash": "0x7da53ecc9d091339a9d95f4cb6a84f91b5f476532895de62ee04148d74c3e120",
+                    "transactionIndex": "0xfb"
+                }
+            ]
+        },
         "test": {
             "description": "logs in the range with topic and address",
             "reference": ""

@@ -1,34 +1,34 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "trace_filter",
-      "params": [
-        {
-          "fromBlock": "0x95b19",
-          "toBlock": "0x95b19"
-        }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-  "result": [
     {
-      "action": {
-        "author": "0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5",
-        "rewardType": "block",
-        "value": "0x4563918244f40000"
-      },
-      "blockHash": "0x2573b20840013da29d9eb660ea55e7ccade5d7b98051bf4f448ec79d03049c62",
-      "blockNumber": 613145,
-      "result": null,
-      "subtraces": 0,
-      "traceAddress": [],
-      "type": "reward"
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_filter",
+            "params": [
+                {
+                    "fromBlock": "0x95b19",
+                    "toBlock": "0x95b19"
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "action": {
+                        "author": "0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5",
+                        "rewardType": "block",
+                        "value": "0x4563918244f40000"
+                    },
+                    "blockHash": "0x2573b20840013da29d9eb660ea55e7ccade5d7b98051bf4f448ec79d03049c62",
+                    "blockNumber": 613145,
+                    "result": null,
+                    "subtraces": 0,
+                    "traceAddress": [],
+                    "type": "reward"
+                }
+            ]
+        }
     }
-  ]
-    }
-  }
 ]

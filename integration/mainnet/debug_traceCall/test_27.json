@@ -1,84 +1,84 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceCall",
-      "params": [
-        {
-          "from": "0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13",
-          "to": "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
-          "data": "0x2b69e60e338d70e74a160cf77f11ff8f3dccb83c5aa15c01d5d44db02068ba007cfd34ca2dceca6c835adc7e61409a089cfff14ac02aaa39b223fe8d0a0e5c4f27ead9083c756cc22710353c67c4ca4b83dedfe9ca3ca3eaf6d6f01b2d2bcc7f01dcb79706",
-          "value": "0xdb",
-          "accessList": [
-            {
-              "address": "0xe60e338d70e74a160cf77f11ff8f3dccb83c5aa1",
-              "storageKeys": [
-                "0x0000000000000000000000000000000000000000000000000000000000000000",
-                "0x0000000000000000000000000000000000000000000000000000000000000004",
-                "0x0000000000000000000000000000000000000000000000000000000000000002",
-                "0xc0d1c00078410fd0164580b0bad93d8a579580d06cf45fc2696a823498097b8a",
-                "0x0000000000000000000000000000000000000000000000000000000000000008"
-              ]
-            },
-            {
-              "address": "0x7cfd34ca2dceca6c835adc7e61409a089cfff14a",
-              "storageKeys": [
-                "0x0000000000000000000000000000000000000000000000000000000000000005",
-                "0x000000000000000000000000000000000000000000000000000000000000000c",
-                "0x0000000000000000000000000000000000000000000000000000000000000011",
-                "0x1d94cc91c972603f8233bb195fa254cf6f5e78f8d48239176c989e6aff0123bc",
-                "0x0000000000000000000000000000000000000000000000000000000000000014",
-                "0x000000000000000000000000000000000000000000000000000000000000000b",
-                "0x7c00775e40605f2f75a30060f856e84075b1dd23163d7da95f1e934d5f35f1b2",
-                "0xba957c01ab44df3024cbdc06936f8582a58ae925eb6774e77d735099c552fae5"
-              ]
-            },
-            {
-              "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-              "storageKeys": [
-                "0xb4879d06abd0e5cbfa709e51d22be5f8d536a29315e8adf01dc74bae3360c852",
-                "0xbd5af5151dcb9feb2c4ef23509c863dd4415e4d2c27b5c08786933a8ed41acc7",
-                "0xe026961a79d23e0f9d8f65320ce98242b61a8f89e502febb3838020c12c7d2da"
-              ]
-            },
-            {
-              "address": "0x67c4ca4b83dedfe9ca3ca3eaf6d6f01b2d2bcc7f",
-              "storageKeys": [
-                "0x0000000000000000000000000000000000000000000000000000000000000007",
-                "0x000000000000000000000000000000000000000000000000000000000000000c",
-                "0x0000000000000000000000000000000000000000000000000000000000000008",
-                "0x0000000000000000000000000000000000000000000000000000000000000006"
-              ]
-            }
-          ]
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceCall",
+            "params": [
+                {
+                    "from": "0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13",
+                    "to": "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
+                    "data": "0x2b69e60e338d70e74a160cf77f11ff8f3dccb83c5aa15c01d5d44db02068ba007cfd34ca2dceca6c835adc7e61409a089cfff14ac02aaa39b223fe8d0a0e5c4f27ead9083c756cc22710353c67c4ca4b83dedfe9ca3ca3eaf6d6f01b2d2bcc7f01dcb79706",
+                    "value": "0xdb",
+                    "accessList": [
+                        {
+                            "address": "0xe60e338d70e74a160cf77f11ff8f3dccb83c5aa1",
+                            "storageKeys": [
+                                "0x0000000000000000000000000000000000000000000000000000000000000000",
+                                "0x0000000000000000000000000000000000000000000000000000000000000004",
+                                "0x0000000000000000000000000000000000000000000000000000000000000002",
+                                "0xc0d1c00078410fd0164580b0bad93d8a579580d06cf45fc2696a823498097b8a",
+                                "0x0000000000000000000000000000000000000000000000000000000000000008"
+                            ]
+                        },
+                        {
+                            "address": "0x7cfd34ca2dceca6c835adc7e61409a089cfff14a",
+                            "storageKeys": [
+                                "0x0000000000000000000000000000000000000000000000000000000000000005",
+                                "0x000000000000000000000000000000000000000000000000000000000000000c",
+                                "0x0000000000000000000000000000000000000000000000000000000000000011",
+                                "0x1d94cc91c972603f8233bb195fa254cf6f5e78f8d48239176c989e6aff0123bc",
+                                "0x0000000000000000000000000000000000000000000000000000000000000014",
+                                "0x000000000000000000000000000000000000000000000000000000000000000b",
+                                "0x7c00775e40605f2f75a30060f856e84075b1dd23163d7da95f1e934d5f35f1b2",
+                                "0xba957c01ab44df3024cbdc06936f8582a58ae925eb6774e77d735099c552fae5"
+                            ]
+                        },
+                        {
+                            "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                            "storageKeys": [
+                                "0xb4879d06abd0e5cbfa709e51d22be5f8d536a29315e8adf01dc74bae3360c852",
+                                "0xbd5af5151dcb9feb2c4ef23509c863dd4415e4d2c27b5c08786933a8ed41acc7",
+                                "0xe026961a79d23e0f9d8f65320ce98242b61a8f89e502febb3838020c12c7d2da"
+                            ]
+                        },
+                        {
+                            "address": "0x67c4ca4b83dedfe9ca3ca3eaf6d6f01b2d2bcc7f",
+                            "storageKeys": [
+                                "0x0000000000000000000000000000000000000000000000000000000000000007",
+                                "0x000000000000000000000000000000000000000000000000000000000000000c",
+                                "0x0000000000000000000000000000000000000000000000000000000000000008",
+                                "0x0000000000000000000000000000000000000000000000000000000000000006"
+                            ]
+                        }
+                    ]
+                },
+                "0x159905F",
+                {
+                    "tracer": "callTracer",
+                    "tracerConfig": {
+                        "onlyTopCall": true
+                    },
+                    "txIndex": "0x4"
+                }
+            ]
         },
-        "0x159905F",
-        {
-          "tracer": "callTracer",
-          "tracerConfig": {
-            "onlyTopCall": true
-          },
-          "txIndex": "0x4"
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "from": "0xae2fc483527b8ef99eb5d9b44875f005ba1fae13",
+                "gas": "0x2faf080",
+                "gasUsed": "0x22fd7",
+                "input": "0x2b69e60e338d70e74a160cf77f11ff8f3dccb83c5aa15c01d5d44db02068ba007cfd34ca2dceca6c835adc7e61409a089cfff14ac02aaa39b223fe8d0a0e5c4f27ead9083c756cc22710353c67c4ca4b83dedfe9ca3ca3eaf6d6f01b2d2bcc7f01dcb79706",
+                "to": "0x1f2f10d1c40777ae1da742455c65828ff36df387",
+                "type": "CALL",
+                "value": "0xdb"
+            }
+        },
+        "test": {
+            "description": "debug_traceCall replicating a historical transaction from block 22646879",
+            "reference": "https://etherscan.io/tx/0xa47f029a47964d99df276ca74ba0cbf17fe8d9e4b41fa956c2934e78c0245a57"
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result" : {
-        "from": "0xae2fc483527b8ef99eb5d9b44875f005ba1fae13",
-        "gas": "0x2faf080",
-        "gasUsed": "0x22fd7",
-        "to": "0x1f2f10d1c40777ae1da742455c65828ff36df387",
-        "input": "0x2b69e60e338d70e74a160cf77f11ff8f3dccb83c5aa15c01d5d44db02068ba007cfd34ca2dceca6c835adc7e61409a089cfff14ac02aaa39b223fe8d0a0e5c4f27ead9083c756cc22710353c67c4ca4b83dedfe9ca3ca3eaf6d6f01b2d2bcc7f01dcb79706",
-        "value": "0xdb",
-        "type": "CALL"
-      }
-    },
-    "test": {
-      "description": "debug_traceCall replicating a historical transaction from block 22646879",
-      "reference": "https://etherscan.io/tx/0xa47f029a47964d99df276ca74ba0cbf17fe8d9e4b41fa956c2934e78c0245a57"
     }
-  }
 ]
