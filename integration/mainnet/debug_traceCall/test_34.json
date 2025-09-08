@@ -23,12 +23,7 @@
         "response": {
             "id": 1,
             "jsonrpc": "2.0",
-            "result": {
-                "failed": false,
-                "gas": 21000,
-                "returnValue": "0x",
-                "structLogs": []
-            }
+            "result": null 
         }
     }
 ]

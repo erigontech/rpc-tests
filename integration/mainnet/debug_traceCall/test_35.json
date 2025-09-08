@@ -24,15 +24,7 @@
         "response": {
             "id": 1,
             "jsonrpc": "2.0",
-            "result": {
-                "from": "0xa9ac1233699bdae25abebae4f9fb54dbb1b44700",
-                "gas": "0x5208",
-                "gasUsed": "0x5208",
-                "input": "0x",
-                "to": "0x4debb0df4da8d1f51ef67b727c3f1c0ecc7ed009",
-                "type": "CALL",
-                "value": "0x229322"
-            }
+            "result": null 
         }
     }
 ]
