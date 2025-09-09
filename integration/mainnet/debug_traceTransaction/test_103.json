@@ -7,7 +7,7 @@
             "params": [
                 "0x25e8dbdd82ccc7d11e63e9b9ae1798121084b7fe2be11eaf507a80055d0c2438",
                 {
-                    "disableMemory": false,
+                    "disableMemory": true,
                     "disableStack": false,
                     "disableStorage": false
                 }
@@ -26,7 +26,6 @@
                         "error": "stack underflow (0 <=> 1)",
                         "gas": 68280,
                         "gasCost": 3,
-                        "memory": [],
                         "op": "MLOAD",
                         "pc": 0,
                         "stack": []
