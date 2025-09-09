@@ -21,20 +21,7 @@
         "response": {
             "id": 1,
             "jsonrpc": "2.0",
-            "result": {
-                "0x4debb0df4da8d1f51ef67b727c3f1c0ecc7ed009": {
-                    "balance": "0x0",
-                    "nonce": 1
-                },
-                "0xa9ac1233699bdae25abebae4f9fb54dbb1b44700": {
-                    "balance": "0xa41fdfc19e3a9bc",
-                    "nonce": 175
-                },
-                "0xdadb0d80178819f2319190d340ce9a924f783711": {
-                    "balance": "0x165d925e3115aec52",
-                    "nonce": 871964
-                }
-            }
+            "result": null 
         }
     }
 ]

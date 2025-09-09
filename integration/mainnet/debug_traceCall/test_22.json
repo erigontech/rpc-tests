@@ -22,13 +22,8 @@
             ]
         },
         "response": {
-            "error": {
-                "code": -32000,
-                "message": "tracing failed: insufficient funds for gas * price + value: address 0xC1cBA74D5ac02531aBfaB6353dB26EC7c572BebA have 13605800287636793 want 18670946748437184"
-            },
             "id": 1,
-            "jsonrpc": "2.0",
-            "result": null
+            "jsonrpc": "2.0"
         }
     }
 ]
