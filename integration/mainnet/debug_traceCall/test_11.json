@@ -14,7 +14,7 @@
                 },
                 "0x1312CAA",
                 {
-                    "disableMemory": false,
+                    "disableMemory": true,
                     "disableStack": false,
                     "disableStorage": false
                 }
@@ -32,7 +32,6 @@
                         "depth": 1,
                         "gas": 157919,
                         "gasCost": 2,
-                        "memory": [],
                         "op": "COINBASE",
                         "pc": 0,
                         "stack": []
@@ -41,7 +40,6 @@
                         "depth": 1,
                         "gas": 157917,
                         "gasCost": 0,
-                        "memory": [],
                         "op": "opcode 0xc0 not defined",
                         "pc": 1,
                         "stack": [
