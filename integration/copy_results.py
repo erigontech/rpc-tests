@@ -70,44 +70,66 @@ def find_and_read_response_json(search_dir, test_base_name):
 
 def update_response_in_json_data(data, new_response_data, test_base_name):
     """
-    Aggiorna la risposta nel JSON del tar, gestendo sia dizionari che liste.
+    Aggiorna la risposta nel JSON, gestendo sia dizionari che liste.
+    Non aggiorna se la risposta originale ha un campo 'result' nullo o non ha 'result'.
     Restituisce True se il contenuto è stato modificato, False altrimenti.
     """
-    if new_response_data is None:
-        print(f"  Dati di risposta vuoti per '{test_base_name}'. Nessun aggiornamento.")
+    if not new_response_data:
+        print(f"Dati di risposta vuoti per '{test_base_name}'. Nessun aggiornamento.")
         return False
-    
+
     modified = False
 
-    # CASO 1: Il JSON interno è un DIZIONARIO (vecchio formato)
-    if isinstance(data, dict):
-        if 'response' in data and data['response'] != new_response_data:
-            data['response'] = new_response_data
-            modified = True
+    # Funzione di supporto per la logica di non-aggiornamento
+    def should_not_update(current_response):
+        if not isinstance(current_response, dict):
+            return False # Aggiorna se il formato non è un dizionario (perché è un errore)
 
-    # CASO 2: Il JSON interno è una LISTA (nuovo formato)
-    elif isinstance(data, list):
-        print(f"  [LISTA] Aggiornamento dell'elemento 0 in '{test_base_name}.json'.")
-        # Ipotizziamo che tu voglia aggiornare solo il primo elemento della lista
-        if len(data) > 0 and 'response' in data[0]:
-            # Questo è il punto in cui il tuo codice deve agire
-            # Assumendo che la risposta sia un campo all'interno del primo oggetto della lista
-            data[0]['response'] = new_response_data
-            modified = True
+        # Se il campo 'result' non esiste O se esiste ma è null, non aggiornare.
+        if "result" not in current_response or current_response.get("result") is None:
+            return True
+        return False
+
+    # CASO 1: Il JSON è un DIZIONARIO (con chiave 'response')
+    if isinstance(data, dict) and 'response' in data:
+        current_response = data['response']
+        if not should_not_update(current_response):
+            if current_response != new_response_data:
+                data['response'] = new_response_data
+                modified = True
+                print(f"Aggiornata la risposta in '{test_base_name}' (formato dizionario).")
+            else:
+                print(f"Nessun aggiornamento necessario per '{test_base_name}'. I dati sono già aggiornati.")
         else:
-            print(f"  [LISTA] Errore: l'elemento 0 non ha un campo 'response' o la lista è vuota.")
-            
-    # Gestisci anche il caso in cui il JSON stesso è solo un array di risposte
-    elif data == new_response_data:
-        # Se i dati interni sono già uguali ai dati di risposta, non fare nulla
-        pass
-    else:
-        # Se il JSON è una lista e la risposta è un oggetto, sostituisci
-        # L'intero contenuto della lista con la nuova risposta.
-        # Questa logica potrebbe essere specifica al tuo caso.
-        # data[:] = new_response_data
-        pass
+            print(f"La risposta originale è vuota o ha result=null per '{test_base_name}'. Non verrà aggiornata.")
+    
+    # CASO 2: Il JSON è una LISTA (di oggetti con chiave 'response' o l'intera lista è di risposte)
+    elif isinstance(data, list):
+        for item in data:
+            if isinstance(item, dict) and 'response' in item:
+                current_response = item['response']
+                if not should_not_update(current_response):
+                    if current_response != new_response_data:
+                        item['response'] = new_response_data
+                        modified = True
+                        print(f"Aggiornata la risposta in '{test_base_name}' (lista di risposte).")
+                        # Aggiorna solo il primo elemento che trovi e poi esci.
+                        break
+                    else:
+                        print(f"Nessun aggiornamento necessario per '{test_base_name}'. I dati sono già aggiornati.")
+                        break
+                else:
+                    print(f"La risposta originale è vuota o ha result=null in un elemento di '{test_base_name}'. Non verrà aggiornata.")
+                    # Anche in questo caso, non fare più controlli
+                    break
         
+        # Gestisci il caso in cui l'intera lista è una risposta batch di JSON-RPC
+        if not modified and len(data) > 0 and 'result' not in data[0] and 'error' not in data[0]:
+            # Qui si potrebbe aggiungere una logica per gestire i casi in cui l'intera
+            # lista è la risposta, ma questo richiede una logica specifica che non era
+            # presente nella tua richiesta originale.
+            pass
+            
     return modified
 
 # --- process_single_test_json_for_response_sync (rimane invariata, usa update_response_in_json_data) ---
