@@ -7,7 +7,7 @@
             "params": [
                 "0xFA0A5",
                 {
-                    "disableMemory": false,
+                    "disableMemory": true,
                     "disableStack": false,
                     "disableStorage": false
                 }

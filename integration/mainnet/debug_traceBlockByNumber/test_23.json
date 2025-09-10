@@ -7,7 +7,7 @@
             "params": [
                 "earliest",
                 {
-                    "disableMemory": false,
+                    "disableMemory": true,
                     "disableStack": false,
                     "disableStorage": false
                 }
