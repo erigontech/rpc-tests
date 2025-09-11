@@ -14,7 +14,7 @@
                 },
                 "0x4366AC",
                 {
-                    "disableMemory": false,
+                    "disableMemory": true,
                     "disableStack": false,
                     "disableStorage": false
                 }
@@ -32,7 +32,6 @@
                         "depth": 1,
                         "gas": 155985,
                         "gasCost": 3,
-                        "memory": [],
                         "op": "PUSH15",
                         "pc": 0,
                         "stack": []
@@ -41,7 +40,6 @@
                         "depth": 1,
                         "gas": 155982,
                         "gasCost": 2,
-                        "memory": [],
                         "op": "DIFFICULTY",
                         "pc": 16,
                         "stack": [
@@ -52,7 +50,6 @@
                         "depth": 1,
                         "gas": 155980,
                         "gasCost": 3,
-                        "memory": [],
                         "op": "PUSH17",
                         "pc": 17,
                         "stack": [
@@ -64,7 +61,6 @@
                         "depth": 1,
                         "gas": 155977,
                         "gasCost": 0,
-                        "memory": [],
                         "op": "opcode 0x2e not defined",
                         "pc": 35,
                         "stack": [

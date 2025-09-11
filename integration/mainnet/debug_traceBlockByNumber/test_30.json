@@ -7,7 +7,7 @@
             "params": [
                 "latest",
                 {
-                    "disableMemory": false,
+                    "disableMemory": true,
                     "disableStack": false,
                     "disableStorage": false
                 }

@@ -15,7 +15,7 @@
                 },
                 "0x52a0b3",
                 {
-                    "disableMemory": false,
+                    "disableMemory": true,
                     "disableStack": false,
                     "disableStorage": false
                 }

@@ -16,7 +16,7 @@
                 "0x1425556",
                 {
                     "TxIndex": "0x43",
-                    "disableMemory": false,
+                    "disableMemory": true,
                     "disableStack": false,
                     "disableStorage": false
                 }

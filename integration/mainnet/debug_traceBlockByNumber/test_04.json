@@ -7,7 +7,7 @@
             "params": [
                 "0x1879A3",
                 {
-                    "disableMemory": false,
+                    "disableMemory": true,
                     "disableStack": false,
                     "disableStorage": false
                 }

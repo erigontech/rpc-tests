@@ -7,7 +7,7 @@
             "params": [
                 "0xe55072bfbe599f866015f2c4a27bab1654c2c78f3ac7a2573ecf4b0e7c163a2d",
                 {
-                    "disableMemory": false,
+                    "disableMemory": true,
                     "disableStack": false,
                     "disableStorage": false
                 }
@@ -25,7 +25,6 @@
                         "depth": 1,
                         "gas": 8,
                         "gasCost": 3,
-                        "memory": [],
                         "op": "PUSH1",
                         "pc": 0,
                         "stack": []
@@ -34,7 +33,6 @@
                         "depth": 1,
                         "gas": 5,
                         "gasCost": 3,
-                        "memory": [],
                         "op": "PUSH1",
                         "pc": 2,
                         "stack": [
@@ -46,7 +44,6 @@
                         "error": "out of gas",
                         "gas": 2,
                         "gasCost": 3,
-                        "memory": [],
                         "op": "MSTORE",
                         "pc": 4,
                         "stack": [
