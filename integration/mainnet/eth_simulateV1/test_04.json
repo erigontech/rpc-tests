@@ -13,8 +13,7 @@
           "blockStateCalls": [
             {
               "blockOverrides": {
-                "baseFeePerGas": "0x2e90a",
-                "number": "0xfe3182"
+                "baseFeePerGas": "0x2e90a"
               },
               "stateOverrides": {
                 "0x8e826078f1498e98b71d64380963390fe5768565": {
