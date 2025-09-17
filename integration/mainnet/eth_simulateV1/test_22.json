@@ -132,7 +132,7 @@
         {
           "baseFeePerGas": "0x0",
           "blobGasUsed": "0x0",
-          "calls": null,
+          "calls": [],
           "difficulty": "0x0",
           "excessBlobGas": "0x0",
           "extraData": "0x",
