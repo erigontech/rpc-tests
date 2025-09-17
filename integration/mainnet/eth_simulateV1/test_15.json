@@ -1,0 +1,44 @@
+[
+  {
+    "test": {
+       "reference": "",
+       "description": "validation at latest block"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0x2222222222222222222222222222222222222222",
+                  "maxFeePerGas": "0x1",
+                  "value": "0x1"
+                }
+              ],
+              "stateOverrides": {
+                "0x1111111111111111111111111111111111111111": {
+                  "balance": "0x8ac7230489e80000"
+                }
+              }
+            }
+          ],
+          "validation": true
+        },
+        "latest"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "error": {
+        "code": -32602,
+        "message": "fee cap less than block base fee: address 0x1111111111111111111111111111111111111111, feeCap: 1 baseFee: 305121907"
+      }
+    }
+  }
+]
