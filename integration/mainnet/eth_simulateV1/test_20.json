@@ -2,7 +2,7 @@
   {
     "test": {
        "reference": "",
-       "description": "multi-call at block 22842259"
+       "description": "multi-block unordered at block 22842259"
     },
     "request": {
       "id": 1,
@@ -52,160 +52,10 @@
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "result": [
-        {
-          "baseFeePerGas": "0x0",
-          "blobGasUsed": "0x0",
-          "calls": [
-            {
-              "gasUsed": "0x5208",
-              "logs": [
-                {
-                  "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-                  "blockHash": "0x5ba37d74e5c49129e8d3efcd47b805f15f1b1fa5efb4a2163e8d83cca1a624a3",
-                  "blockNumber": "0x15c8b94",
-                  "blockTimestamp": "0x0",
-                  "data": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
-                  "logIndex": "0x0",
-                  "removed": false,
-                  "topics": [
-                    "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                    "0x0000000000000000000000001111111111111111111111111111111111111111",
-                    "0x000000000000000000000000aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                  ],
-                  "transactionHash": "0x0060a2d353552bf9b5100ce12ccbe889bf586d50da84d6dbef43ffb0340add36",
-                  "transactionIndex": "0x0"
-                }
-              ],
-              "returnData": "0x",
-              "status": "0x1"
-            }
-          ],
-          "difficulty": "0x0",
-          "excessBlobGas": "0x20000",
-          "extraData": "0x",
-          "gasLimit": "0x2255100",
-          "gasUsed": "0x5208",
-          "hash": "0x5ba37d74e5c49129e8d3efcd47b805f15f1b1fa5efb4a2163e8d83cca1a624a3",
-          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "miner": "0xdadb0d80178819f2319190d340ce9a924f783711",
-          "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "nonce": "0x0000000000000000",
-          "number": "0x15c8b94",
-          "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "parentHash": "0x6380e74828190e01bf273a3039974f5eca9ae193161f207d263f5c929e634430",
-          "receiptsRoot": "0xf78dfb743fbd92ade140711c8bbc542b5e307f0ab7984eff35d751969fe57efa",
-          "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-          "size": "0x29c",
-          "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "timestamp": "0x68671f8b",
-          "transactions": [
-            {
-              "accessList": [],
-              "blockHash": "0x5ba37d74e5c49129e8d3efcd47b805f15f1b1fa5efb4a2163e8d83cca1a624a3",
-              "blockNumber": "0x15c8b94",
-              "chainId": "0x1",
-              "from": "0x1111111111111111111111111111111111111111",
-              "gas": "0x2255100",
-              "gasPrice": "0x0",
-              "hash": "0x0060a2d353552bf9b5100ce12ccbe889bf586d50da84d6dbef43ffb0340add36",
-              "input": "0x",
-              "maxFeePerGas": "0x0",
-              "maxPriorityFeePerGas": "0x0",
-              "nonce": "0x0",
-              "r": "0x0",
-              "s": "0x0",
-              "to": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-              "transactionIndex": "0x0",
-              "type": "0x2",
-              "v": "0x0",
-              "value": "0xde0b6b3a7640000",
-              "yParity": "0x0"
-            }
-          ],
-          "transactionsRoot": "0x1106459d49973bce401dd0ae8d02c58c948fad3a49a850e1d6a4a9228af8014a",
-          "uncles": [],
-          "withdrawals": [],
-          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
-        },
-        {
-          "baseFeePerGas": "0x0",
-          "blobGasUsed": "0x0",
-          "calls": [
-            {
-              "gasUsed": "0x5208",
-              "logs": [
-                {
-                  "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-                  "blockHash": "0xb29764a3d93689c67806a8e3381bdabcb05ea1493fc98ecbd3dec145684b6b7e",
-                  "blockNumber": "0x15c8b95",
-                  "blockTimestamp": "0x0",
-                  "data": "0x00000000000000000000000000000000000000000000000006f05b59d3b20000",
-                  "logIndex": "0x0",
-                  "removed": false,
-                  "topics": [
-                    "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                    "0x000000000000000000000000aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                    "0x000000000000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-                  ],
-                  "transactionHash": "0x3e67931f6466859de7e5ad678bdadd96d30474883d2f0db56d799ff6475ddf6e",
-                  "transactionIndex": "0x0"
-                }
-              ],
-              "returnData": "0x",
-              "status": "0x1"
-            }
-          ],
-          "difficulty": "0x0",
-          "excessBlobGas": "0x0",
-          "extraData": "0x",
-          "gasLimit": "0x2255100",
-          "gasUsed": "0x5208",
-          "hash": "0xb29764a3d93689c67806a8e3381bdabcb05ea1493fc98ecbd3dec145684b6b7e",
-          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "miner": "0xdadb0d80178819f2319190d340ce9a924f783711",
-          "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "nonce": "0x0000000000000000",
-          "number": "0x15c8b95",
-          "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "parentHash": "0xe2663f48c7a9fd0227c5e629883bc34a077497402db7fd861d41c678e87f0e3f",
-          "receiptsRoot": "0xf78dfb743fbd92ade140711c8bbc542b5e307f0ab7984eff35d751969fe57efa",
-          "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-          "size": "0x299",
-          "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "timestamp": "0x68671f97",
-          "transactions": [
-            {
-              "accessList": [],
-              "blockHash": "0xb29764a3d93689c67806a8e3381bdabcb05ea1493fc98ecbd3dec145684b6b7e",
-              "blockNumber": "0x15c8b95",
-              "chainId": "0x1",
-              "from": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-              "gas": "0x2255100",
-              "gasPrice": "0x0",
-              "hash": "0x3e67931f6466859de7e5ad678bdadd96d30474883d2f0db56d799ff6475ddf6e",
-              "input": "0x",
-              "maxFeePerGas": "0x0",
-              "maxPriorityFeePerGas": "0x0",
-              "nonce": "0x0",
-              "r": "0x0",
-              "s": "0x0",
-              "to": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-              "transactionIndex": "0x0",
-              "type": "0x2",
-              "v": "0x0",
-              "value": "0x6f05b59d3b20000",
-              "yParity": "0x0"
-            }
-          ],
-          "transactionsRoot": "0x2b43c83ab233706179862f3e28dc3e65647ccbd684002c4d6ce2e84423b505e6",
-          "uncles": [],
-          "withdrawals": [],
-          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
-        }
-      ]
+      "error": {
+        "code": -38020,
+        "message": "block numbers must be in order: 18874368 <= 22842259"
+      }
     }
   }
 ]
