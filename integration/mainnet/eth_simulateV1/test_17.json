@@ -24,7 +24,7 @@
                 }
               },
               "blockOverrides": {
-                "coinbase": "0xcccccccccccccccccccccccccccccccccccccccc"
+                "feeRecipient": "0xcccccccccccccccccccccccccccccccccccccccc"
               }
             }
           ]
