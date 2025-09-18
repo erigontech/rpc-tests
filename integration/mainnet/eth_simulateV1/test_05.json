@@ -1,0 +1,60 @@
+[
+  {
+    "test": {
+       "reference": "https://etherscan.io/address/0xc3d688B66703497DAA19211EEdff47f25384cdc3",
+       "description": "borrowing using Compound V3 USDC at latest block"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "blockOverrides": {
+                "baseFeePerGas": "0x2e9"
+              },
+              "stateOverrides": {
+                "0x8e826078f1498e98b71d64380963390fe5768565": {
+                  "balance": "0x6f05b59d3b20000"
+                },
+                "0xc3d688B66703497DAA19211EEdff47f25384cdc3": {
+                  "balance": "0x56bc75e2d63100000"
+                }
+              },
+              "calls": [
+                {
+                  "from": "0x8e826078f1498e98b71d64380963390fe5768565",
+                  "to": "0xc3d688B66703497DAA19211EEdff47f25384cdc3",
+                  "data": "0xfc1543b50000000000000000000000008e826078f1498e98b71d64380963390fe57685650000000000000000000000000000000000000000000000000de0b6b3a7640000",
+                  "value": "0x3635c9adc5dea00000",
+                  "gas": "0x1d4c0",
+                  "maxFeePerGas": "0x2ea"
+                },
+                {
+                  "from": "0x8e826078f1498e98b71d64380963390fe5768565",
+                  "to": "0xc3d688B66703497DAA19211EEdff47f25384cdc3",
+                  "data": "0x1d36808b0000000000000000000000008e826078f1498e98b71d64380963390fe5768565000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb4800000000000000000000000000000000000000000000000005f5e100",
+                  "gas": "0x1d4c0",
+                  "maxFeePerGas": "0x2ea"
+                }
+              ]
+            }
+          ],
+          "validation": true,
+          "traceTransfers": true
+        },
+        "latest"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "error": {
+        "code": -38014,
+        "message": "insufficient funds for gas * price + value: address 0x8e826078f1498e98B71D64380963390FE5768565 have 500000000000000000 want 1000000000000089520000"
+      }
+    }
+  }
+]

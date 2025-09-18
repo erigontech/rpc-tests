@@ -1,0 +1,41 @@
+[
+  {
+    "test": {
+       "reference": "",
+       "description": "override difficulty at block 22842259"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0x6666666666666666666666666666666666666666"
+                }
+              ],
+              "stateOverrides": {
+                "0x6666666666666666666666666666666666666666": {
+                  "code": "0x4160005260206000f3"
+                }
+              },
+              "blockOverrides": {
+                "difficulty": "0xCAFE0000"
+              }
+            }
+          ]
+        },
+        "0x15c8b93"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": null
+    }
+  }
+]

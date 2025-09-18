@@ -1,0 +1,80 @@
+[
+  {
+    "test": {
+       "reference": "",
+       "description": "override coinbase at block 22842259"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0x6666666666666666666666666666666666666666"
+                }
+              ],
+              "stateOverrides": {
+                "0x6666666666666666666666666666666666666666": {
+                  "code": "0x4160005260206000f3"
+                }
+              },
+              "blockOverrides": {
+                "feeRecipient": "0xcccccccccccccccccccccccccccccccccccccccc"
+              }
+            }
+          ]
+        },
+        "0x15c8b93"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": [
+        {
+          "baseFeePerGas": "0x0",
+          "blobGasUsed": "0x0",
+          "calls": [
+            {
+              "gasUsed": "0x5219",
+              "logs": [],
+              "returnData": "0x000000000000000000000000cccccccccccccccccccccccccccccccccccccccc",
+              "status": "0x1"
+            }
+          ],
+          "difficulty": "0x0",
+          "excessBlobGas": "0x20000",
+          "extraData": "0x",
+          "gasLimit": "0x2255100",
+          "gasUsed": "0x5219",
+          "hash": "0x401b4e88e0e2f2c79fb32ef8b9a9f672d910dc9ae1fbeeffbf4d9e5c1d5ec56c",
+          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "miner": "0xcccccccccccccccccccccccccccccccccccccccc",
+          "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "nonce": "0x0000000000000000",
+          "number": "0x15c8b94",
+          "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "parentHash": "0x6380e74828190e01bf273a3039974f5eca9ae193161f207d263f5c929e634430",
+          "receiptsRoot": "0xf0f6c0603443a0b4f5f38ed4e20f5180c09e662865a68d708630154e6e42bc26",
+          "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+          "size": "0x294",
+          "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "timestamp": "0x68671f8b",
+          "transactions": [
+            "0x3fab4d16647d6c0d62b6bf9aacc3f79184667fa196dd81300612f8a0593143f9"
+          ],
+          "transactionsRoot": "0xc3c32c983b16e0194a1aba48fed24ba962adcf6c4269fb9ab994bc4b4bd19ec4",
+          "uncles": [],
+          "withdrawals": [],
+          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+        }
+      ]
+    }
+  }
+]
