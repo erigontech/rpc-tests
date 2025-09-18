@@ -35,10 +35,7 @@
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "error": {
-        "code": -32602,
-        "message": "fee cap less than block base fee: address 0x1111111111111111111111111111111111111111, feeCap: 1 baseFee: 305121907"
-      }
+      "error": null
     }
   }
 ]

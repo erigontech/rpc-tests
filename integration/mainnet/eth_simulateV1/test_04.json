@@ -50,8 +50,8 @@
       "jsonrpc": "2.0",
       "id": 1,
       "error": {
-        "code": -32000,
-        "message": "fee cap less than block base fee: address 0x8e826078f1498e98B71D64380963390FE5768565, feeCap: 0 baseFee: 305121907"
+        "code": -32602,
+        "message": "fee cap less than block base fee: address 0x8e826078f1498e98B71D64380963390FE5768565, feeCap: 0 baseFee: 190730"
       }
     }
   }
