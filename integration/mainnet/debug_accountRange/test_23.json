@@ -1,0 +1,44 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_accountRange",
+            "params": [
+                "0x52A0B3",
+                "0x9202584Ac2A5081C6d1F27d637d1DD1Fb2AEc6B7",
+                3,
+                false,
+                false
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "accounts": {
+                    "0x92025a23870a6df3fcdf999b1eb961e1be58a731": {
+                        "balance": "0",
+                        "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                        "nonce": 4,
+                        "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                    },
+                    "0x92025a7710204f144a091c151b2645b2cf550c13": {
+                        "balance": "21100000000000",
+                        "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                        "nonce": 9,
+                        "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                    },
+                    "0x92025b14dbaf298ba059e7be72b9a627d0da2020": {
+                        "balance": "0",
+                        "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                        "nonce": 3,
+                        "root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                    }
+                },
+                "next": "kgJbMcbPazu6cpCLpEuAGPufsDM=",
+                "root": "0x26585bdb8482c990cf169d37e300eb17d7fd123f1d12597d07b79bf5d329ca4a"
+            }
+        }
+    }
+]
