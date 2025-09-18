@@ -27,7 +27,7 @@ NONE = "none"
 EXTERNAL_PROVIDER = "external-provider"
 TIME = 0.1
 MAX_TIME = 200  # times of TIME secs
-TEMP_DIRNAME="/tmp/rpc_tests"
+TEMP_DIRNAME="./temp_rpc_tests"
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
@@ -358,6 +358,8 @@ def is_not_compared_error(test_name, net: str):
     return 0
 
 def print_latest_block(server1_url: str, server2_url: str):
+    """ print ltest block number
+    """
     w3_server1 = web3.Web3(web3.Web3.HTTPProvider(server1_url))
     w3_server2 = web3.Web3(web3.Web3.HTTPProvider(server2_url))
     try:
@@ -365,7 +367,7 @@ def print_latest_block(server1_url: str, server2_url: str):
         block_number2 = w3_server2.eth.block_number
         print (f"Block on server1:             {block_number1}")
         print (f"Block on server2:             {block_number2}")
-    except Exception as e:
+    except (web3.exceptions.Web3Exception, requests.exceptions.RequestException) as e:
         print ("Connection failed: ", e)
 
 def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_retries: int = 5, retry_delay_ms: int = 500) -> Optional[int]:
@@ -395,7 +397,7 @@ def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_ret
             if block_number1 == block_number2:
                 return block_number1
             time.sleep(retry_delay_ms / 1000)
-        except Exception as e:
+        except (web3.exceptions.Web3Exception, requests.exceptions.RequestException) as e:
             print ("Connection to: ", server1_url)
             print ("Connection to: ", server2_url)
             print ("Connection failed: ", e)
@@ -1131,6 +1133,12 @@ def main(argv) -> int:
                 break
     except KeyboardInterrupt:
         print("TEST INTERRUPTED!")
+
+    # cleam temp dir
+    try:
+        shutil.rmtree(TEMP_DIRNAME)
+    except OSError:
+        pass
 
     # print results at the end of all the tests
     elapsed = datetime.now() - start_time
