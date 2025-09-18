@@ -357,6 +357,17 @@ def is_not_compared_error(test_name, net: str):
             return 1
     return 0
 
+def print_latest_block(server1_url: str, server2_url: str):
+    w3_server1 = web3.Web3(web3.Web3.HTTPProvider(server1_url))
+    w3_server2 = web3.Web3(web3.Web3.HTTPProvider(server2_url))
+    try:
+        block_number1 = w3_server1.eth.block_number
+        block_number2 = w3_server2.eth.block_number
+        print ("Block on server1:", block_number1)
+        print ("Block on server2:", block_number2)
+    except Exception as e:
+        print ("Connection failed: ", e)
+
 def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_retries: int = 5, retry_delay_ms: int = 500) -> Optional[int]:
     """
     Makes a request to two ethereum servers to get the latest block number.
@@ -384,7 +395,7 @@ def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_ret
             if block_number1 == block_number2:
                 return block_number1
             time.sleep(retry_delay_ms / 1000)
-        except Exception:
+        except Exception as e:
             print ("Connection to: ", server1_url)
             print ("Connection to: ", server2_url)
             print ("Connection failed: ", e)
@@ -1132,6 +1143,8 @@ def main(argv) -> int:
     print(f"Number of NOT executed tests: {tests_not_executed}")
     print(f"Number of success tests:      {success_tests}")
     print(f"Number of failed tests:       {failed_tests}")
+    if config.verify_with_daemon and config.tests_on_latest_block:
+        print_latest_block(config.local_server, "http://" + config.external_provider_url)
 
     return failed_tests
 
