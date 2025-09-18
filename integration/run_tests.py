@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ Run the JSON RPC API curl commands as integration tests """
 
+from typing import Optional
 from datetime import datetime
 import getopt
 import gzip
@@ -18,6 +19,7 @@ import jwt
 import requests
 from websockets.sync.client import connect
 from websockets.extensions import permessage_deflate
+import web3
 
 DAEMON_ON_OTHER_PORT = "other-daemon"
 DAEMON_ON_DEFAULT_PORT = "rpcdaemon"
@@ -355,6 +357,51 @@ def is_not_compared_error(test_name, net: str):
             return 1
     return 0
 
+def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_retries: int = 5, retry_delay_ms: int = 500) -> Optional[int]:
+    """
+    Makes a request to two Ethereum servers to get the latest block number.
+    It returns the block number if the servers are consistent, otherwise it
+    repeats the request up to the maximum number of attempts.
+
+    Args:
+        server1_url (str): The URL of the first server.
+        server2_url (str): The URL of the second server.
+        max_retries (int): The maximum number of attempts before failing.
+        retry_delay_ms (int): The delay between attempts in milliseconds.
+
+    Returns:
+        Optional[int]: The block number if the servers are consistent,
+                      otherwise None.
+    """
+    w3_server1 = web3.Web3(web3.Web3.HTTPProvider(server1_url))
+    w3_server2 = web3.Web3(web3.Web3.HTTPProvider(server2_url))
+
+    for attempt in range(max_retries):
+        try:
+            # Verifica che le connessioni siano attive
+            if not w3_server1.is_connected() or not w3_server2.is_connected():
+                print("Errore: Impossibile connettersi a uno o entrambi i nodi.")
+                time.sleep(retry_delay_ms / 1000)
+                continue
+
+            # Fai le richieste in modo sincrono e sequenziale
+            block_number1 = w3_server1.eth.block_number
+            block_number2 = w3_server2.eth.block_number
+
+            print(f"Tentativo {attempt + 1}:")
+            print(f"Server 1 (block): {block_number1}")
+            print(f"Server 2 (block): {block_number2}")
+
+            if block_number1 == block_number2:
+                print(f"I server sono consistenti. Ritorno il blocco {block_number1}.")
+                return block_number1
+            print(f"I blocchi non sono consistenti. Riprovo in {retry_delay_ms}ms...")
+            time.sleep(retry_delay_ms / 1000)
+        except Exception as e:
+            print(f"Si è verificato un errore: {e}. Riprovo in {retry_delay_ms}ms...")
+            time.sleep(retry_delay_ms / 1000)
+    print(f"Fallito dopo {max_retries} tentativi. I server non sono mai stati consistenti.")
+    return None
 
 class Config:
     # pylint: disable=too-many-instance-attributes
@@ -960,6 +1007,7 @@ def main(argv) -> int:
         target = get_target(config.daemon_under_test, "eth_call", config)
         target1 = get_target(config.daemon_under_test, "engine_", config)
         server_endpoints = target + "/" + target1
+
     if config.parallel is True:
         print("Run tests in parallel on", server_endpoints)
         exe = ProcessPoolExecutor()
@@ -969,6 +1017,15 @@ def main(argv) -> int:
 
     if config.transport_type in ('http_comp', 'websocket_comp'):
         print("Run tests using compression")
+
+    if config.verify_with_daemon and config.tests_on_latest_block:
+        consistent_block = get_consistent_block_number_web3(config.daemon_on_host + ":" + str(config.server_port if config.server_port > 0 else 8545), config.external_provider_url)
+        if consistent_block is not None:
+            print(f"Risultato finale: {consistent_block}")
+        else:
+            print("Impossibile trovare un blocco consistente.")
+            print("ERROR: test on latest two servers are not syncronized")
+            return 1
 
     global_test_number = 0
     available_tested_apis = 0
