@@ -385,8 +385,12 @@ def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_ret
                 return block_number1
             time.sleep(retry_delay_ms / 1000)
         except Exception:
+            print ("Connection to: ", server1_url)
+            print ("Connection to: ", server2_url)
+            print ("Connection failed: ", e)
             time.sleep(retry_delay_ms / 1000)
-    print ("ERROR: two server not syncronized after attempts:", attempts, block_number1, block_number2)
+            continue
+    print ("ERROR: two server not syncronized after attempts:", attempts)
     return None
 
 class Config:
@@ -1006,7 +1010,7 @@ def main(argv) -> int:
         print("Run tests using compression")
 
     if config.verify_with_daemon and config.tests_on_latest_block:
-        consistent_block = get_consistent_block_number_web3(config.local_server, config.external_provider_url)
+        consistent_block = get_consistent_block_number_web3(config.local_server, "http://" + config.external_provider_url)
         if consistent_block is  None:
             print("ERROR: test on latest two servers are not syncronized")
             return 1
