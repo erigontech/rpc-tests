@@ -363,8 +363,8 @@ def print_latest_block(server1_url: str, server2_url: str):
     try:
         block_number1 = w3_server1.eth.block_number
         block_number2 = w3_server2.eth.block_number
-        print ("Block on server1:", block_number1)
-        print ("Block on server2:", block_number2)
+        print (f"Block on server1:             {block_number1}")
+        print (f"Block on server2:             {block_number2}")
     except Exception as e:
         print ("Connection failed: ", e)
 
