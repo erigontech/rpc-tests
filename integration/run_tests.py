@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ Run the JSON RPC API curl commands as integration tests """
 
+from typing import Optional
 from datetime import datetime
 import getopt
 import gzip
@@ -18,6 +19,7 @@ import jwt
 import requests
 from websockets.sync.client import connect
 from websockets.extensions import permessage_deflate
+import web3
 
 DAEMON_ON_OTHER_PORT = "other-daemon"
 DAEMON_ON_DEFAULT_PORT = "rpcdaemon"
@@ -25,7 +27,7 @@ NONE = "none"
 EXTERNAL_PROVIDER = "external-provider"
 TIME = 0.1
 MAX_TIME = 200  # times of TIME secs
-TEMP_DIRNAME="/tmp/rpc_tests"
+TEMP_DIRNAME="./temp_rpc_tests"
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
@@ -355,6 +357,54 @@ def is_not_compared_error(test_name, net: str):
             return 1
     return 0
 
+def print_latest_block(server1_url: str, server2_url: str):
+    """ print ltest block number
+    """
+    w3_server1 = web3.Web3(web3.Web3.HTTPProvider(server1_url))
+    w3_server2 = web3.Web3(web3.Web3.HTTPProvider(server2_url))
+    try:
+        block_number1 = w3_server1.eth.block_number
+        block_number2 = w3_server2.eth.block_number
+        print (f"Block on server1:             {block_number1}")
+        print (f"Block on server2:             {block_number2}")
+    except (web3.exceptions.Web3Exception, requests.exceptions.RequestException) as e:
+        print ("Connection failed: ", e)
+
+def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_retries: int = 5, retry_delay_ms: int = 500) -> Optional[int]:
+    """
+    Makes a request to two ethereum servers to get the latest block number.
+    It returns the block number if the servers are consistent, otherwise it
+    repeats the request up to the maximum number of attempts.
+
+    Args:
+        server1_url (str): The URL of the first server.
+        server2_url (str): The URL of the second server.
+        max_retries (int): The maximum number of attempts before failing.
+        retry_delay_ms (int): The delay between attempts in milliseconds.
+
+    Returns:
+        Optional[int]: The block number if the servers are consistent,
+                      otherwise None.
+    """
+    w3_server1 = web3.Web3(web3.Web3.HTTPProvider(server1_url))
+    w3_server2 = web3.Web3(web3.Web3.HTTPProvider(server2_url))
+
+    for attempts in range(max_retries):
+        try:
+            block_number1 = w3_server1.eth.block_number
+            block_number2 = w3_server2.eth.block_number
+
+            if block_number1 == block_number2:
+                return block_number1
+            time.sleep(retry_delay_ms / 1000)
+        except (web3.exceptions.Web3Exception, requests.exceptions.RequestException) as e:
+            print ("Connection to: ", server1_url)
+            print ("Connection to: ", server2_url)
+            print ("Connection failed: ", e)
+            time.sleep(retry_delay_ms / 1000)
+            continue
+    print ("ERROR: two server not syncronized after attempts:", attempts)
+    return None
 
 class Config:
     # pylint: disable=too-many-instance-attributes
@@ -392,6 +442,7 @@ class Config:
         self.waiting_time = 0
         self.do_not_compare_error = False
         self.tests_on_latest_block = False
+        self.local_server = "http://" + self.daemon_on_host + ":" + str(self.server_port if self.server_port > 0 else 8545)
 
     def select_user_options(self, argv):
         """ process user command """
@@ -960,6 +1011,7 @@ def main(argv) -> int:
         target = get_target(config.daemon_under_test, "eth_call", config)
         target1 = get_target(config.daemon_under_test, "engine_", config)
         server_endpoints = target + "/" + target1
+
     if config.parallel is True:
         print("Run tests in parallel on", server_endpoints)
         exe = ProcessPoolExecutor()
@@ -969,6 +1021,13 @@ def main(argv) -> int:
 
     if config.transport_type in ('http_comp', 'websocket_comp'):
         print("Run tests using compression")
+
+    if config.verify_with_daemon and config.tests_on_latest_block:
+        consistent_block = get_consistent_block_number_web3(config.local_server, "http://" + config.external_provider_url)
+        if consistent_block is  None:
+            print("ERROR: test on latest two servers are not syncronized")
+            return 1
+        print("tests on latest on block: ", consistent_block)
 
     global_test_number = 0
     available_tested_apis = 0
@@ -1075,6 +1134,12 @@ def main(argv) -> int:
     except KeyboardInterrupt:
         print("TEST INTERRUPTED!")
 
+    # cleam temp dir
+    try:
+        shutil.rmtree(TEMP_DIRNAME)
+    except OSError:
+        pass
+
     # print results at the end of all the tests
     elapsed = datetime.now() - start_time
     print("                                                                                                                  \r")
@@ -1086,6 +1151,8 @@ def main(argv) -> int:
     print(f"Number of NOT executed tests: {tests_not_executed}")
     print(f"Number of success tests:      {success_tests}")
     print(f"Number of failed tests:       {failed_tests}")
+    if config.verify_with_daemon and config.tests_on_latest_block:
+        print_latest_block(config.local_server, "http://" + config.external_provider_url)
 
     return failed_tests
 
