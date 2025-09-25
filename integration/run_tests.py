@@ -134,8 +134,11 @@ tests_on_latest = [
     "mainnet/ots_hasCode/test_10.json",
     "mainnet/ots_searchTransactionsBefore/test_02.json",
     "mainnet/parity_listStorageKeys",
+    "mainnet/trace_block/test_25.json",
     "mainnet/trace_call/test_26.json",
     "mainnet/trace_callMany/test_15.json",
+    "mainnet/trace_filter/test_25.json",
+    "mainnet/trace_replayBlockTransactions/test_36.json",
 ]
 
 
@@ -379,7 +382,7 @@ def print_latest_block(server1_url: str, server2_url: str):
     except (web3.exceptions.Web3Exception, requests.exceptions.RequestException) as e:
         print ("Connection failed: ", e)
 
-def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_retries: int = 5, retry_delay_ms: int = 500) -> Optional[int]:
+def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_retries: int = 7, retry_delay_ms: int = 500) -> Optional[int]:
     """
     Makes a request to two ethereum servers to get the latest block number.
     It returns the block number if the servers are consistent, otherwise it
@@ -398,7 +401,9 @@ def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_ret
     w3_server1 = web3.Web3(web3.Web3.HTTPProvider(server1_url))
     w3_server2 = web3.Web3(web3.Web3.HTTPProvider(server2_url))
 
-    for attempts in range(max_retries):
+    block_number1 = 0
+    block_number2 = 0
+    for _ in range(max_retries):
         try:
             block_number1 = w3_server1.eth.block_number
             block_number2 = w3_server2.eth.block_number
@@ -412,7 +417,7 @@ def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_ret
             print ("Connection failed: ", e)
             time.sleep(retry_delay_ms / 1000)
             continue
-    print ("ERROR: two server not syncronized after attempts:", attempts)
+    print ("ERROR: two servers are not syncronized bn1/bn2: ", block_number1,block_number2)
     return None
 
 class Config:
