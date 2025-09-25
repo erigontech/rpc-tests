@@ -1,0 +1,22 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_replayBlockTransactions",
+            "params": [
+                "latest",
+                [
+                   "vmTrace",
+                   "trace",
+                   "stateDiff"
+                ]
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        }
+    }
+]
+

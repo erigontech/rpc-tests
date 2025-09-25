@@ -1,0 +1,22 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_block",
+            "params": [
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": []
+        },
+        "test": {
+            "description": "trace latest block",
+            "reference": ""
+        }
+    }
+]
+
