@@ -1024,10 +1024,12 @@ def main(argv) -> int:
 
     if config.verify_with_daemon and config.tests_on_latest_block:
         consistent_block = get_consistent_block_number_web3(config.local_server, "http://" + config.external_provider_url)
-        if consistent_block is  None:
-            print("ERROR: test on latest two servers are not syncronized")
+        if consistent_block is None:
+            print("ERROR: Tests on latest block: two servers are not synchronized")
             return 1
-        print("tests on latest on block: ", consistent_block)
+        print("Tests on latest block: ", consistent_block)
+
+    print(f"Result directory: {os.path.abspath(config.results_dir)}")
 
     global_test_number = 0
     available_tested_apis = 0
