@@ -46,7 +46,6 @@ tests_not_compared_error = [
 
 
 tests_on_latest = [
-    "mainnet/eth_blockNumber",
     "mainnet/debug_traceBlockByNumber/test_24.json",
     "mainnet/debug_traceBlockByNumber/test_30.json",
     "mainnet/debug_traceCall/test_22.json",
@@ -60,7 +59,8 @@ tests_on_latest = [
     "mainnet/debug_traceCall/test_40.json",
     "mainnet/debug_traceCallMany/test_11.json",
     "mainnet/debug_traceCallMany/test_12.json",
-    "mainnet/eth_block_number",                                                  # works always on latest block
+    "mainnet/eth_blobBaseFee",                                                 # works always on latest block
+    "mainnet/eth_blockNumber",                                                 # works always on latest block
     "mainnet/eth_call/test_20.json",
     "mainnet/eth_call/test_28.json",
     "mainnet/eth_call/test_29.json",
@@ -85,6 +85,7 @@ tests_on_latest = [
     "mainnet/eth_estimateGas/test_23",
     "mainnet/eth_feeHistory/test_07.json",
     "mainnet/eth_feeHistory/test_22.json",
+    "mainnet/eth_gasPrice",                                                     # works always on latest block
     "mainnet/eth_getBalance/test_03.json",
     "mainnet/eth_getBalance/test_26.json",
     "mainnet/eth_getBalance/test_27.json",
@@ -120,6 +121,7 @@ tests_on_latest = [
     "mainnet/eth_getTransactionCount/test_08.json",
     "mainnet/eth_getUncleCountByBlockNumber/test_03.json",
     "mainnet/eth_getUncleByBlockNumberAndIndex/test_02.json",
+    "mainnet/eth_maxPriorityFeePerGas",
     "mainnet/eth_simulateV1/test_04.json",
     "mainnet/eth_simulateV1/test_05.json",
     "mainnet/eth_simulateV1/test_06.json",
