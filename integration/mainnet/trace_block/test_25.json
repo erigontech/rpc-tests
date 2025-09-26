@@ -11,7 +11,7 @@
         "response": {
             "id": 1,
             "jsonrpc": "2.0",
-            "result": []
+            "result": null
         },
         "test": {
             "description": "trace latest block",
