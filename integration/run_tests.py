@@ -382,7 +382,7 @@ def print_latest_block(server1_url: str, server2_url: str):
     except (web3.exceptions.Web3Exception, requests.exceptions.RequestException) as e:
         print ("Connection failed: ", e)
 
-def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_retries: int = 7, retry_delay_ms: int = 500) -> Optional[int]:
+def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_retries: int = 10, retry_delay_ms: int = 500) -> Optional[int]:
     """
     Makes a request to two ethereum servers to get the latest block number.
     It returns the block number if the servers are consistent, otherwise it
@@ -403,12 +403,13 @@ def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_ret
 
     block_number1 = 0
     block_number2 = 0
-    for _ in range(max_retries):
+    for attempts in range(max_retries):
         try:
             block_number1 = w3_server1.eth.block_number
             block_number2 = w3_server2.eth.block_number
 
             if block_number1 == block_number2:
+                print ("INFO: the two nodes are syncronized after attempts: ", attempts+1)
                 return block_number1
             time.sleep(retry_delay_ms / 1000)
         except (web3.exceptions.Web3Exception, requests.exceptions.RequestException) as e:
@@ -417,7 +418,7 @@ def get_consistent_block_number_web3(server1_url: str, server2_url: str, max_ret
             print ("Connection failed: ", e)
             time.sleep(retry_delay_ms / 1000)
             continue
-    print ("ERROR: two servers are not syncronized bn1/bn2: ", block_number1,block_number2)
+    print ("ERROR: two nodes are not syncronized bn1/bn2: ", block_number1,block_number2)
     return None
 
 class Config:
