@@ -7,20 +7,29 @@
         "request": {
             "jsonrpc":"2.0",
             "method":"eth_call",
-            "params":[
-                {
-                  "from": "0xEF04bc7821433f080461BBAE815182E3d7bBb61A",
-                  "to": "0x4debB0dF4da8D1f51EF67B727c3F1c0eCC7ed009",
-                  "gas": "0x5208",
-                  "gasPrice": "0x2CB417800",
-                  "value": "0x229322"
-                },
-                "0x89543F",
-                {},
-                {
-                   "baseFeePerGas": "0x9"
-                }
-            ],
+            "params": [
+                  {
+                      "from": "0xEF04bc7821433f080461BBAE815182E3d7bBb61A",
+                      "to": "0x4debB0dF4da8D1f51EF67B727c3F1c0eCC7ed009",
+                      "gas": "0x7A1200", 
+                      "value": "0x0", 
+                      "data": "0x70a08231000000000000000000000000ef04bc7821433f080461bbae815182e3d7bbb61a"
+                  },
+                  "0xC00000", 
+                  {           
+                      "0x4debB0dF4da8D1f51EF67B727c3F1c0eCC7ed009": {
+                          "storage": {
+                              "0x0000000000000000000000000000000000000000000000000000000000000001": "0x50000000000000000000000000000000" 
+                          }
+                      }
+                  },
+                  {   
+                      "number": "0xC00000",
+                      "timestamp": "0x69A3D0A0",
+                      "gasLimit": "0xFFFFFF", 
+                      "miner": "0x000000000000000000000000000000000000dEaD" 
+                  }
+              ],
             "id":1
         },
         "response": {

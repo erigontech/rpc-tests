@@ -7,22 +7,23 @@
         "request": {
             "jsonrpc":"2.0",
             "method":"eth_call",
-            "params":[
-                {
-                  "from": "0xEF04bc7821433f080461BBAE815182E3d7bBb61A",
-                  "to": "0x4debB0dF4da8D1f51EF67B727c3F1c0eCC7ed009",
-                  "gas": "0x5208",
-                  "gasPrice": "0x2CB417800",
-                  "value": "0x229322"
-                },
-                "0x89543F",
-                {},
-                {
-                  "number": "0x15c8b94",
-                   "timestamp": "0x68D3B730"
-                }
-            ],
-            "id":1
+            "params": [
+        {
+            "from": "0xEF04bc7821433f080461BBAE815182E3d7bBb61A",
+            "to": "0x4debB0dF4da8D1f51EF67B727c3F1c0eCC7ed009",
+            "gas": "0x7A1200", 
+            "value": "0x0", 
+            "data": "0x70a08231000000000000000000000000ef04bc7821433f080461bbae815182e3d7bbb61a"
+        },
+        "0x89543F",
+        {},
+        {
+            "number": "0x89543F",
+            "timestamp": "0x68E0F100", 
+            "gasLimit": "0x7E1200"     
+        }
+    ],
+    "id": 1
         },
         "response": {
             "id":1,
