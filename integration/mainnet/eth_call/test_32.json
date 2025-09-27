@@ -1,0 +1,39 @@
+[
+    {
+        "test": {
+           "reference": "",
+           "description": "with blockOverrides" 
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_call",
+            "params": [
+                 {
+                     "from": "0xEF04bc7821433f080461BBAE815182E3d7bBb61A",
+                     "to": "0x4debB0dF4da8D1f51EF67B727c3F1c0eCC7ed009",
+                     "gas": "0x7A1200", 
+                     "value": "0x0", 
+                     "data": "0x70a08231000000000000000000000000ef04bc7821433f080461bbae815182e3d7bbb61a"
+                 },
+                 "0x900000", 
+                 {           
+                     "0xEF04bc7821433f080461BBAE815182E3d7bBb61A": {
+                         "balance": "0x2000000000000000000000" 
+                     }
+                 },
+                 {        
+                     "number": "0x900000",
+                     "timestamp": "0x69A1C5C0",
+                     "random": "0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20" 
+                 }
+           ],
+           "id": 1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": "0x"
+        }
+    }
+]
+
