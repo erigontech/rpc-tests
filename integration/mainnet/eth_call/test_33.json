@@ -1,0 +1,36 @@
+[
+    {
+        "test": {
+           "reference": "",
+           "description": "with blockOverrides" 
+        },
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_call",
+            "params": [
+                {
+                    "from": "0xEF04bc7821433f080461BBAE815182E3d7bBb61A",
+                    "to": "0x1f9840a85d5af5aa8990d1f03bba0bdf2cd1f6a1", 
+                    "gas": "0x7A1200", 
+                    "value": "0x0", 
+                    "data": "0x18160ddd" 
+                },
+                "0xA00000", 
+                {
+                },
+                {
+                    "number": "0xA00000",
+                    "timestamp": "0x69A1C5C0",
+                    "baseFeePerGas": "0x500000000" 
+               }
+           ],
+           "id": 1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": "0x"
+        }
+    }
+]
+
