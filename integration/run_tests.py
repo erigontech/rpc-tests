@@ -64,6 +64,7 @@ tests_on_latest = [
     "mainnet/eth_call/test_20.json",
     "mainnet/eth_call/test_28.json",
     "mainnet/eth_call/test_29.json",
+    "mainnet/eth_call/test_36.json",
     "mainnet/eth_callBundle/test_09.json",
     "mainnet/eth_createAccessList/test_18.json",
     "mainnet/eth_createAccessList/test_19.json",
@@ -943,8 +944,8 @@ def run_test(json_file: str, test_number, transport_type, config):
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
             diff_file = output_api_filename + "-diff.json"
 
-            daemon_file = output_api_filename + "response.json"
-            exp_rsp_file = output_api_filename + "expResponse.json"
+            daemon_file = output_api_filename + "-response.json"
+            exp_rsp_file = output_api_filename + "-expResponse.json"
 
         else:  # run tests with two servers
             target = get_target(DAEMON_ON_DEFAULT_PORT, method, config)
