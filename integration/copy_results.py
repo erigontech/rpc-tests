@@ -20,22 +20,21 @@ def extract_number(filename):
 
 def find_and_read_response_json(search_dir, test_base_name):
     """ 
-    Cerca e legge il file JSON di risposta, restituendo l'intero oggetto o lista di risposte
-    JSON-RPC.
+    It searches for and reads the JSON response file, returning the entire object or list of responses.
     """
     if not os.path.isdir(search_dir):
-        print(f"Errore: La directory '{search_dir}' non esiste.")
+        print(f"Error: Dir '{search_dir}' NOT exist.")
         return None
 
     search_pattern = os.path.join(search_dir, f"{test_base_name}*response*.json")
     found_files = glob.glob(search_pattern)
 
     if not found_files:
-        print(f"Nessun file di risposta trovato per il pattern '{test_base_name}*response*.json' in {search_dir}")
+        print(f"No file found according pattern '{test_base_name}*response*.json' in {search_dir}")
         return None
 
     file_path = found_files[0]
-    print(f"Trovato potenziale file di risposta: {file_path}")
+    print(f"File is found {file_path}")
 
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -57,70 +56,60 @@ def find_and_read_response_json(search_dir, test_base_name):
         # Check for both a single object and a list of objects
         if isinstance(data, list):
             if data and all(is_valid_jsonrpc_response(item) for item in data):
-                print(f"Trovata lista di risposte JSON-RPC valide in: {file_path}")
+                print(f"Find valid JSON-RPC response in: {file_path}")
                 return data
         elif is_valid_jsonrpc_response(data):
-            print(f"Trovato oggetto di risposta JSON-RPC valido in: {file_path}")
+            print(f"Find valid JSON-RPC response in: {file_path}")
             return data
-        print(f"Il file '{file_path}' non è un oggetto di risposta JSON-RPC valido o una lista di tali oggetti.")
+        print(f"File {file_path}' is NOT valid.")
         return None
     except (json.JSONDecodeError, FileNotFoundError) as e:
-        print(f"Errore durante la lettura del file di risposta {file_path}: {e}")
+        print(f"Error: during read of the file {file_path}: {e}")
         return None
 
 def update_response_in_json_data(data, new_response_data, test_base_name):
     """
-    Aggiorna la risposta nel JSON, gestendo sia dizionari che liste.
-    Non aggiorna se la risposta originale ha un campo 'result' nullo o non ha 'result'.
-    Restituisce True se il contenuto è stato modificato, False altrimenti.
+    Update the response in the JSON, handling both dictionaries and lists. 
+    Do not update if the original response has a null 'result' field or is missing the 'result' field. 
+    Return True if the content was modified, False otherwise
     """
     if not new_response_data:
-        print(f"Dati di risposta vuoti per '{test_base_name}'. Nessun aggiornamento.")
+        print(f"Empty response data for '{test_base_name}'. No update.")
         return False
 
     modified = False
 
     def should_not_update(current_response):
         """
-        Determina se la risposta attuale NON deve essere aggiornata.
+        The response should be updated if:
+           It contains a non-null 'result' field (success response).
+           It contains a non-null 'error' field (failure/RPC error response).
 
-        Si aggiorna se:
-        1. Contiene un campo 'result' non nullo (risposta di successo).
-        2. Contiene un campo 'error' non nullo (risposta di fallimento/errore RPC).
-
-        NON si aggiorna (ritorna True) se:
-        1. Il formato non è un dizionario valido.
-        2. Non ha né il campo 'result' né il campo 'error' (risposta RPC incompleta o vuota).
-        3. Ha il campo 'result' ma è nullo e manca il campo 'error'.
+        DO NOT update (return True) if:
+           The format is not a valid dictionary.
+           It is missing both the 'result' and 'error' fields (incomplete or empty RPC response).
+           It has the 'result' field but it is null, and the 'error' field is missing.
         """
-        # 1. Aggiorna se il formato non è un dizionario (perché è un errore/formato non valido)
         if not isinstance(current_response, dict):
             return False
-        # Controlla l'esistenza e la non-nullità di 'result' o 'error'.
         has_valid_result = "result" in current_response and current_response.get("result") is not None
         has_valid_error = "error" in current_response and current_response.get("error") is not None
-        # Se ha un risultato valido O un errore valido, ALLORA DEVE AGGIORNARE,
-        # quindi la funzione should_not_update deve ritornare False.
         if has_valid_result or has_valid_error:
             return False
-        # In tutti gli altri casi (risposta vuota, solo "result": null, mancanza di entrambi i campi),
-        # NON si aggiorna (ritorna True).
         return True
 
-    # CASO 1: Il JSON è un DIZIONARIO (con chiave 'response')
     if isinstance(data, dict) and 'response' in data:
         current_response = data['response']
         if not should_not_update(current_response):
             if current_response != new_response_data:
                 data['response'] = new_response_data
                 modified = True
-                print(f"Aggiornata la risposta in '{test_base_name}' (formato dizionario).")
+                print(f"Response updated in '{test_base_name}'.")
             else:
-                print(f"Nessun aggiornamento necessario per '{test_base_name}'. I dati sono già aggiornati.")
+                print(f" File not updated '{test_base_name}'. Contains correct data.")
         else:
-            print(f"La risposta originale è vuota o ha result=null per '{test_base_name}'. Non verrà aggiornata.")
+            print(f"The original response is empty or has result=null for '{test_base_name}'. It will not be updated.")
 
-    # CASO 2: Il JSON è una LISTA (di oggetti con chiave 'response' o l'intera lista è di risposte)
     elif isinstance(data, list):
         for item in data:
             if isinstance(item, dict) and 'response' in item:
@@ -129,20 +118,14 @@ def update_response_in_json_data(data, new_response_data, test_base_name):
                     if current_response != new_response_data:
                         item['response'] = new_response_data
                         modified = True
-                        print(f"Aggiornata la risposta in '{test_base_name}' (lista di risposte).")
-                        # Aggiorna solo il primo elemento che trovi e poi esci.
+                        print(f"Response updated in '{test_base_name}' (list of response).")
                         break
-                    print(f"Nessun aggiornamento necessario per '{test_base_name}'. I dati sono già aggiornati.")
+                    print(f" File not updated '{test_base_name}'. Contains correct data.")
                     break
-                print(f"La risposta originale è vuota o ha result=null in un elemento di '{test_base_name}'. Non verrà aggiornata.")
-                # Anche in questo caso, non fare più controlli
+                print(f"The original response is empty or has result=null for '{test_base_name}'. It will not be updated.")
                 break
 
-        # Gestisci il caso in cui l'intera lista è una risposta batch di JSON-RPC
         if not modified and len(data) > 0 and 'result' not in data[0] and 'error' not in data[0]:
-            # Qui si potrebbe aggiungere una logica per gestire i casi in cui l'intera
-            # lista è la risposta, ma questo richiede una logica specifica che non era
-            # presente nella tua richiesta originale.
             pass
 
     return modified
@@ -150,7 +133,7 @@ def update_response_in_json_data(data, new_response_data, test_base_name):
 # --- process_single_test_json_for_response_sync (rimane invariata, usa update_response_in_json_data) ---
 def process_single_test_json_for_response_sync(filepath, result_api_dir):
     """ process single test json file """
-    print(f"Elaborazione file JSON di test: {filepath}")
+    print(f"Processing of file: {filepath}")
 
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -162,21 +145,21 @@ def process_single_test_json_for_response_sync(filepath, result_api_dir):
         if was_modified:
             with open(filepath, 'w', encoding='utf-8') as f_out:
                 json.dump(data, f_out, indent=2)
-                print(f"  **{os.path.basename(filepath)}** aggiornato su disco.")
+                print(f"  **{os.path.basename(filepath)}** updated.")
         else:
-            print(f"  Nessuna modifica rilevata per {os.path.basename(filepath)}. File non riscritto.")
+            print(f"  No change for {os.path.basename(filepath)}. File is not written.")
         return was_modified
 
     except json.JSONDecodeError as e:
-        print(f"Errore nella decodifica del file JSON {filepath}: {e}. Salto.")
+        print(f"Error: in decode of file {filepath}: {e}.")
         return False
     except Exception as e:
-        print(f"Si è verificato un errore inatteso durante l'elaborazione di {filepath}: {e}")
+        print(f"Error: in procesing of file {filepath}: {e}.")
         return False
 
 def process_tar_file_for_response_sync(filepath, result_api_dir):
     """ process tar file """
-    print(f"Elaborazione file TAR: {filepath}")
+    print(f"Processing of TAR file: {filepath}")
     tar_dirname = os.path.dirname(filepath)
     tar_basename = os.path.basename(filepath)
     tar_name_without_ext = os.path.splitext(tar_basename)[0]
@@ -184,23 +167,22 @@ def process_tar_file_for_response_sync(filepath, result_api_dir):
     try:
         with tarfile.open(filepath, 'r') as tar:
             internal_json_filename = None
-            # Trova il nome del file JSON interno. Questo rende lo script più robusto.
             for member in tar.getmembers():
                 if member.name.endswith('.json') and member.name.startswith(tar_name_without_ext):
                     internal_json_filename = member.name
                     break
 
             if not internal_json_filename:
-                print(f"  Errore: Nessun file JSON corrispondente a '{tar_name_without_ext}' trovato nel TAR. Salto.")
+                print(f"  Error: No file found '{tar_name_without_ext}' in TAR.")
                 return False
 
-            print(f"  Estrazione del JSON interno '{internal_json_filename}' dal TAR...")
+            print(f"  Extracting '{internal_json_filename}' from TAR...")
             extracted_json_file_obj = tar.extractfile(internal_json_filename)
             if extracted_json_file_obj:
                 json_content_str_original = extracted_json_file_obj.read().decode('utf-8')
                 extracted_json_file_obj.close()
             else:
-                print(f"  Impossibile leggere il contenuto di '{internal_json_filename}' da '{tar_basename}'. Salto.")
+                print(f"Failed to read the content of '{internal_json_filename}' from '{tar_basename}'. Skipping.")
                 return False
 
         data = json.loads(json_content_str_original)
@@ -211,25 +193,25 @@ def process_tar_file_for_response_sync(filepath, result_api_dir):
 
         tar_content_modified = update_response_in_json_data(data, full_response_from_result, test_base_name)
         if tar_content_modified:
-            print(f"  Ri-creazione dell'archivio TAR '{tar_basename}' con contenuto modificato...")
+            print(f"  TAR re-created '{tar_basename}' with updated json...")
             with open(temp_json_file_path_for_tar_add, 'w', encoding='utf-8') as temp_f:
                 json.dump(data, temp_f, indent=4)
             with tarfile.open(filepath, 'w:bz2') as new_tar:
                 new_tar.add(temp_json_file_path_for_tar_add, arcname=internal_json_filename)
-            print(f"  File TAR aggiornato con successo: {filepath}")
+            print(f"  File TAR updated: {filepath}")
         else:
-            print(f"  JSON interno non modificato, salto la ri-creazione del TAR per {filepath}.")
+            print(f"  JSON file not modified {filepath}.")
 
     except tarfile.ReadError:
-        print(f"  Errore: Impossibile leggere il file TAR {filepath}. Potrebbe essere corrotto o non essere un archivio tar valido.")
+        print(f"Error: Failed to read the TAR file {filepath}. It may be corrupt or not a valid tar archive.")
     except Exception as e:
-        print(f"  Si è verificato un errore inatteso durante l'elaborazione di {filepath}: {e}")
+        print(f"  Error:  during processing TAR {filepath}: {e}")
     finally:
         if os.path.exists(temp_json_file_path_for_tar_add):
             try:
                 os.remove(temp_json_file_path_for_tar_add)
             except Exception as e:
-                print(f"  Errore durante la pulizia del file temporaneo {os.path.basename(temp_json_file_path_for_tar_add)}: {e}")
+                print(f" Error cleaning up temporary file {os.path.basename(temp_json_file_path_for_tar_add)}: {e}")
     return False
 
 def main():
@@ -252,13 +234,13 @@ def main():
 
     # Controlla se il percorso termina con 'integration'
     if not base_dir.endswith('integration'):
-        print("La directory corrente termina con 'integration':", base_dir)
+        print("DIR corrente terminated with 'integration':", base_dir)
         return
     if not os.path.isdir(chain_dir):
         print(f"Error: The directory for chain '{chain}' specified '{chain_dir}' does not exist.")
         return
     if not os.path.isdir(result_dir):
-        print(f"Error: The 'results' directory specified '{result_dir}' does not exist.")
+        print(f"Error: The 'results' directory '{result_dir}' does not exist.")
         return
 
     api_subdirs_in_result = [d for d in os.listdir(result_dir) if os.path.isdir(os.path.join(result_dir, d))]
