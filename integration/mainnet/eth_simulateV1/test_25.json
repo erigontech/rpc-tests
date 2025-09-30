@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "Empty on latest at block 23412980 (0x16540f4) [result will change if latest is different]"
+      "description": "empty block on latest"
     },
     "request": {
       "id": 1,
@@ -22,37 +22,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": [
-        {
-          "baseFeePerGas": "0x0",
-          "blobGasUsed": "0x0",
-          "calls": [],
-          "difficulty": "0x0",
-          "excessBlobGas": "0x1a0000",
-          "extraData": "0x",
-          "gasLimit": "0x2aea540",
-          "gasUsed": "0x0",
-          "hash": "0x2fbf85f795970047b41650f872520cdcaddb16a56cdecd5043b14eddde748ce4",
-          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "miner": "0x4838b106fce9647bdf1e7877bf73ce8b0bad5f97",
-          "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "nonce": "0x0000000000000000",
-          "number": "0x16540f5",
-          "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "parentHash": "0x451bcc05971108431f222fc085f77d795472a328bd11e723897fcd238b65a382",
-          "receiptsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-          "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-          "size": "0x26b",
-          "stateRoot": "0x47186781d2ae48594072ee00f1bb80556c141c31c3a955bdf2feb3ac316d4570",
-          "timestamp": "0x68d038db",
-          "transactions": [],
-          "transactionsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-          "uncles": [],
-          "withdrawals": [],
-          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
-        }
-      ]
+      "result": null
     }
   }
 ]
