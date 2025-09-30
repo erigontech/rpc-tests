@@ -46,7 +46,6 @@ tests_not_compared_error = [
 
 
 tests_on_latest = [
-    "mainnet/eth_blockNumber",
     "mainnet/debug_traceBlockByNumber/test_24.json",
     "mainnet/debug_traceBlockByNumber/test_30.json",
     "mainnet/debug_traceCall/test_22.json",
@@ -60,10 +59,12 @@ tests_on_latest = [
     "mainnet/debug_traceCall/test_40.json",
     "mainnet/debug_traceCallMany/test_11.json",
     "mainnet/debug_traceCallMany/test_12.json",
-    "mainnet/eth_block_number",                                                  # works always on latest block
+    "mainnet/eth_blobBaseFee",                                                 # works always on latest block
+    "mainnet/eth_blockNumber",                                                 # works always on latest block
     "mainnet/eth_call/test_20.json",
     "mainnet/eth_call/test_28.json",
     "mainnet/eth_call/test_29.json",
+    "mainnet/eth_call/test_36.json",
     "mainnet/eth_callBundle/test_09.json",
     "mainnet/eth_createAccessList/test_18.json",
     "mainnet/eth_createAccessList/test_19.json",
@@ -85,6 +86,7 @@ tests_on_latest = [
     "mainnet/eth_estimateGas/test_23",
     "mainnet/eth_feeHistory/test_07.json",
     "mainnet/eth_feeHistory/test_22.json",
+    "mainnet/eth_gasPrice",                                                     # works always on latest block
     "mainnet/eth_getBalance/test_03.json",
     "mainnet/eth_getBalance/test_26.json",
     "mainnet/eth_getBalance/test_27.json",
@@ -120,6 +122,7 @@ tests_on_latest = [
     "mainnet/eth_getTransactionCount/test_08.json",
     "mainnet/eth_getUncleCountByBlockNumber/test_03.json",
     "mainnet/eth_getUncleByBlockNumberAndIndex/test_02.json",
+    "mainnet/eth_maxPriorityFeePerGas",
     "mainnet/eth_simulateV1/test_04.json",
     "mainnet/eth_simulateV1/test_05.json",
     "mainnet/eth_simulateV1/test_06.json",
@@ -137,6 +140,9 @@ tests_on_latest = [
     "mainnet/parity_listStorageKeys",
     "mainnet/trace_block/test_25.json",
     "mainnet/trace_call/test_26.json",
+    "mainnet/trace_call/test_27.json",
+    "mainnet/trace_call/test_28.json",
+    "mainnet/trace_call/test_29.json",
     "mainnet/trace_callMany/test_15.json",
     "mainnet/trace_filter/test_25.json",
     "mainnet/trace_replayBlockTransactions/test_36.json",
@@ -941,8 +947,8 @@ def run_test(json_file: str, test_number, transport_type, config):
             output_dir_name = output_api_filename[:output_api_filename.rfind("/")]
             diff_file = output_api_filename + "-diff.json"
 
-            daemon_file = output_api_filename + "response.json"
-            exp_rsp_file = output_api_filename + "expResponse.json"
+            daemon_file = output_api_filename + "-response.json"
+            exp_rsp_file = output_api_filename + "-expResponse.json"
 
         else:  # run tests with two servers
             target = get_target(DAEMON_ON_DEFAULT_PORT, method, config)

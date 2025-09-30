@@ -1,0 +1,36 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_call",
+            "params": [
+                {
+                   "data": "0x41c0e1b5",
+                   "from": "0xC1cBA74D5ac02531aBfaB6353dB26EC7c572BebA",
+                   "gas": "0x19891",
+                  "maxFeePerGas": "0x29900DC6C0",
+                  "to": "0x1f9840a85d5af5aa8990d1f03bba0bdf2cd1f6a1",
+                  "value": "0x0"
+                },
+                [
+                    "vmTrace",
+                    "trace",
+                    "stateDiff"
+                ],
+                "latest",
+                {
+                   "0xC1cBA74D5ac02531aBfaB6353dB26EC7c572BebA": {
+                    "balance": "0x1000000000000000000000000"
+                   }
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null
+        }
+    }
+]
+
