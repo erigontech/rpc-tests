@@ -12,12 +12,10 @@
                },
                "0xE401C0",
                {
-                 "stateOverride": {
                    "0x252568abdeb9de59fd8963dfcd87be2db65f1ce1": {
                      "code": "0x6001600055",
-                     "nonce": "0x03"
+                     "nonce": "0x3"
                    }
-                 }
                }
             ],
             "id":1

@@ -12,14 +12,12 @@
                },
                "0xE401C0",
                {
-                 "blockOverride": {
-                     "baseFeePerGas": "0x400000000"
-                 },
-                 "stateOverride": {
                    "0xa9Ac1233699BDae25abeBae4f9Fb54DbB1b44700": {
                      "balance": "0x56bc75e2d63100000"
                    }
-                 }
+               },
+               {
+                     "baseFeePerGas": "0x400000000"
                }
             ],
             "id":1
