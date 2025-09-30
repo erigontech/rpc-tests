@@ -46,7 +46,7 @@ tests_not_compared_error = [
 
 
 tests_on_latest = [
-   "mainnet/eth_blockNumber",
+    "mainnet/eth_blockNumber",
     "mainnet/debug_traceBlockByNumber/test_24.json",
     "mainnet/debug_traceBlockByNumber/test_30.json",
     "mainnet/debug_traceCall/test_22.json",
@@ -129,6 +129,7 @@ tests_on_latest = [
     "mainnet/eth_simulateV1/test_14.json",
     "mainnet/eth_simulateV1/test_15.json",
     "mainnet/eth_simulateV1/test_16.json",
+    "mainnet/eth_simulateV1/test_25.json",
     "mainnet/erigon_blockNumber/test_4.json",
     "mainnet/erigon_blockNumber/test_6.json",
     "mainnet/ots_hasCode/test_10.json",
