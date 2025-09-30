@@ -22,7 +22,8 @@
         },
         "response": {
             "id":1,
-            "jsonrpc":"2.0"
+            "jsonrpc":"2.0",
+            "result": "0x672c"
         }
     }
 ]
