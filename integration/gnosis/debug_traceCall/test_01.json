@@ -1,0 +1,37 @@
+[
+  {
+    "test": {
+      "reference": "https://github.com/erigontech/erigon/issues/17220",
+      "description": "zero transfer testing no tracing for system transactions"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceCall",
+      "params": [
+        {
+          "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+          "to": "0x0000000000a39bb272e79075ade125fd351887ac",
+          "data": "0xd0e30db0"
+        },
+        "latest",
+        {
+          "tracer": "callTracer"
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "from": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "gas": "0x2faf080",
+        "gasUsed": "0x52a8",
+        "input": "0xd0e30db0",
+        "to": "0x0000000000a39bb272e79075ade125fd351887ac",
+        "type": "CALL",
+        "value": "0x0"
+      }
+    }
+  }
+]
