@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-This script connects to an Ethereum node via WebSocket and queries latest/safe/finalized blocks
+This script connects to an Ethereum node via WebSocket and queries filter changes/logs
 until interrupted with Ctrl+C.
 """
 
