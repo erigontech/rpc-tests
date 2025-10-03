@@ -28,10 +28,10 @@ class Client:
             # Create WebSocket provider
             parsed_url = urllib.parse.urlparse(self.node_url)
             if parsed_url.scheme not in ['ws', 'wss']:
-                raise ValueError(f"⚠️ Invalid WebSocket URL scheme: {parsed_url.scheme}. Must be 'ws' or 'wss'.")
+                raise ValueError(f"Invalid WebSocket URL scheme: {parsed_url.scheme}. Must be 'ws' or 'wss'.")
             if parsed_url.scheme == 'wss':
                 if self.server_ca_file is None:
-                    raise ValueError(f"⚠️ You must specify a non-empty server CA file as second parameter.")
+                    raise ValueError(f"You must specify a non-empty server CA file as second parameter.")
                 logger.info(f"Server CA file: {self.server_ca_file}")
                 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
                 ssl_context.load_verify_locations(cafile=self.server_ca_file)
@@ -47,13 +47,13 @@ class Client:
 
             # Test connection
             if not await self.w3.is_connected():
-                raise ConnectionError("❌ Failed to connect to Ethereum node")
+                raise ConnectionError("Failed to connect to Ethereum node")
 
             latest_block = await self.w3.eth.block_number
             logger.info(f"Connected to Ethereum node at {self.node_url}")
             logger.info(f"Latest block: {latest_block}")
         except Exception as e:
-            raise ConnectionError(f"❌ Connection failed: {e}")
+            raise ConnectionError(f"Connection failed: {e}")
 
     async def subscribe(self, subscriptions):
         """ """
@@ -74,4 +74,4 @@ class Client:
                 await self.w3.provider.disconnect()
                 logger.info("WebSocket connection closed")
             except Exception as e:
-                raise ConnectionError(f"❌ Error during disconnect: {e}")
+                raise ConnectionError(f"Error during disconnect: {e}")
