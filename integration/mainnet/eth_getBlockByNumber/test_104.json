@@ -1,0 +1,93 @@
+[
+  {
+    "test": {},
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getBlockByNumber",
+      "params": [
+        "0x4",
+        true
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "difficulty": "0x20000",
+        "extraData": "0x",
+        "gasLimit": "0x23f3e20",
+        "gasUsed": "0x2b52e",
+        "hash": "0x94540b21748e45497c41518ed68b2a0c16d728e917b665ae50d51f6895242e53",
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000010000000000000000000000000000000000000000004000000000000200000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "miner": "0x0000000000000000000000000000000000000000",
+        "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "nonce": "0x0000000000000000",
+        "number": "0x4",
+        "parentHash": "0x30adf30837c967524cbcf881c024c194eee010b3750feef2e45a674979b2cd36",
+        "receiptsRoot": "0xda28a2d9093014cdd16f557cdba34d5b47a9707596aceba53d1c9453ea8ec537",
+        "sha3Uncles": "0xec0a69e01e1e33954c8cf0aef6ab12ac46efb99c483fdc564b7ff4747e0ff5b0",
+        "size": "0x556",
+        "stateRoot": "0xea3e7540e3773c1d104455451fb1f3008b53e9603ea0ecce23598338c39a3cf0",
+        "timestamp": "0x28",
+        "transactions": [
+          {
+            "blockHash": "0x94540b21748e45497c41518ed68b2a0c16d728e917b665ae50d51f6895242e53",
+            "blockNumber": "0x4",
+            "from": "0x7435ed30a8b4aeb0877cef0c6e8cffe834eb865f",
+            "gas": "0x186a0",
+            "gasPrice": "0x1",
+            "hash": "0xf047c5133c96c405a79d01038b4ccf8208c03e296dd9f6bea083727c9513f805",
+            "input": "0x93e60f669b99ad3e656d6974",
+            "nonce": "0xb",
+            "r": "0x943331828a0762fddc379479a097a923559b38853eaaeea9c5f726d47630d4a5",
+            "s": "0x618eac699d54f669208c2f3cf5fb3dc5d2d68549580c20da40feb1b8dfd70a1e",
+            "to": "0x7dcd17433742f4c0ca53122ab541d0ba67fc27df",
+            "transactionIndex": "0x0",
+            "type": "0x0",
+            "v": "0x1b",
+            "value": "0x2"
+          },
+          {
+            "blockHash": "0x94540b21748e45497c41518ed68b2a0c16d728e917b665ae50d51f6895242e53",
+            "blockNumber": "0x4",
+            "from": "0x7435ed30a8b4aeb0877cef0c6e8cffe834eb865f",
+            "gas": "0x5208",
+            "gasPrice": "0x1",
+            "hash": "0xdcfa416de8748fdf71bd8c6d563da0e8026cfdcce9ae5e63544fb49d76b5eae8",
+            "input": "0x",
+            "nonce": "0xc",
+            "r": "0x800df6428483e4f67f45d28bb3ceb71df1b9e14ddd5540f2e7284e7aaa5e08e7",
+            "s": "0xa2959f5c87698931597ad276362f764b52fb543ce30a89f277d5de6dd029d6e",
+            "to": "0x654aa64f5fbefb84c270ec74211b81ca8c44a72e",
+            "transactionIndex": "0x1",
+            "type": "0x0",
+            "v": "0x1c",
+            "value": "0x1"
+          },
+          {
+            "blockHash": "0x94540b21748e45497c41518ed68b2a0c16d728e917b665ae50d51f6895242e53",
+            "blockNumber": "0x4",
+            "from": "0x7435ed30a8b4aeb0877cef0c6e8cffe834eb865f",
+            "gas": "0x1c4a0",
+            "gasPrice": "0x1",
+            "hash": "0x63f7eec11a97981a2a550407a6760caa8ea92fdee6a14a9189c3baea1a8b5256",
+            "input": "0x43600052600060205260405b604060002060208051600101905281526020016101408110600b57506101006040f3",
+            "nonce": "0xd",
+            "r": "0x26a6aaddc4b2456eb4998c49837aed0ff1f18ff27044e2acbb0a26be39e8cac3",
+            "s": "0x1a9a05b1a64070d513b205386b674a611ab35829f310063f898fb6e4ef31a2e1",
+            "to": null,
+            "transactionIndex": "0x2",
+            "type": "0x0",
+            "v": "0x1c",
+            "value": "0x0"
+          }
+        ],
+        "transactionsRoot": "0x3fe070d313a9bac6a15475c935536bfdc424a0c59f442b54c98712d0f6891e7b",
+        "uncles": [
+          "0x8a57c6003976d76acf45fbb6215986785599b3d8dbbb4714f276fffad1c425fe"
+        ]
+      }
+    }
+  }
+]
