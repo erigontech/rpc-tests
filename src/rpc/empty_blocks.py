@@ -13,7 +13,7 @@ import web3
 import web3.exceptions
 import web3.utils
 
-import rpc.common.websocket
+from .common import websocket
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -59,7 +59,7 @@ async def main():
     args = parser.parse_args()
 
     # Create the WebSocket client
-    client = rpc.common.websocket.Client(args.websocket_url, args.ca_file)
+    client = websocket.Client(args.websocket_url, args.ca_file)
     shutdown_event = asyncio.Event()
 
     # Setup signal handler for graceful shutdown

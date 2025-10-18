@@ -5,7 +5,8 @@ import json
 import os
 import sys
 import requests
-from rpc.replay.jsonrpc import JsonRpc
+
+from .jsonrpc import JsonRpc
 
 
 SILK_TARGET="http://127.0.0.1:51515"

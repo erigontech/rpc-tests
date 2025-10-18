@@ -5,8 +5,8 @@
 import sys
 from typing import List
 
-from rpc.replay import Options
-from rpc.replay.player import Player
+from .replay.config import Options
+from .replay.player import Player
 
 
 #

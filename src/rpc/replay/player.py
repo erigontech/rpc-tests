@@ -6,8 +6,8 @@ from time import sleep
 from typing import Optional
 from typing import Self
 
-from rpc.common import auth
-from rpc.replay.config import Options
+from ..common import auth
+from .config import Options
 
 
 class Player:
