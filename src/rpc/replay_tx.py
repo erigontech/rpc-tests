@@ -6,13 +6,12 @@ import os
 import shutil
 import sys
 
-from rpc.replay.jsonrpc import JsonRpc
-from rpc.replay.scan_db import ScanDb
+from .replay.jsonrpc import JsonRpc
+from .replay.scan_db import ScanDb
 
-SILK_TARGET="http://127.0.0.1:51515"
-RPCDAEMON_TARGET="http://localhost:8545"
-OUTPUT_DIR="./output/"
-
+SILK_TARGET = "http://127.0.0.1:51515"
+RPCDAEMON_TARGET = "http://localhost:8545"
+OUTPUT_DIR = "./output/"
 
 
 class Config:
@@ -23,7 +22,7 @@ class Config:
         """ init the configuration params """
         self.continue_test = False
         self.start_block = 0
-        self.start_tx = 0
+        self.start_tx = "0"
         self.max_failed_request = 0
         self.request_json_func = JsonRpc.create_trace_transaction
 
@@ -52,7 +51,7 @@ class Config:
                 if option in ("-s", "--start"):
                     startpoint = optarg.split(':')
                     if len(startpoint) != 2:
-                        print ("bad start field definition: block:tx")
+                        print("bad start field definition: block:tx")
                         self.usage(argv)
                         return 1
                     self.start_block = optarg.split(':')[0]
@@ -68,7 +67,7 @@ class Config:
                     elif int(optarg) == 1:
                         self.request_json_func = JsonRpc.create_debug_trace_transaction
                     else:
-                        print ("wrong method id")
+                        print("wrong method id")
                         self.usage(argv)
                         return 1
         except getopt.GetoptError as err:
@@ -77,6 +76,7 @@ class Config:
             self.usage(argv)
             return 1
         return 0
+
 
 #
 # main
@@ -88,7 +88,7 @@ def main(argv) -> int:
     if config.select_user_options(argv) == 1:
         return 1
 
-    print ("Starting scans from: ", config.start_block, " tx-index: ", config.start_tx)
+    print("Starting scans from: ", config.start_block, " tx-index: ", config.start_tx)
     if os.path.exists(OUTPUT_DIR) == 1:
         shutil.rmtree(OUTPUT_DIR)
     if os.path.exists(OUTPUT_DIR) == 0:
@@ -96,6 +96,7 @@ def main(argv) -> int:
 
     scan_db = ScanDb(config.request_json_func, config.continue_test, config.max_failed_request)
     return scan_db.scan_all_tx(config.start_block, config.start_tx)
+
 
 #
 # module as main

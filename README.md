@@ -48,3 +48,35 @@ Check out the dedicated guide in [Integration Tests](./integration/README.md).
 ## Performance Testing
 
 Check out the dedicated guide in [Performance Tests](./perf/README.md).
+
+## Standalone Testing Tools
+
+### BlockByNumber
+```commandline
+python3 -m rpc.block_by_number
+```
+
+### EmptyBlocks
+```commandline
+python3 -m rpc.empty_blocks
+```
+
+### FilterChanges
+```commandline
+python3 -m rpc.filter_changes
+```
+
+### ReplayRequest
+```commandline
+python3 -m rpc.replay_request
+```
+
+### ReplayTx
+```commandline
+python3 -m rpc.replay_tx
+```
+
+### Subscriptions
+```commandline
+python3 -m rpc.subscriptions
+```
