@@ -1,0 +1,52 @@
+[
+  {
+    "test": {
+      "reference": "https://etherscan.io/tx/0x48966c818022e9226b001d87df58d75d8f3fc1a67a44b6dabc45a5ffa4d69af7",
+      "description": "first tx on block 20M"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionReceipt",
+      "params": [
+        "0xf047c5133c96c405a79d01038b4ccf8208c03e296dd9f6bea083727c9513f805"
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "blockHash": "0x94540b21748e45497c41518ed68b2a0c16d728e917b665ae50d51f6895242e53",
+        "blockNumber": "0x4",
+        "contractAddress": null,
+        "cumulativeGasUsed": "0xbd6c",
+        "effectiveGasPrice": "0x1",
+        "from": "0x7435ed30a8b4aeb0877cef0c6e8cffe834eb865f",
+        "gasUsed": "0xbd6c",
+        "logs": [
+          {
+            "address": "0x7dcd17433742f4c0ca53122ab541d0ba67fc27df",
+            "blockHash": "0x94540b21748e45497c41518ed68b2a0c16d728e917b665ae50d51f6895242e53",
+            "blockNumber": "0x4",
+            "blockTimestamp": "0x28",
+            "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "logIndex": "0x0",
+            "removed": false,
+            "topics": [
+              "0x00000000000000000000000000000000000000000000000000000000656d6974",
+              "0x4238ace0bf7e66fd40fea01bdf43f4f30423f48432efd0da3af5fcb17a977fd4"
+            ],
+            "transactionHash": "0xf047c5133c96c405a79d01038b4ccf8208c03e296dd9f6bea083727c9513f805",
+            "transactionIndex": "0x0"
+          }
+        ],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000010000000000000000000000000000000000000000004000000000000200000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "root": "0x1823b7ac2f4e8fa21c6d03350751bf43d79d22e9b2b9d35f9762465c61b1a553",
+        "to": "0x7dcd17433742f4c0ca53122ab541d0ba67fc27df",
+        "transactionHash": "0xf047c5133c96c405a79d01038b4ccf8208c03e296dd9f6bea083727c9513f805",
+        "transactionIndex": "0x0",
+        "type": "0x0"
+      }
+    }
+  }
+]
