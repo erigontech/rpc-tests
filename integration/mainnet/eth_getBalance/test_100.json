@@ -1,0 +1,22 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_getBalance",
+      "params": [
+        "0x0c2c51a0990aee1d73c1228de158688341557508",
+        "0x0"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null
+    },
+    "test": {
+      "description": "invoke getBalance on latest block",
+      "reference": ""
+    }
+  }
+]
