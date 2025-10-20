@@ -1,19 +1,20 @@
 [
-   {
+    {
         "test": {
-           "reference": "https://gnosisscan.io/block/30000000",
-           "description": ""
+            "reference": "https://gnosisscan.io/block/30000000",
+            "description": ""
         },
-
         "request": {
-            "jsonrpc":"2.0",
-            "method":"erigon_getHeaderByHash",
-            "params":["0x078232a65de9992d94812d507fef62c26c8a9bcafd77429babd5de980875ab13"],
-            "id":1
+            "jsonrpc": "2.0",
+            "method": "erigon_getHeaderByHash",
+            "params": [
+                "0x078232a65de9992d94812d507fef62c26c8a9bcafd77429babd5de980875ab13"
+            ],
+            "id": 1
         },
         "response": {
-            "jsonrpc":"2.0",
-            "id":1,
+            "jsonrpc": "2.0",
+            "id": 1,
             "result": {
                 "baseFeePerGas": "0x8",
                 "blobGasUsed": null,
@@ -36,9 +37,9 @@
                 "stateRoot": "0xcbeaf2e7995de213b2f81fb03406d93d55c76f32aa771a70b4ae79adcda79349",
                 "timestamp": "0x650571bf",
                 "transactionsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-                "withdrawalsRoot": "0xbef3aff947abac85d567d00c00caac189840120e6c80bd40b767fb25753f0208"
+                "withdrawalsRoot": "0xbef3aff947abac85d567d00c00caac189840120e6c80bd40b767fb25753f0208",
+                "blockAccessListHash": null
             }
         }
     }
 ]
-

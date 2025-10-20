@@ -1,46 +1,47 @@
 [
-   {
+    {
         "test": {
-           "reference": "https://gnosisscan.io/block/20000000",
-           "description": ""
+            "reference": "https://gnosisscan.io/block/20000000",
+            "description": ""
         },
-
         "request": {
-            "jsonrpc":"2.0",
-            "method":"erigon_getHeaderByNumber",
-            "params":["0x1312d00"],
-            "id":1
+            "jsonrpc": "2.0",
+            "method": "erigon_getHeaderByNumber",
+            "params": [
+                "0x1312d00"
+            ],
+            "id": 1
         },
         "response": {
-            "jsonrpc":"2.0",
-            "id":1,
+            "jsonrpc": "2.0",
+            "id": 1,
             "result": {
-               "auraSeal": "0xed367fa02ebc30cb7b5df919cfd48389e7419de5030b06ac4f845c424f1382b013ebc2f51f2e2bce475d3f324c4bee17b5237d61dfc3a0fd38a8de674209af5901",
-               "auraStep": "0x1391ec5a",
-               "baseFeePerGas": "0x7",
-               "blobGasUsed": null,
-               "difficulty": "0xfffffffffffffffffffffffffffffffe",
-               "excessBlobGas": null,
-               "extraData": "0xdb830303028c4f70656e457468657265756d86312e34372e30826c69",
-               "gasLimit": "0x1c9c380",
-               "gasUsed": "0x253f13",
-               "hash": "0xb649b4279dd6c141fbe002520ed14dfcb96377cd9111045618788836a805128e",
-               "logsBloom": "0x1020000010000004000020208800000000000000000020180000002020000020000000028040042000a400008000008004000040000000000000010000200008000c00001000020000000808010000202000000400000000000000002010008000000000020000008000000000040800080400010000010000000010002002088000000000010000000008800000002000400000104048080201484000208000820002010000000100810000010000100000000400000010000000000000000044080002200000000000000001400004000200404010001000000002080020080010000000000040000000000000000000008000400000002000000040008000",
-               "miner": "0x010101685223dd44a6ea8545209bcdaab157b540",
-               "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-               "nonce": "0x0000000000000000",
-               "number": "0x1312d00",
-               "parentBeaconBlockRoot": null,
-               "parentHash": "0x1f2e58a71e27bbd65ee6de9855e95e4435cb2d2853068983d49fd2bc5d736ee5",
-               "receiptsRoot": "0x9de880a260703fa0dbc8f9a2eb656f0087d4c74832a7c71d0761683c02e5dc3c",
-               "requestsHash": null,
-               "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-               "stateRoot": "0xec63354b2855447b8d3ed4f48d0ad9ca913a2f4f9ce3ce3f079bc9b45790664e",
-               "timestamp": "0x61d99dc2",
-               "transactionsRoot": "0x898b199b6cfdac15532f919af6742cea2135cc15efd3dd39e9c7cf647f23523a",
-               "withdrawalsRoot": null
+                "auraSeal": "0xed367fa02ebc30cb7b5df919cfd48389e7419de5030b06ac4f845c424f1382b013ebc2f51f2e2bce475d3f324c4bee17b5237d61dfc3a0fd38a8de674209af5901",
+                "auraStep": "0x1391ec5a",
+                "baseFeePerGas": "0x7",
+                "blobGasUsed": null,
+                "difficulty": "0xfffffffffffffffffffffffffffffffe",
+                "excessBlobGas": null,
+                "extraData": "0xdb830303028c4f70656e457468657265756d86312e34372e30826c69",
+                "gasLimit": "0x1c9c380",
+                "gasUsed": "0x253f13",
+                "hash": "0xb649b4279dd6c141fbe002520ed14dfcb96377cd9111045618788836a805128e",
+                "logsBloom": "0x1020000010000004000020208800000000000000000020180000002020000020000000028040042000a400008000008004000040000000000000010000200008000c00001000020000000808010000202000000400000000000000002010008000000000020000008000000000040800080400010000010000000010002002088000000000010000000008800000002000400000104048080201484000208000820002010000000100810000010000100000000400000010000000000000000044080002200000000000000001400004000200404010001000000002080020080010000000000040000000000000000000008000400000002000000040008000",
+                "miner": "0x010101685223dd44a6ea8545209bcdaab157b540",
+                "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                "nonce": "0x0000000000000000",
+                "number": "0x1312d00",
+                "parentBeaconBlockRoot": null,
+                "parentHash": "0x1f2e58a71e27bbd65ee6de9855e95e4435cb2d2853068983d49fd2bc5d736ee5",
+                "receiptsRoot": "0x9de880a260703fa0dbc8f9a2eb656f0087d4c74832a7c71d0761683c02e5dc3c",
+                "requestsHash": null,
+                "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                "stateRoot": "0xec63354b2855447b8d3ed4f48d0ad9ca913a2f4f9ce3ce3f079bc9b45790664e",
+                "timestamp": "0x61d99dc2",
+                "transactionsRoot": "0x898b199b6cfdac15532f919af6742cea2135cc15efd3dd39e9c7cf647f23523a",
+                "withdrawalsRoot": null,
+                "blockAccessListHash": null
             }
         }
     }
 ]
-
