@@ -53,30 +53,37 @@ Check out the dedicated guide in [Performance Tests](./perf/README.md).
 
 ### BlockByNumber
 ```commandline
-python3 -m rpc.block_by_number
+python3 -m rpctests.block_by_number
 ```
 
 ### EmptyBlocks
 ```commandline
-python3 -m rpc.empty_blocks
+python3 -m rpctests.empty_blocks
 ```
 
 ### FilterChanges
 ```commandline
-python3 -m rpc.filter_changes
+python3 -m rpctests.filter_changes
 ```
 
 ### ReplayRequest
 ```commandline
-python3 -m rpc.replay_request
+python3 -m rpctests.replay_request
 ```
 
 ### ReplayTx
 ```commandline
-python3 -m rpc.replay_tx
+python3 -m rpctests.replay_tx
 ```
 
 ### Subscriptions
 ```commandline
-python3 -m rpc.subscriptions
+python3 -m rpctests.subscriptions
+```
+
+## Development
+
+### Unit Tests
+```commandline
+pytest
 ```
