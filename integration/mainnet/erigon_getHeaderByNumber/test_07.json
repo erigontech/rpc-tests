@@ -1,14 +1,16 @@
 [
-   {
+    {
         "request": {
-            "jsonrpc":"2.0",
-            "method":"erigon_getHeaderByNumber",
-            "params":["0x112A880"],
-            "id":1
+            "jsonrpc": "2.0",
+            "method": "erigon_getHeaderByNumber",
+            "params": [
+                "0x112A880"
+            ],
+            "id": 1
         },
         "response": {
-            "jsonrpc":"2.0",
-            "id":1,
+            "jsonrpc": "2.0",
+            "id": 1,
             "result": {
                 "requestsHash": null,
                 "baseFeePerGas": "0x50ead8e39",
@@ -31,9 +33,9 @@
                 "stateRoot": "0x08b7443c83a93d4711f5c63e738c27c54a932522405b37b4ca7868a944105deb",
                 "timestamp": "0x64ea268f",
                 "transactionsRoot": "0x97dd0200249a35da2c73b366612c2d9c3d112e83ef5e0277cded1352c66628ba",
-                "withdrawalsRoot": "0x5362ee94b61e8cef92bf61353e62744b4fe6d1f2482aade614054527e6d5de7d"
-          }
+                "withdrawalsRoot": "0x5362ee94b61e8cef92bf61353e62744b4fe6d1f2482aade614054527e6d5de7d",
+                "blockAccessListHash": null
+            }
         }
     }
 ]
-

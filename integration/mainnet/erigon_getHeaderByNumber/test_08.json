@@ -1,39 +1,41 @@
 [
-   {
+    {
         "request": {
-            "jsonrpc":"2.0",
-            "method":"erigon_getHeaderByNumber",
-            "params":["0x12C135B"],
-            "id":1
+            "jsonrpc": "2.0",
+            "method": "erigon_getHeaderByNumber",
+            "params": [
+                "0x12C135B"
+            ],
+            "id": 1
         },
         "response": {
-            "jsonrpc":"2.0",
-            "id":1,
-  "result": {
-    "requestsHash": null,
-    "baseFeePerGas": "0x2ea933c62",
-    "blobGasUsed": "0x0",
-    "difficulty": "0x0",
-    "excessBlobGas": "0x0",
-    "extraData": "0x7273796e632d6275696c6465722e78797a",
-    "gasLimit": "0x1c9c380",
-    "gasUsed": "0x1c9874f",
-    "hash": "0xe1629604a508fb8dff451435a73e348583aa1974257dd6615554092a350c677d",
-    "logsBloom": "0x1feff73ffde27b3af7de70dffdbbfba37bcbf7eb7e9d5d7583fb7f7f77d05f17dffcf7ff20fb978a7ef3dafc8f169fff7ea5d36fffbb7ecf7b939f90f6bd2f7bff9f1fdf5f7edfffdd2773fffffaf7fda5bbf1bbf574df27bef35dec9fee95f7fb4bc1e912767b6fbdef37fffd37fdddf73cafcddb9d661ca7573e9fffbffebc6fabdbd6b525cfe9f86bb36f9b3e5e7f977f7fffbff351beec2bdfeef7f7a52bbfefe8ea7fefff9f2efef9d6a9937fcf6cfbfae89dec5fca1fff377e3feaf7e7fbbbdbb6e57b7ef6f374ddfcfffff8feb1717bf2272d97ddef3f3ddefe31e90ee1bbfed9df713736eff6ffe7bfd9dff3d5bff1fdffed67d87bdbfa34fba5dfff",
-    "miner": "0x1f9090aae28b8a3dceadf281b0f12828e676c326",
-    "mixHash": "0x29372e69b7d8b60b50658712ac442e5c4fe90432d695a67e26b89ad7a9f6bf62",
-    "nonce": "0x0000000000000000",
-    "number": "0x12c135b",
-    "parentBeaconBlockRoot": "0x10f08cb8021b20570a4ba50e0cc80d09660de5f28e68b3160693bbe03d239f4d",
-    "parentHash": "0x37eadf115d88edecbcf50e4cb8daba20d3badb67ccb22945cbbedeeb0b9aca83",
-    "receiptsRoot": "0x90b3c5eb82428696f6fe55c60f81ce8797ca371b34ecf59210d68610e5c7ec75",
-    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-    "stateRoot": "0xbe7122821e9c0496c006a0e6536c0d1a36dad0e115595431c0dde29b3b41d08a",
-    "timestamp": "0x661e02c3",
-    "transactionsRoot": "0xe19718247ce0070c6cba41766b751f96df060d882bb7ae89858b531c3513940a",
-    "withdrawalsRoot": "0x4c7b0f23b62e53da5fa8927fa4773021e17b7f7cd80604c8425bbd02bded0765"
-  }
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+                "requestsHash": null,
+                "baseFeePerGas": "0x2ea933c62",
+                "blobGasUsed": "0x0",
+                "difficulty": "0x0",
+                "excessBlobGas": "0x0",
+                "extraData": "0x7273796e632d6275696c6465722e78797a",
+                "gasLimit": "0x1c9c380",
+                "gasUsed": "0x1c9874f",
+                "hash": "0xe1629604a508fb8dff451435a73e348583aa1974257dd6615554092a350c677d",
+                "logsBloom": "0x1feff73ffde27b3af7de70dffdbbfba37bcbf7eb7e9d5d7583fb7f7f77d05f17dffcf7ff20fb978a7ef3dafc8f169fff7ea5d36fffbb7ecf7b939f90f6bd2f7bff9f1fdf5f7edfffdd2773fffffaf7fda5bbf1bbf574df27bef35dec9fee95f7fb4bc1e912767b6fbdef37fffd37fdddf73cafcddb9d661ca7573e9fffbffebc6fabdbd6b525cfe9f86bb36f9b3e5e7f977f7fffbff351beec2bdfeef7f7a52bbfefe8ea7fefff9f2efef9d6a9937fcf6cfbfae89dec5fca1fff377e3feaf7e7fbbbdbb6e57b7ef6f374ddfcfffff8feb1717bf2272d97ddef3f3ddefe31e90ee1bbfed9df713736eff6ffe7bfd9dff3d5bff1fdffed67d87bdbfa34fba5dfff",
+                "miner": "0x1f9090aae28b8a3dceadf281b0f12828e676c326",
+                "mixHash": "0x29372e69b7d8b60b50658712ac442e5c4fe90432d695a67e26b89ad7a9f6bf62",
+                "nonce": "0x0000000000000000",
+                "number": "0x12c135b",
+                "parentBeaconBlockRoot": "0x10f08cb8021b20570a4ba50e0cc80d09660de5f28e68b3160693bbe03d239f4d",
+                "parentHash": "0x37eadf115d88edecbcf50e4cb8daba20d3badb67ccb22945cbbedeeb0b9aca83",
+                "receiptsRoot": "0x90b3c5eb82428696f6fe55c60f81ce8797ca371b34ecf59210d68610e5c7ec75",
+                "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                "stateRoot": "0xbe7122821e9c0496c006a0e6536c0d1a36dad0e115595431c0dde29b3b41d08a",
+                "timestamp": "0x661e02c3",
+                "transactionsRoot": "0xe19718247ce0070c6cba41766b751f96df060d882bb7ae89858b531c3513940a",
+                "withdrawalsRoot": "0x4c7b0f23b62e53da5fa8927fa4773021e17b7f7cd80604c8425bbd02bded0765",
+                "blockAccessListHash": null
+            }
         }
     }
 ]
-
