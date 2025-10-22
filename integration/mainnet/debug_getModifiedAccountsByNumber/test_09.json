@@ -1,22 +1,22 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_getModifiedAccountsByNumber",
-      "params": [
-        1604000,
-        1604001
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": [
-        "0x2a65aca4d5fc5b5c859090a6c34d164135398226",
-        "0x56a79f84fe85d8e04062dc29e0a088bdbcfc3d18",
-        "0x61c808d82a3ac53231750dadc13c777b59310bd9"
-      ]
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_getModifiedAccountsByNumber",
+            "params": [
+                1604000,
+                1604002
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                "0x2a65aca4d5fc5b5c859090a6c34d164135398226",
+                "0x56a79f84fe85d8e04062dc29e0a088bdbcfc3d18",
+                "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+            ]
+        }
     }
-  }
 ]
