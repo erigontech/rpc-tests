@@ -1,6 +1,7 @@
 .vscode
 .vs
 .idea
+.pytest_cache/
 integration/goerli/results
 integration/mainnet/results
 output
