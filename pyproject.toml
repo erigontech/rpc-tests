@@ -9,3 +9,10 @@ filter_changes = "rpctests.filter_changes:main"
 replay_request = "rpctests.replay_request:main"
 replay_tx = "rpctests.replay_tx:main"
 subscriptions = "rpctests.subscriptions:main"
+
+[tool.pytest.ini_options]
+# Suppress specific warnings, format is: <action>:<message pattern>:<category>:<module pattern>:<line number>
+filterwarnings = [
+    # Ignore the specific DeprecationWarning from the websockets package's legacy module
+    "ignore::DeprecationWarning:websockets\\.legacy",
+]
