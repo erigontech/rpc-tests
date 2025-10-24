@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class Client:
-    """ WebSocket subscription handler """
+    """ WebSocket client """
     def __init__(self, node_url: str, server_ca_file: str | None = None):
         """ Initialize the WebSocket subscriber.
             node_url (str): WebSocket URL of the Ethereum node
