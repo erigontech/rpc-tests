@@ -4,6 +4,7 @@ jsondiff
 psutil
 pylint
 pytest
+pytest-asyncio
 pytz
 pyjwt
 requests>=2.32.4,<3.0.0

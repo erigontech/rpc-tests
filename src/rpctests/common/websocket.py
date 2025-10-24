@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class Client:
     """ WebSocket subscription handler """
-    def __init__(self, node_url: str, server_ca_file: str):
+    def __init__(self, node_url: str, server_ca_file: str | None = None):
         """ Initialize the WebSocket subscriber.
             node_url (str): WebSocket URL of the Ethereum node
             server_ca_file (str): *public* certificate file of the WSS server
@@ -63,7 +63,7 @@ class Client:
         """ """
         return await self.w3.subscription_manager.unsubscribe(self.w3.subscription_manager.subscriptions)
 
-    async def handle_subscriptions(self, run_forever=False):
+    async def handle_subscriptions(self, run_forever: bool = False):
         """ """
         return await self.w3.subscription_manager.handle_subscriptions(run_forever)
 
