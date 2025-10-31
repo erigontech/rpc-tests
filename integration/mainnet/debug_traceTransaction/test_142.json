@@ -1,0 +1,56 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceTransaction",
+            "params": [
+                "0x5324db52c944d1da01715f3ddc870950fba4502b93b8e6113cf1925d4729cd10",
+                {
+                 "tracer": "prestateTracer",
+                 "tracerConfig": {"diffMode": true}
+               }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                 "post": {
+                   "0xa7625e30eb5356a0b777e9617b55a92dddff2975": {
+                     "balance": "0x6cd3c7ae5ec08c",
+                     "nonce": 3277
+                   },
+                   "0xebec795c9c8bbd61ffc14a6662944748f299cacf": {
+                     "balance": "0x2e9aabc503ece7690cd"
+                   }
+                 },
+                 "pre": {
+                   "0x50a148247023ff8a6773e4c7f5897f1ad6c91409": {
+                     "balance": "0x0",
+                     "code": "0x363d3d373d3d3d363d73f61f4f2c896219a90670e19e188ebb93fcc002e85af43d82803e903d91602b57fd5bf3",
+                     "codeHash": "0x4289c496e4c3fe8396dd265756990041cc4e34248949663fb37a62b4a9c15b32",
+                     "nonce": 1,
+                     "storage": {
+                       "0x00000000000000000000000000000000000000000000000000000000000000c9": "0x000000030000000000000003a7625e30eb5356a0b777e9617b55a92dddff2975"
+                     }
+                   },
+                   "0xa7625e30eb5356a0b777e9617b55a92dddff2975": {
+                     "balance": "0x70aefd7d442b14",
+                     "nonce": 3276
+                   },
+                   "0xebec795c9c8bbd61ffc14a6662944748f299cacf": {
+                     "balance": "0x2e9aabc4d4b15b506cd",
+                     "code": "0x60806040526004361061002d5760003560e01c806375e6850214610036578063cbbf72801461007e57610034565b3661003457005b005b34801561004257600080fd5b506100346004803603604081101561005957600080fd5b5073ffffffffffffffffffffffffffffffffffffffff813581169160200135166100be565b34801561008a57600080fd5b50610034600480360360208110156100a157600080fd5b503573ffffffffffffffffffffffffffffffffffffffff1661028b565b3373267be1c1d684f78cb4f6a176c4911b741e4ffdc01461014057604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152601660248201527f54782073656e646572206973206e6f74206f776e657200000000000000000000604482015290519081900360640190fd5b604080517f70a082310000000000000000000000000000000000000000000000000000000081523060048201529051839160009173ffffffffffffffffffffffffffffffffffffffff8416916370a08231916024808301926020929190829003018186803b1580156101b157600080fd5b505afa1580156101c5573d6000803e3d6000fd5b505050506040513d60208110156101db57600080fd5b5051604080517fa9059cbb00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff86811660048301526024820184905291519293509084169163a9059cbb916044808201926020929091908290030181600087803b15801561025957600080fd5b505af115801561026d573d6000803e3d6000fd5b505050506040513d602081101561028357600080fd5b505050505050565b3373267be1c1d684f78cb4f6a176c4911b741e4ffdc01461030d57604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152601660248201527f54782073656e646572206973206e6f74206f776e657200000000000000000000604482015290519081900360640190fd5b60405173ffffffffffffffffffffffffffffffffffffffff8216904780156108fc02916000818181858888f1935050505015801561034f573d6000803e3d6000fd5b505056fea164736f6c634300060c000a",
+                     "codeHash": "0xa30dbbe03884457f35e47ea55a3d5ac90c725ca0bb60670bd6f2ba94226e35fc",
+                     "nonce": 1
+                   }
+                 }
+               }
+        },
+        "test": {
+            "description": "After EIP-6780 (Dencun), when a contract calls SELFDESTRUCT in a different transaction than its creation, the contract should remain in state (code/storage persist, only balance transferred). This tests is preCancun: the contract is deleted(in pre not in post)",
+            "reference": "https://etherscan.io/tx/0x5324db52c944d1da01715f3ddc870950fba4502b93b8e6113cf1925d4729cd10"
+        }
+    }
+]
