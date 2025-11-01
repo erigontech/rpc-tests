@@ -38,7 +38,7 @@
               }
         },
         "test": {
-            "description": "After EIP-6780 (Dencun), when a contract calls SELFDESTRUCT in a different transaction than its creation, the contract should remain in state (code/storage persist, only balance transferred). This tests is postCancun. The contract not show in pre/post because is not deleted",
+            "description": "After EIP-6780 (Dencun), when a contract calls SELFDESTRUCT in a different transaction than its creation, the contract should remain in state (code/storage persist, only balance transferred). This test is postCancun. The contract not show in pre/post because is not deleted",
             "reference": "https://etherscan.io/tx/0xf57414989193e5e5ce57bd041a267868b02955a7c7e68401ab8510c3695d25c3"
         }
     }
