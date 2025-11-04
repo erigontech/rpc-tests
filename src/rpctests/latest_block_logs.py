@@ -73,7 +73,7 @@ async def main():
         block_number = 0
         while not shutdown_event.is_set():
             try:
-                # 1. Get the latest block (header only)
+                # Get the latest block (header only)
                 latest_block = await client.w3.eth.get_block("latest", full_transactions=False)
                 logger.info(f"Latest block is {latest_block.number}")
                 if latest_block.number == block_number:
@@ -88,20 +88,20 @@ async def main():
                     await asyncio.sleep(sleep_time)  # Avoid spamming pending blocks
                     continue
 
-                # 2. Immediately call eth_getLogs with the block hash
+                # Immediately call eth_getLogs with the block hash
                 logs = await client.w3.eth.get_logs({"blockHash": block_hash})
 
-                # 3. Check if result is an empty list
-                if not logs:
-                    logger.info(f"✅ Block {block_number}: eth_getLogs returned an empty list [].")
+                # Check if result is an empty list
+                if logs:
+                    logger.info(f"Block {block_number}: eth_getLogs returned {len(logs)} log(s).")
                 else:
-                    logger.warning(f"Block {block_number}: eth_getLogs returned {len(logs)} log(s).")
+                    logger.warning(f"✅ Block {block_number}: eth_getLogs returned an empty list (zero logs).")
             except Exception as e:
-                # 4. Log any error during get_block or get_logs
+                # Log any error during get_block or get_logs
                 logger.error(f"❌ Error while processing block {block_number}: {e}")
                 # Add a small delay on error to avoid spamming
                 if not shutdown_event.is_set():
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(sleep_time)
 
         logger.info("Query logs loop terminated.")
 
