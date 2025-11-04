@@ -75,11 +75,11 @@ async def main():
             try:
                 # Get the latest block (header only)
                 latest_block = await client.w3.eth.get_block("latest", full_transactions=False)
-                logger.info(f"Latest block is {latest_block.number}")
                 if latest_block.number == block_number:
                     await asyncio.sleep(sleep_time)  # Avoid busy loop
                     continue
 
+                logger.info(f"Latest block is {latest_block.number}")
                 block_number = latest_block.number
                 block_hash = latest_block.hash
 
@@ -95,10 +95,10 @@ async def main():
                 if logs:
                     logger.info(f"Block {block_number}: eth_getLogs returned {len(logs)} log(s).")
                 else:
-                    logger.warning(f"✅ Block {block_number}: eth_getLogs returned an empty list (zero logs).")
+                    logger.warning(f"⚠️ Block {block_number}: eth_getLogs returned an empty list (zero logs).")
             except Exception as e:
                 # Log any error during get_block or get_logs
-                logger.error(f"❌ Error while processing block {block_number}: {e}")
+                logger.error(f"❌ eth_getLogs for block {block_number} failed: {e}")
                 # Add a small delay on error to avoid spamming
                 if not shutdown_event.is_set():
                     await asyncio.sleep(sleep_time)
