@@ -24,3 +24,20 @@ class Client(jsonrpc.Client):
         provider = web3.WebSocketProvider(node_url, websocket_kwargs, max_connection_retries=1)
 
         jsonrpc.Client.__init__(self, node_url, provider)
+
+    async def connect(self):
+        """Set up the WebSocket connection to the Ethereum node."""
+        try:
+            await self.w3.provider.connect()
+            if not await self.w3.is_connected():
+                raise ConnectionError("Failed to connect to Ethereum node")
+            logger.info(f"Connected to Ethereum node at {self.node_url}")
+        except Exception as e:
+            raise ConnectionError(f"Connection failed: {e}")
+
+    async def disconnect(self):
+        """Tear down the WebSocket connection to the Ethereum node."""
+        try:
+            await self.w3.provider.disconnect()
+        except Exception as e:
+            raise ConnectionError(f"Disconnection failed: {e}")

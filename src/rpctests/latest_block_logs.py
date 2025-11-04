@@ -10,6 +10,7 @@ import logging
 import signal
 import sys
 
+from .common import http
 from .common import websocket
 
 # Configure logging
@@ -22,14 +23,14 @@ async def main():
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
-        description="Connects to an Ethereum node via WebSocket and checks eth_getLogs for the latest block."
+        description="Connects to an Ethereum node via HTTP or WebSocket and checks eth_getLogs for the latest block."
     )
     parser.add_argument(
-        "--websocket_url",
+        "--node_url",
         type=str,
         nargs='?',  # Make the argument optional
         default="ws://127.0.0.1:8545",  # Set the default value
-        help="The WebSocket URL of the Ethereum node (default: ws://127.0.0.1:8545)",
+        help="The HTTP or WebSocket URL of the Ethereum node (default: ws://127.0.0.1:8545)",
     )
     parser.add_argument(
         "--ca_file",
@@ -47,8 +48,11 @@ async def main():
     )
     args = parser.parse_args()
 
-    # Create the WebSocket client
-    client = websocket.Client(args.websocket_url, args.ca_file)
+    # Create the HTTP or WebSocket client
+    if args.node_url.startswith('http'):
+        client = http.Client(args.node_url, args.ca_file)
+    else:
+        client = websocket.Client(args.node_url, args.ca_file)
     shutdown_event = asyncio.Event()
 
     # Setup signal handler for graceful shutdown
@@ -83,11 +87,6 @@ async def main():
                 block_number = latest_block.number
                 block_hash = latest_block.hash
 
-                if not block_hash:
-                    logger.warning(f"Got block {block_number} but it has no hash (pending block?). Skipping.")
-                    await asyncio.sleep(sleep_time)  # Avoid spamming pending blocks
-                    continue
-
                 # Immediately call eth_getLogs with the block hash
                 logs = await client.w3.eth.get_logs({"blockHash": block_hash})
 
@@ -103,8 +102,7 @@ async def main():
                 if not shutdown_event.is_set():
                     await asyncio.sleep(sleep_time)
 
-        logger.info("Query logs loop terminated.")
-
+        logger.info("Query latest block logs terminated.")
     except KeyboardInterrupt:
         # This is expected on Ctrl+C, but the signal handler already logs.
         logger.info("Interruption processed.")
@@ -120,8 +118,8 @@ async def main():
 if __name__ == "__main__":
     """ 
     Usage: 
-    python latest_block_logs.py [websocket_url] [ca_file]
+    python latest_block_logs.py [node_url] [ca_file]
     or (if part of a package):
-    python -m your_package_name.latest_block_logs [websocket_url] [ca_file] 
+    python -m your_package_name.latest_block_logs [node_url] [ca_file] 
     """
     asyncio.run(main())

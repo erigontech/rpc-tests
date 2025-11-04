@@ -94,22 +94,6 @@ class Client:
         ssl_context.check_hostname = False
         return ssl_context
 
-    async def connect(self):
-        """Establish connection to the Ethereum node."""
-        try:
-            # Connect to the provider
-            await self.w3.provider.connect()
-
-            # Test connection
-            if not await self.w3.is_connected():
-                raise ConnectionError("Failed to connect to Ethereum node")
-
-            latest_block = await self.w3.eth.block_number
-            logger.info(f"Connected to Ethereum node at {self.node_url}")
-            logger.info(f"Latest block: {latest_block}")
-        except Exception as e:
-            raise ConnectionError(f"Connection failed: {e}")
-
     async def subscribe(self, subscriptions):
         """ """
         return await self.w3.subscription_manager.subscribe(subscriptions)
@@ -121,10 +105,3 @@ class Client:
     async def handle_subscriptions(self, run_forever: bool = False):
         """ """
         return await self.w3.subscription_manager.handle_subscriptions(run_forever)
-
-    async def disconnect(self):
-        """Disconnect from the Ethereum node."""
-        try:
-            await self.w3.provider.disconnect()
-        except Exception as e:
-            raise ConnectionError(f"Disconnection failed: {e}")
