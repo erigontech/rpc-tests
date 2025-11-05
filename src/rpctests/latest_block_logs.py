@@ -95,6 +95,7 @@ async def main():
                     logger.info(f"Block {block_number}: eth_getLogs returned {len(logs)} log(s).")
                 else:
                     logger.warning(f"⚠️ Block {block_number}: eth_getLogs returned an empty list (zero logs).")
+                    break
             except Exception as e:
                 # Log any error during get_block or get_logs
                 logger.error(f"❌ eth_getLogs for block {block_number} failed: {e}")
