@@ -1,45 +1,49 @@
 [
-    {
-        "request": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "debug_traceTransaction",
-            "params": [
-                "0x2926d6e3d2c28a56f5ea1c684da782b6737913466d1edb50ede5434b6063a95a",
-                {
-                 "tracer": "prestateTracer",
-                 "tracerConfig": {"diffMode": true, "disableStorage": true, "disableCode": true}
-               }
-            ]
-        },
-        "response": {
-            "id": 1,
-            "jsonrpc": "2.0",
-             "result": {
-               "post": {
-                 "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5": {
-                   "balance": "0x9457a1805f4b2d9f"
-                 },
-                 "0xf445207c3f1f85d0df86c30b2b2655c627be936b": {
-                   "balance": "0x30a9353961ec7f65",
-                   "nonce": 24
-                 }
-               },
-               "pre": {
-                 "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5": {
-                   "balance": "0x94568512e843306a",
-                   "nonce": 805187
-                 },
-                 "0xf445207c3f1f85d0df86c30b2b2655c627be936b": {
-                   "balance": "0x31eddd6e966bf671",
-                   "nonce": 23
-                 } 
-               }   
-             }   
-        },
-        "test": {
-            "description": "After EIP-6780 (Dencun), when a contract calls SELFDESTRUCT in a different transaction than its creation, the contract should remain in state (code/storage persist, only balance transferred). This test is postCancun. The contracts are NOT present in pre and post",
-            "reference": "https://etherscan.io/tx/0x2926d6e3d2c28a56f5ea1c684da782b6737913466d1edb50ede5434b6063a95a"
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0x2926d6e3d2c28a56f5ea1c684da782b6737913466d1edb50ede5434b6063a95a",
+        {
+          "tracer": "prestateTracer",
+          "tracerConfig": {
+            "diffMode": true,
+            "disableStorage": true,
+            "disableCode": true
+          }
         }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "post": {
+          "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5": {
+            "balance": "0x9457a1805f4b2d9f"
+          },
+          "0xf445207c3f1f85d0df86c30b2b2655c627be936b": {
+            "balance": "0x30a9353961ec7f65",
+            "nonce": 24
+          }
+        },
+        "pre": {
+          "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5": {
+            "balance": "0x94568512e843306a",
+            "nonce": 805187
+          },
+          "0xf445207c3f1f85d0df86c30b2b2655c627be936b": {
+            "balance": "0x31eddd6e966bf671",
+            "nonce": 23
+          }
+        }
+      }
+    },
+    "test": {
+      "description": "After EIP-6780 (Dencun), when a contract calls SELFDESTRUCT in a different transaction than its creation, the contract should remain in state (code/storage persist, only balance transferred). This test is postCancun. The contracts are NOT present in pre and post",
+      "reference": "https://etherscan.io/tx/0x2926d6e3d2c28a56f5ea1c684da782b6737913466d1edb50ede5434b6063a95a"
     }
+  }
 ]

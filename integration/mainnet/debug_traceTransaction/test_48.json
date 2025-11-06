@@ -1,515 +1,515 @@
 [
-    {
-        "request": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "debug_traceTransaction",
-            "params": [
-                "0xf8955ee466ee24a7d28110a387542c372afd30dedebcbb30dcf98f675bc5b46f",
-                {
-                    "disableMemory": true,
-                    "disableStack": true,
-                    "disableStorage": true
-                }
-            ]
-        },
-        "response": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "result": {
-                "failed": false,
-                "gas": 29244,
-                "returnValue": "0x0000000000000000000000000000000000000000000000000000000000000000",
-                "structLogs": [
-                    {
-                        "depth": 1,
-                        "gas": 108244,
-                        "gasCost": 2,
-                        "op": "CALLDATASIZE",
-                        "pc": 0
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108242,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 1
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108239,
-                        "gasCost": 3,
-                        "op": "DUP1",
-                        "pc": 3
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108236,
-                        "gasCost": 3,
-                        "op": "CALLDATACOPY",
-                        "pc": 4
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108233,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 5
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108230,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 7
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108227,
-                        "gasCost": 2,
-                        "op": "CALLDATASIZE",
-                        "pc": 9
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108225,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 10
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108222,
-                        "gasCost": 2,
-                        "op": "CALLVALUE",
-                        "pc": 12
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108220,
-                        "gasCost": 3,
-                        "op": "PUSH20",
-                        "pc": 13
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108217,
-                        "gasCost": 3,
-                        "op": "PUSH2",
-                        "pc": 34
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108214,
-                        "gasCost": 2,
-                        "op": "GAS",
-                        "pc": 37
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108212,
-                        "gasCost": 3,
-                        "op": "SUB",
-                        "pc": 38
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 108209,
-                        "gasCost": 108205,
-                        "op": "CALLCODE",
-                        "pc": 39
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101462,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 0
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101459,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 2
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101456,
-                        "gasCost": 12,
-                        "op": "MSTORE",
-                        "pc": 4
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101444,
-                        "gasCost": 2,
-                        "op": "CALLDATASIZE",
-                        "pc": 5
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101442,
-                        "gasCost": 3,
-                        "op": "ISZERO",
-                        "pc": 6
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101439,
-                        "gasCost": 3,
-                        "op": "PUSH2",
-                        "pc": 7
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101436,
-                        "gasCost": 10,
-                        "op": "JUMPI",
-                        "pc": 10
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101426,
-                        "gasCost": 1,
-                        "op": "JUMPDEST",
-                        "pc": 218
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101425,
-                        "gasCost": 3,
-                        "op": "PUSH2",
-                        "pc": 219
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101422,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 222
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101419,
-                        "gasCost": 2,
-                        "op": "CALLVALUE",
-                        "pc": 224
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101417,
-                        "gasCost": 3,
-                        "op": "GT",
-                        "pc": 225
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101414,
-                        "gasCost": 3,
-                        "op": "ISZERO",
-                        "pc": 226
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101411,
-                        "gasCost": 3,
-                        "op": "PUSH2",
-                        "pc": 227
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101408,
-                        "gasCost": 10,
-                        "op": "JUMPI",
-                        "pc": 230
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101398,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 231
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101395,
-                        "gasCost": 3,
-                        "op": "DUP1",
-                        "pc": 233
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101392,
-                        "gasCost": 3,
-                        "op": "MLOAD",
-                        "pc": 234
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101389,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 235
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101386,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 237
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101383,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 239
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101380,
-                        "gasCost": 20,
-                        "op": "EXP",
-                        "pc": 241
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101360,
-                        "gasCost": 3,
-                        "op": "SUB",
-                        "pc": 242
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101357,
-                        "gasCost": 2,
-                        "op": "ORIGIN",
-                        "pc": 243
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101355,
-                        "gasCost": 3,
-                        "op": "AND",
-                        "pc": 244
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101352,
-                        "gasCost": 3,
-                        "op": "DUP2",
-                        "pc": 245
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101349,
-                        "gasCost": 6,
-                        "op": "MSTORE",
-                        "pc": 246
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101343,
-                        "gasCost": 2,
-                        "op": "CALLVALUE",
-                        "pc": 247
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101341,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 248
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101338,
-                        "gasCost": 3,
-                        "op": "DUP3",
-                        "pc": 250
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101335,
-                        "gasCost": 3,
-                        "op": "ADD",
-                        "pc": 251
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101332,
-                        "gasCost": 6,
-                        "op": "MSTORE",
-                        "pc": 252
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101326,
-                        "gasCost": 3,
-                        "op": "DUP2",
-                        "pc": 253
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101323,
-                        "gasCost": 3,
-                        "op": "MLOAD",
-                        "pc": 254
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101320,
-                        "gasCost": 3,
-                        "op": "PUSH32",
-                        "pc": 255
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101317,
-                        "gasCost": 3,
-                        "op": "SWAP3",
-                        "pc": 288
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101314,
-                        "gasCost": 3,
-                        "op": "SWAP2",
-                        "pc": 289
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101311,
-                        "gasCost": 3,
-                        "op": "DUP2",
-                        "pc": 290
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101308,
-                        "gasCost": 3,
-                        "op": "SWAP1",
-                        "pc": 291
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101305,
-                        "gasCost": 3,
-                        "op": "SUB",
-                        "pc": 292
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101302,
-                        "gasCost": 3,
-                        "op": "SWAP1",
-                        "pc": 293
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101299,
-                        "gasCost": 3,
-                        "op": "SWAP2",
-                        "pc": 294
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101296,
-                        "gasCost": 3,
-                        "op": "ADD",
-                        "pc": 295
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101293,
-                        "gasCost": 3,
-                        "op": "SWAP1",
-                        "pc": 296
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 101290,
-                        "gasCost": 1262,
-                        "op": "LOG1",
-                        "pc": 297
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 100028,
-                        "gasCost": 1,
-                        "op": "JUMPDEST",
-                        "pc": 298
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 100027,
-                        "gasCost": 8,
-                        "op": "JUMP",
-                        "pc": 299
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 100019,
-                        "gasCost": 1,
-                        "op": "JUMPDEST",
-                        "pc": 964
-                    },
-                    {
-                        "depth": 2,
-                        "gas": 100018,
-                        "gasCost": 0,
-                        "op": "STOP",
-                        "pc": 965
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 100022,
-                        "gasCost": 3,
-                        "op": "ISZERO",
-                        "pc": 40
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 100019,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 41
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 100016,
-                        "gasCost": 10,
-                        "op": "JUMPI",
-                        "pc": 43
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 100006,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 44
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 100003,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 46
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 100000,
-                        "gasCost": 0,
-                        "op": "RETURN",
-                        "pc": 48
-                    }
-                ]
-            }
-        },
-        "test": {
-            "description": "",
-            "reference": ""
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0xf8955ee466ee24a7d28110a387542c372afd30dedebcbb30dcf98f675bc5b46f",
+        {
+          "disableMemory": true,
+          "disableStack": true,
+          "disableStorage": true
         }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "failed": false,
+        "gas": 29244,
+        "returnValue": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "structLogs": [
+          {
+            "depth": 1,
+            "gas": 108244,
+            "gasCost": 2,
+            "op": "CALLDATASIZE",
+            "pc": 0
+          },
+          {
+            "depth": 1,
+            "gas": 108242,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 1
+          },
+          {
+            "depth": 1,
+            "gas": 108239,
+            "gasCost": 3,
+            "op": "DUP1",
+            "pc": 3
+          },
+          {
+            "depth": 1,
+            "gas": 108236,
+            "gasCost": 3,
+            "op": "CALLDATACOPY",
+            "pc": 4
+          },
+          {
+            "depth": 1,
+            "gas": 108233,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 5
+          },
+          {
+            "depth": 1,
+            "gas": 108230,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 7
+          },
+          {
+            "depth": 1,
+            "gas": 108227,
+            "gasCost": 2,
+            "op": "CALLDATASIZE",
+            "pc": 9
+          },
+          {
+            "depth": 1,
+            "gas": 108225,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 10
+          },
+          {
+            "depth": 1,
+            "gas": 108222,
+            "gasCost": 2,
+            "op": "CALLVALUE",
+            "pc": 12
+          },
+          {
+            "depth": 1,
+            "gas": 108220,
+            "gasCost": 3,
+            "op": "PUSH20",
+            "pc": 13
+          },
+          {
+            "depth": 1,
+            "gas": 108217,
+            "gasCost": 3,
+            "op": "PUSH2",
+            "pc": 34
+          },
+          {
+            "depth": 1,
+            "gas": 108214,
+            "gasCost": 2,
+            "op": "GAS",
+            "pc": 37
+          },
+          {
+            "depth": 1,
+            "gas": 108212,
+            "gasCost": 3,
+            "op": "SUB",
+            "pc": 38
+          },
+          {
+            "depth": 1,
+            "gas": 108209,
+            "gasCost": 108205,
+            "op": "CALLCODE",
+            "pc": 39
+          },
+          {
+            "depth": 2,
+            "gas": 101462,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 0
+          },
+          {
+            "depth": 2,
+            "gas": 101459,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 2
+          },
+          {
+            "depth": 2,
+            "gas": 101456,
+            "gasCost": 12,
+            "op": "MSTORE",
+            "pc": 4
+          },
+          {
+            "depth": 2,
+            "gas": 101444,
+            "gasCost": 2,
+            "op": "CALLDATASIZE",
+            "pc": 5
+          },
+          {
+            "depth": 2,
+            "gas": 101442,
+            "gasCost": 3,
+            "op": "ISZERO",
+            "pc": 6
+          },
+          {
+            "depth": 2,
+            "gas": 101439,
+            "gasCost": 3,
+            "op": "PUSH2",
+            "pc": 7
+          },
+          {
+            "depth": 2,
+            "gas": 101436,
+            "gasCost": 10,
+            "op": "JUMPI",
+            "pc": 10
+          },
+          {
+            "depth": 2,
+            "gas": 101426,
+            "gasCost": 1,
+            "op": "JUMPDEST",
+            "pc": 218
+          },
+          {
+            "depth": 2,
+            "gas": 101425,
+            "gasCost": 3,
+            "op": "PUSH2",
+            "pc": 219
+          },
+          {
+            "depth": 2,
+            "gas": 101422,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 222
+          },
+          {
+            "depth": 2,
+            "gas": 101419,
+            "gasCost": 2,
+            "op": "CALLVALUE",
+            "pc": 224
+          },
+          {
+            "depth": 2,
+            "gas": 101417,
+            "gasCost": 3,
+            "op": "GT",
+            "pc": 225
+          },
+          {
+            "depth": 2,
+            "gas": 101414,
+            "gasCost": 3,
+            "op": "ISZERO",
+            "pc": 226
+          },
+          {
+            "depth": 2,
+            "gas": 101411,
+            "gasCost": 3,
+            "op": "PUSH2",
+            "pc": 227
+          },
+          {
+            "depth": 2,
+            "gas": 101408,
+            "gasCost": 10,
+            "op": "JUMPI",
+            "pc": 230
+          },
+          {
+            "depth": 2,
+            "gas": 101398,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 231
+          },
+          {
+            "depth": 2,
+            "gas": 101395,
+            "gasCost": 3,
+            "op": "DUP1",
+            "pc": 233
+          },
+          {
+            "depth": 2,
+            "gas": 101392,
+            "gasCost": 3,
+            "op": "MLOAD",
+            "pc": 234
+          },
+          {
+            "depth": 2,
+            "gas": 101389,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 235
+          },
+          {
+            "depth": 2,
+            "gas": 101386,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 237
+          },
+          {
+            "depth": 2,
+            "gas": 101383,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 239
+          },
+          {
+            "depth": 2,
+            "gas": 101380,
+            "gasCost": 20,
+            "op": "EXP",
+            "pc": 241
+          },
+          {
+            "depth": 2,
+            "gas": 101360,
+            "gasCost": 3,
+            "op": "SUB",
+            "pc": 242
+          },
+          {
+            "depth": 2,
+            "gas": 101357,
+            "gasCost": 2,
+            "op": "ORIGIN",
+            "pc": 243
+          },
+          {
+            "depth": 2,
+            "gas": 101355,
+            "gasCost": 3,
+            "op": "AND",
+            "pc": 244
+          },
+          {
+            "depth": 2,
+            "gas": 101352,
+            "gasCost": 3,
+            "op": "DUP2",
+            "pc": 245
+          },
+          {
+            "depth": 2,
+            "gas": 101349,
+            "gasCost": 6,
+            "op": "MSTORE",
+            "pc": 246
+          },
+          {
+            "depth": 2,
+            "gas": 101343,
+            "gasCost": 2,
+            "op": "CALLVALUE",
+            "pc": 247
+          },
+          {
+            "depth": 2,
+            "gas": 101341,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 248
+          },
+          {
+            "depth": 2,
+            "gas": 101338,
+            "gasCost": 3,
+            "op": "DUP3",
+            "pc": 250
+          },
+          {
+            "depth": 2,
+            "gas": 101335,
+            "gasCost": 3,
+            "op": "ADD",
+            "pc": 251
+          },
+          {
+            "depth": 2,
+            "gas": 101332,
+            "gasCost": 6,
+            "op": "MSTORE",
+            "pc": 252
+          },
+          {
+            "depth": 2,
+            "gas": 101326,
+            "gasCost": 3,
+            "op": "DUP2",
+            "pc": 253
+          },
+          {
+            "depth": 2,
+            "gas": 101323,
+            "gasCost": 3,
+            "op": "MLOAD",
+            "pc": 254
+          },
+          {
+            "depth": 2,
+            "gas": 101320,
+            "gasCost": 3,
+            "op": "PUSH32",
+            "pc": 255
+          },
+          {
+            "depth": 2,
+            "gas": 101317,
+            "gasCost": 3,
+            "op": "SWAP3",
+            "pc": 288
+          },
+          {
+            "depth": 2,
+            "gas": 101314,
+            "gasCost": 3,
+            "op": "SWAP2",
+            "pc": 289
+          },
+          {
+            "depth": 2,
+            "gas": 101311,
+            "gasCost": 3,
+            "op": "DUP2",
+            "pc": 290
+          },
+          {
+            "depth": 2,
+            "gas": 101308,
+            "gasCost": 3,
+            "op": "SWAP1",
+            "pc": 291
+          },
+          {
+            "depth": 2,
+            "gas": 101305,
+            "gasCost": 3,
+            "op": "SUB",
+            "pc": 292
+          },
+          {
+            "depth": 2,
+            "gas": 101302,
+            "gasCost": 3,
+            "op": "SWAP1",
+            "pc": 293
+          },
+          {
+            "depth": 2,
+            "gas": 101299,
+            "gasCost": 3,
+            "op": "SWAP2",
+            "pc": 294
+          },
+          {
+            "depth": 2,
+            "gas": 101296,
+            "gasCost": 3,
+            "op": "ADD",
+            "pc": 295
+          },
+          {
+            "depth": 2,
+            "gas": 101293,
+            "gasCost": 3,
+            "op": "SWAP1",
+            "pc": 296
+          },
+          {
+            "depth": 2,
+            "gas": 101290,
+            "gasCost": 1262,
+            "op": "LOG1",
+            "pc": 297
+          },
+          {
+            "depth": 2,
+            "gas": 100028,
+            "gasCost": 1,
+            "op": "JUMPDEST",
+            "pc": 298
+          },
+          {
+            "depth": 2,
+            "gas": 100027,
+            "gasCost": 8,
+            "op": "JUMP",
+            "pc": 299
+          },
+          {
+            "depth": 2,
+            "gas": 100019,
+            "gasCost": 1,
+            "op": "JUMPDEST",
+            "pc": 964
+          },
+          {
+            "depth": 2,
+            "gas": 100018,
+            "gasCost": 0,
+            "op": "STOP",
+            "pc": 965
+          },
+          {
+            "depth": 1,
+            "gas": 100022,
+            "gasCost": 3,
+            "op": "ISZERO",
+            "pc": 40
+          },
+          {
+            "depth": 1,
+            "gas": 100019,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 41
+          },
+          {
+            "depth": 1,
+            "gas": 100016,
+            "gasCost": 10,
+            "op": "JUMPI",
+            "pc": 43
+          },
+          {
+            "depth": 1,
+            "gas": 100006,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 44
+          },
+          {
+            "depth": 1,
+            "gas": 100003,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 46
+          },
+          {
+            "depth": 1,
+            "gas": 100000,
+            "gasCost": 0,
+            "op": "RETURN",
+            "pc": 48
+          }
+        ]
+      }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
+  }
 ]
