@@ -98,10 +98,13 @@ async def main():
                 if logs:
                     logger.info(f"Block {block_number}: eth_getLogs returned {len(logs)} log(s).")
                 elif receipts_root is not EMPTY_ROOT:
+                    logger.info(f"Block {block_number}: eth_getLogs returned 0 logs and receiptsRoot is non-empty...")
+                    await asyncio.sleep(6)  # wait half block time to be sure latest block got executed
                     receipts = await client.w3.eth.get_block_receipts(block_number)
                     num_logs = sum(len(receipt.logs) for receipt in receipts)
-                    logger.warning(f"⚠️ Block {block_number}: eth_getLogs returned 0 logs but there are {num_logs}")
-                    break
+                    if num_logs > 0:
+                        logger.warning(f"⚠️ Block {block_number}: eth_getLogs returned 0 logs but there are {num_logs}")
+                        break
             except Exception as e:
                 # Log any error during get_block or get_logs
                 logger.error(f"❌ get_block/get_logs for block {block_number} failed: {e}")
