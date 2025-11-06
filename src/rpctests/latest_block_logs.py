@@ -70,7 +70,6 @@ async def main():
     try:
         # Connect to Ethereum node
         await client.connect()
-        logger.info(f"✅ Successfully connected to Ethereum node at {client.node_url}")
 
         logger.info("Query latest block logs started... Press Ctrl+C to stop.")
 
@@ -80,7 +79,7 @@ async def main():
                 # Get the latest block (header only)
                 latest_block = await client.w3.eth.get_block("latest", full_transactions=False)
                 if latest_block.number == block_number:
-                    await asyncio.sleep(sleep_time)  # Avoid busy loop
+                    await asyncio.sleep(sleep_time)
                     continue
 
                 logger.info(f"Latest block is {latest_block.number}")
@@ -98,8 +97,7 @@ async def main():
                     break
             except Exception as e:
                 # Log any error during get_block or get_logs
-                logger.error(f"❌ eth_getLogs for block {block_number} failed: {e}")
-                # Add a small delay on error to avoid spamming
+                logger.error(f"❌ get_block/get_logs for block {block_number} failed: {e}")
                 if not shutdown_event.is_set():
                     await asyncio.sleep(sleep_time)
 
