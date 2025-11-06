@@ -6,11 +6,14 @@ with the latest block hash to check if the logs list is empty or an error occurs
 
 import argparse
 import asyncio
+import hexbytes
 import logging
 import signal
 import sys
 
 from .common import http
+
+EMPTY_ROOT = hexbytes.HexBytes("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -86,15 +89,18 @@ async def main():
                 logger.info(f"Latest block is {latest_block.number}")
                 block_number = latest_block.number
                 block_hash = latest_block.hash
+                receipts_root = latest_block.receiptsRoot
 
                 # Immediately call eth_getLogs with the block hash
                 logs = await client.w3.eth.get_logs({"blockHash": block_hash})
 
-                # Check if result is an empty list
+                # Break when result is an empty list and block receiptsRoot indicates there are some receipts
                 if logs:
                     logger.info(f"Block {block_number}: eth_getLogs returned {len(logs)} log(s).")
-                else:
-                    logger.warning(f"⚠️ Block {block_number}: eth_getLogs returned an empty list (zero logs).")
+                elif receipts_root is not EMPTY_ROOT:
+                    receipts = await client.w3.eth.get_block_receipts(block_number)
+                    num_logs = sum(len(receipt.logs) for receipt in receipts)
+                    logger.warning(f"⚠️ Block {block_number}: eth_getLogs returned 0 logs but there are {num_logs}")
                     break
             except Exception as e:
                 # Log any error during get_block or get_logs
