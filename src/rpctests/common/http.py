@@ -24,9 +24,3 @@ class Client(jsonrpc.Client):
         provider = web3.AsyncHTTPProvider(node_url, request_kwargs)
 
         jsonrpc.Client.__init__(self, node_url, provider)
-
-    async def connect(self):
-        pass
-
-    async def disconnect(self):
-        pass
