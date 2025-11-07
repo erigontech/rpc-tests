@@ -76,6 +76,7 @@ def usage(argv):
     print("-j,--json-report <file-name>:         generate json report")
     print("-P,--more-percentiles:                print more percentiles in console report")
     print("-H,--halt-on-vegeta-error:            consider test failed if Vegeta reports any error")
+    print("-I,--instant-report:                  print instant Vegeta report in console for each executed test case")
     sys.exit(1)
 
 
@@ -119,6 +120,7 @@ class Config:
         self.binary_file = ""
         self.chain_name = "mainnet"
         self.more_percentiles = False
+        self.instant_report = False
         self.halt_on_vegeta_error = False
 
         self.__parse_args(argv)
@@ -150,21 +152,21 @@ class Config:
                 print("ERROR: erigon build dir not specified correctly: ", self.erigon_dir)
                 return 0
 
-            # if os.path.exists(self.silkworm_dir) == 0:
-            #     print("ERROR: silkworm build dir not specified correctly: ", self.silkworm_dir)
-            #     return 0
+            if os.path.exists(self.silkworm_dir) == 0:
+                print("ERROR: silkworm build dir not specified correctly: ", self.silkworm_dir)
+                return 0
 
         return 1
 
     def __parse_args(self, argv):
         """ This methods parse input args """
         try:
-            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:D:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j:PH",
+            opts, _ = getopt.getopt(argv[1:], "hm:d:p:c:D:g:s:r:t:y:zw:uvxZRb:A:C:eT:M:j:PHI",
                    ['help', 'test-mode=', 'rpc-daemon-address=', 'pattern-file=', 'testing-daemon=', 'max-connections=',
                     'run-vegeta-on-core=', 'empty-cache', 'erigon-dir=', 'silk-dir=', 'repetitions=', 'test-sequence=',
                     'tmp-test-report', 'test-report', 'blockchain=', 'verbose', 'tracing', 'wait-after-test-sequence=',
                     'test-type=', 'not-verify-server-alive', 'response-timeout=', 'max-body-rsp=', 'json-report=',
-                    'more-percentiles', 'halt-on-vegeta-error'])
+                    'more-percentiles', 'halt-on-vegeta-error', 'instant-report'])
 
             for option, optarg in opts:
                 if option in ("-h", "--help"):
@@ -217,6 +219,8 @@ class Config:
                     self.max_body_rsp = optarg
                 elif option in ("-P", "--more-percentiles"):
                     self.more_percentiles = True
+                elif option in ("-I", "--instant-report"):
+                    self.instant_report = True
                 elif option in ("-H", "--halt-on-vegeta-error"):
                     self.halt_on_vegeta_error = True
                 else:
@@ -364,7 +368,6 @@ class PerfTest:
         else:
             pattern = VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
 
-        print("Test sequence: ", sequence, pattern, tag)
         # retrieve port where load tests is provided
         with open(pattern, "r") as file:
             data = file.readline().strip()
@@ -434,7 +437,8 @@ class PerfTest:
         if self.config.create_test_report:
             self.test_report.write_test_report(daemon_name, test_number, repetition, qps_value, duration, min_latency, mean, p50,
                                                p90, p95, p99, p100, ratio, error)
-        os.system("cat " + test_report_filename)  
+        if self.config.instant_report:
+            os.system("cat " + test_report_filename)  
         os.system("/bin/rm " + test_report_filename)
         return 0
 
