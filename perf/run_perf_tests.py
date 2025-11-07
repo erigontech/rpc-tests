@@ -150,9 +150,9 @@ class Config:
                 print("ERROR: erigon build dir not specified correctly: ", self.erigon_dir)
                 return 0
 
-            if os.path.exists(self.silkworm_dir) == 0:
-                print("ERROR: silkworm build dir not specified correctly: ", self.silkworm_dir)
-                return 0
+            # if os.path.exists(self.silkworm_dir) == 0:
+            #     print("ERROR: silkworm build dir not specified correctly: ", self.silkworm_dir)
+            #     return 0
 
         return 1
 
@@ -364,6 +364,7 @@ class PerfTest:
         else:
             pattern = VEGETA_PATTERN_ERIGON_BASE + self.config.test_type + ".txt"
 
+        print("Test sequence: ", sequence, pattern, tag)
         # retrieve port where load tests is provided
         with open(pattern, "r") as file:
             data = file.readline().strip()
@@ -433,6 +434,7 @@ class PerfTest:
         if self.config.create_test_report:
             self.test_report.write_test_report(daemon_name, test_number, repetition, qps_value, duration, min_latency, mean, p50,
                                                p90, p95, p99, p100, ratio, error)
+        os.system("cat " + test_report_filename)  
         os.system("/bin/rm " + test_report_filename)
         return 0
 
