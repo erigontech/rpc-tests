@@ -1,6 +1,13 @@
 """ JSON-RPC utilities """
 
-from typing import Any
+import logging
+import ssl
+import urllib.parse
+import web3
+import web3.providers
+import web3.utils
+
+from typing import Any, List
 
 
 def is_valid_jsonrpc_object(obj: Any, allow_missing_result_and_error: bool = False) -> bool:
@@ -51,3 +58,50 @@ def is_valid_jsonrpc_object(obj: Any, allow_missing_result_and_error: bool = Fal
 
     # If it has "jsonrpc":"2.0" and "id" but neither "method", "result", nor "error", it's invalid
     return False
+
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
+class Client:
+    """ JSON-RPC client """
+    def __init__(self, node_url: str, provider: web3.providers.AsyncBaseProvider):
+        """ Initialize the JSON-RPC client.
+            node_url (str): endpoint URL of the Ethereum node
+            provider (web3.providers.AsyncBaseProvider): web3 transport provider
+        """
+        self.node_url = node_url
+        self.w3 = web3.AsyncWeb3(provider)
+
+    @staticmethod
+    def parse_url(url: str, allowed_schemes: List[str]) -> urllib.parse.ParseResult:
+        """ Parse URL and check validity with reference to the allowed schemes"""
+        parsed_url = urllib.parse.urlparse(url)
+        if parsed_url.scheme not in allowed_schemes:
+            raise ValueError(f"Invalid URL scheme: {parsed_url.scheme}. Must be one of {allowed_schemes}.")
+        return parsed_url
+
+    @staticmethod
+    def ssl_context(server_ca_file: str):
+        """ Create SSL context based on specified CA file"""
+        if server_ca_file is None:
+            raise ValueError(f"You must specify a non-empty server CA file.")
+        logger.info(f"Server CA file: {server_ca_file}")
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ssl_context.load_verify_locations(cafile=server_ca_file)
+        ssl_context.check_hostname = False
+        return ssl_context
+
+    async def subscribe(self, subscriptions):
+        """ """
+        return await self.w3.subscription_manager.subscribe(subscriptions)
+
+    async def unsubscribe(self):
+        """ """
+        return await self.w3.subscription_manager.unsubscribe(self.w3.subscription_manager.subscriptions)
+
+    async def handle_subscriptions(self, run_forever: bool = False):
+        """ """
+        return await self.w3.subscription_manager.handle_subscriptions(run_forever)

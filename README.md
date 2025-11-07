@@ -51,19 +51,29 @@ Check out the dedicated guide in [Performance Tests](./perf/README.md).
 
 ## Standalone Testing Tools
 
-### BlockByNumber
+### Get Latest/Safe/Finalized Blocks
 ```commandline
 python3 -m rpctests.block_by_number
 ```
 
-### EmptyBlocks
+### Find Empty Blocks
 ```commandline
 python3 -m rpctests.empty_blocks
 ```
 
-### FilterChanges
+### Query Filter Changes
 ```commandline
 python3 -m rpctests.filter_changes
+```
+
+### Get Latest Block Logs
+```commandline
+python3 -m rpctests.latest_block_logs
+```
+
+### GraphQL
+```commandline
+python3 -m rpctests.graphql
 ```
 
 ### ReplayRequest
@@ -76,7 +86,7 @@ python3 -m rpctests.replay_request
 python3 -m rpctests.replay_tx
 ```
 
-### Subscriptions
+### Subscribe-And-Listen For Notifications
 ```commandline
 python3 -m rpctests.subscriptions
 ```
