@@ -42,7 +42,7 @@
       }
     },
     "test": {
-      "description": "After EIP-6780 (Dencun), when a contract calls SELFDESTRUCT in a different transaction than its creation, the contract should remain in state (code/storage persist, only balance transferred). This test is preCancun with failed transaction. The contracts are showed as SELFDESTRUCT (in pre not in post). bug issue 17588",
+      "description": "After EIP-6780 (Dencun), when a contract calls SELFDESTRUCT in a different transaction than its creation, the contract should remain in state (code/storage persist, only balance transferred). This test is preCancun with failed transaction. The SELD Destruct contract are not showwed because the TX reverted",
       "reference": "https://etherscan.io/tx/0x441fe6abb0799b7f551f4e025a4302a0ebfd9254619f06345fdeca8e16bfbe55"
     }
   }
