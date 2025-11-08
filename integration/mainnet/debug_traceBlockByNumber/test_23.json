@@ -1,30 +1,30 @@
 [
-    {
-        "request": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "debug_traceBlockByNumber",
-            "params": [
-                "earliest",
-                {
-                    "disableMemory": true,
-                    "disableStack": false,
-                    "disableStorage": false
-                }
-            ]
-        },
-        "response": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "result": null,
-             "error": {
-               "code": -32000,
-               "message": "genesis is not traceable"
-             }
-        },
-        "test": {
-            "description": "trace the earliest block",
-            "reference": ""
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceBlockByNumber",
+      "params": [
+        "earliest",
+        {
+          "disableMemory": true,
+          "disableStack": false,
+          "disableStorage": false
         }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null,
+      "error": {
+        "code": -32000,
+        "message": "genesis is not traceable"
+      }
+    },
+    "test": {
+      "description": "trace the earliest block",
+      "reference": ""
     }
+  }
 ]

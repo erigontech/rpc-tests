@@ -1,40 +1,40 @@
 [
-    {
-        "request": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "debug_traceTransaction",
-            "params": [
-                "0xff8fdcd975d1c4f7ded80777727480c7f499e72a9ac9c51aca2dc66e0f77dad4",
-                {
-                    "disableMemory": true,
-                    "disableStack": true,
-                    "disableStorage": true
-                }
-            ]
-        },
-        "response": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "result": {
-                "failed": true,
-                "gas": 21000,
-                "returnValue": "0x",
-                "structLogs": [
-                    {
-                        "depth": 1,
-                        "error": "out of gas",
-                        "gas": 0,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 0
-                    }
-                ]
-            }
-        },
-        "test": {
-            "description": "",
-            "reference": ""
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0xff8fdcd975d1c4f7ded80777727480c7f499e72a9ac9c51aca2dc66e0f77dad4",
+        {
+          "disableMemory": true,
+          "disableStack": true,
+          "disableStorage": true
         }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "failed": true,
+        "gas": 21000,
+        "returnValue": "0x",
+        "structLogs": [
+          {
+            "depth": 1,
+            "error": "out of gas",
+            "gas": 0,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 0
+          }
+        ]
+      }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
+  }
 ]

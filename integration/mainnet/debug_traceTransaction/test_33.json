@@ -1,152 +1,152 @@
 [
-    {
-        "request": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "debug_traceTransaction",
-            "params": [
-                "0x6c929e1c3d860ee225d7f3a7addf9e3f740603d243260536dfa2f3cf02b51de4",
-                {
-                    "disableMemory": true,
-                    "disableStack": true,
-                    "disableStorage": true
-                }
-            ]
-        },
-        "response": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "result": {
-                "failed": true,
-                "gas": 24000,
-                "returnValue": "0x",
-                "structLogs": [
-                    {
-                        "depth": 1,
-                        "gas": 532,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 0
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 529,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 2
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 526,
-                        "gasCost": 12,
-                        "op": "MSTORE",
-                        "pc": 4
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 514,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 5
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 511,
-                        "gasCost": 3,
-                        "op": "DUP1",
-                        "pc": 7
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 508,
-                        "gasCost": 50,
-                        "op": "SLOAD",
-                        "pc": 8
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 458,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 9
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 455,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 11
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 452,
-                        "gasCost": 3,
-                        "op": "PUSH1",
-                        "pc": 13
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 449,
-                        "gasCost": 20,
-                        "op": "EXP",
-                        "pc": 15
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 429,
-                        "gasCost": 3,
-                        "op": "SUB",
-                        "pc": 16
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 426,
-                        "gasCost": 3,
-                        "op": "NOT",
-                        "pc": 17
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 423,
-                        "gasCost": 3,
-                        "op": "AND",
-                        "pc": 18
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 420,
-                        "gasCost": 2,
-                        "op": "CALLER",
-                        "pc": 19
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 418,
-                        "gasCost": 3,
-                        "op": "OR",
-                        "pc": 20
-                    },
-                    {
-                        "depth": 1,
-                        "gas": 415,
-                        "gasCost": 3,
-                        "op": "SWAP1",
-                        "pc": 21
-                    },
-                    {
-                        "depth": 1,
-                        "error": "out of gas",
-                        "gas": 412,
-                        "gasCost": 20000,
-                        "op": "SSTORE",
-                        "pc": 22
-                    }
-                ]
-            }
-        },
-        "test": {
-            "description": "",
-            "reference": ""
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0x6c929e1c3d860ee225d7f3a7addf9e3f740603d243260536dfa2f3cf02b51de4",
+        {
+          "disableMemory": true,
+          "disableStack": true,
+          "disableStorage": true
         }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "failed": true,
+        "gas": 24000,
+        "returnValue": "0x",
+        "structLogs": [
+          {
+            "depth": 1,
+            "gas": 532,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 0
+          },
+          {
+            "depth": 1,
+            "gas": 529,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 2
+          },
+          {
+            "depth": 1,
+            "gas": 526,
+            "gasCost": 12,
+            "op": "MSTORE",
+            "pc": 4
+          },
+          {
+            "depth": 1,
+            "gas": 514,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 5
+          },
+          {
+            "depth": 1,
+            "gas": 511,
+            "gasCost": 3,
+            "op": "DUP1",
+            "pc": 7
+          },
+          {
+            "depth": 1,
+            "gas": 508,
+            "gasCost": 50,
+            "op": "SLOAD",
+            "pc": 8
+          },
+          {
+            "depth": 1,
+            "gas": 458,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 9
+          },
+          {
+            "depth": 1,
+            "gas": 455,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 11
+          },
+          {
+            "depth": 1,
+            "gas": 452,
+            "gasCost": 3,
+            "op": "PUSH1",
+            "pc": 13
+          },
+          {
+            "depth": 1,
+            "gas": 449,
+            "gasCost": 20,
+            "op": "EXP",
+            "pc": 15
+          },
+          {
+            "depth": 1,
+            "gas": 429,
+            "gasCost": 3,
+            "op": "SUB",
+            "pc": 16
+          },
+          {
+            "depth": 1,
+            "gas": 426,
+            "gasCost": 3,
+            "op": "NOT",
+            "pc": 17
+          },
+          {
+            "depth": 1,
+            "gas": 423,
+            "gasCost": 3,
+            "op": "AND",
+            "pc": 18
+          },
+          {
+            "depth": 1,
+            "gas": 420,
+            "gasCost": 2,
+            "op": "CALLER",
+            "pc": 19
+          },
+          {
+            "depth": 1,
+            "gas": 418,
+            "gasCost": 3,
+            "op": "OR",
+            "pc": 20
+          },
+          {
+            "depth": 1,
+            "gas": 415,
+            "gasCost": 3,
+            "op": "SWAP1",
+            "pc": 21
+          },
+          {
+            "depth": 1,
+            "error": "out of gas",
+            "gas": 412,
+            "gasCost": 20000,
+            "op": "SSTORE",
+            "pc": 22
+          }
+        ]
+      }
+    },
+    "test": {
+      "description": "",
+      "reference": ""
     }
+  }
 ]
