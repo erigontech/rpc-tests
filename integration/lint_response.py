@@ -37,7 +37,7 @@ def formatta_response_in_json_file(filepath):
                     return False
             
             with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=4)
+                json.dump(data, f, indent=2)
             
             return True
         else:
@@ -142,6 +142,7 @@ def scansiona_e_formatta_directory(directory_path):
             if formatta_response_in_tar_file(filepath):
                 files_aggiornati += 1
             files_processati += 1
+            
 
     print("-" * 50)
     print(f"Scansione completata. File elaborati: {files_processati}. File aggiornati: {files_aggiornati}.")
