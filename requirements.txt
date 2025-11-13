@@ -12,6 +12,8 @@ pytest-asyncio
 pytz
 pyjwt
 requests>=2.32.4,<3.0.0
+rlp
+trie
 web3>=7.7.0,<8.0.0
 websocket-client
 websockets
