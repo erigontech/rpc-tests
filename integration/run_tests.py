@@ -57,6 +57,9 @@ tests_on_latest = [
     "mainnet/debug_traceCall/test_38.json",
     "mainnet/debug_traceCall/test_39.json",
     "mainnet/debug_traceCall/test_40.json",
+    "mainnet/debug_traceCall/test_41.json",
+    "mainnet/debug_traceCall/test_42.json",
+    "mainnet/debug_traceCall/test_43.json",
     "mainnet/debug_traceCallMany/test_11.json",
     "mainnet/debug_traceCallMany/test_12.json",
     "mainnet/eth_blobBaseFee",                                                 # works always on latest block
@@ -65,6 +68,7 @@ tests_on_latest = [
     "mainnet/eth_call/test_28.json",
     "mainnet/eth_call/test_29.json",
     "mainnet/eth_call/test_36.json",
+    "mainnet/eth_call/test_37.json",
     "mainnet/eth_callBundle/test_09.json",
     "mainnet/eth_createAccessList/test_18.json",
     "mainnet/eth_createAccessList/test_19.json",
@@ -84,6 +88,7 @@ tests_on_latest = [
     "mainnet/eth_estimateGas/test_21",
     "mainnet/eth_estimateGas/test_22",
     "mainnet/eth_estimateGas/test_23",
+    "mainnet/eth_estimateGas/test_27",
     "mainnet/eth_feeHistory/test_07.json",
     "mainnet/eth_feeHistory/test_22.json",
     "mainnet/eth_gasPrice",                                                     # works always on latest block
