@@ -60,8 +60,8 @@ async def scan_block_range(client: http.Client, start_block, end_block: int, shu
                 logger.info(f"✅ Block {block_number}: Receipts root verified ({len(receipts)} receipts).")
             else:
                 logger.critical(f"🚨 Receipt root mismatch detected at block {block_number} 🚨")
-                logger.critical(f"- expected header root: {header_receipts_root.hex()}")
-                logger.critical(f"- actual computed root: {computed_receipts_root.hex()}")
+                logger.critical(f"Expected header root: {header_receipts_root.hex()}")
+                logger.critical(f"Actual computed root: {computed_receipts_root.hex()}")
                 status = 1
                 break
         except Exception as e:
@@ -105,8 +105,8 @@ async def scan_latest_blocks(client: http.Client, sleep_time: float, stop_at_reo
             # 2. Check for chain reorg
             if previous_block_hash is not None and block.parentHash != previous_block_hash:
                 logger.warning(f"⚠️ REORG DETECTED at block {current_block_number} ⚠️")
-                logger.warning(f"- block {current_block_number} parentHash: {block.parentHash.hex()}")
-                logger.warning(f"- expected (block {current_block_number - 1} hash): {previous_block_hash.hex()}")
+                logger.warning(f"Expected parentHash (previous block hash): {previous_block_hash.hex()}")
+                logger.warning(f"Actual parentHash: {block.parentHash.hex()}")
                 reorg_detected = True
 
             header_receipts_root = block.receiptsRoot
