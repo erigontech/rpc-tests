@@ -1,6 +1,5 @@
 """ JSON-RPC utilities """
 
-import logging
 import ssl
 import urllib.parse
 import web3
@@ -60,11 +59,6 @@ def is_valid_jsonrpc_object(obj: Any, allow_missing_result_and_error: bool = Fal
     return False
 
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-
 class Client:
     """ JSON-RPC client """
     def __init__(self, node_url: str, provider: web3.providers.AsyncBaseProvider):
@@ -88,7 +82,6 @@ class Client:
         """ Create SSL context based on specified CA file"""
         if server_ca_file is None:
             raise ValueError(f"You must specify a non-empty server CA file.")
-        logger.info(f"Server CA file: {server_ca_file}")
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         ssl_context.load_verify_locations(cafile=server_ca_file)
         ssl_context.check_hostname = False

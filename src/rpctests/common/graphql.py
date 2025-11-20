@@ -4,12 +4,6 @@ import gql
 import gql.transport.aiohttp
 import gql.transport.exceptions
 import graphql.execution.execute
-import logging
-
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 
 class QueryProcessor:
