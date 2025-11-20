@@ -1,14 +1,9 @@
 """ WebSocket utilities """
 
-import logging
 import web3
 import web3.utils
 
 from . import jsonrpc
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 
 class Client(jsonrpc.Client):
@@ -31,7 +26,6 @@ class Client(jsonrpc.Client):
             await self.w3.provider.connect()
             if not await self.w3.is_connected():
                 raise ConnectionError("Failed to connect to Ethereum node")
-            logger.info(f"Connected to Ethereum node at {self.node_url}")
         except Exception as e:
             raise ConnectionError(f"Connection failed: {e}")
 
