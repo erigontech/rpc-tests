@@ -148,6 +148,7 @@ tests_on_latest = [
     "mainnet/eth_simulateV1/test_15.json",
     "mainnet/eth_simulateV1/test_16.json",
     "mainnet/eth_simulateV1/test_25.json",
+    "mainnet/eth_simulateV1/test_27.json",
     "mainnet/erigon_blockNumber/test_4.json",
     "mainnet/erigon_blockNumber/test_6.json",
     "mainnet/ots_hasCode/test_10.json",
