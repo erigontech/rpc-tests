@@ -73,6 +73,7 @@ tests_on_latest = [
     "mainnet/eth_createAccessList/test_18.json",
     "mainnet/eth_createAccessList/test_19.json",
     "mainnet/eth_createAccessList/test_20.json",
+    "mainnet/eth_createAccessList/test_22.json",
     "mainnet/eth_estimateGas/test_01",
     "mainnet/eth_estimateGas/test_02",
     "mainnet/eth_estimateGas/test_03",
