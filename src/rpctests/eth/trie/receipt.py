@@ -52,7 +52,7 @@ class ReceiptValue(mpt.TrieValue):
         # Receipt type must be included *only* for non-legacy txn type
         receipt_type = self.receipt['type']
         if receipt_type != 0:
-            value = self.receipt['type'].to_bytes(length=1) + value
+            value = self.receipt['type'].to_bytes(length=1, byteorder='big') + value
 
         return value
 
