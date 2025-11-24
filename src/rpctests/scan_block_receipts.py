@@ -12,12 +12,14 @@ to the receiptsRoot hash in the block header. It stops if a mismatch is found.
 In Latest Block Mode, it also stops if a chain reorg is detected.
 """
 
+import aiohttp
 import argparse
 import asyncio
 import enum
 import logging
 import signal
 import sys
+import traceback
 import web3.exceptions
 import web3.types
 
@@ -74,21 +76,17 @@ async def scan_block_range(client: http.Client, start_block, end_block: int, shu
             break
 
         try:
-            # 1. Get the block header
+            # Get the block header by number
             block = await client.w3.eth.get_block(block_number, full_transactions=False)
             if not block:
                 logger.warning(f"Block {block_number} not found. Skipping.")
                 continue
 
+            # Get the block receipts and verify the receipts root
             header_receipts_root = block.receiptsRoot
 
-            # 2. Get the block receipts
             receipts = await fetch_receipts(client, block, FetchingMethod.ETH_GET_BLOCK_RECEIPTS)
-
-            # 3. Compute the receipts root
             computed_receipts_root = compute_receipts_root(receipts)
-
-            # 4. Compare the actual vs expected roots
             if computed_receipts_root == header_receipts_root:
                 logger.info(f"✅ Block {block_number}: Receipts root verified ({len(receipts)} receipts).")
             else:
@@ -97,10 +95,15 @@ async def scan_block_range(client: http.Client, start_block, end_block: int, shu
                 logger.critical(f"Actual computed root: {computed_receipts_root.hex()}")
                 status = 1
                 break
-        except Exception as e:
-            # Log any error during get_block or get_receipts and continue
-            logger.error(f"❌ Block {block_number}: {e}")
-            status = 1
+
+        except aiohttp.ClientConnectorError as ce:
+            # Log any connection error during get_block or get_receipts and continue
+            logger.error(f"❌ Block {block_number}: {ce}")
+            await asyncio.sleep(1)
+        except aiohttp.ClientResponseError as re:
+            # Log any response error during get_block or get_receipts and continue
+            logger.error(f"❌ Block {block_number}: HTTP status {re}")
+            await asyncio.sleep(1)
 
     if not shutdown.is_set() and status == 0:
         logger.info(f"✅ Successfully scanned and verified all receipts from {start_block} to {end_block}.")
@@ -122,7 +125,7 @@ async def scan_latest_blocks(client: http.Client, sleep_time: float, stop_at_reo
 
     while not shutdown.is_set():
         try:
-            # 1. Get the latest block header
+            # Get the latest block header
             block = await client.w3.eth.get_block("latest", full_transactions=False)
             if block.number == current_block_number:
                 await asyncio.sleep(sleep_time)  # Wait for a new block
@@ -131,7 +134,7 @@ async def scan_latest_blocks(client: http.Client, sleep_time: float, stop_at_reo
             if current_block_number > 0 and block.number != current_block_number + 1:
                 logger.warning(f"⚠️ Gap detected at block {block.number}, node still syncing...")
 
-            # 2. Check for chain reorg except for first block retrieved
+            # Check for chain reorg except for first block retrieved
             if previous_block_hash is not None:  # skip first block retrieved, we don't have info to detect a reorg
                 # We must check *also* the block number because there's no guarantee to receive contiguous blocks:
                 # we can have jumps in block numbers due to batch execution while catching up the tip
@@ -141,18 +144,14 @@ async def scan_latest_blocks(client: http.Client, sleep_time: float, stop_at_reo
                     logger.warning(f"Actual parentHash: {block.parentHash.hex()}")
                     reorg_detected = True
 
+            # Get the block receipts and verify the receipts root
             current_block_number = block.number
             previous_block_hash = block.hash
 
             header_receipts_root = block.receiptsRoot
 
-            # 3. Get the block receipts
             receipts = await fetch_receipts(client, block, FetchingMethod.ETH_GET_BLOCK_RECEIPTS)
-
-            # 4. Compute the receipts root
             computed_receipts_root = compute_receipts_root(receipts)
-
-            # 5. Compare the actual vs expected roots
             if computed_receipts_root == header_receipts_root:
                 if not reorg_detected:
                     logger.info(f"✅ Block {current_block_number}: Receipts root verified ({len(receipts)} receipts).")
@@ -165,16 +164,20 @@ async def scan_latest_blocks(client: http.Client, sleep_time: float, stop_at_reo
                 status = 1
                 break  # Stop on mismatch (this will also catch mismatch-during-reorg)
 
-            # 6. If we detected a reorg, stop the scan if requested
+            # If we detected a reorg, stop the scan if requested
             if reorg_detected and stop_at_reorg:
                 logger.info("Stopping scan due to reorg detection (receipts were checked).")
                 break
             else:
                 reorg_detected = False
 
-        except Exception as e:
-            # Log any error during get_block or get_receipts and continue
-            logger.error(f"❌ Block {current_block_number}: {e}")
+        except aiohttp.ClientConnectorError as ce:
+            # Log any connection error during get_block or get_receipts and continue
+            logger.error(f"❌ Block {current_block_number}: {ce}")
+            await asyncio.sleep(1)
+        except aiohttp.ClientResponseError as re:
+            # Log any response error during get_block or get_receipts and continue
+            logger.error(f"❌ Block {current_block_number}: HTTP status {re}")
             await asyncio.sleep(1)
 
     if not shutdown.is_set():
@@ -193,11 +196,12 @@ async def scan_beyond_latest(client: http.Client, sleep_time: float, stop_at_reo
     status = 0
     previous_block_hash = None
     current_block_number = 0
+    gap_detected = False
     reorg_detected = False
 
     while not shutdown.is_set():
         try:
-            # 1. Get the latest block header
+            # Get the latest block header
             block = await client.w3.eth.get_block("latest", full_transactions=False)
             if block.number == current_block_number:
                 await asyncio.sleep(sleep_time)  # Wait for a new block
@@ -205,8 +209,9 @@ async def scan_beyond_latest(client: http.Client, sleep_time: float, stop_at_reo
 
             if current_block_number > 0 and block.number != current_block_number + 1:
                 logger.warning(f"⚠️ Gap detected at block {block.number}, node still syncing...")
+                gap_detected = True
 
-            # 2. Check for chain reorg except for first block retrieved
+            # Check for chain reorg except for first block retrieved
             if previous_block_hash is not None:  # skip first block retrieved, we don't have info to detect a reorg
                 # We must check *also* the block number because there's no guarantee to receive contiguous blocks:
                 # we can have jumps in block numbers due to batch execution while catching up the tip
@@ -219,7 +224,8 @@ async def scan_beyond_latest(client: http.Client, sleep_time: float, stop_at_reo
             current_block_number = block.number
             previous_block_hash = block.hash
 
-            if reorg_detected:
+            # Get the block receipts and verify the receipts root in case of gap or reorg detected
+            if gap_detected or reorg_detected:
                 block_number = block.number
                 header_receipts_root = block.receiptsRoot
                 receipts = await fetch_receipts(client, block, FetchingMethod.ETH_GET_BLOCK_RECEIPTS)
@@ -236,12 +242,11 @@ async def scan_beyond_latest(client: http.Client, sleep_time: float, stop_at_reo
                     status = 1
                     break  # Stop on mismatch
 
-            # 3. Aggressively query the next-after-latest block until the block gets found
+            # Aggressively query the next-after-latest block until the block gets found
             next_block = None
             while not shutdown.is_set() and next_block is None:
                 try:
                     next_block = await client.w3.eth.get_block(current_block_number + 1, full_transactions=False)
-                    logger.info(f"✅ Next block {next_block.number} found.")
                 except web3.exceptions.BlockNotFound:
                     await asyncio.sleep(sleep_time)
             if shutdown.is_set():
@@ -250,13 +255,9 @@ async def scan_beyond_latest(client: http.Client, sleep_time: float, stop_at_reo
             next_block_number = next_block.number
             header_receipts_root = next_block.receiptsRoot
 
-            # 4. Get the block receipts
+            # Get the next block receipts and verify the receipts root
             receipts = await fetch_receipts(client, next_block, FetchingMethod.ETH_GET_BLOCK_RECEIPTS)
-
-            # 5. Compute the receipts root
             computed_receipts_root = compute_receipts_root(receipts)
-
-            # 6. Compare the actual vs expected roots
             if computed_receipts_root == header_receipts_root:
                 if not reorg_detected:
                     logger.info(f"✅ Block {next_block_number}: Receipts root verified ({len(receipts)} receipts).")
@@ -269,16 +270,20 @@ async def scan_beyond_latest(client: http.Client, sleep_time: float, stop_at_reo
                 status = 1
                 break  # Stop on mismatch (this will also catch mismatch-during-reorg)
 
-            # 7. If we detected a reorg, stop the scan if requested
+            # If we detected a reorg, stop the scan if requested
             if reorg_detected and stop_at_reorg:
                 logger.info("Stopping scan due to reorg detection (receipts were checked).")
                 break
             else:
                 reorg_detected = False
 
-        except Exception as e:
-            # Log any error during get_block or get_receipts and continue
-            logger.error(f"❌ Block {current_block_number}: {e}")
+        except aiohttp.ClientConnectorError as ce:
+            # Log any connection error during get_block or get_receipts and continue
+            logger.error(f"❌ Block {current_block_number}: {ce}")
+            await asyncio.sleep(1)
+        except aiohttp.ClientResponseError as re:
+            # Log any response error during get_block or get_receipts and continue
+            logger.error(f"❌ Block {current_block_number}: HTTP status {re}")
             await asyncio.sleep(1)
 
     if not shutdown.is_set():
@@ -377,6 +382,7 @@ async def main():
             status = await scan_latest_blocks(client, args.sleep_time, args.stop_at_reorg, shutdown_event)
     except Exception as e:
         logger.error(f"❌ Unexpected application error: {e}")
+        traceback.print_exc()
         status = 1
     finally:
         sys.exit(status)
