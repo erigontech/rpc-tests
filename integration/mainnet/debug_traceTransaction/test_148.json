@@ -1,0 +1,59 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0x913cc6e3b6aba24db51ef201334cd400dd7480f6226ca0bec15b5f80db8d93ca",
+        {
+          "tracer": "prestateTracer",
+          "tracerConfig": {
+            "diffMode": true,
+            "disableCode": true
+          }
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "post": {
+          "0x1f9090aae28b8a3dceadf281b0f12828e676c326": {
+            "balance": "0x35f52854f41fa265"
+          },
+          "0x5af239c0d236d96c334d9ca6b845a3ed6861eaf0": {
+            "balance": "0x9a39cfd7e3d4dc55a",
+            "nonce": 8939
+          },
+          "0x758ed0650bdf2ac3bf4a48440c3eb2f6d2bb42a5": {
+            "nonce": 8735
+          }
+        },
+        "pre": {
+          "0x1f9090aae28b8a3dceadf281b0f12828e676c326": {
+            "balance": "0x35f4bc0a06d55d77",
+            "nonce": 542373
+          },
+          "0x1fb752ae11bdccf642b352474b86718c44533673": {
+            "balance": "0xaad999a73fa000"
+          },
+          "0x5af239c0d236d96c334d9ca6b845a3ed6861eaf0": {
+            "balance": "0x9a2f70ee15bacaacc",
+            "nonce": 8938
+          },
+          "0x758ed0650bdf2ac3bf4a48440c3eb2f6d2bb42a5": {
+            "balance": "0x0",
+            "codeHash": "0x1b064b625546024df8b0e61d74d84bba7e1f22e31ed3b3c1b37fbe533e33bd72",
+            "nonce": 8734
+          }
+        }
+      }
+    },
+    "test": {
+      "description": "the response should not include code, the codeHash should be present",
+      "reference": "https://etherscan.io/tx/0x913cc6e3b6aba24db51ef201334cd400dd7480f6226ca0bec15b5f80db8d93ca"
+    }
+  }
+]
