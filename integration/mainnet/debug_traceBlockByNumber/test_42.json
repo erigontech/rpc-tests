@@ -1,0 +1,29 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceBlockByNumber",
+      "params": [
+        "latest",
+        {
+          "disableMemory": true,
+          "disableStack": false,
+          "disableStorage": false,
+          "tracer": "prestateTracer",
+          "tracerConfig": {
+            "diffMode": true
+          }
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0"
+    },
+    "test": {
+      "description": "trace the latest block with prestate tracer",
+      "reference": ""
+    }
+  }
+]
