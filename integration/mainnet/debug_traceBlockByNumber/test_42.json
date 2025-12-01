@@ -9,7 +9,7 @@
         {
           "disableMemory": true,
           "disableStack": false,
-          "disableStorage": false
+          "disableStorage": false,
           "tracer": "prestateTracer",
           "tracerConfig": {
             "diffMode": true
@@ -19,8 +19,7 @@
     },
     "response": {
       "id": 1,
-      "jsonrpc": "2.0",
-      "result": null
+      "jsonrpc": "2.0"
     },
     "test": {
       "description": "trace the latest block with prestate tracer",
