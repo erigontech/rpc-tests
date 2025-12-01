@@ -10,7 +10,7 @@
           "disableMemory": true,
           "disableStack": false,
           "disableStorage": false,
-          "tracer": "callTracer",
+          "tracer": "callTracer"
         }
       ]
     },
