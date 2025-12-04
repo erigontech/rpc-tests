@@ -1,0 +1,23 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_call",
+      "params": [
+                {
+                    "from": "0x054f9541B0b24A49F9dac8e2CeFd59dBeC58dACA", 
+                    "to": "0x079d2094e16210c42457438195042898a3CFF72d", 
+                    "value": "0x0", 
+                    "data": "0xa9059cbb00000000000000000000000027C4Dc7EeADe392D556AC880ED3f1B639823cD770000000000000000000000000000000000000000000000000000000000003039"
+                }, 
+                ["stateDiff"], 
+         "latest"]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null
+    }
+  }
+]
