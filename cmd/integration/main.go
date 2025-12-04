@@ -26,6 +26,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
+	"github.com/josephburnett/jd/v2"
 )
 
 const (
@@ -170,6 +171,16 @@ var (
 		"mainnet/trace_replayBlockTransactions/test_36.json",
 	}
 )
+
+type JsonDiffKind int
+
+const (
+	JdLibrary JsonDiffKind = iota
+	JsonDiffTool
+	DiffTool
+)
+
+var jsonDiffKind = JsonDiffTool
 
 type Config struct {
 	ExitOnFail            bool
@@ -461,9 +472,9 @@ func (c *Config) UpdateDirs() {
 // Part 2: Utility Functions
 
 func usage() {
-	fmt.Println("Usage: integration [options]")
+	fmt.Println("Usage: rpc_int [options]")
 	fmt.Println("")
-	fmt.Println("Launch an automated RPC test sequence on target blockchain node")
+	fmt.Println("Launch an automated sequence of RPC integration tests on target blockchain node(s)")
 	fmt.Println("")
 	fmt.Println("Options:")
 	fmt.Println("  -h, --help                        print this help")
@@ -955,6 +966,42 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 
 // Part 4: Comparison and Test Execution
 
+func compareJSONFiles(errorFileName, fileName1, fileName2, diffFileName string) (bool, error) {
+	switch jsonDiffKind {
+	case JdLibrary:
+		jsonNode1, err := jd.ReadJsonFile(fileName1)
+		if err != nil {
+			return false, err
+		}
+		jsonNode2, err := jd.ReadJsonFile(fileName2)
+		if err != nil {
+			return false, err
+		}
+		diff := jsonNode1.Diff(jsonNode2)
+		diffString := diff.Render()
+		if diffString == "" {
+			return false, nil
+		}
+		err = os.WriteFile(diffFileName, []byte(diffString), 0644)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	case JsonDiffTool:
+		if failed := runCompare(true, errorFileName, fileName1, fileName2, diffFileName); failed {
+			return false, fmt.Errorf("failed to compare %s and %s using json-diff command", fileName1, fileName2)
+		}
+		return true, nil
+	case DiffTool:
+		if failed := runCompare(false, errorFileName, fileName1, fileName2, diffFileName); failed {
+			return false, fmt.Errorf("failed to compare %s and %s using diff command", fileName1, fileName2)
+		}
+		return true, nil
+	default:
+		return false, fmt.Errorf("unknown JSON diff kind: %d", jsonDiffKind)
+	}
+}
+
 func runCompare(useJSONDiff bool, errorFile, tempFile1, tempFile2, diffFile string) bool {
 	var cmd *exec.Cmd
 	alreadyFailed := false
@@ -1042,7 +1089,7 @@ func runCompare(useJSONDiff bool, errorFile, tempFile1, tempFile2, diffFile stri
 	}
 }
 
-func copyFiles(src, dst string) (int64, error) {
+func copyFile(src, dst string) (int64, error) {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
 		return 0, err
@@ -1103,11 +1150,11 @@ func compareJSON(config *Config, response interface{}, jsonFile, daemonFile, exp
 			return false, err
 		}
 	} else {
-		_, err := copyFiles(daemonFile, tempFile1)
+		_, err := copyFile(daemonFile, tempFile1)
 		if err != nil {
 			return false, err
 		}
-		_, err = copyFiles(expRspFile, tempFile2)
+		_, err = copyFile(expRspFile, tempFile2)
 		if err != nil {
 			return false, err
 		}
@@ -1133,7 +1180,7 @@ func compareJSON(config *Config, response interface{}, jsonFile, daemonFile, exp
 		}
 	}
 
-	diffResult := runCompare(config.UseJSONDiff, errorFile, tempFile1, tempFile2, diffFile)
+	diffResult, err := compareJSONFiles(errorFile, tempFile1, tempFile2, diffFile)
 	diffFileSize := int64(0)
 
 	if diffResult {
@@ -1197,11 +1244,11 @@ func processResponse(target, target1 string, result, result1 interface{}, respon
 	}
 
 	if response == nil {
-		return false, errors.New("Failed [" + config.DaemonUnderTest + "] (server doesn't response)")
+		return false, errors.New("failed [" + config.DaemonUnderTest + "] (server doesn't respond)")
 	}
 
 	if expectedResponse == nil {
-		return false, errors.New("Failed [" + config.DaemonAsReference + "] (server doesn't response)")
+		return false, errors.New("failed [" + config.DaemonAsReference + "] (server doesn't respond)")
 	}
 
 	// Deep comparison
@@ -1564,13 +1611,13 @@ func main() {
 			if result.Success {
 				successTests++
 				if config.VerboseLevel > 0 {
-					fmt.Println("OK                   ")
+					fmt.Println("OK")
 				} else {
-					fmt.Print("OK                   \r")
+					fmt.Print("OK\r")
 				}
 			} else {
 				failedTests++
-				fmt.Printf("%s\n", strings.ToUpper(result.Error.Error()))
+				fmt.Printf("%s\n", result.Error.Error())
 				if config.ExitOnFail {
 					// Signal other tasks to stop and exit
 					cancelCtx()
@@ -1659,7 +1706,7 @@ func main() {
 								if !config.DisplayOnlyFail && config.ReqTestNumber == -1 {
 									file := fmt.Sprintf("%-60s", jsonTestFullName)
 									tt := fmt.Sprintf("%-15s", transportType)
-									fmt.Printf("%04d. %s::%s Skipped\n", testNumberInAnyLoop, tt, file)
+									fmt.Printf("%04d. %s::%s   skipped\n", testNumberInAnyLoop, tt, file)
 								}
 								testsNotExecuted++
 							}
