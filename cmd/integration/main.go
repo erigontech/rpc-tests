@@ -1629,7 +1629,7 @@ func main() {
 
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("\nTEST INTERRUPTED!")
+			fmt.Println("\nCRITICAL: TEST SEQUENCE INTERRUPTED!")
 		}
 	}()
 
@@ -1746,9 +1746,13 @@ func main() {
 		}
 
 		if config.ExitOnFail && failedTests > 0 {
-			fmt.Println("TEST ABORTED!")
+			fmt.Println("WARN: test sequence interrupted by failure (ExitOnFail)")
 			break
 		}
+	}
+
+	if executedTests == 0 && config.TestingAPIsWith != "" {
+		fmt.Printf("WARN: API filter %s selected no tests\n", config.TestingAPIsWith)
 	}
 
 	// Close channels and wait for completion
