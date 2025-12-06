@@ -1,0 +1,78 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_replayTransaction",
+      "params": [
+        "0x97cacfc94e68264e68eeae9ce78a320afa44500a1e8e978db15167e5653c0bbc",
+        [
+          "stateDiff"
+        ]
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "output": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "stateDiff": {
+          "0x0c36ac8863d0352436a70addbf1be34f3ea11017": {
+            "balance": {
+              "*": {
+                "from": "0x9fd234905e7dfb50",
+                "to": "0x9fd2654042561350"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          },
+          "0x4b1e2c2762667331bc91648052f646d1b0d35984": {
+            "balance": "=",
+            "code": "=",
+            "nonce": "=",
+            "storage": {
+              "0x65c7637ae245d49d12dc36cef09fa7a4419533a6cd23922b4aa874e69d5e8cef": {
+                "*": {
+                  "from": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                  "to": "0x00000000000000000000000000000000000000000000000003781bb06efaf8c0"
+                }
+              }
+            }
+          },
+          "0x6bbe78ee9e474842dbd4ab4987b3cefe88426a92": {
+            "balance": {
+              "*": {
+                "from": "0x3ac922963cf1425ade6",
+                "to": "0x3ac922963cf142c36c6"
+              }
+            },
+            "code": "=",
+            "nonce": "=",
+            "storage": {}
+          },
+          "0xcf4000963cd1083b9b3a61fa343adf302b743a29": {
+            "balance": {
+              "*": {
+                "from": "0x13e9dd32b77947a",
+                "to": "0x13e6d234798f39a"
+              }
+            },
+            "code": "=",
+            "nonce": {
+              "*": {
+                "from": "0x0",
+                "to": "0x1"
+              }
+            },
+            "storage": {}
+          }
+        },
+        "trace": [],
+        "transactionHash": "0x97cacfc94e68264e68eeae9ce78a320afa44500a1e8e978db15167e5653c0bbc",
+        "vmTrace": null
+      }
+    }
+  }
+]
