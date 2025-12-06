@@ -24,6 +24,7 @@ import (
 	"sync"
 	"time"
 
+	bzip2w "github.com/dsnet/compress/bzip2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 	"github.com/josephburnett/jd/v2"
@@ -172,6 +173,301 @@ var (
 	}
 )
 
+// Supported compression types
+const (
+	GzipCompression  = ".gz"
+	Bzip2Compression = ".bz2"
+	NoCompression    = ""
+)
+
+// --- Helper Functions ---
+
+// getCompressionType determines the compression from the filename extension.
+func getCompressionType(filename string) string {
+	if strings.HasSuffix(filename, ".tar.gz") || strings.HasSuffix(filename, ".tgz") {
+		return GzipCompression
+	}
+	if strings.HasSuffix(filename, ".tar.bz2") || strings.HasSuffix(filename, ".tbz") {
+		return Bzip2Compression
+	}
+	return NoCompression
+}
+
+// --- Archiving Logic ---
+
+// createArchive creates a compressed or uncompressed tar archive.
+func createArchive(archivePath string, files []string) error {
+	// Create the output file
+	outFile, err := os.Create(archivePath)
+	if err != nil {
+		return fmt.Errorf("failed to create output file: %w", err)
+	}
+	defer func(outFile *os.File) {
+		err := outFile.Close()
+		if err != nil {
+			fmt.Printf("Failed to close output file: %v\n", err)
+		}
+	}(outFile)
+
+	// Wrap the output file with the correct compression writer (if any)
+	var writer io.WriteCloser = outFile
+	compressionType := getCompressionType(archivePath)
+
+	switch compressionType {
+	case GzipCompression:
+		writer = gzip.NewWriter(outFile)
+	case Bzip2Compression:
+		config := &bzip2w.WriterConfig{Level: bzip2w.BestCompression}
+		writer, err = bzip2w.NewWriter(outFile, config)
+		if err != nil {
+			return fmt.Errorf("failed to create bzip2 writer: %w", err)
+		}
+	}
+
+	// Create the tar writer
+	tarWriter := tar.NewWriter(writer)
+	defer func(writer io.WriteCloser, tarWriter *tar.Writer) {
+		// Explicitly close the compression writer if it was used (before closing the tar writer)
+		if compressionType != NoCompression {
+			if err := writer.Close(); err != nil {
+				fmt.Printf("failed to close compression writer: %v\n", err)
+			}
+		}
+
+		err := tarWriter.Close()
+		if err != nil {
+			fmt.Printf("Failed to close tar writer: %v\n", err)
+		}
+	}(writer, tarWriter)
+
+	// Add files to the archive
+	for _, file := range files {
+		err := addFileToTar(tarWriter, file, "")
+		if err != nil {
+			return fmt.Errorf("failed to add file %s: %w", file, err)
+		}
+	}
+
+	return nil
+}
+
+// addFileToTar recursively adds a file or directory to the tar archive.
+func addFileToTar(tarWriter *tar.Writer, filePath, baseDir string) error {
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		return err
+	}
+
+	// Determine the name inside the archive (relative path)
+	var link string
+	if fileInfo.Mode()&os.ModeSymlink != 0 {
+		link, err = os.Readlink(filePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	// If baseDir is not empty, use the relative path, otherwise use the basename
+	nameInArchive := filePath
+	if baseDir != "" && strings.HasPrefix(filePath, baseDir) {
+		nameInArchive = filePath[len(baseDir)+1:]
+	} else {
+		nameInArchive = filepath.Base(filePath)
+	}
+
+	// Create the tar Header
+	header, err := tar.FileInfoHeader(fileInfo, link)
+	if err != nil {
+		return err
+	}
+	header.Name = nameInArchive
+
+	if err := tarWriter.WriteHeader(header); err != nil {
+		return err
+	}
+
+	// Write file contents if it's a regular file
+	if fileInfo.Mode().IsRegular() {
+		file, err := os.Open(filePath)
+		if err != nil {
+			return err
+		}
+		if _, err := io.Copy(tarWriter, file); err != nil {
+			_ = file.Close()
+			return err
+		}
+		_ = file.Close()
+	}
+
+	// Recurse into directories
+	if fileInfo.IsDir() {
+		dirEntries, err := os.ReadDir(filePath)
+		if err != nil {
+			return err
+		}
+		for _, entry := range dirEntries {
+			fullPath := filepath.Join(filePath, entry.Name())
+			// Keep the original baseDir if it was set, otherwise set it to the current path's parent
+			newBaseDir := baseDir
+			if baseDir == "" {
+				// Special handling for the root call: use the current path as the new base.
+				// This ensures nested files have relative paths within the archive.
+				newBaseDir = filePath
+			}
+			if err := addFileToTar(tarWriter, fullPath, newBaseDir); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func reopenFile(filePath string, file *os.File) (*os.File, error) {
+	err := file.Close()
+	if err != nil && !errors.Is(err, os.ErrClosed) {
+		return nil, err
+	}
+	file, err = os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+
+func autodetectCompression(archivePath string, inFile *os.File) (string, error) {
+	// Assume we have no compression and try to detect it if the tar header is invalid
+	compressionType := NoCompression
+	tarReader := tar.NewReader(inFile)
+	_, err := tarReader.Next()
+	if err != nil && !errors.Is(err, io.EOF) {
+		// Reopen the file and check if it's gzip encoded
+		inFile, err = reopenFile(archivePath, inFile)
+		if err != nil {
+			return compressionType, err
+		}
+		_, err = gzip.NewReader(inFile)
+		if err == nil {
+			compressionType = GzipCompression
+		} else {
+			// Reopen the file and check if it's bzip2 encoded
+			inFile, err = reopenFile(archivePath, inFile)
+			if err != nil {
+				return compressionType, err
+			}
+			_, err = tar.NewReader(bzip2.NewReader(inFile)).Next()
+			if err == nil {
+				compressionType = Bzip2Compression
+			}
+		}
+		err = inFile.Close()
+		if err != nil {
+			return compressionType, err
+		}
+	}
+	return compressionType, nil
+}
+
+// extractArchive extracts a compressed or uncompressed tar archive.
+func extractArchive(archivePath string, sanitizeExtension bool) ([]string, error) {
+	// Open the archive file
+	inputFile, err := os.Open(archivePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open archive: %w", err)
+	}
+	defer func(inFile *os.File) {
+		_ = inFile.Close()
+	}(inputFile)
+
+	// Wrap the input file with the correct compression reader
+	compressionType := getCompressionType(archivePath)
+	if compressionType == NoCompression {
+		// Possibly handle the corner case where the file is compressed but has tar extension
+		compressionType, err = autodetectCompression(archivePath, inputFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to autodetect compression for archive: %w", err)
+		}
+		if compressionType != NoCompression {
+			// If any compression was detected, optionally rename and reopen the archive file
+			if sanitizeExtension {
+				err = os.Rename(archivePath, archivePath+compressionType)
+				if err != nil {
+					return nil, err
+				}
+				archivePath = archivePath + compressionType
+			}
+			inputFile, err = os.Open(archivePath)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	var reader io.Reader
+	switch compressionType {
+	case GzipCompression:
+		if reader, err = gzip.NewReader(inputFile); err != nil {
+			return nil, fmt.Errorf("failed to create gzip reader: %w", err)
+		}
+	case Bzip2Compression:
+		reader = bzip2.NewReader(inputFile)
+	case NoCompression:
+		reader = inputFile
+	}
+
+	// Iterate over files in the archive and extract them
+	tarReader := tar.NewReader(reader)
+	tmpFilePaths := []string{}
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			break // End of archive
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to read tar header: %w", err)
+		}
+
+		targetPath := filepath.Dir(archivePath) + "/" + header.Name
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			// Create directory
+			if err = os.MkdirAll(targetPath, os.FileMode(header.Mode)); err != nil {
+				return nil, fmt.Errorf("failed to create directory %s: %w", targetPath, err)
+			}
+		case tar.TypeReg:
+			// Ensure the parent directory exists before creating the file
+			if err = os.MkdirAll(filepath.Dir(targetPath), 0755); err != nil {
+				return nil, fmt.Errorf("failed to create parent directory for %s: %w", targetPath, err)
+			}
+
+			// Create the file
+			outputFile, err := os.OpenFile(targetPath, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
+			if err != nil {
+				return nil, fmt.Errorf("failed to create file %s: %w", targetPath, err)
+			}
+
+			// Write content
+			if _, err = io.Copy(outputFile, tarReader); err != nil {
+				err = outputFile.Close()
+				if err != nil {
+					return nil, err
+				}
+				return nil, fmt.Errorf("failed to write file content for %s: %w", targetPath, err)
+			}
+			tmpFilePaths = append(tmpFilePaths, targetPath)
+			err = outputFile.Close()
+			if err != nil {
+				return nil, err
+			}
+		default:
+			fmt.Printf("WARN: skipping unsupported file type %c: %s\n", header.Typeflag, targetPath)
+		}
+	}
+
+	return tmpFilePaths, nil
+}
+
 type JsonDiffKind int
 
 const (
@@ -180,7 +476,7 @@ const (
 	DiffTool
 )
 
-var jsonDiffKind = JsonDiffTool
+var jsonDiffKind = JdLibrary
 
 type Config struct {
 	ExitOnFail            bool
@@ -214,6 +510,7 @@ type Config struct {
 	DoNotCompareError     bool
 	TestsOnLatestBlock    bool
 	LocalServer           string
+	SanitizeArchiveExt    bool
 }
 
 type TestResult struct {
@@ -261,6 +558,7 @@ func NewConfig() *Config {
 		WaitingTime:           0,
 		DoNotCompareError:     false,
 		TestsOnLatestBlock:    false,
+		SanitizeArchiveExt:    false,
 	}
 }
 
@@ -469,8 +767,6 @@ func (c *Config) UpdateDirs() {
 	c.LocalServer = "http://" + c.DaemonOnHost + ":" + strconv.Itoa(c.ServerPort)
 }
 
-// Part 2: Utility Functions
-
 func usage() {
 	fmt.Println("Usage: rpc_int [options]")
 	fmt.Println("")
@@ -638,8 +934,6 @@ func checkTestNameForNumber(testName string, reqTestNumber int) bool {
 	matched, _ := regexp.MatchString(pattern, testName)
 	return matched
 }
-
-// Part 3: Test Logic Functions
 
 func isSkipped(currAPI, testName string, globalTestNumber int, config *Config) bool {
 	apiFullName := config.Net + "/" + currAPI
@@ -964,8 +1258,6 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 	}
 }
 
-// Part 4: Comparison and Test Execution
-
 func compareJSONFiles(errorFileName, fileName1, fileName2, diffFileName string) (bool, error) {
 	switch jsonDiffKind {
 	case JdLibrary:
@@ -977,23 +1269,20 @@ func compareJSONFiles(errorFileName, fileName1, fileName2, diffFileName string) 
 		if err != nil {
 			return false, err
 		}
-		diff := jsonNode1.Diff(jsonNode2)
+		diff := jsonNode1.Diff(jsonNode2, jd.SET)
 		diffString := diff.Render()
-		if diffString == "" {
-			return false, nil
-		}
 		err = os.WriteFile(diffFileName, []byte(diffString), 0644)
 		if err != nil {
 			return false, err
 		}
 		return true, nil
 	case JsonDiffTool:
-		if failed := runCompare(true, errorFileName, fileName1, fileName2, diffFileName); failed {
+		if success := runCompare(true, errorFileName, fileName1, fileName2, diffFileName); !success {
 			return false, fmt.Errorf("failed to compare %s and %s using json-diff command", fileName1, fileName2)
 		}
 		return true, nil
 	case DiffTool:
-		if failed := runCompare(false, errorFileName, fileName1, fileName2, diffFileName); failed {
+		if success := runCompare(false, errorFileName, fileName1, fileName2, diffFileName); !success {
 			return false, fmt.Errorf("failed to compare %s and %s using diff command", fileName1, fileName2)
 		}
 		return true, nil
@@ -1261,38 +1550,38 @@ func processResponse(target, target1 string, result, result1 interface{}, respon
 
 		// Check various conditions where we don't care about differences
 		if respIsMap && expIsMap {
-			if responseMap["result"] != nil && expectedMap["result"] == nil && result1 == nil {
+			_, responseHasResult := responseMap["result"]
+			expectedResult, expectedHasResult := expectedMap["result"]
+			_, responseHasError := responseMap["error"]
+			expectedError, expectedHasError := expectedMap["error"]
+			if responseHasResult && expectedHasResult && expectedResult == nil && result1 == nil {
 				err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 				if err != nil {
 					return false, err
 				}
 				return true, nil
 			}
-			if responseMap["error"] != nil && expectedMap["error"] == nil {
+			if responseHasError && expectedHasError && expectedError == nil {
 				err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 				if err != nil {
 					return false, err
 				}
 				return true, nil
 			}
-			if responseMap["error"] != nil && expectedMap["error"] != nil && config.DoNotCompareError {
+			// TODO: improve len(expectedMap) == 2 which means: just "jsonrpc" and "id" are expected
+			if !expectedHasResult && !expectedHasError && len(expectedMap) == 2 {
 				err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 				if err != nil {
 					return false, err
 				}
 				return true, nil
 			}
-		}
-
-		if !expIsMap {
-			if expMap, ok := expectedResponse.(map[string]interface{}); ok {
-				if expMap["error"] == nil && expMap["result"] == nil && len(expMap) == 2 {
-					err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
-					if err != nil {
-						return false, err
-					}
-					return true, nil
+			if responseHasError && expectedHasError && config.DoNotCompareError {
+				err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+				if err != nil {
+					return false, err
 				}
+				return true, nil
 			}
 		}
 
@@ -1342,81 +1631,53 @@ func processResponse(target, target1 string, result, result1 interface{}, respon
 	return true, nil
 }
 
+func isArchive(jsonFilename string) bool {
+	// Treat all files except .json as potential archive files
+	return !strings.HasSuffix(jsonFilename, ".json")
+}
+
+func extractJsonCommands(jsonFilename string) ([]JSONRPCCommand, error) {
+	var jsonrpcCommands []JSONRPCCommand
+	data, err := os.ReadFile(jsonFilename)
+	if err != nil {
+		return jsonrpcCommands, errors.New("cannot read file " + jsonFilename)
+	}
+	if err := json.Unmarshal(data, &jsonrpcCommands); err != nil {
+		return jsonrpcCommands, errors.New("cannot parse JSON " + jsonFilename)
+	}
+	return jsonrpcCommands, nil
+}
+
 func runTest(ctx context.Context, jsonFile string, testNumber int, transportType string, config *Config) (bool, error) {
 	jsonFilename := filepath.Join(config.JSONDir, jsonFile)
-	ext := filepath.Ext(jsonFile)
 
 	var jsonrpcCommands []JSONRPCCommand
-
-	if ext == ".tar" || ext == ".zip" {
-		file, err := os.Open(jsonFilename)
+	var err error
+	if isArchive(jsonFilename) {
+		tempFilePaths, err := extractArchive(jsonFilename, config.SanitizeArchiveExt)
 		if err != nil {
-			return false, errors.New("cannot open archive file " + jsonFilename)
+			return false, errors.New("cannot extract archive file " + jsonFilename)
 		}
-		defer func(file *os.File) {
-			err := file.Close()
-			if err != nil {
-				fmt.Printf("\nfailed to close archive file: %v\n", err)
-			}
-		}(file)
-
-		tarReader := tar.NewReader(bzip2.NewReader(file))
-		_, err = tarReader.Next()
-		if err != nil {
-			tarReader = tar.NewReader(file)
-			_, err = tarReader.Next()
-			if err != nil {
-				return false, errors.New("bad archive file " + jsonFilename)
+		removeTempFiles := func() {
+			for _, path := range tempFilePaths {
+				err := os.Remove(path)
+				if err != nil {
+					fmt.Printf("failed to remove temp file %s: %v\n", path, err)
+				}
 			}
 		}
-
-		buff, err := io.ReadAll(tarReader)
-		if err != nil {
-			return false, errors.New("cannot read from archive " + jsonFilename)
-		}
-
-		if err := json.Unmarshal(buff, &jsonrpcCommands); err != nil {
-			return false, errors.New("cannot parse JSON from archive " + jsonFilename)
-		}
-	} else if ext == ".gzip" {
-		file, err := os.Open(jsonFilename)
-		if err != nil {
-			return false, errors.New("cannot open gzip file " + jsonFilename)
-		}
-		defer func(file *os.File) {
-			err := file.Close()
+		for _, tempFilePath := range tempFilePaths {
+			jsonrpcCommands, err = extractJsonCommands(tempFilePath)
 			if err != nil {
-				fmt.Printf("\nfailed to close gzip file: %v\n", err)
+				removeTempFiles()
+				return false, errors.New("cannot extract JSONRPC commands from " + tempFilePath)
 			}
-		}(file)
-
-		gzReader, err := gzip.NewReader(file)
-		if err != nil {
-			return false, errors.New("cannot create gzip reader " + jsonFilename)
 		}
-		defer func(gzReader *gzip.Reader) {
-			err := gzReader.Close()
-			if err != nil {
-				fmt.Printf("\nfailed to close gzip reader: %v\n", err)
-			}
-		}(gzReader)
-
-		buff, err := io.ReadAll(gzReader)
-		if err != nil {
-			return false, errors.New("cannot read from gzip " + jsonFilename)
-		}
-
-		if err := json.Unmarshal(buff, &jsonrpcCommands); err != nil {
-			return false, errors.New("cannot parse JSON from gzip " + jsonFilename)
-		}
+		removeTempFiles()
 	} else {
-		data, err := os.ReadFile(jsonFilename)
+		jsonrpcCommands, err = extractJsonCommands(jsonFilename)
 		if err != nil {
-			return false, errors.New("cannot read file " + jsonFilename)
-		}
-
-		if err := json.Unmarshal(data, &jsonrpcCommands); err != nil {
-			return false, errors.New("cannot parse JSON " + jsonFilename)
+			return false, errors.New("cannot extract JSONRPC commands from " + jsonFilename)
 		}
 	}
 
@@ -1494,8 +1755,6 @@ func runTest(ctx context.Context, jsonFile string, testNumber int, transportType
 
 	return true, nil
 }
-
-// Part 5: Command-line Parsing and Main Function
 
 func mustAtoi(s string) int {
 	if s == "" {
