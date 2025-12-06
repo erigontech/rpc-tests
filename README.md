@@ -11,7 +11,7 @@ Collection of JSON RPC black-box testing tools
 
 ## Installation
 
-#### Prerequisites
+### Prerequisites
 
 Using `rpc-tests` requires installing:
 * [`Vegeta`](https://github.com/tsenart/vegeta) >= 12.8.4
@@ -21,25 +21,40 @@ Using `rpc-tests` requires installing:
 
 After installation, make sure `vegeta`, `json-diff` and `json-patch-jsondiff ` commands are available at your shell prompt.
 
-After installation, make sure `python3` and `pip3` commands are available at your shell prompt by running `python3 -h` and `pip3 -h`.
+After installation, make sure `python3` and `pip3` commands are available at your shell prompt by running `python3 --version` and `pip3 --version`.
 
-#### Obtaining `rpc-tests`
+### Obtaining `rpc-tests`
 
 To obtain `rpc-tests` source code for the first time:
 ```
 git clone https://github.com/erigontech/rpc-tests.git
+cd rpc-tests
+```
+
+### Create and activate Python virtual environment
+
+Create your local virtual environment:
+```
+python3 -m venv .venv
+```
+
+Activate it:
+```linux
+source .venv/bin/activate
+```
+```windows
+.\.venv\Scripts\activate
 ```
 
 `rpc-tests` uses a few Python third-party libraries, so after you've updated to the latest code with
 ```
 git pull
 ```
-update the dependencies as well by running
+update the dependencies
 ```
-sudo apt install python3-pip python3-venv
-python3 -m venv .
-./bin/pip3 install -r requirements.txt
+pip3 install -r requirements.txt
 ```
+
 
 ## Integration Testing
 
