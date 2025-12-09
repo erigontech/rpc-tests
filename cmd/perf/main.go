@@ -975,13 +975,8 @@ func (pt *PerfTest) ExecuteSequence(ctx context.Context, sequence []TestSequence
 	for _, test := range sequence {
 		for rep := 0; rep < pt.config.Repetitions; rep++ {
 			if test.QPS > 0 {
-				err := pt.Execute(ctx, testNumber, rep, tag,
-					strconv.Itoa(test.QPS),
-					strconv.Itoa(test.Duration),
-					resultFormat)
-
+				err := pt.Execute(ctx, testNumber, rep, tag, strconv.Itoa(test.QPS), strconv.Itoa(test.Duration), resultFormat)
 				if err != nil {
-					fmt.Printf("Server dead test Aborted! Error: %v\n", err)
 					return err
 				}
 			} else {
@@ -1053,25 +1048,35 @@ func (pt *PerfTest) processResults(testNumber, repetition int, daemonName, qpsVa
 			errorMap[err]++
 		}
 
+		const MaxErrorsToDisplay = 1
+		errorsToDisplay := 0
 		for errStr, count := range errorMap {
+			if errorsToDisplay >= MaxErrorsToDisplay {
+				break
+			}
 			if errorMsg != "" {
 				errorMsg += "; "
 			}
 			errorMsg += fmt.Sprintf("%s (x%d)", errStr, count)
+			errorsToDisplay++
+		}
+		if errorsToDisplay < len(errorMap) {
+			errorMsg += fmt.Sprintf(" (+%d more)", len(errorMap)-errorsToDisplay)
 		}
 	}
 
 	// Print results
-	if errorMsg != "" {
-		fmt.Printf("=%7s lat=[max=%8s] error=%s\n", successRatio, maxLatency, errorMsg)
+	var resultRecord string
+	if pt.config.MorePercentiles {
+		resultRecord = fmt.Sprintf("success=%7s lat=[p50=%8s  p90=%8s  p95=%8s  p99=%8s  max=%8s]",
+			successRatio, p50, p90, p95, p99, maxLatency)
 	} else {
-		if pt.config.MorePercentiles {
-			fmt.Printf("success=%7s lat=[p50=%8s p90=%8s p95=%8s p99=%8s max=%8s]\n",
-				successRatio, p50, p90, p95, p99, maxLatency)
-		} else {
-			fmt.Printf("success=%7s lat=[max=%8s]\n", successRatio, maxLatency)
-		}
+		resultRecord = fmt.Sprintf("success=%7s lat=[max=%8s]", successRatio, maxLatency)
 	}
+	if errorMsg != "" {
+		resultRecord += fmt.Sprintf(" error=%s", errorMsg)
+	}
+	fmt.Println(resultRecord)
 
 	// Check for failures
 	if errorMsg != "" && pt.config.HaltOnVegetaError {
@@ -1925,7 +1930,7 @@ func runPerfTests(c *cli.Context) error {
 	if config.TestMode == "1" || config.TestMode == "3" {
 		fmt.Println("Testing Silkworm...")
 		if err := perfTest.ExecuteSequence(ctx, sequence, Silkworm); err != nil {
-			fmt.Printf("Server dead test Aborted! Error: %v\n", err)
+			fmt.Printf("Performance Test failed, error: %v\n", err)
 			return err
 		}
 
@@ -1937,7 +1942,7 @@ func runPerfTests(c *cli.Context) error {
 	if config.TestMode == "2" || config.TestMode == "3" {
 		fmt.Println("Testing Erigon...")
 		if err := perfTest.ExecuteSequence(ctx, sequence, Erigon); err != nil {
-			fmt.Printf("Server dead test Aborted! Error: %v\n", err)
+			fmt.Printf("Performance Test failed, error: %v\n", err)
 			return err
 		}
 	}
