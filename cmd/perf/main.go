@@ -227,8 +227,8 @@ type TestMetrics struct {
 	DaemonName    string
 	TestNumber    int
 	Repetition    int
-	QPS           string
-	Duration      string
+	QPS           int
+	Duration      int
 	MinLatency    string
 	Mean          string
 	P50           string
@@ -275,8 +275,8 @@ type ConfigurationInfo struct {
 
 // TestResult holds results for a single QPS/duration test
 type TestResult struct {
-	QPS             string           `json:"qps"`
-	Duration        string           `json:"duration"`
+	QPS             int              `json:"qps"`
+	Duration        int              `json:"duration"`
 	TestRepetitions []RepetitionInfo `json:"testRepetitions"`
 }
 
@@ -286,8 +286,6 @@ type RepetitionInfo struct {
 	VegetaReport        map[string]interface{} `json:"vegetaReport"`
 	VegetaReportHdrPlot string                 `json:"vegetaReportHdrPlot"`
 }
-
-// Part 2: Hardware utilities and helper functions
 
 // Hardware provides methods to extract hardware information
 type Hardware struct{}
@@ -508,8 +506,6 @@ func ParseLatency(latency string) string {
 	return strings.TrimSpace(latency)
 }
 
-// Part 3: PerfTest implementation
-
 // PerfTest manages performance test execution
 type PerfTest struct {
 	config     *Config
@@ -727,7 +723,7 @@ func (pt *PerfTest) replaceInFile(filepath, old, new string) error {
 }
 
 // Execute runs a single performance test
-func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, name, qpsValue, duration string, format ResultFormat) error {
+func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, name string, qps, duration int, format ResultFormat) error {
 	// Empty cache if configured
 	if pt.config.EmptyCache {
 		if err := EmptyCache(); err != nil {
@@ -745,12 +741,12 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 
 	// Create the binary file name
 	timestamp := time.Now().Format("20060102150405")
-	pt.config.BinaryFile = fmt.Sprintf("%s_%s_%s_%s_%s_%s_%d.bin",
+	pt.config.BinaryFile = fmt.Sprintf("%s_%s_%s_%s_%d_%d_%d.bin",
 		timestamp,
 		pt.config.ChainName,
 		pt.config.TestingDaemon,
 		pt.config.TestType,
-		qpsValue,
+		qps,
 		duration,
 		repetition+1)
 
@@ -773,11 +769,11 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 	maxQpsDigits := strconv.Itoa(format.maxQpsDigits)
 	maxDurationDigits := strconv.Itoa(format.maxDurationDigits)
 	if pt.config.TestingDaemon != "" {
-		fmt.Printf("[%d.%"+maxRepetitionDigits+"d] %s: executes test qps: %"+maxQpsDigits+"s time: %"+maxDurationDigits+"s -> ",
-			testNumber, repetition+1, pt.config.TestingDaemon, qpsValue, duration)
+		fmt.Printf("[%d.%"+maxRepetitionDigits+"d] %s: executes test qps: %"+maxQpsDigits+"d time: %"+maxDurationDigits+"d -> ",
+			testNumber, repetition+1, pt.config.TestingDaemon, qps, duration)
 	} else {
-		fmt.Printf("[%d.%"+maxRepetitionDigits+"d] daemon: executes test qps: %"+maxQpsDigits+"s time: %"+maxDurationDigits+"s -> ",
-			testNumber, repetition+1, qpsValue, duration)
+		fmt.Printf("[%d.%"+maxRepetitionDigits+"d] daemon: executes test qps: %"+maxQpsDigits+"d time: %"+maxDurationDigits+"d -> ",
+			testNumber, repetition+1, qps, duration)
 	}
 
 	// Load targets from pattern file
@@ -786,19 +782,8 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		return fmt.Errorf("failed to load targets: %w", err)
 	}
 
-	// Parse QPS and duration
-	qps, err := strconv.Atoi(qpsValue)
-	if err != nil {
-		return fmt.Errorf("invalid QPS value: %w", err)
-	}
-
-	dur, err := strconv.Atoi(duration)
-	if err != nil {
-		return fmt.Errorf("invalid duration value: %w", err)
-	}
-
 	// Run vegeta attack
-	metrics, err := pt.runVegetaAttack(ctx, targets, qps, time.Duration(dur)*time.Second, pt.config.BinaryFileFullPathname)
+	metrics, err := pt.runVegetaAttack(ctx, targets, qps, time.Duration(duration)*time.Second, pt.config.BinaryFileFullPathname)
 	if err != nil {
 		return fmt.Errorf("vegeta attack failed: %w", err)
 	}
@@ -819,7 +804,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 	}
 
 	// Process results
-	return pt.processResults(testNumber, repetition, name, qpsValue, duration, metrics)
+	return pt.processResults(testNumber, repetition, name, qps, duration, metrics)
 }
 
 // loadTargets loads Vegeta targets from a pattern file
@@ -975,7 +960,7 @@ func (pt *PerfTest) ExecuteSequence(ctx context.Context, sequence []TestSequence
 	for _, test := range sequence {
 		for rep := 0; rep < pt.config.Repetitions; rep++ {
 			if test.QPS > 0 {
-				err := pt.Execute(ctx, testNumber, rep, tag, strconv.Itoa(test.QPS), strconv.Itoa(test.Duration), resultFormat)
+				err := pt.Execute(ctx, testNumber, rep, tag, test.QPS, test.Duration, resultFormat)
 				if err != nil {
 					return err
 				}
@@ -1023,10 +1008,8 @@ type ResultFormat struct {
 	maxRepetitionDigits, maxQpsDigits, maxDurationDigits int
 }
 
-// Part 4: Results processing
-
 // processResults processes the vegeta metrics and generates reports
-func (pt *PerfTest) processResults(testNumber, repetition int, daemonName, qpsValue, duration string, metrics *vegeta.Metrics) error {
+func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps, duration int, metrics *vegeta.Metrics) error {
 	// Extract latency values
 	minLatency := FormatDuration(metrics.Latencies.Min)
 	mean := FormatDuration(metrics.Latencies.Mean)
@@ -1090,10 +1073,10 @@ func (pt *PerfTest) processResults(testNumber, repetition int, daemonName, qpsVa
 	// Write to the test report if enabled
 	if pt.config.CreateTestReport {
 		testMetrics := &TestMetrics{
-			DaemonName:    daemonName,
+			DaemonName:    name,
 			TestNumber:    testNumber,
 			Repetition:    repetition,
-			QPS:           qpsValue,
+			QPS:           qps,
 			Duration:      duration,
 			MinLatency:    minLatency,
 			Mean:          mean,
@@ -1156,109 +1139,6 @@ func (pt *PerfTest) printInstantReport(metrics *vegeta.Metrics) {
 
 	fmt.Print("========================\n\n")
 }
-
-// generateHdrPlot generates HDR histogram plot data
-func (pt *PerfTest) generateHdrPlot(binaryFile string) (string, error) {
-	// Read the binary file
-	file, err := os.Open(binaryFile)
-	if err != nil {
-		return "", err
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			log.Printf("Warning: failed to close file: %v", err)
-		}
-	}(file)
-
-	// Decode results
-	dec := vegeta.NewDecoder(file)
-
-	// Create metrics
-	var metrics vegeta.Metrics
-	for {
-		var result vegeta.Result
-		if err := dec.Decode(&result); err != nil {
-			if err == io.EOF {
-				break
-			}
-			return "", err
-		}
-		metrics.Add(&result)
-	}
-	metrics.Close()
-
-	// Generate HDR histogram
-	var buf bytes.Buffer
-	histogram := metrics.Histogram
-	if histogram != nil {
-		// Print histogram data
-		for i, bucket := range histogram.Buckets {
-			_, err := fmt.Fprintf(&buf, "%.6f %d\n", float64(bucket), histogram.Counts[i])
-			if err != nil {
-				return "", err
-			}
-		}
-	}
-
-	return buf.String(), nil
-}
-
-// generateJSONReport generates a JSON report from the binary file
-func (pt *PerfTest) generateJSONReport(binaryFile string) (map[string]interface{}, error) {
-	// Read the binary file
-	file, err := os.Open(binaryFile)
-	if err != nil {
-		return nil, err
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			log.Printf("Warning: failed to close file: %v", err)
-		}
-	}(file)
-
-	// Decode results
-	dec := vegeta.NewDecoder(file)
-
-	// Create metrics
-	var metrics vegeta.Metrics
-	for {
-		var result vegeta.Result
-		if err := dec.Decode(&result); err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, err
-		}
-		metrics.Add(&result)
-	}
-	metrics.Close()
-
-	// Convert metrics to map
-	report := map[string]interface{}{
-		"requests":   metrics.Requests,
-		"duration":   metrics.Duration.Seconds(),
-		"rate":       metrics.Rate,
-		"throughput": metrics.Throughput,
-		"success":    metrics.Success,
-		"latencies": map[string]interface{}{
-			"min":  metrics.Latencies.Min.Seconds(),
-			"mean": metrics.Latencies.Mean.Seconds(),
-			"p50":  metrics.Latencies.P50.Seconds(),
-			"p90":  metrics.Latencies.P90.Seconds(),
-			"p95":  metrics.Latencies.P95.Seconds(),
-			"p99":  metrics.Latencies.P99.Seconds(),
-			"max":  metrics.Latencies.Max.Seconds(),
-		},
-		"status_codes": metrics.StatusCodes,
-		"errors":       metrics.Errors,
-	}
-
-	return report, nil
-}
-
-// Part 5: TestReport implementation
 
 // TestReport manages CSV and JSON report generation
 type TestReport struct {
@@ -1489,8 +1369,8 @@ func (tr *TestReport) WriteTestReport(metrics *TestMetrics) error {
 		metrics.DaemonName,
 		strconv.Itoa(metrics.TestNumber),
 		strconv.Itoa(metrics.Repetition),
-		metrics.QPS,
-		metrics.Duration,
+		strconv.Itoa(metrics.QPS),
+		strconv.Itoa(metrics.Duration),
 		metrics.MinLatency,
 		metrics.Mean,
 		metrics.P50,
@@ -1523,8 +1403,8 @@ func (tr *TestReport) writeTestReportToJSON(metrics *TestMetrics) error {
 	if metrics.Repetition == 0 {
 		tr.currentTestIdx++
 		tr.jsonReport.Results = append(tr.jsonReport.Results, TestResult{
-			QPS:             strings.TrimSpace(metrics.QPS),
-			Duration:        strings.TrimSpace(metrics.Duration),
+			QPS:             metrics.QPS,
+			Duration:        metrics.Duration,
 			TestRepetitions: []RepetitionInfo{},
 		})
 	}
@@ -1691,8 +1571,6 @@ func (tr *TestReport) Close() error {
 
 	return nil
 }
-
-// Part 6: CLI and main function
 
 func main() {
 	app := &cli.App{
