@@ -1165,11 +1165,12 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 			}
 		}(resp.Body)
 
-		if resp.StatusCode != 200 {
+		if resp.StatusCode != http.StatusOK {
 			if verboseLevel > 1 {
 				fmt.Printf("\npost result status_code: %d\n", resp.StatusCode)
 			}
-			return nil, err
+			// TODO: add option to ignore HTTP errors and continue?
+			return nil, fmt.Errorf("failed: http status %v", resp.Status)
 		}
 
 		body, err := io.ReadAll(resp.Body)
