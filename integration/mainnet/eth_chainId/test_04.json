@@ -1,36 +1,36 @@
 [
-    {
-        "test": {
-            "reference": "",
-            "description": "provide two commands one OK, other without method"
+  {
+    "test": {
+      "reference": "",
+      "description": "batch with 2 requests: first bad (no method), second good"
+    },
+    "request": [
+      {
+        "jsonrpc": "2.0",
+        "params": [],
+        "id": 1
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 1
+      }
+    ],
+    "response": [
+      {
+        "error": {
+          "code": -32600,
+          "message": "invalid request"
         },
-        "request": [
-            {
-                "jsonrpc": "2.0",
-                "params": [],
-                "id": 1
-            },
-            {
-                "jsonrpc": "2.0",
-                "method": "eth_chainId",
-                "params": [],
-                "id": 1
-            }
-        ],
-        "response": [
-            {
-                "error": {
-                    "code": -32600,
-                    "message": "invalid request"
-                },
-                "id": 1,
-                "jsonrpc": "2.0"
-            },
-            {
-                "id": 1,
-                "jsonrpc": "2.0",
-                "result": "0x1"
-            }
-        ]
-    }
+        "id": 1,
+        "jsonrpc": "2.0"
+      },
+      {
+        "id": 1,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      }
+    ]
+  }
 ]
