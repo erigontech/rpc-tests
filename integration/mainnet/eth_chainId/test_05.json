@@ -1,0 +1,1115 @@
+[
+  {
+    "test": {
+      "id": "eth_chainId/at_batch_limit",
+      "reference": "",
+      "description": "batch with 100 requests: first bad (no method), the rest good"
+    },
+    "request": [
+      {
+        "jsonrpc": "2.0",
+        "params": [],
+        "id": 1
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 2
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 3
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 4
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 5
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 6
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 7
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 8
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 9
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 10
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 11
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 12
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 13
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 14
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 15
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 16
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 17
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 18
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 19
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 20
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 21
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 22
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 23
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 24
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 25
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 26
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 27
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 28
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 29
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 30
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 31
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 32
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 33
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 34
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 35
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 36
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 37
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 38
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 39
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 40
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 41
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 42
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 43
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 44
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 45
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 46
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 47
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 48
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 49
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 50
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 51
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 52
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 53
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 54
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 55
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 56
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 57
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 58
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 59
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 60
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 61
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 62
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 63
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 64
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 65
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 66
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 67
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 68
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 69
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 70
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 71
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 72
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 73
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 74
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 75
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 76
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 77
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 78
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 79
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 80
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 81
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 82
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 83
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 84
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 85
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 86
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 87
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 88
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 89
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 90
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 91
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 92
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 93
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 94
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 95
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 96
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 97
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 98
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 99
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "eth_chainId",
+        "params": [],
+        "id": 100
+      }
+    ],
+    "response": [
+      {
+        "id": 1,
+        "jsonrpc": "2.0",
+        "error": {
+          "code": -32600,
+          "message": "invalid request"
+        }
+      },
+      {
+        "id": 2,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 3,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 4,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 5,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 6,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 7,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 8,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 9,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 10,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 11,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 12,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 13,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 14,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 15,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 16,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 17,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 18,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 19,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 20,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 21,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 22,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 23,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 24,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 25,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 26,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 27,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 28,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 29,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 30,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 31,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 32,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 33,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 34,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 35,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 36,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 37,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 38,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 39,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 40,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 41,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 42,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 43,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 44,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 45,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 46,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 47,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 48,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 49,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 50,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 51,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 52,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 53,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 54,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 55,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 56,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 57,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 58,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 59,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 60,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 61,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 62,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 63,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 64,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 65,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 66,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 67,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 68,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 69,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 70,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 71,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 72,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 73,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 74,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 75,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 76,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 77,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 78,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 79,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 80,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 81,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 82,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 83,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 84,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 85,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 86,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 87,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 88,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 89,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 90,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 91,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 92,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 93,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 94,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 95,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 96,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 97,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 98,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 99,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      },
+      {
+        "id": 100,
+        "jsonrpc": "2.0",
+        "result": "0x1"
+      }
+    ]
+  }
+]
