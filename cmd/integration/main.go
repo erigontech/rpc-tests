@@ -1630,95 +1630,96 @@ func processResponse(target, target1 string, result, result1 interface{}, respon
 		return false, errors.New("[" + config.DaemonAsReference + "] (server doesn't respond)")
 	}
 
-	// Deep comparison
+	// Deep comparison between the received response and the expected response
 	respJSON, _ := json.Marshal(response)
 	expJSON, _ := json.Marshal(expectedResponse)
 
-	if string(respJSON) != string(expJSON) {
-		responseMap, respIsMap := response.(map[string]interface{})
-		expectedMap, expIsMap := expectedResponse.(map[string]interface{})
-
-		// Check various conditions where we don't care about differences
-		if respIsMap && expIsMap {
-			_, responseHasResult := responseMap["result"]
-			expectedResult, expectedHasResult := expectedMap["result"]
-			_, responseHasError := responseMap["error"]
-			expectedError, expectedHasError := expectedMap["error"]
-			if responseHasResult && expectedHasResult && expectedResult == nil && result1 == nil {
-				err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
-				if err != nil {
-					return false, err
-				}
-				return true, nil
-			}
-			if responseHasError && expectedHasError && expectedError == nil {
-				err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
-				if err != nil {
-					return false, err
-				}
-				return true, nil
-			}
-			// TODO: improve len(expectedMap) == 2 which means: just "jsonrpc" and "id" are expected
-			if !expectedHasResult && !expectedHasError && len(expectedMap) == 2 {
-				err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
-				if err != nil {
-					return false, err
-				}
-				return true, nil
-			}
-			if responseHasError && expectedHasError && config.DoNotCompareError {
-				err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
-				if err != nil {
-					return false, err
-				}
-				return true, nil
-			}
-		}
-
-		err := dumpJSONs(true, daemonFile, expRspFile, outputDir, response, expectedResponse)
-		if err != nil {
-			return false, err
-		}
-
-		same, err := compareJSON(config, response, jsonFile, daemonFile, expRspFile, diffFile, testNumber)
-		if err != nil {
-			return same, err
-		}
-		if same {
-			err := os.Remove(daemonFile)
-			if err != nil {
-				return false, err
-			}
-			err = os.Remove(expRspFile)
-			if err != nil {
-				return false, err
-			}
-			err = os.Remove(diffFile)
-			if err != nil {
-				return false, err
-			}
-		}
-
-		// Try to remove the output directory if empty
-		if entries, err := os.ReadDir(outputDir); err == nil && len(entries) == 0 {
-			err := os.Remove(outputDir)
-			if err != nil {
-				return false, err
-			}
-		}
-
+	// Fast path: if actual/expected are identical byte-wise, no need to compare them
+	if bytes.Equal(respJSON, expJSON) {
 		err = dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 		if err != nil {
 			return false, err
 		}
-		return same, nil
+		return true, nil
+	}
+
+	// Check various conditions where we don't care about differences
+	responseMap, respIsMap := response.(map[string]interface{})
+	expectedMap, expIsMap := expectedResponse.(map[string]interface{})
+
+	if respIsMap && expIsMap {
+		_, responseHasResult := responseMap["result"]
+		expectedResult, expectedHasResult := expectedMap["result"]
+		_, responseHasError := responseMap["error"]
+		expectedError, expectedHasError := expectedMap["error"]
+		if responseHasResult && expectedHasResult && expectedResult == nil && result1 == nil {
+			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+			if err != nil {
+				return false, err
+			}
+			return true, nil
+		}
+		if responseHasError && expectedHasError && expectedError == nil {
+			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+			if err != nil {
+				return false, err
+			}
+			return true, nil
+		}
+		// TODO: improve len(expectedMap) == 2 which means: just "jsonrpc" and "id" are expected
+		if !expectedHasResult && !expectedHasError && len(expectedMap) == 2 {
+			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+			if err != nil {
+				return false, err
+			}
+			return true, nil
+		}
+		if responseHasError && expectedHasError && config.DoNotCompareError {
+			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+			if err != nil {
+				return false, err
+			}
+			return true, nil
+		}
+	}
+
+	err = dumpJSONs(true, daemonFile, expRspFile, outputDir, response, expectedResponse)
+	if err != nil {
+		return false, err
+	}
+
+	same, err := compareJSON(config, response, jsonFile, daemonFile, expRspFile, diffFile, testNumber)
+	if err != nil {
+		return same, err
+	}
+	if same {
+		err := os.Remove(daemonFile)
+		if err != nil {
+			return false, err
+		}
+		err = os.Remove(expRspFile)
+		if err != nil {
+			return false, err
+		}
+		err = os.Remove(diffFile)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	// Try to remove the output directory if empty
+	if entries, err := os.ReadDir(outputDir); err == nil && len(entries) == 0 {
+		err := os.Remove(outputDir)
+		if err != nil {
+			return false, err
+		}
 	}
 
 	err = dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 	if err != nil {
 		return false, err
 	}
-	return true, nil
+	return same, nil
 }
 
 func isArchive(jsonFilename string) bool {
