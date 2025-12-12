@@ -1051,18 +1051,6 @@ func isNotComparedError(testName, net string) bool {
 	return false
 }
 
-func getJSONFromResponse(target, msg string, verboseLevel int, result interface{}) (interface{}, error) {
-	if verboseLevel > 2 {
-		fmt.Printf("%s: [%v]\n", msg, result)
-	}
-
-	if result == nil {
-		return nil, errors.New("failed (json response is nil, maybe server is down) on " + target)
-	}
-
-	return result, nil
-}
-
 func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response, expectedResponse interface{}) error {
 	if !dumpJSON {
 		return nil
@@ -1596,20 +1584,12 @@ func compareJSON(config *Config, response interface{}, jsonFile, daemonFile, exp
 	return true, nil
 }
 
-func processResponse(target, target1 string, result, result1 interface{}, responseInFile interface{},
+func processResponse(response, result1 interface{}, responseInFile interface{},
 	config *Config, outputDir, daemonFile, expRspFile, diffFile, jsonFile string, testNumber int) (bool, error) {
-
-	response, err := getJSONFromResponse(target, config.DaemonUnderTest, config.VerboseLevel, result)
-	if err != nil {
-		return false, err
-	}
 
 	var expectedResponse interface{}
 	if result1 != nil {
-		expectedResponse, err = getJSONFromResponse(target1, config.DaemonAsReference, config.VerboseLevel, result1)
-		if err != nil {
-			return false, err
-		}
+		expectedResponse = result1
 	} else {
 		expectedResponse = responseInFile
 	}
@@ -1622,21 +1602,13 @@ func processResponse(target, target1 string, result, result1 interface{}, respon
 		return true, nil
 	}
 
-	if response == nil {
-		return false, errors.New("[" + config.DaemonUnderTest + "] (server doesn't respond)")
-	}
-
-	if expectedResponse == nil {
-		return false, errors.New("[" + config.DaemonAsReference + "] (server doesn't respond)")
-	}
-
 	// Deep comparison between the received response and the expected response
 	respJSON, _ := json.Marshal(response)
 	expJSON, _ := json.Marshal(expectedResponse)
 
 	// Fast path: if actual/expected are identical byte-wise, no need to compare them
 	if bytes.Equal(respJSON, expJSON) {
-		err = dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+		err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 		if err != nil {
 			return false, err
 		}
@@ -1683,7 +1655,7 @@ func processResponse(target, target1 string, result, result1 interface{}, respon
 		}
 	}
 
-	err = dumpJSONs(true, daemonFile, expRspFile, outputDir, response, expectedResponse)
+	err := dumpJSONs(true, daemonFile, expRspFile, outputDir, response, expectedResponse)
 	if err != nil {
 		return false, err
 	}
@@ -1702,14 +1674,6 @@ func processResponse(target, target1 string, result, result1 interface{}, respon
 			return false, err
 		}
 		err = os.Remove(diffFile)
-		if err != nil {
-			return false, err
-		}
-	}
-
-	// Try to remove the output directory if empty
-	if entries, err := os.ReadDir(outputDir); err == nil && len(entries) == 0 {
-		err := os.Remove(outputDir)
 		if err != nil {
 			return false, err
 		}
@@ -1815,13 +1779,18 @@ func runTest(ctx context.Context, jsonFile string, testNumber int, transportType
 			if err != nil {
 				return false, err
 			}
-			var result1 any
-			responseInFile := jsonRPC.Response
+			if config.VerboseLevel > 2 {
+				fmt.Printf("%s: [%v]\n", config.DaemonUnderTest, result)
+			}
+			if result == nil {
+				return false, errors.New("response is nil (maybe node at " + target + " is down?)")
+			}
 
+			responseInFile := jsonRPC.Response
 			daemonFile := outputAPIFilename + "-response.json"
 			expRspFile := outputAPIFilename + "-expResponse.json"
 
-			return processResponse(target, target1, result, result1, responseInFile, config,
+			return processResponse(result, nil, responseInFile, config,
 				outputDirName, daemonFile, expRspFile, diffFile, jsonFile, testNumber)
 		} else {
 			target = getTarget(DaemonOnDefaultPort, method, config)
@@ -1829,17 +1798,28 @@ func runTest(ctx context.Context, jsonFile string, testNumber int, transportType
 			if err != nil {
 				return false, err
 			}
+			if config.VerboseLevel > 2 {
+				fmt.Printf("%s: [%v]\n", config.DaemonUnderTest, result)
+			}
+			if result == nil {
+				return false, errors.New("response is nil (maybe node at " + target + " is down?)")
+			}
 			target1 = getTarget(config.DaemonAsReference, method, config)
 			result1, err := executeRequest(ctx, transportType, jwtAuth, string(requestDumps), target1, config.VerboseLevel)
 			if err != nil {
 				return false, err
 			}
-			var responseInFile any
+			if config.VerboseLevel > 2 {
+				fmt.Printf("%s: [%v]\n", config.DaemonAsReference, result1)
+			}
+			if result1 == nil {
+				return false, errors.New("response is nil (maybe node at " + target1 + " is down?)")
+			}
 
 			daemonFile := outputAPIFilename + getJSONFilenameExt(DaemonOnDefaultPort, target)
 			expRspFile := outputAPIFilename + getJSONFilenameExt(config.DaemonAsReference, target1)
 
-			return processResponse(target, target1, result, result1, responseInFile, config,
+			return processResponse(result, result1, nil, config,
 				outputDirName, daemonFile, expRspFile, diffFile, jsonFile, testNumber)
 		}
 	}
@@ -2110,6 +2090,22 @@ func main() {
 	wg.Wait()
 	close(resultsChan)
 	resultsWg.Wait()
+
+	// Clean empty subfolders in the output dir
+	if entries, err := os.ReadDir(config.OutputDir); err == nil {
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				continue
+			}
+			outputSubfolder := filepath.Join(config.OutputDir, entry.Name())
+			if subEntries, err := os.ReadDir(outputSubfolder); err == nil && len(subEntries) == 0 {
+				err := os.Remove(outputSubfolder)
+				if err != nil {
+					fmt.Printf("WARN: clean failed %v\n", err)
+				}
+			}
+		}
+	}
 
 	// Clean temp dir
 	err = os.RemoveAll(TempDirname)
