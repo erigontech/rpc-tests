@@ -1114,6 +1114,86 @@ func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response
 	return nil
 }
 
+const (
+	identifierTag = "id"
+	jsonRpcTag    = "jsonrpc"
+	resultTag     = "result"
+	errorTag      = "error"
+)
+
+var (
+	errJsonRpcUnexpectedFormat           = errors.New("invalid JSON-RPC response format: neither object nor array")
+	errJsonRpcMissingVersion             = errors.New("invalid JSON-RPC response: missing 'jsonrpc' field")
+	errJsonRpcMissingId                  = errors.New("invalid JSON-RPC response: missing 'id' field")
+	errJsonRpcNoncompliantVersion        = errors.New("noncompliant JSON-RPC 2.0 version")
+	errJsonRpcMissingResultOrError       = errors.New("JSON-RPC 2.0 response contains neither 'result' nor 'error'")
+	errJsonRpcContainsBothResultAndError = errors.New("JSON-RPC 2.0 response contains both 'result' and 'error'")
+)
+
+// validateJsonRpcObject checks that the received response is a valid JSON-RPC object, according to 2.0 spec.
+// This implies that the response must be a JSON object containing:
+// - one mandatory "jsonrpc" field which must be equal to "2.0"
+// - one mandatory "id" field which must match the value of the same field in the request
+// - either one "result" field in case of success or one "error" field otherwise, mutually exclusive
+// The strict parameter relaxes the compliance requirements by allowing both 'result' and 'error' to be present
+// TODO: strict parameter is required for corner cases in streaming mode when 'result' is emitted up-front
+// https://www.jsonrpc.org/specification
+func validateJsonRpcObject(response map[string]any, strict bool) error {
+	// Ensure that the response is a valid JSON-RPC object.
+	jsonrpc, ok := response[jsonRpcTag]
+	if !ok {
+		return errJsonRpcMissingVersion
+	}
+	jsonrpcVersion, ok := jsonrpc.(string)
+	if jsonrpcVersion != "2.0" {
+		return errJsonRpcNoncompliantVersion
+	}
+	_, ok = response[identifierTag]
+	if !ok {
+		return errJsonRpcMissingId
+	}
+	_, hasResult := response[resultTag]
+	_, hasError := response[errorTag]
+	if !hasResult && !hasError {
+		return errJsonRpcMissingResultOrError
+	}
+	if strict && hasResult && hasError {
+		return errJsonRpcContainsBothResultAndError
+	}
+	return nil
+}
+
+// validateJsonRpcResponse checks that the received response is a valid JSON-RPC message, according to 2.0 spec.
+// This implies that the response must be either a valid JSON-RPC object, i.e. a JSON object containing at least
+// "jsonrpc" and "id" fields or a JSON array  where each element (if any) is in turn a valid JSON-RPC object.
+func validateJsonRpcResponse(response any) error {
+	_, isArray := response.([]any)
+	responseAsMap, isMap := response.(map[string]any)
+	if !isArray && !isMap {
+		return errJsonRpcUnexpectedFormat
+	}
+	if isMap {
+		// Ensure that the response is a valid JSON-RPC object.
+		err := validateJsonRpcObject(responseAsMap, false)
+		if err != nil {
+			return err
+		}
+	}
+	if isArray {
+		for _, element := range response.([]any) {
+			elementAsMap, isElementMap := element.(map[string]any)
+			if !isElementMap {
+				return errJsonRpcUnexpectedFormat
+			}
+			err := validateJsonRpcObject(elementAsMap, false)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, target string, verboseLevel int) (any, error) {
 	if transportType == "http" || transportType == "http_comp" || transportType == "https" {
 		headers := map[string]string{
@@ -1169,8 +1249,8 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 			if verboseLevel > 1 {
 				fmt.Printf("\npost result status_code: %d\n", resp.StatusCode)
 			}
-			// TODO: add option to ignore HTTP errors and continue?
-			return nil, fmt.Errorf("failed: http status %v", resp.Status)
+			// TODO: add option to stop on any HTTP error?
+			return nil, fmt.Errorf("http status %v", resp.Status)
 		}
 
 		body, err := io.ReadAll(resp.Body)
@@ -1182,7 +1262,7 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 		}
 
 		if verboseLevel > 1 {
-			fmt.Printf("\npost result content: %s\n", string(body))
+			fmt.Printf("\nhttp response body: %s\n", string(body))
 		}
 
 		var result any
@@ -1192,11 +1272,13 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 			}
 			return nil, err
 		}
+		err = validateJsonRpcResponse(result)
+		if err != nil {
+			return nil, err
+		}
 
 		if verboseLevel > 1 {
-			fmt.Printf("\ntarget: %s\n", target)
-			fmt.Printf("%s\n", requestDumps)
-			fmt.Printf("Response: %v\n", result)
+			fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, requestDumps, result)
 		}
 
 		return result, nil
@@ -1248,11 +1330,13 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 			}
 			return nil, err
 		}
+		err = validateJsonRpcResponse(result)
+		if err != nil {
+			return nil, err
+		}
 
 		if verboseLevel > 1 {
-			fmt.Printf("\ntarget: %s\n", target)
-			fmt.Printf("%s\n", requestDumps)
-			fmt.Printf("Response: %v\n", result)
+			fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, requestDumps, result)
 		}
 
 		return result, nil
@@ -1415,6 +1499,11 @@ func copyFile(src, dst string) (int64, error) {
 	return nBytes, err
 }
 
+var (
+	errDiffTimeout  = errors.New("diff timeout")
+	errDiffMismatch = errors.New("diff mismatch")
+)
+
 func compareJSON(config *Config, response interface{}, jsonFile, daemonFile, expRspFile, diffFile string, testNumber int) (bool, error) {
 	baseName := filepath.Join(TempDirname, fmt.Sprintf("test_%d", testNumber))
 	err := os.MkdirAll(baseName, 0755)
@@ -1497,9 +1586,9 @@ func compareJSON(config *Config, response interface{}, jsonFile, daemonFile, exp
 
 	if diffFileSize != 0 || !diffResult {
 		if !diffResult {
-			err = errors.New("failed timeout")
+			err = errDiffTimeout
 		} else {
-			err = errors.New("failed")
+			err = errDiffMismatch
 		}
 		return false, err
 	}
@@ -1534,11 +1623,11 @@ func processResponse(target, target1 string, result, result1 interface{}, respon
 	}
 
 	if response == nil {
-		return false, errors.New("failed [" + config.DaemonUnderTest + "] (server doesn't respond)")
+		return false, errors.New("[" + config.DaemonUnderTest + "] (server doesn't respond)")
 	}
 
 	if expectedResponse == nil {
-		return false, errors.New("failed [" + config.DaemonAsReference + "] (server doesn't respond)")
+		return false, errors.New("[" + config.DaemonAsReference + "] (server doesn't respond)")
 	}
 
 	// Deep comparison
@@ -1877,7 +1966,7 @@ func main() {
 				}
 			} else {
 				failedTests++
-				fmt.Printf("%s\n", result.Error.Error())
+				fmt.Printf("failed: %s\n", result.Error.Error())
 				if config.ExitOnFail {
 					// Signal other tasks to stop and exit
 					cancelCtx()
