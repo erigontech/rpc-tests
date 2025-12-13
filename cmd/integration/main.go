@@ -16,12 +16,14 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	bzip2w "github.com/dsnet/compress/bzip2"
@@ -1843,7 +1845,7 @@ func main() {
 		os.Exit(-1)
 	}
 
-	// Clean temp dirs if exists
+	// Clean temp dirs if exists // TODO: use OS temp dir?
 	if _, err := os.Stat(TempDirname); err == nil {
 		err := os.RemoveAll(TempDirname)
 		if err != nil {
@@ -1857,6 +1859,7 @@ func main() {
 		os.Exit(-1)
 	}
 
+	scheduledTests := 0
 	executedTests := 0
 	failedTests := 0
 	successTests := 0
@@ -1897,8 +1900,8 @@ func main() {
 
 	// Worker pool for parallel execution
 	var wg sync.WaitGroup
-	testsChan := make(chan *TestDescriptor, 100)
-	resultsChan := make(chan chan TestResult, 100)
+	testsChan := make(chan *TestDescriptor, 10000)
+	resultsChan := make(chan chan TestResult, 10000)
 
 	numWorkers := 1
 	if config.Parallel {
@@ -1932,27 +1935,52 @@ func main() {
 	resultsWg.Add(1)
 	go func() {
 		defer resultsWg.Done()
-		for testResultCh := range resultsChan {
-			result := <-testResultCh
-			file := fmt.Sprintf("%-60s", result.Test.Name)
-			tt := fmt.Sprintf("%-15s", result.Test.TransportType)
-			fmt.Printf("%04d. %s::%s   ", result.Test.Number, tt, file)
-
-			if result.Success {
-				successTests++
-				if config.VerboseLevel > 0 {
-					fmt.Println("OK")
-				} else {
-					fmt.Print("OK\r")
-				}
-			} else {
-				failedTests++
-				fmt.Printf("failed: %s\n", result.Error.Error())
-				if config.ExitOnFail {
-					// Signal other tasks to stop and exit
-					cancelCtx()
+		for {
+			select {
+			case testResultCh := <-resultsChan:
+				if testResultCh == nil {
 					return
 				}
+				select {
+				case result := <-testResultCh:
+					file := fmt.Sprintf("%-60s", result.Test.Name)
+					tt := fmt.Sprintf("%-15s", result.Test.TransportType)
+					fmt.Printf("%04d. %s::%s   ", result.Test.Number, tt, file)
+
+					if result.Success {
+						successTests++
+						if config.VerboseLevel > 0 {
+							fmt.Println("OK")
+						} else {
+							fmt.Print("OK\r")
+						}
+					} else {
+						failedTests++
+						fmt.Printf("failed: %s\n", result.Error.Error())
+						if config.ExitOnFail {
+							// Signal other tasks to stop and exit
+							cancelCtx()
+							return
+						}
+					}
+					executedTests++
+				case <-ctx.Done():
+					return
+				}
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			select {
+			case sig := <-sigs:
+				fmt.Printf("\nReceived signal: %s. Starting graceful shutdown...\n", sig)
+				cancelCtx()
+			case <-ctx.Done():
+				return
 			}
 		}
 	}()
@@ -1964,12 +1992,24 @@ func main() {
 	}()
 
 	for testRep = 0; testRep < config.LoopNumber; testRep++ {
+		select {
+		case <-ctx.Done():
+			break
+		default:
+		}
+
 		if config.LoopNumber != 1 {
 			fmt.Printf("\nTest iteration: %d\n", testRep+1)
 		}
 
 		transportTypes := strings.Split(config.TransportType, ",")
 		for _, transportType := range transportTypes {
+			select {
+			case <-ctx.Done():
+				break
+			default:
+			}
+
 			testNumberInAnyLoop := 1
 
 			dirs, err := os.ReadDir(config.JSONDir)
@@ -1990,6 +2030,12 @@ func main() {
 			availableTestedAPIs = 0
 
 			for _, currAPIEntry := range dirs {
+				select {
+				case <-ctx.Done():
+					break
+				default:
+				}
+
 				currAPI := currAPIEntry.Name()
 
 				// Skip results folder and hidden folders
@@ -2017,6 +2063,12 @@ func main() {
 
 				testNumber := 1
 				for _, testEntry := range testEntries {
+					select {
+					case <-ctx.Done():
+						break
+					default:
+					}
+
 					testName := testEntry.Name()
 
 					if !strings.HasPrefix(testName, "test_") {
@@ -2057,9 +2109,17 @@ func main() {
 									TransportType: transportType,
 									ResultChan:    make(chan TestResult, 1),
 								}
-								resultsChan <- testDesc.ResultChan
-								testsChan <- testDesc
-								executedTests++
+								select {
+								case <-ctx.Done():
+									return
+								case resultsChan <- testDesc.ResultChan:
+								}
+								select {
+								case <-ctx.Done():
+									return
+								case testsChan <- testDesc:
+								}
+								scheduledTests++
 
 								if config.WaitingTime > 0 {
 									time.Sleep(time.Duration(config.WaitingTime) * time.Millisecond)
@@ -2081,7 +2141,7 @@ func main() {
 		}
 	}
 
-	if executedTests == 0 && config.TestingAPIsWith != "" {
+	if scheduledTests == 0 && config.TestingAPIsWith != "" {
 		fmt.Printf("WARN: API filter %s selected no tests\n", config.TestingAPIsWith)
 	}
 
@@ -2116,10 +2176,11 @@ func main() {
 	// Print results
 	elapsed := time.Since(startTime)
 	fmt.Println("\n                                                                                                                  ")
-	fmt.Printf("Test time-elapsed:            %v\n", elapsed)
+	fmt.Printf("Test suite duration:          %v\n", elapsed)
 	fmt.Printf("Available tests:              %d\n", globalTestNumber-1)
-	fmt.Printf("Available tested api:         %d\n", availableTestedAPIs)
-	fmt.Printf("Number of loop:               %d\n", testRep)
+	fmt.Printf("Available endpoints:          %d\n", availableTestedAPIs)
+	fmt.Printf("Number of loops:              %d\n", testRep)
+	fmt.Printf("Number of scheduled tests:    %d\n", scheduledTests)
 	fmt.Printf("Number of executed tests:     %d\n", executedTests)
 	fmt.Printf("Number of NOT executed tests: %d\n", testsNotExecuted)
 	fmt.Printf("Number of success tests:      %d\n", successTests)
