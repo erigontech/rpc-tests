@@ -1838,6 +1838,11 @@ func mustAtoi(s string) int {
 }
 
 func main() {
+	// Create a channel to receive OS signals and register for clean termination signals.
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	// Parse command line arguments
 	config := NewConfig()
 	if err := config.parseFlags(); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -1863,7 +1868,7 @@ func main() {
 	executedTests := 0
 	failedTests := 0
 	successTests := 0
-	testsNotExecuted := 0
+	skippedTests := 0
 
 	var serverEndpoints string
 	if config.VerifyWithDaemon {
@@ -2090,7 +2095,7 @@ func main() {
 									tt := fmt.Sprintf("%-15s", transportType)
 									fmt.Printf("%04d. %s::%s   skipped\n", testNumberInAnyLoop, tt, file)
 								}
-								testsNotExecuted++
+								skippedTests++
 							}
 						} else {
 							shouldRun := false
@@ -2176,13 +2181,13 @@ func main() {
 	// Print results
 	elapsed := time.Since(startTime)
 	fmt.Println("\n                                                                                                                  ")
-	fmt.Printf("Test suite duration:          %v\n", elapsed)
-	fmt.Printf("Available tests:              %d\n", globalTestNumber-1)
-	fmt.Printf("Available endpoints:          %d\n", availableTestedAPIs)
-	fmt.Printf("Number of loops:              %d\n", testRep)
-	fmt.Printf("Number of scheduled tests:    %d\n", scheduledTests)
+	fmt.Printf("Test session duration:        %v\n", elapsed)
+	fmt.Printf("Test session iterations:      %d\n", testRep)
+	fmt.Printf("Test suite total APIs:        %d\n", availableTestedAPIs)
+	fmt.Printf("Test suite total tests:       %d\n", globalTestNumber)
+	fmt.Printf("Number of skipped tests:      %d\n", skippedTests)
+	fmt.Printf("Number of selected tests:     %d\n", scheduledTests)
 	fmt.Printf("Number of executed tests:     %d\n", executedTests)
-	fmt.Printf("Number of NOT executed tests: %d\n", testsNotExecuted)
 	fmt.Printf("Number of success tests:      %d\n", successTests)
 	fmt.Printf("Number of failed tests:       %d\n", failedTests)
 
