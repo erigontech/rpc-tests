@@ -19,6 +19,9 @@ import (
 	"os/signal"
 	"path/filepath"
 	"regexp"
+	"runtime"
+	"runtime/pprof"
+	"runtime/trace"
 	"sort"
 	"strconv"
 	"strings"
@@ -513,6 +516,9 @@ type Config struct {
 	TestsOnLatestBlock    bool
 	LocalServer           string
 	SanitizeArchiveExt    bool
+	CpuProfile            string
+	MemProfile            string
+	TraceFile             string
 }
 
 type TestResult struct {
@@ -649,6 +655,10 @@ func (c *Config) parseFlags() error {
 	doNotCompareError := flag.Bool("E", false, "do not compare error")
 	flag.BoolVar(doNotCompareError, "do-not-compare-error", false, "do not compare error")
 
+	cpuProfile := flag.String("cpuprofile", "", "write cpu profile to file")
+	memProfile := flag.String("memprofile", "", "write memory profile to file")
+	traceFile := flag.String("trace", "", "write execution trace to file")
+
 	flag.Parse()
 
 	if *help {
@@ -700,6 +710,9 @@ func (c *Config) parseFlags() error {
 	c.DoNotCompareError = *doNotCompareError
 	c.TestsOnLatestBlock = *testOnLatest
 	c.Parallel = !*serial
+	c.CpuProfile = *cpuProfile
+	c.MemProfile = *memProfile
+	c.TraceFile = *traceFile
 
 	if *daemonPort {
 		c.DaemonUnderTest = DaemonOnOtherPort
@@ -1837,7 +1850,7 @@ func mustAtoi(s string) int {
 	return n
 }
 
-func main() {
+func runMain() int {
 	// Create a channel to receive OS signals and register for clean termination signals.
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -1847,21 +1860,62 @@ func main() {
 	if err := config.parseFlags(); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		usage()
-		os.Exit(-1)
+		return -1
 	}
+
+	// Handle embedded CPU/memory profiling and execution tracing
+	if config.CpuProfile != "" {
+		f, err := os.Create(config.CpuProfile)
+		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "could not create CPU profile: %v\n", err)
+		}
+		defer f.Close()
+		if err := pprof.StartCPUProfile(f); err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "could not start CPU profile: %v\n", err)
+		}
+		defer pprof.StopCPUProfile()
+	}
+
+	// Execution trace
+	if config.TraceFile != "" {
+		f, err := os.Create(config.TraceFile)
+		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "could not create trace file: %v\n", err)
+		}
+		defer f.Close()
+		if err := trace.Start(f); err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "could not start trace: %v\n", err)
+		}
+		defer trace.Stop()
+	}
+
+	// Memory profiling at end
+	defer func() {
+		if config.MemProfile != "" {
+			f, err := os.Create(config.MemProfile)
+			if err != nil {
+				_, _ = fmt.Fprintf(os.Stderr, "could not create memory profile: %v\n", err)
+			}
+			defer f.Close()
+			runtime.GC() // get up-to-date statistics
+			if err := pprof.WriteHeapProfile(f); err != nil {
+				_, _ = fmt.Fprintf(os.Stderr, "could not write memory profile: %v\n", err)
+			}
+		}
+	}()
 
 	// Clean temp dirs if exists // TODO: use OS temp dir?
 	if _, err := os.Stat(TempDirname); err == nil {
 		err := os.RemoveAll(TempDirname)
 		if err != nil {
-			os.Exit(-1)
+			return -1
 		}
 	}
 
 	startTime := time.Now()
 	err := os.MkdirAll(config.OutputDir, 0755)
 	if err != nil {
-		os.Exit(-1)
+		return -1
 	}
 
 	scheduledTests := 0
@@ -1895,7 +1949,7 @@ func main() {
 
 	resultsAbsoluteDir, err := filepath.Abs(config.ResultsDir)
 	if err != nil {
-		os.Exit(-1)
+		return -1
 	}
 	fmt.Printf("Result directory: %s\n", resultsAbsoluteDir)
 
@@ -2021,7 +2075,7 @@ func main() {
 			if err != nil {
 				_, err := fmt.Fprintf(os.Stderr, "Error reading directory %s: %v\n", config.JSONDir, err)
 				if err != nil {
-					return
+					return -1
 				}
 				continue
 			}
@@ -2116,12 +2170,12 @@ func main() {
 								}
 								select {
 								case <-ctx.Done():
-									return
+									return -1
 								case resultsChan <- testDesc.ResultChan:
 								}
 								select {
 								case <-ctx.Done():
-									return
+									return -1
 								case testsChan <- testDesc:
 								}
 								scheduledTests++
@@ -2175,7 +2229,7 @@ func main() {
 	// Clean temp dir
 	err = os.RemoveAll(TempDirname)
 	if err != nil {
-		os.Exit(-1)
+		return -1
 	}
 
 	// Print results
@@ -2192,7 +2246,12 @@ func main() {
 	fmt.Printf("Number of failed tests:       %d\n", failedTests)
 
 	if failedTests > 0 {
-		os.Exit(1)
+		return 1
 	}
-	os.Exit(0)
+	return 0
+}
+
+func main() {
+	exitCode := runMain()
+	os.Exit(exitCode)
 }
