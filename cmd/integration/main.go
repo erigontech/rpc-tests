@@ -401,10 +401,10 @@ func extractArchive(archivePath string, sanitizeExtension bool) ([]string, error
 				}
 				archivePath = archivePath + compressionType
 			}
-			inputFile, err = os.Open(archivePath)
-			if err != nil {
-				return nil, err
-			}
+		}
+		inputFile, err = os.Open(archivePath)
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -534,9 +534,26 @@ type TestDescriptor struct {
 	ResultChan    chan TestResult
 }
 
+type JsonRpcResponseMetadata struct {
+	PathOptions json.RawMessage `json:"pathOptions"`
+}
+
+type JsonRpcTestMetadata struct {
+	Request  interface{}              `json:"request"`
+	Response *JsonRpcResponseMetadata `json:"response"`
+}
+
+type JsonRpcTest struct {
+	Identifier  string               `json:"id"`
+	Reference   string               `json:"reference"`
+	Description string               `json:"description"`
+	Metadata    *JsonRpcTestMetadata `json:"metadata"`
+}
+
 type JSONRPCCommand struct {
-	Request  interface{} `json:"request"`
-	Response interface{} `json:"response"`
+	Request  interface{}  `json:"request"`
+	Response interface{}  `json:"response"`
+	TestInfo *JsonRpcTest `json:"test"`
 }
 
 func NewConfig() *Config {
@@ -1351,39 +1368,6 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 	}
 }
 
-func compareJSONFiles(errorFileName, fileName1, fileName2, diffFileName string) (bool, error) {
-	switch jsonDiffKind {
-	case JdLibrary:
-		jsonNode1, err := jd.ReadJsonFile(fileName1)
-		if err != nil {
-			return false, err
-		}
-		jsonNode2, err := jd.ReadJsonFile(fileName2)
-		if err != nil {
-			return false, err
-		}
-		diff := jsonNode1.Diff(jsonNode2, jd.SET)
-		diffString := diff.Render()
-		err = os.WriteFile(diffFileName, []byte(diffString), 0644)
-		if err != nil {
-			return false, err
-		}
-		return true, nil
-	case JsonDiffTool:
-		if success := runCompare(true, errorFileName, fileName1, fileName2, diffFileName); !success {
-			return false, fmt.Errorf("failed to compare %s and %s using json-diff command", fileName1, fileName2)
-		}
-		return true, nil
-	case DiffTool:
-		if success := runCompare(false, errorFileName, fileName1, fileName2, diffFileName); !success {
-			return false, fmt.Errorf("failed to compare %s and %s using diff command", fileName1, fileName2)
-		}
-		return true, nil
-	default:
-		return false, fmt.Errorf("unknown JSON diff kind: %d", jsonDiffKind)
-	}
-}
-
 func runCompare(useJSONDiff bool, errorFile, tempFile1, tempFile2, diffFile string) bool {
 	var cmd *exec.Cmd
 	alreadyFailed := false
@@ -1512,7 +1496,70 @@ var (
 	errDiffMismatch = errors.New("diff mismatch")
 )
 
-func compareJSON(config *Config, response interface{}, jsonFile, daemonFile, expRspFile, diffFile string, testNumber int) (bool, error) {
+func isArchive(jsonFilename string) bool {
+	// Treat all files except .json as potential archive files
+	return !strings.HasSuffix(jsonFilename, ".json")
+}
+
+func extractJsonCommands(jsonFilename string) ([]JSONRPCCommand, error) {
+	var jsonrpcCommands []JSONRPCCommand
+	data, err := os.ReadFile(jsonFilename)
+	if err != nil {
+		return jsonrpcCommands, errors.New("cannot read file " + jsonFilename)
+	}
+	if err := json.Unmarshal(data, &jsonrpcCommands); err != nil {
+		return jsonrpcCommands, errors.New("cannot parse JSON " + jsonFilename)
+	}
+	return jsonrpcCommands, nil
+}
+
+func (c *JSONRPCCommand) compareJSONFiles(errorFileName, fileName1, fileName2, diffFileName string) (bool, error) {
+	switch jsonDiffKind {
+	case JdLibrary:
+		jsonNode1, err := jd.ReadJsonFile(fileName1)
+		if err != nil {
+			return false, err
+		}
+		jsonNode2, err := jd.ReadJsonFile(fileName2)
+		if err != nil {
+			return false, err
+		}
+		var diff jd.Diff
+		// Check if the test contains any response metadata with custom options for JSON diff
+		if c.TestInfo != nil && c.TestInfo.Metadata != nil && c.TestInfo.Metadata.Response != nil {
+			if c.TestInfo.Metadata.Response.PathOptions != nil {
+				pathOptions := c.TestInfo.Metadata.Response.PathOptions
+				options, err := jd.ReadOptionsString(string(pathOptions))
+				if err != nil {
+					return false, err
+				}
+				diff = jsonNode1.Diff(jsonNode2, options...)
+			}
+		} else {
+			diff = jsonNode1.Diff(jsonNode2)
+		}
+		diffString := diff.Render()
+		err = os.WriteFile(diffFileName, []byte(diffString), 0644)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	case JsonDiffTool:
+		if success := runCompare(true, errorFileName, fileName1, fileName2, diffFileName); !success {
+			return false, fmt.Errorf("failed to compare %s and %s using json-diff command", fileName1, fileName2)
+		}
+		return true, nil
+	case DiffTool:
+		if success := runCompare(false, errorFileName, fileName1, fileName2, diffFileName); !success {
+			return false, fmt.Errorf("failed to compare %s and %s using diff command", fileName1, fileName2)
+		}
+		return true, nil
+	default:
+		return false, fmt.Errorf("unknown JSON diff kind: %d", jsonDiffKind)
+	}
+}
+
+func (c *JSONRPCCommand) compareJSON(config *Config, response interface{}, jsonFile, daemonFile, expRspFile, diffFile string, testNumber int) (bool, error) {
 	baseName := filepath.Join(TempDirname, fmt.Sprintf("test_%d", testNumber))
 	err := os.MkdirAll(baseName, 0755)
 	if err != nil {
@@ -1567,7 +1614,7 @@ func compareJSON(config *Config, response interface{}, jsonFile, daemonFile, exp
 		}
 	}
 
-	diffResult, err := compareJSONFiles(errorFile, tempFile1, tempFile2, diffFile)
+	diffResult, err := c.compareJSONFiles(errorFile, tempFile1, tempFile2, diffFile)
 	diffFileSize := int64(0)
 
 	if diffResult {
@@ -1604,8 +1651,9 @@ func compareJSON(config *Config, response interface{}, jsonFile, daemonFile, exp
 	return true, nil
 }
 
-func processResponse(response, result1 interface{}, responseInFile interface{},
-	config *Config, outputDir, daemonFile, expRspFile, diffFile, jsonFile string, testNumber int) (bool, error) {
+func (c *JSONRPCCommand) processResponse(response, result1 any, responseInFile interface{}, config *Config, outputDir, daemonFile, expRspFile, diffFile string, descriptor *TestDescriptor) (bool, error) {
+	jsonFile := descriptor.Name
+	testNumber := descriptor.Number
 
 	var expectedResponse interface{}
 	if result1 != nil {
@@ -1680,7 +1728,7 @@ func processResponse(response, result1 interface{}, responseInFile interface{},
 		return false, err
 	}
 
-	same, err := compareJSON(config, response, jsonFile, daemonFile, expRspFile, diffFile, testNumber)
+	same, err := c.compareJSON(config, response, jsonFile, daemonFile, expRspFile, diffFile, testNumber)
 	if err != nil {
 		return same, err
 	}
@@ -1706,25 +1754,98 @@ func processResponse(response, result1 interface{}, responseInFile interface{},
 	return same, nil
 }
 
-func isArchive(jsonFilename string) bool {
-	// Treat all files except .json as potential archive files
-	return !strings.HasSuffix(jsonFilename, ".json")
+func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *TestDescriptor) (bool, error) {
+	transportType := descriptor.TransportType
+	jsonFile := descriptor.Name
+	request := c.Request
+
+	method := ""
+	requestBytes, _ := json.Marshal(request)
+	var requestMap map[string]interface{}
+	if err := json.Unmarshal(requestBytes, &requestMap); err == nil {
+		if m, ok := requestMap["method"].(string); ok {
+			method = m
+		}
+	} else {
+		// Try an array of requests
+		var requestArray []map[string]interface{}
+		if err := json.Unmarshal(requestBytes, &requestArray); err == nil && len(requestArray) > 0 {
+			if m, ok := requestArray[0]["method"].(string); ok {
+				method = m
+			}
+		}
+	}
+
+	requestDumps, _ := json.Marshal(request)
+	target := getTarget(config.DaemonUnderTest, method, config)
+	target1 := ""
+
+	var jwtAuth string
+	if config.JWTSecret != "" {
+		secretBytes, _ := hex.DecodeString(config.JWTSecret)
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"iat": time.Now().Unix(),
+		})
+		tokenString, _ := token.SignedString(secretBytes)
+		jwtAuth = "Bearer " + tokenString
+	}
+
+	outputAPIFilename := filepath.Join(config.OutputDir, strings.TrimSuffix(jsonFile, filepath.Ext(jsonFile)))
+	outputDirName := filepath.Dir(outputAPIFilename)
+	diffFile := outputAPIFilename + "-diff.json"
+
+	if !config.VerifyWithDaemon {
+		result, err := executeRequest(ctx, transportType, jwtAuth, string(requestDumps), target, config.VerboseLevel)
+		if err != nil {
+			return false, err
+		}
+		if config.VerboseLevel > 2 {
+			fmt.Printf("%s: [%v]\n", config.DaemonUnderTest, result)
+		}
+		if result == nil {
+			return false, errors.New("response is n il (maybe node at " + target + " is down?)")
+		}
+
+		responseInFile := c.Response
+		daemonFile := outputAPIFilename + "-response.json"
+		expRspFile := outputAPIFilename + "-expResponse.json"
+
+		return c.processResponse(result, nil, responseInFile, config,
+			outputDirName, daemonFile, expRspFile, diffFile, descriptor)
+	} else {
+		target = getTarget(DaemonOnDefaultPort, method, config)
+		result, err := executeRequest(ctx, transportType, jwtAuth, string(requestDumps), target, config.VerboseLevel)
+		if err != nil {
+			return false, err
+		}
+		if config.VerboseLevel > 2 {
+			fmt.Printf("%s: [%v]\n", config.DaemonUnderTest, result)
+		}
+		if result == nil {
+			return false, errors.New("response is nil (maybe node at " + target + " is down?)")
+		}
+		target1 = getTarget(config.DaemonAsReference, method, config)
+		result1, err := executeRequest(ctx, transportType, jwtAuth, string(requestDumps), target1, config.VerboseLevel)
+		if err != nil {
+			return false, err
+		}
+		if config.VerboseLevel > 2 {
+			fmt.Printf("%s: [%v]\n", config.DaemonAsReference, result1)
+		}
+		if result1 == nil {
+			return false, errors.New("response is nil (maybe node at " + target1 + " is down?)")
+		}
+
+		daemonFile := outputAPIFilename + getJSONFilenameExt(DaemonOnDefaultPort, target)
+		expRspFile := outputAPIFilename + getJSONFilenameExt(config.DaemonAsReference, target1)
+
+		return c.processResponse(result, result1, nil, config,
+			outputDirName, daemonFile, expRspFile, diffFile, descriptor)
+	}
 }
 
-func extractJsonCommands(jsonFilename string) ([]JSONRPCCommand, error) {
-	var jsonrpcCommands []JSONRPCCommand
-	data, err := os.ReadFile(jsonFilename)
-	if err != nil {
-		return jsonrpcCommands, errors.New("cannot read file " + jsonFilename)
-	}
-	if err := json.Unmarshal(data, &jsonrpcCommands); err != nil {
-		return jsonrpcCommands, errors.New("cannot parse JSON " + jsonFilename)
-	}
-	return jsonrpcCommands, nil
-}
-
-func runTest(ctx context.Context, jsonFile string, testNumber int, transportType string, config *Config) (bool, error) {
-	jsonFilename := filepath.Join(config.JSONDir, jsonFile)
+func runTest(ctx context.Context, descriptor *TestDescriptor, config *Config) (bool, error) {
+	jsonFilename := filepath.Join(config.JSONDir, descriptor.Name)
 
 	var jsonrpcCommands []JSONRPCCommand
 	var err error
@@ -1756,93 +1877,11 @@ func runTest(ctx context.Context, jsonFile string, testNumber int, transportType
 		}
 	}
 
-	for _, jsonRPC := range jsonrpcCommands {
-		request := jsonRPC.Request
-		method := ""
-
-		requestBytes, _ := json.Marshal(request)
-		var requestMap map[string]interface{}
-		if err := json.Unmarshal(requestBytes, &requestMap); err == nil {
-			if m, ok := requestMap["method"].(string); ok {
-				method = m
-			}
-		} else {
-			// Try an array of requests
-			var requestArray []map[string]interface{}
-			if err := json.Unmarshal(requestBytes, &requestArray); err == nil && len(requestArray) > 0 {
-				if m, ok := requestArray[0]["method"].(string); ok {
-					method = m
-				}
-			}
-		}
-
-		requestDumps, _ := json.Marshal(request)
-		target := getTarget(config.DaemonUnderTest, method, config)
-		target1 := ""
-
-		var jwtAuth string
-		if config.JWTSecret != "" {
-			secretBytes, _ := hex.DecodeString(config.JWTSecret)
-			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-				"iat": time.Now().Unix(),
-			})
-			tokenString, _ := token.SignedString(secretBytes)
-			jwtAuth = "Bearer " + tokenString
-		}
-
-		outputAPIFilename := filepath.Join(config.OutputDir, strings.TrimSuffix(jsonFile, filepath.Ext(jsonFile)))
-		outputDirName := filepath.Dir(outputAPIFilename)
-		diffFile := outputAPIFilename + "-diff.json"
-
-		if !config.VerifyWithDaemon {
-			result, err := executeRequest(ctx, transportType, jwtAuth, string(requestDumps), target, config.VerboseLevel)
-			if err != nil {
-				return false, err
-			}
-			if config.VerboseLevel > 2 {
-				fmt.Printf("%s: [%v]\n", config.DaemonUnderTest, result)
-			}
-			if result == nil {
-				return false, errors.New("response is nil (maybe node at " + target + " is down?)")
-			}
-
-			responseInFile := jsonRPC.Response
-			daemonFile := outputAPIFilename + "-response.json"
-			expRspFile := outputAPIFilename + "-expResponse.json"
-
-			return processResponse(result, nil, responseInFile, config,
-				outputDirName, daemonFile, expRspFile, diffFile, jsonFile, testNumber)
-		} else {
-			target = getTarget(DaemonOnDefaultPort, method, config)
-			result, err := executeRequest(ctx, transportType, jwtAuth, string(requestDumps), target, config.VerboseLevel)
-			if err != nil {
-				return false, err
-			}
-			if config.VerboseLevel > 2 {
-				fmt.Printf("%s: [%v]\n", config.DaemonUnderTest, result)
-			}
-			if result == nil {
-				return false, errors.New("response is nil (maybe node at " + target + " is down?)")
-			}
-			target1 = getTarget(config.DaemonAsReference, method, config)
-			result1, err := executeRequest(ctx, transportType, jwtAuth, string(requestDumps), target1, config.VerboseLevel)
-			if err != nil {
-				return false, err
-			}
-			if config.VerboseLevel > 2 {
-				fmt.Printf("%s: [%v]\n", config.DaemonAsReference, result1)
-			}
-			if result1 == nil {
-				return false, errors.New("response is nil (maybe node at " + target1 + " is down?)")
-			}
-
-			daemonFile := outputAPIFilename + getJSONFilenameExt(DaemonOnDefaultPort, target)
-			expRspFile := outputAPIFilename + getJSONFilenameExt(config.DaemonAsReference, target1)
-
-			return processResponse(result, result1, nil, config,
-				outputDirName, daemonFile, expRspFile, diffFile, jsonFile, testNumber)
-		}
+	for _, jsonrpcCmd := range jsonrpcCommands {
+		return jsonrpcCmd.run(ctx, config, descriptor) // TODO: support multiple tests
 	}
+
+	fmt.Printf("WARN: no commands found in test %s\n", jsonFilename)
 
 	return true, nil
 }
@@ -2000,7 +2039,7 @@ func runMain() int {
 					if test == nil {
 						return
 					}
-					success, err := runTest(ctx, test.Name, test.Number, test.TransportType, config)
+					success, err := runTest(ctx, test, config)
 					test.ResultChan <- TestResult{Success: success, Error: err, Test: test}
 				case <-ctx.Done():
 					return

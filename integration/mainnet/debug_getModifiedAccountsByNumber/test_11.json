@@ -1,26 +1,36 @@
 [
-    {
-        "request": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "debug_getModifiedAccountsByNumber",
-            "params": [
-                1704000,
-                1704002
-            ]
-        },
+  {
+    "test": {
+      "id": "debug_getModifiedAccountsByNumber_1704000_1704002",
+      "reference": "",
+      "description": "modified accounts between block 1704000 and 1704002",
+      "metadata": {
         "response": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "result": [
-                "0xc96d5d4d54bd18ea9efcc586c4ec82b7c46c6f6b",
-                "0xd3e8604857beaae9a584a29e2381ffe852a3c0d7",
-                "0xf3b9d2c81f2b24b0fa0acaaa865b7d9ced5fc2fb",
-                "0xfbe26da0e985087d28228defbdaa394713b0865f",
-                "0x27cf4b6a2205267c31e29701cdb1fb7375170fc9",
-                "0x73e52fde465a855b60a2846292ee0c77965063b6",
-                "0xbb9bc244d798123fde783fcc1c72d3bb8c189413"
-            ]
+          "pathOptions": [{"@": ["result"], "^": ["SET"]}]
         }
+      }
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_getModifiedAccountsByNumber",
+      "params": [
+        1704000,
+        1704002
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        "0xc96d5d4d54bd18ea9efcc586c4ec82b7c46c6f6b",
+        "0xd3e8604857beaae9a584a29e2381ffe852a3c0d7",
+        "0xf3b9d2c81f2b24b0fa0acaaa865b7d9ced5fc2fb",
+        "0xfbe26da0e985087d28228defbdaa394713b0865f",
+        "0x27cf4b6a2205267c31e29701cdb1fb7375170fc9",
+        "0x73e52fde465a855b60a2846292ee0c77965063b6",
+        "0xbb9bc244d798123fde783fcc1c72d3bb8c189413"
+      ]
     }
+  }
 ]
