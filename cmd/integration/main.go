@@ -1168,7 +1168,7 @@ func validateJsonRpcObject(response map[string]any, strict bool) error {
 
 // validateJsonRpcResponse checks that the received response is a valid JSON-RPC message, according to 2.0 spec.
 // This implies that the response must be either a valid JSON-RPC object, i.e. a JSON object containing at least
-// "jsonrpc" and "id" fields or a JSON array  where each element (if any) is in turn a valid JSON-RPC object.
+// "jsonrpc" and "id" fields or a JSON array where each element (if any) is in turn a valid JSON-RPC object.
 func validateJsonRpcResponse(response any) error {
 	_, isArray := response.([]any)
 	responseAsMap, isMap := response.(map[string]any)
@@ -1234,7 +1234,12 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 			req.Header.Set(k, v)
 		}
 
+		start := time.Now()
 		resp, err := client.Do(req)
+		elapsed := time.Since(start)
+		if verboseLevel > 1 {
+			fmt.Printf("http round-trip time: %v\n", elapsed)
+		}
 		if err != nil {
 			if verboseLevel > 0 {
 				fmt.Printf("\nhttp connection fail: %s %v\n", targetURL, err)
@@ -1740,14 +1745,14 @@ func runTest(ctx context.Context, jsonFile string, testNumber int, transportType
 			jsonrpcCommands, err = extractJsonCommands(tempFilePath)
 			if err != nil {
 				removeTempFiles()
-				return false, errors.New("cannot extract JSONRPC commands from " + tempFilePath)
+				return false, err
 			}
 		}
 		removeTempFiles()
 	} else {
 		jsonrpcCommands, err = extractJsonCommands(jsonFilename)
 		if err != nil {
-			return false, errors.New("cannot extract JSONRPC commands from " + jsonFilename)
+			return false, err
 		}
 	}
 
@@ -1869,7 +1874,12 @@ func runMain() int {
 		if err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "could not create CPU profile: %v\n", err)
 		}
-		defer f.Close()
+		defer func(f *os.File) {
+			err := f.Close()
+			if err != nil {
+				_, _ = fmt.Fprintf(os.Stderr, "could not close CPU profile: %v\n", err)
+			}
+		}(f)
 		if err := pprof.StartCPUProfile(f); err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "could not start CPU profile: %v\n", err)
 		}
@@ -1882,7 +1892,12 @@ func runMain() int {
 		if err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "could not create trace file: %v\n", err)
 		}
-		defer f.Close()
+		defer func(f *os.File) {
+			err := f.Close()
+			if err != nil {
+				_, _ = fmt.Fprintf(os.Stderr, "could not close trace file: %v\n", err)
+			}
+		}(f)
 		if err := trace.Start(f); err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "could not start trace: %v\n", err)
 		}
@@ -1896,7 +1911,12 @@ func runMain() int {
 			if err != nil {
 				_, _ = fmt.Fprintf(os.Stderr, "could not create memory profile: %v\n", err)
 			}
-			defer f.Close()
+			defer func(f *os.File) {
+				err := f.Close()
+				if err != nil {
+					_, _ = fmt.Fprintf(os.Stderr, "could not close memory profile: %v\n", err)
+				}
+			}(f)
 			runtime.GC() // get up-to-date statistics
 			if err := pprof.WriteHeapProfile(f); err != nil {
 				_, _ = fmt.Fprintf(os.Stderr, "could not write memory profile: %v\n", err)
