@@ -1536,10 +1536,10 @@ func extractJsonCommands(jsonFilename string) ([]JSONRPCCommand, error) {
 	var jsonrpcCommands []JSONRPCCommand
 	data, err := os.ReadFile(jsonFilename)
 	if err != nil {
-		return jsonrpcCommands, errors.New("cannot read file " + jsonFilename)
+		return jsonrpcCommands, errors.New("cannot read file " + jsonFilename + ": " + err.Error())
 	}
 	if err := json.Unmarshal(data, &jsonrpcCommands); err != nil {
-		return jsonrpcCommands, errors.New("cannot parse JSON " + jsonFilename)
+		return jsonrpcCommands, errors.New("cannot parse JSON " + jsonFilename + ": " + err.Error())
 	}
 	return jsonrpcCommands, nil
 }
@@ -1925,6 +1925,60 @@ func mustAtoi(s string) int {
 	return n
 }
 
+type ResultCollector struct {
+	resultsChan   chan chan TestResult
+	config        *Config
+	successTests  int
+	failedTests   int
+	executedTests int
+}
+
+func newResultCollector(resultsChan chan chan TestResult, config *Config) *ResultCollector {
+	return &ResultCollector{resultsChan: resultsChan, config: config}
+}
+
+func (c *ResultCollector) start(ctx context.Context, cancelCtx context.CancelFunc, resultsWg *sync.WaitGroup) {
+	go func() {
+		defer resultsWg.Done()
+		for {
+			select {
+			case testResultCh := <-c.resultsChan:
+				if testResultCh == nil {
+					return
+				}
+				select {
+				case result := <-testResultCh:
+					file := fmt.Sprintf("%-60s", result.Test.Name)
+					tt := fmt.Sprintf("%-15s", result.Test.TransportType)
+					fmt.Printf("%04d. %s::%s   ", result.Test.Number, tt, file)
+
+					if result.Success {
+						c.successTests++
+						if c.config.VerboseLevel > 0 {
+							fmt.Println("OK")
+						} else {
+							fmt.Print("OK\r")
+						}
+					} else {
+						c.failedTests++
+						fmt.Printf("failed: %s\n", result.Error.Error())
+						if c.config.ExitOnFail {
+							// Signal other tasks to stop and exit
+							cancelCtx()
+							return
+						}
+					}
+					c.executedTests++
+				case <-ctx.Done():
+					return
+				}
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+}
+
 func runMain() int {
 	// Create a channel to receive OS signals and register for clean termination signals.
 	sigs := make(chan os.Signal, 1)
@@ -2007,9 +2061,6 @@ func runMain() int {
 	}
 
 	scheduledTests := 0
-	executedTests := 0
-	failedTests := 0
-	successTests := 0
 	skippedTests := 0
 
 	var serverEndpoints string
@@ -2080,45 +2131,8 @@ func runMain() int {
 	// Results collector
 	var resultsWg sync.WaitGroup
 	resultsWg.Add(1)
-	go func() {
-		defer resultsWg.Done()
-		for {
-			select {
-			case testResultCh := <-resultsChan:
-				if testResultCh == nil {
-					return
-				}
-				select {
-				case result := <-testResultCh:
-					file := fmt.Sprintf("%-60s", result.Test.Name)
-					tt := fmt.Sprintf("%-15s", result.Test.TransportType)
-					fmt.Printf("%04d. %s::%s   ", result.Test.Number, tt, file)
-
-					if result.Success {
-						successTests++
-						if config.VerboseLevel > 0 {
-							fmt.Println("OK")
-						} else {
-							fmt.Print("OK\r")
-						}
-					} else {
-						failedTests++
-						fmt.Printf("failed: %s\n", result.Error.Error())
-						if config.ExitOnFail {
-							// Signal other tasks to stop and exit
-							cancelCtx()
-							return
-						}
-					}
-					executedTests++
-				case <-ctx.Done():
-					return
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
+	resultsCollector := newResultCollector(resultsChan, config)
+	resultsCollector.start(ctx, cancelCtx, &resultsWg)
 
 	go func() {
 		for {
@@ -2281,15 +2295,6 @@ func runMain() int {
 				}
 			}
 		}
-
-		if config.ExitOnFail && failedTests > 0 {
-			fmt.Println("WARN: test sequence interrupted by failure (ExitOnFail)")
-			break
-		}
-	}
-
-	if scheduledTests == 0 && config.TestingAPIsWith != "" {
-		fmt.Printf("WARN: API filter %s selected no tests\n", config.TestingAPIsWith)
 	}
 
 	// Close channels and wait for completion
@@ -2297,6 +2302,14 @@ func runMain() int {
 	wg.Wait()
 	close(resultsChan)
 	resultsWg.Wait()
+
+	if scheduledTests == 0 && config.TestingAPIsWith != "" {
+		fmt.Printf("WARN: API filter %s selected no tests\n", config.TestingAPIsWith)
+	}
+
+	if config.ExitOnFail && resultsCollector.failedTests > 0 {
+		fmt.Println("WARN: test sequence interrupted by failure (ExitOnFail)")
+	}
 
 	// Clean empty subfolders in the output dir
 	if entries, err := os.ReadDir(config.OutputDir); err == nil {
@@ -2329,11 +2342,11 @@ func runMain() int {
 	fmt.Printf("Test suite total tests:       %d\n", globalTestNumber)
 	fmt.Printf("Number of skipped tests:      %d\n", skippedTests)
 	fmt.Printf("Number of selected tests:     %d\n", scheduledTests)
-	fmt.Printf("Number of executed tests:     %d\n", executedTests)
-	fmt.Printf("Number of success tests:      %d\n", successTests)
-	fmt.Printf("Number of failed tests:       %d\n", failedTests)
+	fmt.Printf("Number of executed tests:     %d\n", resultsCollector.executedTests)
+	fmt.Printf("Number of success tests:      %d\n", resultsCollector.successTests)
+	fmt.Printf("Number of failed tests:       %d\n", resultsCollector.failedTests)
 
-	if failedTests > 0 {
+	if resultsCollector.failedTests > 0 {
 		return 1
 	}
 	return 0
