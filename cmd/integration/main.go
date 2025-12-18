@@ -1234,7 +1234,7 @@ func validateJsonRpcResponse(response any) error {
 	return nil
 }
 
-func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, target string, verboseLevel int) (any, error) {
+func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth, requestDumps, target string) (any, error) {
 	if transportType == "http" || transportType == "http_comp" || transportType == "https" {
 		headers := map[string]string{
 			"Content-Type": "application/json",
@@ -1261,7 +1261,7 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 
 		req, err := http.NewRequestWithContext(ctx, "POST", targetURL, bytes.NewBufferString(requestDumps))
 		if err != nil {
-			if verboseLevel > 0 {
+			if config.VerboseLevel > 0 {
 				fmt.Printf("\nhttp request creation fail: %s %v\n", targetURL, err)
 			}
 			return nil, err
@@ -1274,11 +1274,11 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 		start := time.Now()
 		resp, err := client.Do(req)
 		elapsed := time.Since(start)
-		if verboseLevel > 1 {
+		if config.VerboseLevel > 1 {
 			fmt.Printf("http round-trip time: %v\n", elapsed)
 		}
 		if err != nil {
-			if verboseLevel > 0 {
+			if config.VerboseLevel > 0 {
 				fmt.Printf("\nhttp connection fail: %s %v\n", targetURL, err)
 			}
 			return nil, err
@@ -1291,28 +1291,27 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 		}(resp.Body)
 
 		if resp.StatusCode != http.StatusOK {
-			if verboseLevel > 1 {
+			if config.VerboseLevel > 1 {
 				fmt.Printf("\npost result status_code: %d\n", resp.StatusCode)
 			}
-			// TODO: add option to stop on any HTTP error?
 			return nil, fmt.Errorf("http status %v", resp.Status)
 		}
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			if verboseLevel > 0 {
+			if config.VerboseLevel > 0 {
 				fmt.Printf("\nfailed to read response body: %v\n", err)
 			}
 			return nil, err
 		}
 
-		if verboseLevel > 1 {
+		if config.VerboseLevel > 1 {
 			fmt.Printf("\nhttp response body: %s\n", string(body))
 		}
 
 		var result any
 		if err = json.Unmarshal(body, &result); err != nil {
-			if verboseLevel > 0 {
+			if config.VerboseLevel > 0 {
 				fmt.Printf("\nfailed to parse JSON: %v\n", err)
 			}
 			return nil, err
@@ -1322,7 +1321,7 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 			return nil, err
 		}
 
-		if verboseLevel > 1 {
+		if config.VerboseLevel > 1 {
 			fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, requestDumps, result)
 		}
 
@@ -1341,7 +1340,7 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 
 		conn, _, err := dialer.Dial(wsTarget, headers)
 		if err != nil {
-			if verboseLevel > 0 {
+			if config.VerboseLevel > 0 {
 				fmt.Printf("\nwebsocket connection fail: %v\n", err)
 			}
 			return nil, err
@@ -1354,7 +1353,7 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 		}(conn)
 
 		if err = conn.WriteMessage(websocket.TextMessage, []byte(requestDumps)); err != nil {
-			if verboseLevel > 0 {
+			if config.VerboseLevel > 0 {
 				fmt.Printf("\nwebsocket write fail: %v\n", err)
 			}
 			return nil, err
@@ -1362,7 +1361,7 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 
 		_, message, err := conn.ReadMessage()
 		if err != nil {
-			if verboseLevel > 0 {
+			if config.VerboseLevel > 0 {
 				fmt.Printf("\nwebsocket read fail: %v\n", err)
 			}
 			return nil, err
@@ -1370,7 +1369,7 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 
 		var result any
 		if err = json.Unmarshal(message, &result); err != nil {
-			if verboseLevel > 0 {
+			if config.VerboseLevel > 0 {
 				fmt.Printf("\nfailed to parse JSON: %v\n", err)
 			}
 			return nil, err
@@ -1380,7 +1379,7 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 			return nil, err
 		}
 
-		if verboseLevel > 1 {
+		if config.VerboseLevel > 1 {
 			fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, requestDumps, result)
 		}
 
@@ -1815,7 +1814,7 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 	diffFile := outputAPIFilename + "-diff.json"
 
 	if !config.VerifyWithDaemon {
-		result, err := executeRequest(ctx, transportType, jwtAuth, string(requestDumps), target, config.VerboseLevel)
+		result, err := executeRequest(ctx, config, transportType, jwtAuth, string(requestDumps), target)
 		if err != nil {
 			return false, err
 		}
@@ -1834,7 +1833,7 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 			outputDirName, daemonFile, expRspFile, diffFile, descriptor)
 	} else {
 		target = getTarget(DaemonOnDefaultPort, method, config)
-		result, err := executeRequest(ctx, transportType, jwtAuth, string(requestDumps), target, config.VerboseLevel)
+		result, err := executeRequest(ctx, config, transportType, jwtAuth, string(requestDumps), target)
 		if err != nil {
 			return false, err
 		}
@@ -1845,7 +1844,7 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 			return false, errors.New("response is nil (maybe node at " + target + " is down?)")
 		}
 		target1 = getTarget(config.DaemonAsReference, method, config)
-		result1, err := executeRequest(ctx, transportType, jwtAuth, string(requestDumps), target1, config.VerboseLevel)
+		result1, err := executeRequest(ctx, config, transportType, jwtAuth, string(requestDumps), target1)
 		if err != nil {
 			return false, err
 		}
