@@ -481,7 +481,23 @@ const (
 	DiffTool
 )
 
-var jsonDiffKind = JdLibrary
+func (k JsonDiffKind) String() string {
+	return [...]string{"jd", "json-diff", "diff"}[k]
+}
+
+// ParseJsonDiffKind converts a string into a JsonDiffKind enum type
+func ParseJsonDiffKind(s string) (JsonDiffKind, error) {
+	switch strings.ToLower(s) {
+	case "jd":
+		return JdLibrary, nil
+	case "json-diff":
+		return JsonDiffTool, nil
+	case "diff":
+		return DiffTool, nil
+	default:
+		return JdLibrary, fmt.Errorf("invalid JsonDiffKind value: %s", s)
+	}
+}
 
 type Config struct {
 	ExitOnFail            bool
@@ -509,7 +525,7 @@ type Config struct {
 	DisplayOnlyFail       bool
 	TransportType         string
 	Parallel              bool
-	UseJSONDiff           bool
+	DiffKind              JsonDiffKind
 	WithoutCompareResults bool
 	WaitingTime           int
 	DoNotCompareError     bool
@@ -578,7 +594,7 @@ func NewConfig() *Config {
 		DisplayOnlyFail:       false,
 		TransportType:         "http",
 		Parallel:              true,
-		UseJSONDiff:           true,
+		DiffKind:              JdLibrary,
 		WithoutCompareResults: false,
 		WaitingTime:           0,
 		DoNotCompareError:     false,
@@ -657,8 +673,8 @@ func (c *Config) parseFlags() error {
 	excludeTestList := flag.String("X", "", "exclude test list")
 	flag.StringVar(excludeTestList, "exclude-test-list", "", "exclude test list")
 
-	jsonDiff := flag.Bool("j", true, "use json-diff")
-	flag.BoolVar(jsonDiff, "json-diff", true, "use json-diff")
+	diffKind := flag.String("j", c.DiffKind.String(), "diff for JSON values, one of: jd, json-diff, diff")
+	flag.StringVar(diffKind, "json-diff", c.DiffKind.String(), "diff for JSON values, one of: jd, json-diff, diff")
 
 	waitingTime := flag.Int("w", 0, "waiting time in milliseconds")
 	flag.IntVar(waitingTime, "waiting-time", 0, "waiting time in milliseconds")
@@ -720,7 +736,6 @@ func (c *Config) parseFlags() error {
 	c.ExcludeTestList = *excludeTestList
 	c.StartTest = *startTest
 	c.TransportType = *transportType
-	c.UseJSONDiff = *jsonDiff
 	c.WaitingTime = *waitingTime
 	c.ForceDumpJSONs = *dumpResponse
 	c.WithoutCompareResults = *withoutCompare
@@ -730,6 +745,12 @@ func (c *Config) parseFlags() error {
 	c.CpuProfile = *cpuProfile
 	c.MemProfile = *memProfile
 	c.TraceFile = *traceFile
+
+	kind, err := ParseJsonDiffKind(*diffKind)
+	if err != nil {
+		return err
+	}
+	c.DiffKind = kind
 
 	if *daemonPort {
 		c.DaemonUnderTest = DaemonOnOtherPort
@@ -744,7 +765,6 @@ func (c *Config) parseFlags() error {
 	if *compareErigon {
 		c.VerifyWithDaemon = true
 		c.DaemonAsReference = DaemonOnDefaultPort
-		c.UseJSONDiff = true
 	}
 
 	if *createJWT != "" {
@@ -1368,19 +1388,19 @@ func executeRequest(ctx context.Context, transportType, jwtAuth, requestDumps, t
 	}
 }
 
-func runCompare(useJSONDiff bool, errorFile, tempFile1, tempFile2, diffFile string) bool {
+func runCompare(jsonDiff bool, errorFile, tempFile1, tempFile2, diffFile string) bool {
 	var cmd *exec.Cmd
 	alreadyFailed := false
 
-	if useJSONDiff {
+	if jsonDiff {
 		// Check if json-diff is available
 		checkCmd := exec.Command("json-diff", "--help")
 		if err := checkCmd.Run(); err != nil {
-			useJSONDiff = false
+			jsonDiff = false
 		}
 	}
 
-	if useJSONDiff {
+	if jsonDiff {
 		cmd = exec.Command("sh", "-c", fmt.Sprintf("json-diff -s %s %s > %s 2> %s", tempFile2, tempFile1, diffFile, errorFile))
 		alreadyFailed = false
 	} else {
@@ -1513,8 +1533,8 @@ func extractJsonCommands(jsonFilename string) ([]JSONRPCCommand, error) {
 	return jsonrpcCommands, nil
 }
 
-func (c *JSONRPCCommand) compareJSONFiles(errorFileName, fileName1, fileName2, diffFileName string) (bool, error) {
-	switch jsonDiffKind {
+func (c *JSONRPCCommand) compareJSONFiles(kind JsonDiffKind, errorFileName, fileName1, fileName2, diffFileName string) (bool, error) {
+	switch kind {
 	case JdLibrary:
 		jsonNode1, err := jd.ReadJsonFile(fileName1)
 		if err != nil {
@@ -1555,7 +1575,7 @@ func (c *JSONRPCCommand) compareJSONFiles(errorFileName, fileName1, fileName2, d
 		}
 		return true, nil
 	default:
-		return false, fmt.Errorf("unknown JSON diff kind: %d", jsonDiffKind)
+		return false, fmt.Errorf("unknown JSON diff kind: %d", kind)
 	}
 }
 
@@ -1614,7 +1634,7 @@ func (c *JSONRPCCommand) compareJSON(config *Config, response interface{}, jsonF
 		}
 	}
 
-	diffResult, err := c.compareJSONFiles(errorFile, tempFile1, tempFile2, diffFile)
+	diffResult, err := c.compareJSONFiles(config.DiffKind, errorFile, tempFile1, tempFile2, diffFile)
 	diffFileSize := int64(0)
 
 	if diffResult {
@@ -1925,7 +1945,6 @@ func runMain() int {
 		defer pprof.StopCPUProfile()
 	}
 
-	// Execution trace
 	if config.TraceFile != "" {
 		f, err := os.Create(config.TraceFile)
 		if err != nil {
@@ -1943,7 +1962,6 @@ func runMain() int {
 		defer trace.Stop()
 	}
 
-	// Memory profiling at end
 	defer func() {
 		if config.MemProfile != "" {
 			f, err := os.Create(config.MemProfile)
