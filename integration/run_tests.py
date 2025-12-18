@@ -378,7 +378,7 @@ def generate_json_report(filename, start_time, elapsed, total_tests, tested_apis
         "summary": {
             "start_time": start_time.isoformat(),
             "time_elapsed": str(elapsed),
-            "available_tests": total_tests - 1,
+            "available_tests": total_tests,
             "available_tested_api": tested_apis,
             "number_of_loops": loops + 1,
             "executed_tests": executed_tests,
@@ -1071,7 +1071,6 @@ def main(argv) -> int:
 
     global_test_number = 0
     available_tested_apis = 0
-    test_rep = 0
     test_results = []  # Store test results for JSON report
     try:
         for test_rep in range(0, config.loop_number):  # makes tests more times
@@ -1111,6 +1110,15 @@ def main(argv) -> int:
                                         file = json_test_full_name.ljust(60)
                                         curr_tt = transport_type.ljust(15)
                                         print(f"{test_number_in_any_loop:04d}. {curr_tt}::{file} Skipped")
+                                        # Store result for JSON report
+                                        if config.verbose_level == 1:
+                                            test_results.append({
+                                                "test_number": test_number_in_any_loop,
+                                                "transport_type": transport_type,
+                                                "test_name": json_test_full_name,
+                                                "result": "SKIPPED",
+                                                "error_message": ""
+                                            })
                                     tests_not_executed = tests_not_executed + 1
                             else:
                                 # runs all tests or
@@ -1203,9 +1211,9 @@ def main(argv) -> int:
     elapsed = datetime.now() - start_time
     print("                                                                                                                  \r")
     print(f"Test time-elapsed:            {str(elapsed)}")
-    print(f"Available tests:              {global_test_number - 1}")
+    print(f"Available tests:              {global_test_number}")
     print(f"Available tested api:         {available_tested_apis}")
-    print(f"Number of loop:               {test_rep + 1}")
+    print(f"Number of loop:               {config.loop_number}")
     print(f"Number of executed tests:     {executed_tests}")
     print(f"Number of NOT executed tests: {tests_not_executed}")
     print(f"Number of success tests:      {success_tests}")
@@ -1215,10 +1223,10 @@ def main(argv) -> int:
 
     # Generate JSON report if verbosity level is 1
     if config.verbose_level == 1:
-        report_filename = "test_report.json"
-        generate_json_report(report_filename, start_time, elapsed, global_test_number,
-                           available_tested_apis, test_rep, executed_tests,
-                           tests_not_executed, success_tests, failed_tests, test_results)
+        report_filename = config.output_dir + "test_report.json"
+        generate_json_report(
+            report_filename, start_time, elapsed, global_test_number, available_tested_apis,
+            config.loop_number, executed_tests, tests_not_executed, success_tests, failed_tests, test_results)
         print(f"\nJSON report generated: {report_filename}")
 
     return failed_tests
