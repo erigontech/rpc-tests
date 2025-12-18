@@ -1170,17 +1170,14 @@ var (
 	errJsonRpcContainsBothResultAndError = errors.New("JSON-RPC 2.0 response contains both 'result' and 'error'")
 )
 
-// validateJsonRpcObject checks that the received response is a valid JSON-RPC object, according to 2.0 spec.
-// This implies that the response must be a JSON object containing:
+// validateJsonRpcObject checks that the passed object is a valid JSON-RPC object, according to 2.0 spec.
+// This implies that it must be a JSON object containing:
 // - one mandatory "jsonrpc" field which must be equal to "2.0"
 // - one mandatory "id" field which must match the value of the same field in the request
-// - either one "result" field in case of success or one "error" field otherwise, mutually exclusive
-// The strict parameter relaxes the compliance requirements by allowing both 'result' and 'error' to be present
-// TODO: strict parameter is required for corner cases in streaming mode when 'result' is emitted up-front
 // https://www.jsonrpc.org/specification
-func validateJsonRpcObject(response map[string]any, strict bool) error {
-	// Ensure that the response is a valid JSON-RPC object.
-	jsonrpc, ok := response[jsonRpcTag]
+func validateJsonRpcObject(object map[string]any) error {
+	// Ensure that the object is a valid JSON-RPC object.
+	jsonrpc, ok := object[jsonRpcTag]
 	if !ok {
 		return errJsonRpcMissingVersion
 	}
@@ -1188,9 +1185,24 @@ func validateJsonRpcObject(response map[string]any, strict bool) error {
 	if jsonrpcVersion != "2.0" {
 		return errJsonRpcNoncompliantVersion
 	}
-	_, ok = response[identifierTag]
+	_, ok = object[identifierTag]
 	if !ok {
 		return errJsonRpcMissingId
+	}
+	return nil
+}
+
+// validateJsonRpcResponseObject checks that the passed response is a valid JSON-RPC response, according to 2.0 spec.
+// This implies that the response must be a valid JSON-RPC object plus:
+// - either one "result" field in case of success or one "error" field otherwise, mutually exclusive
+// The strict parameter relaxes the compliance requirements by allowing both 'result' and 'error' to be present
+// TODO: strict parameter is required for corner cases in streaming mode when 'result' is emitted up-front
+// https://www.jsonrpc.org/specification
+func validateJsonRpcResponseObject(response map[string]any, strict bool) error {
+	// Ensure that the response is a valid JSON-RPC object.
+	err := validateJsonRpcObject(response)
+	if err != nil {
+		return err
 	}
 	_, hasResult := response[resultTag]
 	_, hasError := response[errorTag]
@@ -1214,7 +1226,7 @@ func validateJsonRpcResponse(response any) error {
 	}
 	if isMap {
 		// Ensure that the response is a valid JSON-RPC object.
-		err := validateJsonRpcObject(responseAsMap, false)
+		err := validateJsonRpcResponseObject(responseAsMap, false)
 		if err != nil {
 			return err
 		}
@@ -1225,7 +1237,7 @@ func validateJsonRpcResponse(response any) error {
 			if !isElementMap {
 				return errJsonRpcUnexpectedFormat
 			}
-			err := validateJsonRpcObject(elementAsMap, false)
+			err := validateJsonRpcResponseObject(elementAsMap, false)
 			if err != nil {
 				return err
 			}
