@@ -1205,133 +1205,140 @@ func validateJsonRpcResponse(response any) error {
 	return nil
 }
 
-func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth, requestDumps, target string) ([]byte, error) {
-	if transportType == "http" || transportType == "http_comp" || transportType == "https" {
-		headers := map[string]string{
-			"Content-Type": "application/json",
-		}
-
-		if transportType != "http_comp" {
-			headers["Accept-Encoding"] = "Identity"
-		}
-
-		if jwtAuth != "" {
-			headers["Authorization"] = jwtAuth
-		}
-
-		targetURL := target
-		if transportType == "https" {
-			targetURL = "https://" + target
-		} else {
-			targetURL = "http://" + target
-		}
-
-		client := &http.Client{
-			Timeout: 300 * time.Second,
-		}
-
-		req, err := http.NewRequestWithContext(ctx, "POST", targetURL, bytes.NewBufferString(requestDumps))
-		if err != nil {
-			if config.VerboseLevel > 0 {
-				fmt.Printf("\nhttp request creation fail: %s %v\n", targetURL, err)
-			}
-			return nil, err
-		}
-
-		for k, v := range headers {
-			req.Header.Set(k, v)
-		}
-
-		start := time.Now()
-		resp, err := client.Do(req)
-		elapsed := time.Since(start)
-		if config.VerboseLevel > 1 {
-			fmt.Printf("http round-trip time: %v\n", elapsed)
-		}
-		if err != nil {
-			if config.VerboseLevel > 0 {
-				fmt.Printf("\nhttp connection fail: %s %v\n", targetURL, err)
-			}
-			return nil, err
-		}
-		defer func(Body io.ReadCloser) {
-			err := Body.Close()
-			if err != nil {
-				fmt.Printf("\nfailed to close response body: %v\n", err)
-			}
-		}(resp.Body)
-
-		if resp.StatusCode != http.StatusOK {
-			if config.VerboseLevel > 1 {
-				fmt.Printf("\npost result status_code: %d\n", resp.StatusCode)
-			}
-			return nil, fmt.Errorf("http status %v", resp.Status)
-		}
-
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			if config.VerboseLevel > 0 {
-				fmt.Printf("\nfailed to read response body: %v\n", err)
-			}
-			return nil, err
-		}
-
-		if config.VerboseLevel > 1 {
-			fmt.Printf("\nhttp response body: %s\n", string(body))
-		}
-
-		if config.VerboseLevel > 1 {
-			fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, requestDumps, string(body))
-		}
-
-		return body, nil
-	} else {
-		// WebSocket
-		wsTarget := "ws://" + target
-		dialer := websocket.Dialer{
-			HandshakeTimeout: 300 * time.Second,
-		}
-
-		headers := http.Header{}
-		if jwtAuth != "" {
-			headers.Set("Authorization", jwtAuth)
-		}
-
-		conn, _, err := dialer.Dial(wsTarget, headers)
-		if err != nil {
-			if config.VerboseLevel > 0 {
-				fmt.Printf("\nwebsocket connection fail: %v\n", err)
-			}
-			return nil, err
-		}
-		defer func(conn *websocket.Conn) {
-			err := conn.Close()
-			if err != nil {
-				fmt.Printf("\nfailed to close websocket connection: %v\n", err)
-			}
-		}(conn)
-
-		if err = conn.WriteMessage(websocket.TextMessage, []byte(requestDumps)); err != nil {
-			if config.VerboseLevel > 0 {
-				fmt.Printf("\nwebsocket write fail: %v\n", err)
-			}
-			return nil, err
-		}
-
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			if config.VerboseLevel > 0 {
-				fmt.Printf("\nwebsocket read fail: %v\n", err)
-			}
-			return nil, err
-		}
-
-		if config.VerboseLevel > 1 {
-			fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, requestDumps, string(message))
-		}
-
-		return message, nil
+func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtAuth, target string, request []byte) ([]byte, error) {
+	headers := map[string]string{
+		"Content-Type": "application/json",
 	}
+
+	if transportType != "http_comp" {
+		headers["Accept-Encoding"] = "Identity"
+	}
+
+	if jwtAuth != "" {
+		headers["Authorization"] = jwtAuth
+	}
+
+	targetURL := target
+	if transportType == "https" {
+		targetURL = "https://" + target
+	} else {
+		targetURL = "http://" + target
+	}
+
+	client := &http.Client{
+		Timeout: 300 * time.Second,
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", targetURL, bytes.NewBuffer(request))
+	if err != nil {
+		if config.VerboseLevel > 0 {
+			fmt.Printf("\nhttp request creation fail: %s %v\n", targetURL, err)
+		}
+		return nil, err
+	}
+
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+
+	start := time.Now()
+	resp, err := client.Do(req)
+	elapsed := time.Since(start)
+	if config.VerboseLevel > 1 {
+		fmt.Printf("http round-trip time: %v\n", elapsed)
+	}
+	if err != nil {
+		if config.VerboseLevel > 0 {
+			fmt.Printf("\nhttp connection fail: %s %v\n", targetURL, err)
+		}
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Printf("\nfailed to close response body: %v\n", err)
+		}
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		if config.VerboseLevel > 1 {
+			fmt.Printf("\npost result status_code: %d\n", resp.StatusCode)
+		}
+		return nil, fmt.Errorf("http status %v", resp.Status)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		if config.VerboseLevel > 0 {
+			fmt.Printf("\nfailed to read response body: %v\n", err)
+		}
+		return nil, err
+	}
+
+	if config.VerboseLevel > 1 {
+		fmt.Printf("\nhttp response body: %s\n", string(body))
+	}
+
+	if config.VerboseLevel > 1 {
+		fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, request, string(body))
+	}
+
+	return body, nil
+}
+
+func executeWebSocketRequest(config *Config, transportType, jwtAuth, target string, request []byte) ([]byte, error) {
+	wsTarget := "ws://" + target
+	dialer := websocket.Dialer{
+		HandshakeTimeout:  300 * time.Second,
+		EnableCompression: strings.HasSuffix(transportType, "_comp"),
+	}
+
+	headers := http.Header{}
+	if jwtAuth != "" {
+		headers.Set("Authorization", jwtAuth)
+	}
+
+	conn, _, err := dialer.Dial(wsTarget, headers)
+	if err != nil {
+		if config.VerboseLevel > 0 {
+			fmt.Printf("\nwebsocket connection fail: %v\n", err)
+		}
+		return nil, err
+	}
+	defer func(conn *websocket.Conn) {
+		err := conn.Close()
+		if err != nil {
+			fmt.Printf("\nfailed to close websocket connection: %v\n", err)
+		}
+	}(conn)
+
+	if err = conn.WriteMessage(websocket.BinaryMessage, request); err != nil {
+		if config.VerboseLevel > 0 {
+			fmt.Printf("\nwebsocket write fail: %v\n", err)
+		}
+		return nil, err
+	}
+
+	_, message, err := conn.ReadMessage()
+	if err != nil {
+		if config.VerboseLevel > 0 {
+			fmt.Printf("\nwebsocket read fail: %v\n", err)
+		}
+		return nil, err
+	}
+
+	if config.VerboseLevel > 1 {
+		fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, request, string(message))
+	}
+
+	return message, nil
+}
+
+func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth, target string, request []byte) ([]byte, error) {
+	if strings.HasPrefix(transportType, "http") {
+		return executeHttpRequest(ctx, config, transportType, jwtAuth, target, request)
+	}
+	return executeWebSocketRequest(config, transportType, jwtAuth, target, request)
 }
 
 func runCompare(jsonDiff bool, errorFile, tempFile1, tempFile2, diffFile string) bool {
@@ -1776,7 +1783,7 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 	diffFile := outputAPIFilename + "-diff.json"
 
 	if !config.VerifyWithDaemon {
-		result, err := executeRequest(ctx, config, transportType, jwtAuth, string(request), target)
+		result, err := executeRequest(ctx, config, transportType, jwtAuth, target, request)
 		if err != nil {
 			return false, err
 		}
@@ -1795,7 +1802,7 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 			outputDirName, daemonFile, expRspFile, diffFile, descriptor)
 	} else {
 		target = getTarget(DaemonOnDefaultPort, method, config)
-		result, err := executeRequest(ctx, config, transportType, jwtAuth, string(request), target)
+		result, err := executeRequest(ctx, config, transportType, jwtAuth, target, request)
 		if err != nil {
 			return false, err
 		}
@@ -1806,7 +1813,7 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 			return false, errors.New("response is nil (maybe node at " + target + " is down?)")
 		}
 		target1 = getTarget(config.DaemonAsReference, method, config)
-		result1, err := executeRequest(ctx, config, transportType, jwtAuth, string(request), target1)
+		result1, err := executeRequest(ctx, config, transportType, jwtAuth, target1, request)
 		if err != nil {
 			return false, err
 		}
