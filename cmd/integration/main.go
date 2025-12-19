@@ -2037,7 +2037,7 @@ func runMain() int {
 
 	numWorkers := 1
 	if config.Parallel {
-		numWorkers = 10 // Adjust based on your needs
+		numWorkers = runtime.NumCPU()
 	}
 
 	ctx, cancelCtx := context.WithCancel(context.Background())
