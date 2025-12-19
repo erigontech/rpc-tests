@@ -435,33 +435,7 @@ func extractArchive(archivePath string, sanitizeExtension bool) ([]JSONRPCComman
 		return nil, fmt.Errorf("archive must contain a single JSON file, found %s", header.Name)
 	}
 
-	size := header.Size
-	size++ // one byte for final read at EOF
-	if size < 512 {
-		size = 512
-	}
-	data := make([]byte, 0, size)
-	for {
-		var n int
-		n, err = tarReader.Read(data[len(data):cap(data)])
-		data = data[:len(data)+n]
-		if err != nil {
-			if err == io.EOF {
-				err = nil
-			}
-			break
-		}
-
-		if len(data) >= cap(data) {
-			d := append(data[:cap(data)], 0)
-			data = d[:len(data)]
-		}
-	}
-	if err != nil {
-		return nil, fmt.Errorf("failed to read tar data: %w", err)
-	}
-
-	if err := json.Unmarshal(data, &jsonrpcCommands); err != nil {
+	if err := json.NewDecoder(tarReader).Decode(&jsonrpcCommands); err != nil {
 		return jsonrpcCommands, errors.New("cannot parse JSON " + archivePath + ": " + err.Error())
 	}
 
