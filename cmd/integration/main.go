@@ -374,7 +374,7 @@ func autodetectCompression(archivePath string, inFile *os.File) (string, error) 
 }
 
 // extractArchive extracts a compressed or uncompressed tar archive.
-func extractArchive(archivePath string, sanitizeExtension bool) ([]string, error) {
+func extractArchive(archivePath string, sanitizeExtension bool) ([]JSONRPCCommand, error) {
 	// Open the archive file
 	inputFile, err := os.Open(archivePath)
 	if err != nil {
@@ -420,57 +420,52 @@ func extractArchive(archivePath string, sanitizeExtension bool) ([]string, error
 		reader = inputFile
 	}
 
-	// Iterate over files in the archive and extract them
+	var jsonrpcCommands []JSONRPCCommand
+
+	// We expect the archive to contain a single JSON file
 	tarReader := tar.NewReader(reader)
-	tmpFilePaths := []string{}
-	for {
-		header, err := tarReader.Next()
-		if err == io.EOF {
-			break // End of archive
-		}
-		if err != nil {
-			return nil, fmt.Errorf("failed to read tar header: %w", err)
-		}
-
-		targetPath := filepath.Dir(archivePath) + "/" + header.Name
-
-		switch header.Typeflag {
-		case tar.TypeDir:
-			// Create directory
-			if err = os.MkdirAll(targetPath, os.FileMode(header.Mode)); err != nil {
-				return nil, fmt.Errorf("failed to create directory %s: %w", targetPath, err)
-			}
-		case tar.TypeReg:
-			// Ensure the parent directory exists before creating the file
-			if err = os.MkdirAll(filepath.Dir(targetPath), 0755); err != nil {
-				return nil, fmt.Errorf("failed to create parent directory for %s: %w", targetPath, err)
-			}
-
-			// Create the file
-			outputFile, err := os.OpenFile(targetPath, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
-			if err != nil {
-				return nil, fmt.Errorf("failed to create file %s: %w", targetPath, err)
-			}
-
-			// Write content
-			if _, err = io.Copy(outputFile, tarReader); err != nil {
-				err = outputFile.Close()
-				if err != nil {
-					return nil, err
-				}
-				return nil, fmt.Errorf("failed to write file content for %s: %w", targetPath, err)
-			}
-			tmpFilePaths = append(tmpFilePaths, targetPath)
-			err = outputFile.Close()
-			if err != nil {
-				return nil, err
-			}
-		default:
-			fmt.Printf("WARN: skipping unsupported file type %c: %s\n", header.Typeflag, targetPath)
-		}
+	header, err := tarReader.Next()
+	if err == io.EOF {
+		return jsonrpcCommands, nil // Empty archive
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to read tar header: %w", err)
+	}
+	if header.Typeflag != tar.TypeReg {
+		return nil, fmt.Errorf("archive must contain a single JSON file, found %s", header.Name)
 	}
 
-	return tmpFilePaths, nil
+	size := header.Size
+	size++ // one byte for final read at EOF
+	if size < 512 {
+		size = 512
+	}
+	data := make([]byte, 0, size)
+	for {
+		var n int
+		n, err = tarReader.Read(data[len(data):cap(data)])
+		data = data[:len(data)+n]
+		if err != nil {
+			if err == io.EOF {
+				err = nil
+			}
+			break
+		}
+
+		if len(data) >= cap(data) {
+			d := append(data[:cap(data)], 0)
+			data = d[:len(data)]
+		}
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to read tar data: %w", err)
+	}
+
+	if err := json.Unmarshal(data, &jsonrpcCommands); err != nil {
+		return jsonrpcCommands, errors.New("cannot parse JSON " + archivePath + ": " + err.Error())
+	}
+
+	return jsonrpcCommands, nil
 }
 
 type JsonDiffKind int
@@ -1862,26 +1857,10 @@ func runTest(ctx context.Context, descriptor *TestDescriptor, config *Config) (b
 	var jsonrpcCommands []JSONRPCCommand
 	var err error
 	if isArchive(jsonFilename) {
-		tempFilePaths, err := extractArchive(jsonFilename, config.SanitizeArchiveExt)
+		jsonrpcCommands, err = extractArchive(jsonFilename, config.SanitizeArchiveExt)
 		if err != nil {
 			return false, errors.New("cannot extract archive file " + jsonFilename)
 		}
-		removeTempFiles := func() {
-			for _, path := range tempFilePaths {
-				err := os.Remove(path)
-				if err != nil {
-					fmt.Printf("failed to remove temp file %s: %v\n", path, err)
-				}
-			}
-		}
-		for _, tempFilePath := range tempFilePaths {
-			jsonrpcCommands, err = extractJsonCommands(tempFilePath)
-			if err != nil {
-				removeTempFiles()
-				return false, err
-			}
-		}
-		removeTempFiles()
 	} else {
 		jsonrpcCommands, err = extractJsonCommands(jsonFilename)
 		if err != nil {
