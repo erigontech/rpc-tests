@@ -197,26 +197,14 @@ func getCompressionType(filename string) string {
 	return NoCompression
 }
 
-func reopenFile(filePath string, file *os.File) (*os.File, error) {
-	err := file.Close()
-	if err != nil && !errors.Is(err, os.ErrClosed) {
-		return nil, err
-	}
-	file, err = os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	return file, nil
-}
-
-func autodetectCompression(archivePath string, inFile *os.File) (string, error) {
+func autodetectCompression(inFile *os.File) (string, error) {
 	// Assume we have no compression and try to detect it if the tar header is invalid
 	compressionType := NoCompression
 	tarReader := tar.NewReader(inFile)
 	_, err := tarReader.Next()
 	if err != nil && !errors.Is(err, io.EOF) {
-		// Reopen the file and check if it's gzip encoded
-		inFile, err = reopenFile(archivePath, inFile)
+		// Reset the file position for read and check if it's gzip encoded
+		_, err = inFile.Seek(0, io.SeekStart)
 		if err != nil {
 			return compressionType, err
 		}
@@ -224,8 +212,8 @@ func autodetectCompression(archivePath string, inFile *os.File) (string, error) 
 		if err == nil {
 			compressionType = GzipCompression
 		} else {
-			// Reopen the file and check if it's bzip2 encoded
-			inFile, err = reopenFile(archivePath, inFile)
+			// Reset the file position for read and check if it's gzip encoded
+			_, err = inFile.Seek(0, io.SeekStart)
 			if err != nil {
 				return compressionType, err
 			}
@@ -234,16 +222,12 @@ func autodetectCompression(archivePath string, inFile *os.File) (string, error) 
 				compressionType = Bzip2Compression
 			}
 		}
-		err = inFile.Close()
-		if err != nil {
-			return compressionType, err
-		}
 	}
 	return compressionType, nil
 }
 
 // extractArchive extracts a compressed or uncompressed tar archive.
-func extractArchive(archivePath string, sanitizeExtension bool) ([]JsonRpcCommand, error) {
+func extractArchive(archivePath string, sanitizeExtension bool, metrics *TestMetrics) ([]JsonRpcCommand, error) {
 	// Open the archive file
 	inputFile, err := os.Open(archivePath)
 	if err != nil {
@@ -257,7 +241,7 @@ func extractArchive(archivePath string, sanitizeExtension bool) ([]JsonRpcComman
 	compressionType := getCompressionType(archivePath)
 	if compressionType == NoCompression {
 		// Possibly handle the corner case where the file is compressed but has tar extension
-		compressionType, err = autodetectCompression(archivePath, inputFile)
+		compressionType, err = autodetectCompression(inputFile)
 		if err != nil {
 			return nil, fmt.Errorf("failed to autodetect compression for archive: %w", err)
 		}
@@ -304,9 +288,11 @@ func extractArchive(archivePath string, sanitizeExtension bool) ([]JsonRpcComman
 		return nil, fmt.Errorf("archive must contain a single JSON file, found %s", header.Name)
 	}
 
+	start := time.Now()
 	if err := json.NewDecoder(tarReader).Decode(&jsonrpcCommands); err != nil {
 		return jsonrpcCommands, errors.New("cannot parse JSON " + archivePath + ": " + err.Error())
 	}
+	metrics.UnmarshallingTime += time.Since(start)
 
 	return jsonrpcCommands, nil
 }
@@ -375,9 +361,21 @@ type Config struct {
 	TraceFile             string
 }
 
-type TestResult struct {
+type TestMetrics struct {
+	RoundTripTime     time.Duration
+	MarshallingTime   time.Duration
+	UnmarshallingTime time.Duration
+	ComparisonCount   int
+}
+
+type TestOutcome struct {
 	Success bool
 	Error   error
+	Metrics TestMetrics
+}
+
+type TestResult struct {
+	Outcome TestOutcome
 	Test    *TestDescriptor
 }
 
@@ -693,11 +691,13 @@ func usage() {
 }
 
 func getTarget(targetType, method string, config *Config) string {
+	isEngine := strings.HasPrefix(method, "engine_")
+
 	if targetType == ExternalProvider {
 		return config.ExternalProviderURL
 	}
 
-	if config.VerifyWithDaemon && targetType == DaemonOnOtherPort && strings.Contains(method, "engine_") {
+	if config.VerifyWithDaemon && targetType == DaemonOnOtherPort && isEngine {
 		return config.DaemonOnHost + ":51516"
 	}
 
@@ -705,7 +705,7 @@ func getTarget(targetType, method string, config *Config) string {
 		return config.DaemonOnHost + ":51515"
 	}
 
-	if targetType == DaemonOnOtherPort && strings.Contains(method, "engine_") {
+	if targetType == DaemonOnOtherPort && isEngine {
 		return config.DaemonOnHost + ":51516"
 	}
 
@@ -713,7 +713,7 @@ func getTarget(targetType, method string, config *Config) string {
 		return config.DaemonOnHost + ":51515"
 	}
 
-	if strings.Contains(method, "engine_") {
+	if isEngine {
 		port := config.EnginePort
 		if port == 0 {
 			port = 8551
@@ -1074,7 +1074,7 @@ func validateJsonRpcResponse(response any) error {
 	return nil
 }
 
-func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtAuth, target string, request []byte) ([]byte, error) {
+func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtAuth, target string, request []byte, metrics *TestMetrics) ([]byte, error) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
@@ -1113,6 +1113,7 @@ func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtA
 	start := time.Now()
 	resp, err := client.Do(req)
 	elapsed := time.Since(start)
+	metrics.RoundTripTime = elapsed
 	if config.VerboseLevel > 1 {
 		fmt.Printf("http round-trip time: %v\n", elapsed)
 	}
@@ -1155,7 +1156,7 @@ func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtA
 	return body, nil
 }
 
-func executeWebSocketRequest(config *Config, transportType, jwtAuth, target string, request []byte) ([]byte, error) {
+func executeWebSocketRequest(config *Config, transportType, jwtAuth, target string, request []byte, metrics *TestMetrics) ([]byte, error) {
 	wsTarget := "ws://" + target
 	dialer := websocket.Dialer{
 		HandshakeTimeout:  300 * time.Second,
@@ -1181,6 +1182,7 @@ func executeWebSocketRequest(config *Config, transportType, jwtAuth, target stri
 		}
 	}(conn)
 
+	start := time.Now()
 	if err = conn.WriteMessage(websocket.BinaryMessage, request); err != nil {
 		if config.VerboseLevel > 0 {
 			fmt.Printf("\nwebsocket write fail: %v\n", err)
@@ -1195,6 +1197,7 @@ func executeWebSocketRequest(config *Config, transportType, jwtAuth, target stri
 		}
 		return nil, err
 	}
+	metrics.RoundTripTime = time.Since(start)
 
 	if config.VerboseLevel > 1 {
 		fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, request, string(message))
@@ -1203,11 +1206,11 @@ func executeWebSocketRequest(config *Config, transportType, jwtAuth, target stri
 	return message, nil
 }
 
-func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth, target string, request []byte) ([]byte, error) {
+func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth, target string, request []byte, metrics *TestMetrics) ([]byte, error) {
 	if strings.HasPrefix(transportType, "http") {
-		return executeHttpRequest(ctx, config, transportType, jwtAuth, target, request)
+		return executeHttpRequest(ctx, config, transportType, jwtAuth, target, request, metrics)
 	}
-	return executeWebSocketRequest(config, transportType, jwtAuth, target, request)
+	return executeWebSocketRequest(config, transportType, jwtAuth, target, request, metrics)
 }
 
 func runCompare(jsonDiff bool, errorFile, tempFile1, tempFile2, diffFile string) bool {
@@ -1343,15 +1346,17 @@ func isArchive(jsonFilename string) bool {
 	return !strings.HasSuffix(jsonFilename, ".json")
 }
 
-func extractJsonCommands(jsonFilename string) ([]JsonRpcCommand, error) {
+func extractJsonCommands(jsonFilename string, metrics *TestMetrics) ([]JsonRpcCommand, error) {
 	var jsonrpcCommands []JsonRpcCommand
 	data, err := os.ReadFile(jsonFilename)
 	if err != nil {
 		return jsonrpcCommands, errors.New("cannot read file " + jsonFilename + ": " + err.Error())
 	}
+	start := time.Now()
 	if err := json.Unmarshal(data, &jsonrpcCommands); err != nil {
 		return jsonrpcCommands, errors.New("cannot parse JSON " + jsonFilename + ": " + err.Error())
 	}
+	metrics.UnmarshallingTime += time.Since(start)
 	return jsonrpcCommands, nil
 }
 
@@ -1401,7 +1406,7 @@ func (c *JsonRpcCommand) compareJSONFiles(kind JsonDiffKind, errorFileName, file
 	}
 }
 
-func (c *JsonRpcCommand) compareJSON(config *Config, response interface{}, jsonFile, daemonFile, expRspFile, diffFile string, testNumber int) (bool, error) {
+func (c *JsonRpcCommand) compareJSON(config *Config, response interface{}, jsonFile, daemonFile, expRspFile, diffFile string, testNumber int, metrics *TestMetrics) (bool, error) {
 	baseName := filepath.Join(TempDirname, fmt.Sprintf("test_%d", testNumber))
 	err := os.MkdirAll(baseName, 0755)
 	if err != nil {
@@ -1459,6 +1464,8 @@ func (c *JsonRpcCommand) compareJSON(config *Config, response interface{}, jsonF
 	diffResult, err := c.compareJSONFiles(config.DiffKind, errorFile, tempFile1, tempFile2, diffFile)
 	diffFileSize := int64(0)
 
+	metrics.ComparisonCount += 1
+
 	if diffResult {
 		fileInfo, err := os.Stat(diffFile)
 		if err != nil {
@@ -1493,7 +1500,7 @@ func (c *JsonRpcCommand) compareJSON(config *Config, response interface{}, jsonF
 	return true, nil
 }
 
-func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byte, config *Config, outputDir, daemonFile, expRspFile, diffFile string, descriptor *TestDescriptor) (bool, error) {
+func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byte, config *Config, outputDir, daemonFile, expRspFile, diffFile string, descriptor *TestDescriptor, outcome *TestOutcome) {
 	jsonFile := descriptor.Name
 	testNumber := descriptor.Number
 
@@ -1507,35 +1514,49 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 	if config.WithoutCompareResults {
 		err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
-		return true, nil
+		outcome.Success = true
+		return
 	}
 
 	var responseMap map[string]interface{}
 	var respIsMap bool
+	start := time.Now()
 	if err := json.Unmarshal(response, &responseMap); err == nil {
+		outcome.Metrics.UnmarshallingTime += time.Since(start)
 		respIsMap = true
+		start = time.Now()
 		response, err = json.Marshal(responseMap)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
+		outcome.Metrics.MarshallingTime += time.Since(start)
 		err = validateJsonRpcResponse(responseMap)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
 	}
 	var expectedMap map[string]interface{}
 	var expIsMap bool
+	start = time.Now()
 	if err := json.Unmarshal(expectedResponse, &expectedMap); err == nil {
+		outcome.Metrics.UnmarshallingTime += time.Since(start)
 		expIsMap = true
+		start := time.Now()
 		expectedResponse, err = json.Marshal(expectedMap)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
+		outcome.Metrics.MarshallingTime += time.Since(start)
 		err = validateJsonRpcResponse(expectedMap)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
 	}
 
@@ -1543,9 +1564,11 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 	if bytes.Equal(response, expectedResponse) {
 		err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
-		return true, nil
+		outcome.Success = true
+		return
 	}
 
 	// Check various conditions where we don't care about differences
@@ -1557,84 +1580,81 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 		if responseHasResult && expectedHasResult && expectedResult == nil && result1 == nil {
 			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 			if err != nil {
-				return false, err
+				outcome.Error = err
+				return
 			}
-			return true, nil
+			outcome.Success = true
+			return
 		}
 		if responseHasError && expectedHasError && expectedError == nil {
 			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 			if err != nil {
-				return false, err
+				outcome.Error = err
+				return
 			}
-			return true, nil
+			outcome.Success = true
+			return
 		}
 		// TODO: improve len(expectedMap) == 2 which means: just "jsonrpc" and "id" are expected
 		if !expectedHasResult && !expectedHasError && len(expectedMap) == 2 {
 			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 			if err != nil {
-				return false, err
+				outcome.Error = err
+				return
 			}
-			return true, nil
+			outcome.Success = true
+			return
 		}
 		if responseHasError && expectedHasError && config.DoNotCompareError {
 			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 			if err != nil {
-				return false, err
+				outcome.Error = err
+				return
 			}
-			return true, nil
+			outcome.Success = true
+			return
 		}
 	}
 
 	// We need to compare the response and expectedResponse, so we dump them to files first
 	err := dumpJSONs(true, daemonFile, expRspFile, outputDir, response, expectedResponse)
 	if err != nil {
-		return false, err
+		outcome.Error = err
+		return
 	}
 
-	same, err := c.compareJSON(config, responseMap, jsonFile, daemonFile, expRspFile, diffFile, testNumber)
+	same, err := c.compareJSON(config, responseMap, jsonFile, daemonFile, expRspFile, diffFile, testNumber, &outcome.Metrics)
 	if err != nil {
-		return same, err
+		outcome.Error = err
+		return
 	}
 	if same && !config.ForceDumpJSONs {
 		err := os.Remove(daemonFile)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
 		err = os.Remove(expRspFile)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
 		err = os.Remove(diffFile)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
 	}
 
-	return same, nil
+	outcome.Success = same
 }
 
-func (c *JsonRpcCommand) run(ctx context.Context, config *Config, descriptor *TestDescriptor) (bool, error) {
+func (c *JsonRpcCommand) run(ctx context.Context, config *Config, descriptor *TestDescriptor, outcome *TestOutcome) {
 	transportType := descriptor.TransportType
 	jsonFile := descriptor.Name
 	request := c.Request
 
-	method := ""
-	var requestMap map[string]interface{}
-	if err := json.Unmarshal(request, &requestMap); err == nil {
-		if m, ok := requestMap["method"].(string); ok {
-			method = m
-		}
-	} else {
-		// Try an array of requests
-		var requestArray []map[string]interface{}
-		if err := json.Unmarshal(request, &requestArray); err == nil && len(requestArray) > 0 {
-			if m, ok := requestArray[0]["method"].(string); ok {
-				method = m
-			}
-		}
-	}
-
-	target := getTarget(config.DaemonUnderTest, method, config)
+	target := getTarget(config.DaemonUnderTest, descriptor.Name, config)
 	target1 := ""
 
 	var jwtAuth string
@@ -1652,79 +1672,89 @@ func (c *JsonRpcCommand) run(ctx context.Context, config *Config, descriptor *Te
 	diffFile := outputAPIFilename + "-diff.json"
 
 	if !config.VerifyWithDaemon {
-		result, err := executeRequest(ctx, config, transportType, jwtAuth, target, request)
+		result, err := executeRequest(ctx, config, transportType, jwtAuth, target, request, &outcome.Metrics)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
 		if config.VerboseLevel > 2 {
 			fmt.Printf("%s: [%v]\n", config.DaemonUnderTest, result)
 		}
 		if result == nil {
-			return false, errors.New("response is n il (maybe node at " + target + " is down?)")
+			outcome.Error = errors.New("response is n il (maybe node at " + target + " is down?)")
+			return
 		}
 
 		responseInFile := c.Response
 		daemonFile := outputAPIFilename + "-response.json"
 		expRspFile := outputAPIFilename + "-expResponse.json"
 
-		return c.processResponse(result, nil, responseInFile, config,
-			outputDirName, daemonFile, expRspFile, diffFile, descriptor)
+		c.processResponse(result, nil, responseInFile, config, outputDirName, daemonFile, expRspFile, diffFile, descriptor, outcome)
 	} else {
-		target = getTarget(DaemonOnDefaultPort, method, config)
-		result, err := executeRequest(ctx, config, transportType, jwtAuth, target, request)
+		target = getTarget(DaemonOnDefaultPort, descriptor.Name, config)
+		result, err := executeRequest(ctx, config, transportType, jwtAuth, target, request, &outcome.Metrics)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
 		if config.VerboseLevel > 2 {
 			fmt.Printf("%s: [%v]\n", config.DaemonUnderTest, result)
 		}
 		if result == nil {
-			return false, errors.New("response is nil (maybe node at " + target + " is down?)")
+			outcome.Error = errors.New("response is nil (maybe node at " + target + " is down?)")
+			return
 		}
-		target1 = getTarget(config.DaemonAsReference, method, config)
-		result1, err := executeRequest(ctx, config, transportType, jwtAuth, target1, request)
+		target1 = getTarget(config.DaemonAsReference, descriptor.Name, config)
+		result1, err := executeRequest(ctx, config, transportType, jwtAuth, target1, request, &outcome.Metrics)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return
 		}
 		if config.VerboseLevel > 2 {
 			fmt.Printf("%s: [%v]\n", config.DaemonAsReference, result1)
 		}
 		if result1 == nil {
-			return false, errors.New("response is nil (maybe node at " + target1 + " is down?)")
+			outcome.Error = errors.New("response is nil (maybe node at " + target1 + " is down?)")
+			return
 		}
 
 		daemonFile := outputAPIFilename + getJSONFilenameExt(DaemonOnDefaultPort, target)
 		expRspFile := outputAPIFilename + getJSONFilenameExt(config.DaemonAsReference, target1)
 
-		return c.processResponse(result, result1, nil, config,
-			outputDirName, daemonFile, expRspFile, diffFile, descriptor)
+		c.processResponse(result, result1, nil, config, outputDirName, daemonFile, expRspFile, diffFile, descriptor, outcome)
+		return
 	}
 }
 
-func runTest(ctx context.Context, descriptor *TestDescriptor, config *Config) (bool, error) {
+func runTest(ctx context.Context, descriptor *TestDescriptor, config *Config) TestOutcome {
 	jsonFilename := filepath.Join(config.JSONDir, descriptor.Name)
+
+	outcome := TestOutcome{}
 
 	var jsonrpcCommands []JsonRpcCommand
 	var err error
 	if isArchive(jsonFilename) {
-		jsonrpcCommands, err = extractArchive(jsonFilename, config.SanitizeArchiveExt)
+		jsonrpcCommands, err = extractArchive(jsonFilename, config.SanitizeArchiveExt, &outcome.Metrics)
 		if err != nil {
-			return false, errors.New("cannot extract archive file " + jsonFilename)
+			outcome.Error = errors.New("cannot extract archive file " + jsonFilename)
+			return outcome
 		}
 	} else {
-		jsonrpcCommands, err = extractJsonCommands(jsonFilename)
+		jsonrpcCommands, err = extractJsonCommands(jsonFilename, &outcome.Metrics)
 		if err != nil {
-			return false, err
+			outcome.Error = err
+			return outcome
 		}
 	}
 
-	for _, jsonrpcCmd := range jsonrpcCommands {
-		return jsonrpcCmd.run(ctx, config, descriptor) // TODO: support multiple tests
+	if len(jsonrpcCommands) != 1 {
+		outcome.Error = errors.New("expected exactly one JSON RPC command in " + jsonFilename)
+		return outcome
 	}
 
-	fmt.Printf("WARN: no commands found in test %s\n", jsonFilename)
+	jsonrpcCommands[0].run(ctx, config, descriptor, &outcome)
 
-	return true, nil
+	return outcome
 }
 
 func mustAtoi(s string) int {
@@ -1741,6 +1771,11 @@ type ResultCollector struct {
 	successTests  int
 	failedTests   int
 	executedTests int
+
+	totalRoundTripTime     time.Duration
+	totalMarshallingTime   time.Duration
+	totalUnmarshallingTime time.Duration
+	totalComparisonCount   int
 }
 
 func newResultCollector(resultsChan chan chan TestResult, config *Config) *ResultCollector {
@@ -1762,16 +1797,20 @@ func (c *ResultCollector) start(ctx context.Context, cancelCtx context.CancelFun
 					tt := fmt.Sprintf("%-15s", result.Test.TransportType)
 					fmt.Printf("%04d. %s::%s   ", result.Test.Number, tt, file)
 
-					if result.Success {
+					if result.Outcome.Success {
 						c.successTests++
 						if c.config.VerboseLevel > 0 {
 							fmt.Println("OK")
 						} else {
 							fmt.Print("OK\r")
 						}
+						c.totalRoundTripTime += result.Outcome.Metrics.RoundTripTime
+						c.totalMarshallingTime += result.Outcome.Metrics.MarshallingTime
+						c.totalUnmarshallingTime += result.Outcome.Metrics.UnmarshallingTime
+						c.totalComparisonCount += result.Outcome.Metrics.ComparisonCount
 					} else {
 						c.failedTests++
-						fmt.Printf("failed: %s\n", result.Error.Error())
+						fmt.Printf("failed: %s\n", result.Outcome.Error.Error())
 						if c.config.ExitOnFail {
 							// Signal other tasks to stop and exit
 							cancelCtx()
@@ -1908,8 +1947,8 @@ func runMain() int {
 
 	// Worker pool for parallel execution
 	var wg sync.WaitGroup
-	testsChan := make(chan *TestDescriptor, 10000)
-	resultsChan := make(chan chan TestResult, 10000)
+	testsChan := make(chan *TestDescriptor, 2000)
+	resultsChan := make(chan chan TestResult, 2000)
 
 	numWorkers := 1
 	if config.Parallel {
@@ -1929,8 +1968,8 @@ func runMain() int {
 					if test == nil {
 						return
 					}
-					success, err := runTest(ctx, test, config)
-					test.ResultChan <- TestResult{Success: success, Error: err, Test: test}
+					testOutcome := runTest(ctx, test, config)
+					test.ResultChan <- TestResult{Outcome: testOutcome, Test: test}
 				case <-ctx.Done():
 					return
 				}
@@ -2067,6 +2106,12 @@ func runMain() int {
 							shouldRun := false
 							if config.TestingAPIsWith == "" && config.TestingAPIs == "" && (config.ReqTestNumber == -1 || config.ReqTestNumber == testNumberInAnyLoop) {
 								shouldRun = true
+								/*if slices.Contains([]int{29, 37, 133, 173, 1008, 1272, 1274}, testNumberInAnyLoop) {
+									file := fmt.Sprintf("%-60s", jsonTestFullName)
+									tt := fmt.Sprintf("%-15s", transportType)
+									fmt.Printf("%04d. %s::%s   skipped as long-running\n", testNumberInAnyLoop, tt, file)
+									shouldRun = false
+								}*/
 							} else if config.TestingAPIsWith != "" && checkTestNameForNumber(testName, config.ReqTestNumber) {
 								shouldRun = true
 							} else if config.TestingAPIs != "" && checkTestNameForNumber(testName, config.ReqTestNumber) {
@@ -2146,6 +2191,10 @@ func runMain() int {
 	// Print results
 	elapsed := time.Since(startTime)
 	fmt.Println("\n                                                                                                                  ")
+	fmt.Printf("Total HTTP round-trip time:   %v\n", resultsCollector.totalRoundTripTime)
+	fmt.Printf("Total Marshalling time:       %v\n", resultsCollector.totalMarshallingTime)
+	fmt.Printf("Total Unmarshalling time:     %v\n", resultsCollector.totalUnmarshallingTime)
+	fmt.Printf("Total Comparison count:       %v\n", resultsCollector.totalComparisonCount)
 	fmt.Printf("Test session duration:        %v\n", elapsed)
 	fmt.Printf("Test session iterations:      %d\n", testRep)
 	fmt.Printf("Test suite total APIs:        %d\n", availableTestedAPIs)
