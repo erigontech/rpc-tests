@@ -567,9 +567,9 @@ type JsonRpcTest struct {
 }
 
 type JSONRPCCommand struct {
-	Request  interface{}  `json:"request"`
-	Response interface{}  `json:"response"`
-	TestInfo *JsonRpcTest `json:"test"`
+	Request  json.RawMessage `json:"request"`
+	Response json.RawMessage `json:"response"`
+	TestInfo *JsonRpcTest    `json:"test"`
 }
 
 func NewConfig() *Config {
@@ -1103,7 +1103,7 @@ func isNotComparedError(testName, net string) bool {
 	return false
 }
 
-func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response, expectedResponse interface{}) error {
+func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response, expectedResponse []byte) error {
 	if !dumpJSON {
 		return nil
 	}
@@ -1121,12 +1121,7 @@ func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response
 					return err
 				}
 			}
-			data, err := json.MarshalIndent(response, "", "  ")
-			if err != nil {
-				fmt.Printf("Error marshaling daemon response: %v\n", err)
-				continue
-			}
-			if err := os.WriteFile(daemonFile, data, 0644); err != nil {
+			if err := os.WriteFile(daemonFile, response, 0644); err != nil {
 				fmt.Printf("Exception on file write daemon: %v attempt %d\n", err, attempt)
 				continue
 			}
@@ -1139,12 +1134,7 @@ func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response
 					return err
 				}
 			}
-			data, err := json.MarshalIndent(expectedResponse, "", "  ")
-			if err != nil {
-				fmt.Printf("Error marshaling expected response: %v\n", err)
-				continue
-			}
-			if err := os.WriteFile(expRspFile, data, 0644); err != nil {
+			if err := os.WriteFile(expRspFile, expectedResponse, 0644); err != nil {
 				fmt.Printf("Exception on file write expected: %v attempt %d\n", err, attempt)
 				continue
 			}
@@ -1206,7 +1196,7 @@ func validateJsonRpcResponseObject(response map[string]any, strict bool) error {
 	}
 	_, hasResult := response[resultTag]
 	_, hasError := response[errorTag]
-	if !hasResult && !hasError {
+	if strict && !hasResult && !hasError {
 		return errJsonRpcMissingResultOrError
 	}
 	if strict && hasResult && hasError {
@@ -1246,7 +1236,7 @@ func validateJsonRpcResponse(response any) error {
 	return nil
 }
 
-func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth, requestDumps, target string) (any, error) {
+func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth, requestDumps, target string) ([]byte, error) {
 	if transportType == "http" || transportType == "http_comp" || transportType == "https" {
 		headers := map[string]string{
 			"Content-Type": "application/json",
@@ -1321,23 +1311,11 @@ func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth,
 			fmt.Printf("\nhttp response body: %s\n", string(body))
 		}
 
-		var result any
-		if err = json.Unmarshal(body, &result); err != nil {
-			if config.VerboseLevel > 0 {
-				fmt.Printf("\nfailed to parse JSON: %v\n", err)
-			}
-			return nil, err
-		}
-		err = validateJsonRpcResponse(result)
-		if err != nil {
-			return nil, err
-		}
-
 		if config.VerboseLevel > 1 {
-			fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, requestDumps, result)
+			fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, requestDumps, string(body))
 		}
 
-		return result, nil
+		return body, nil
 	} else {
 		// WebSocket
 		wsTarget := "ws://" + target
@@ -1379,23 +1357,11 @@ func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth,
 			return nil, err
 		}
 
-		var result any
-		if err = json.Unmarshal(message, &result); err != nil {
-			if config.VerboseLevel > 0 {
-				fmt.Printf("\nfailed to parse JSON: %v\n", err)
-			}
-			return nil, err
-		}
-		err = validateJsonRpcResponse(result)
-		if err != nil {
-			return nil, err
-		}
-
 		if config.VerboseLevel > 1 {
-			fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, requestDumps, result)
+			fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, requestDumps, string(message))
 		}
 
-		return result, nil
+		return message, nil
 	}
 }
 
@@ -1682,11 +1648,11 @@ func (c *JSONRPCCommand) compareJSON(config *Config, response interface{}, jsonF
 	return true, nil
 }
 
-func (c *JSONRPCCommand) processResponse(response, result1 any, responseInFile interface{}, config *Config, outputDir, daemonFile, expRspFile, diffFile string, descriptor *TestDescriptor) (bool, error) {
+func (c *JSONRPCCommand) processResponse(response, result1, responseInFile []byte, config *Config, outputDir, daemonFile, expRspFile, diffFile string, descriptor *TestDescriptor) (bool, error) {
 	jsonFile := descriptor.Name
 	testNumber := descriptor.Number
 
-	var expectedResponse interface{}
+	var expectedResponse []byte
 	if result1 != nil {
 		expectedResponse = result1
 	} else {
@@ -1701,12 +1667,35 @@ func (c *JSONRPCCommand) processResponse(response, result1 any, responseInFile i
 		return true, nil
 	}
 
-	// Deep comparison between the received response and the expected response
-	respJSON, _ := json.Marshal(response)
-	expJSON, _ := json.Marshal(expectedResponse)
+	var responseMap map[string]interface{}
+	var respIsMap bool
+	if err := json.Unmarshal(response, &responseMap); err == nil {
+		respIsMap = true
+		response, err = json.Marshal(responseMap)
+		if err != nil {
+			return false, err
+		}
+		err = validateJsonRpcResponse(responseMap)
+		if err != nil {
+			return false, err
+		}
+	}
+	var expectedMap map[string]interface{}
+	var expIsMap bool
+	if err := json.Unmarshal(expectedResponse, &expectedMap); err == nil {
+		expIsMap = true
+		expectedResponse, err = json.Marshal(expectedMap)
+		if err != nil {
+			return false, err
+		}
+		err = validateJsonRpcResponse(expectedMap)
+		if err != nil {
+			return false, err
+		}
+	}
 
 	// Fast path: if actual/expected are identical byte-wise, no need to compare them
-	if bytes.Equal(respJSON, expJSON) {
+	if bytes.Equal(response, expectedResponse) {
 		err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
 		if err != nil {
 			return false, err
@@ -1715,10 +1704,7 @@ func (c *JSONRPCCommand) processResponse(response, result1 any, responseInFile i
 	}
 
 	// Check various conditions where we don't care about differences
-	responseMap, respIsMap := response.(map[string]interface{})
-	expectedMap, expIsMap := expectedResponse.(map[string]interface{})
-
-	if respIsMap && expIsMap {
+	if respIsMap && expIsMap { // TODO: extract function ignoreDifferences and handle JSON batch responses
 		_, responseHasResult := responseMap["result"]
 		expectedResult, expectedHasResult := expectedMap["result"]
 		_, responseHasError := responseMap["error"]
@@ -1754,16 +1740,17 @@ func (c *JSONRPCCommand) processResponse(response, result1 any, responseInFile i
 		}
 	}
 
+	// We need to compare the response and expectedResponse, so we dump them to files first
 	err := dumpJSONs(true, daemonFile, expRspFile, outputDir, response, expectedResponse)
 	if err != nil {
 		return false, err
 	}
 
-	same, err := c.compareJSON(config, response, jsonFile, daemonFile, expRspFile, diffFile, testNumber)
+	same, err := c.compareJSON(config, responseMap, jsonFile, daemonFile, expRspFile, diffFile, testNumber)
 	if err != nil {
 		return same, err
 	}
-	if same {
+	if same && !config.ForceDumpJSONs {
 		err := os.Remove(daemonFile)
 		if err != nil {
 			return false, err
@@ -1778,10 +1765,6 @@ func (c *JSONRPCCommand) processResponse(response, result1 any, responseInFile i
 		}
 	}
 
-	err = dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
-	if err != nil {
-		return false, err
-	}
 	return same, nil
 }
 
@@ -1791,23 +1774,21 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 	request := c.Request
 
 	method := ""
-	requestBytes, _ := json.Marshal(request)
 	var requestMap map[string]interface{}
-	if err := json.Unmarshal(requestBytes, &requestMap); err == nil {
+	if err := json.Unmarshal(request, &requestMap); err == nil {
 		if m, ok := requestMap["method"].(string); ok {
 			method = m
 		}
 	} else {
 		// Try an array of requests
 		var requestArray []map[string]interface{}
-		if err := json.Unmarshal(requestBytes, &requestArray); err == nil && len(requestArray) > 0 {
+		if err := json.Unmarshal(request, &requestArray); err == nil && len(requestArray) > 0 {
 			if m, ok := requestArray[0]["method"].(string); ok {
 				method = m
 			}
 		}
 	}
 
-	requestDumps, _ := json.Marshal(request)
 	target := getTarget(config.DaemonUnderTest, method, config)
 	target1 := ""
 
@@ -1826,7 +1807,7 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 	diffFile := outputAPIFilename + "-diff.json"
 
 	if !config.VerifyWithDaemon {
-		result, err := executeRequest(ctx, config, transportType, jwtAuth, string(requestDumps), target)
+		result, err := executeRequest(ctx, config, transportType, jwtAuth, string(request), target)
 		if err != nil {
 			return false, err
 		}
@@ -1845,7 +1826,7 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 			outputDirName, daemonFile, expRspFile, diffFile, descriptor)
 	} else {
 		target = getTarget(DaemonOnDefaultPort, method, config)
-		result, err := executeRequest(ctx, config, transportType, jwtAuth, string(requestDumps), target)
+		result, err := executeRequest(ctx, config, transportType, jwtAuth, string(request), target)
 		if err != nil {
 			return false, err
 		}
@@ -1856,7 +1837,7 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 			return false, errors.New("response is nil (maybe node at " + target + " is down?)")
 		}
 		target1 = getTarget(config.DaemonAsReference, method, config)
-		result1, err := executeRequest(ctx, config, transportType, jwtAuth, string(requestDumps), target1)
+		result1, err := executeRequest(ctx, config, transportType, jwtAuth, string(request), target1)
 		if err != nil {
 			return false, err
 		}
