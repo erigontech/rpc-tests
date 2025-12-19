@@ -374,7 +374,7 @@ func autodetectCompression(archivePath string, inFile *os.File) (string, error) 
 }
 
 // extractArchive extracts a compressed or uncompressed tar archive.
-func extractArchive(archivePath string, sanitizeExtension bool) ([]JSONRPCCommand, error) {
+func extractArchive(archivePath string, sanitizeExtension bool) ([]JsonRpcCommand, error) {
 	// Open the archive file
 	inputFile, err := os.Open(archivePath)
 	if err != nil {
@@ -420,7 +420,7 @@ func extractArchive(archivePath string, sanitizeExtension bool) ([]JSONRPCComman
 		reader = inputFile
 	}
 
-	var jsonrpcCommands []JSONRPCCommand
+	var jsonrpcCommands []JsonRpcCommand
 
 	// We expect the archive to contain a single JSON file
 	tarReader := tar.NewReader(reader)
@@ -535,7 +535,7 @@ type JsonRpcTest struct {
 	Metadata    *JsonRpcTestMetadata `json:"metadata"`
 }
 
-type JSONRPCCommand struct {
+type JsonRpcCommand struct {
 	Request  json.RawMessage `json:"request"`
 	Response json.RawMessage `json:"response"`
 	TestInfo *JsonRpcTest    `json:"test"`
@@ -1474,8 +1474,8 @@ func isArchive(jsonFilename string) bool {
 	return !strings.HasSuffix(jsonFilename, ".json")
 }
 
-func extractJsonCommands(jsonFilename string) ([]JSONRPCCommand, error) {
-	var jsonrpcCommands []JSONRPCCommand
+func extractJsonCommands(jsonFilename string) ([]JsonRpcCommand, error) {
+	var jsonrpcCommands []JsonRpcCommand
 	data, err := os.ReadFile(jsonFilename)
 	if err != nil {
 		return jsonrpcCommands, errors.New("cannot read file " + jsonFilename + ": " + err.Error())
@@ -1486,7 +1486,7 @@ func extractJsonCommands(jsonFilename string) ([]JSONRPCCommand, error) {
 	return jsonrpcCommands, nil
 }
 
-func (c *JSONRPCCommand) compareJSONFiles(kind JsonDiffKind, errorFileName, fileName1, fileName2, diffFileName string) (bool, error) {
+func (c *JsonRpcCommand) compareJSONFiles(kind JsonDiffKind, errorFileName, fileName1, fileName2, diffFileName string) (bool, error) {
 	switch kind {
 	case JdLibrary:
 		jsonNode1, err := jd.ReadJsonFile(fileName1)
@@ -1532,7 +1532,7 @@ func (c *JSONRPCCommand) compareJSONFiles(kind JsonDiffKind, errorFileName, file
 	}
 }
 
-func (c *JSONRPCCommand) compareJSON(config *Config, response interface{}, jsonFile, daemonFile, expRspFile, diffFile string, testNumber int) (bool, error) {
+func (c *JsonRpcCommand) compareJSON(config *Config, response interface{}, jsonFile, daemonFile, expRspFile, diffFile string, testNumber int) (bool, error) {
 	baseName := filepath.Join(TempDirname, fmt.Sprintf("test_%d", testNumber))
 	err := os.MkdirAll(baseName, 0755)
 	if err != nil {
@@ -1624,7 +1624,7 @@ func (c *JSONRPCCommand) compareJSON(config *Config, response interface{}, jsonF
 	return true, nil
 }
 
-func (c *JSONRPCCommand) processResponse(response, result1, responseInFile []byte, config *Config, outputDir, daemonFile, expRspFile, diffFile string, descriptor *TestDescriptor) (bool, error) {
+func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byte, config *Config, outputDir, daemonFile, expRspFile, diffFile string, descriptor *TestDescriptor) (bool, error) {
 	jsonFile := descriptor.Name
 	testNumber := descriptor.Number
 
@@ -1744,7 +1744,7 @@ func (c *JSONRPCCommand) processResponse(response, result1, responseInFile []byt
 	return same, nil
 }
 
-func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *TestDescriptor) (bool, error) {
+func (c *JsonRpcCommand) run(ctx context.Context, config *Config, descriptor *TestDescriptor) (bool, error) {
 	transportType := descriptor.TransportType
 	jsonFile := descriptor.Name
 	request := c.Request
@@ -1835,7 +1835,7 @@ func (c *JSONRPCCommand) run(ctx context.Context, config *Config, descriptor *Te
 func runTest(ctx context.Context, descriptor *TestDescriptor, config *Config) (bool, error) {
 	jsonFilename := filepath.Join(config.JSONDir, descriptor.Name)
 
-	var jsonrpcCommands []JSONRPCCommand
+	var jsonrpcCommands []JsonRpcCommand
 	var err error
 	if isArchive(jsonFilename) {
 		jsonrpcCommands, err = extractArchive(jsonFilename, config.SanitizeArchiveExt)
