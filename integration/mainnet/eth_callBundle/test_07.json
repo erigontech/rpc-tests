@@ -1,24 +1,28 @@
 [
-   {
-        "test": {
-           "reference": "https://etherscan.io/tx/0x67b7da808974bffe636e6c969cbdcb600f1196cdf06e2faba981414fc2511da2 on block https://etherscan.io/block/17999744",
-           "description": "tx post EIP-1559 on block post EIP-1559"
-        },
-
-        "request": {
-            "jsonrpc": "2.0",
-            "method": "eth_callBundle",
-            "params": [["0x67b7da808974bffe636e6c969cbdcb600f1196cdf06e2faba981414fc2511da2"], "0x112A780", 50000],
-            "id": 1
-        },
-        "response": {
-            "error": {
-                "code": -32000,
-                "message": "insufficient funds for gas * price + value: address 0x7898bcf2d41a713086c69e0bb69cae6934430792 have 44356203162035406 want 581791671697841985"
-            },
-            "id": 1,
-            "jsonrpc": "2.0"
-        }
+  {
+    "test": {
+      "reference": "https://etherscan.io/tx/0x67b7da808974bffe636e6c969cbdcb600f1196cdf06e2faba981414fc2511da2 on block https://etherscan.io/block/17999744",
+      "description": "tx post EIP-1559 on block post EIP-1559"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_callBundle",
+      "params": [
+        [
+          "0x67b7da808974bffe636e6c969cbdcb600f1196cdf06e2faba981414fc2511da2"
+        ],
+        "0x112A780",
+        50000
+      ],
+      "id": 1
+    },
+    "response": {
+      "error": {
+        "code": -32000,
+        "message": "insufficient funds for gas * price + value: address 0x7898bcf2D41a713086C69E0bb69cAe6934430792 have 44356203162035406 want 581791671697841985"
+      },
+      "id": 1,
+      "jsonrpc": "2.0"
+    }
   }
 ]
-
