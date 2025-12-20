@@ -768,40 +768,6 @@ func generateJWTSecret(filename string, length int) error {
 	return nil
 }
 
-func toLowerCase(inputFile, outputFile string) error {
-	inputContent, err := os.ReadFile(inputFile)
-	if err != nil {
-		return err
-	}
-
-	outputContent := []byte(strings.ToLower(string(inputContent)))
-
-	err = os.WriteFile(outputFile, outputContent, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func replaceMessage(inputFile, outputFile, matchedString string) error {
-	inData, err := os.ReadFile(inputFile)
-	if err != nil {
-		return err
-	}
-
-	lines := strings.Split(string(inData), "\n")
-	var output []string
-	for _, line := range lines {
-		if !strings.Contains(line, matchedString) {
-			output = append(output, line)
-		} else {
-			output = append(output, "     \"message\": \"\"")
-		}
-	}
-
-	return os.WriteFile(outputFile, []byte(strings.Join(output, "\n")), 0644)
-}
-
 func extractNumber(filename string) int {
 	re := regexp.MustCompile(`\d+`)
 	match := re.FindString(filename)
