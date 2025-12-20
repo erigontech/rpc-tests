@@ -2,7 +2,12 @@
     {
         "test": {
            "reference": "",
-           "description": "access list with state Override"
+           "description": "access list with state Override",
+          "metadata": {
+             "response": {
+               "pathOptions": [{"@": ["result", "accessList", {}, "storageKeys"], "^": ["SET"]}]
+             }   
+           }
         },
         "request": {
             "jsonrpc":"2.0",
