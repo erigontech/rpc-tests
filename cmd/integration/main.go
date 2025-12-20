@@ -1407,85 +1407,16 @@ func (c *JsonRpcCommand) compareJSONFiles(kind JsonDiffKind, errorFileName, file
 }
 
 func (c *JsonRpcCommand) compareJSON(config *Config, response interface{}, jsonFile, daemonFile, expRspFile, diffFile string, testNumber int, metrics *TestMetrics) (bool, error) {
-	baseName := filepath.Join(TempDirname, fmt.Sprintf("test_%d", testNumber))
-	err := os.MkdirAll(baseName, 0755)
-	if err != nil {
-		return false, err
-	}
-
-	tempFile1 := filepath.Join(baseName, "daemon_lower_case.txt")
-	tempFile2 := filepath.Join(baseName, "rpc_lower_case.txt")
-	errorFile := filepath.Join(baseName, "ERROR.txt")
-
-	// Check if response contains error
-	responseMap, isMap := response.(map[string]interface{})
-	hasError := isMap && responseMap["error"] != nil
-
-	if hasError {
-		err := toLowerCase(daemonFile, tempFile1)
-		if err != nil {
-			return false, err
-		}
-		err = toLowerCase(expRspFile, tempFile2)
-		if err != nil {
-			return false, err
-		}
-	} else {
-		_, err := copyFile(daemonFile, tempFile1)
-		if err != nil {
-			return false, err
-		}
-		_, err = copyFile(expRspFile, tempFile2)
-		if err != nil {
-			return false, err
-		}
-	}
-
-	if isNotComparedMessage(jsonFile, config.Net) {
-		err := replaceMessage(expRspFile, tempFile1, "message")
-		if err != nil {
-			return false, err
-		}
-		err = replaceMessage(daemonFile, tempFile2, "message")
-		if err != nil {
-			return false, err
-		}
-	} else if isNotComparedError(jsonFile, config.Net) {
-		err := replaceMessage(expRspFile, tempFile1, "error")
-		if err != nil {
-			return false, err
-		}
-		err = replaceMessage(daemonFile, tempFile2, "error")
-		if err != nil {
-			return false, err
-		}
-	}
-
-	diffResult, err := c.compareJSONFiles(config.DiffKind, errorFile, tempFile1, tempFile2, diffFile)
 	diffFileSize := int64(0)
-
 	metrics.ComparisonCount += 1
 
+	diffResult, err := c.compareJSONFiles(config.DiffKind, "/dev/null", expRspFile, daemonFile, diffFile)
 	if diffResult {
 		fileInfo, err := os.Stat(diffFile)
 		if err != nil {
 			return false, err
 		}
 		diffFileSize = fileInfo.Size()
-	}
-
-	// Cleanup temp files
-	err = os.Remove(tempFile1)
-	if err != nil {
-		return false, err
-	}
-	err = os.Remove(tempFile2)
-	if err != nil {
-		return false, err
-	}
-	err = os.RemoveAll(baseName)
-	if err != nil {
-		return false, err
 	}
 
 	if diffFileSize != 0 || !diffResult {
