@@ -51,10 +51,6 @@ var (
 		"mainnet/engine_",
 	}
 
-	testsNotCompared        = []string{}
-	testsNotComparedMessage = []string{}
-	testsNotComparedError   = []string{}
-
 	// testsOnLatest - add your list here
 	testsOnLatest = []string{
 		"mainnet/debug_traceBlockByNumber/test_24.json",
@@ -837,11 +833,6 @@ func isSkipped(currAPI, testName string, globalTestNumber int, config *Config) b
 				return true
 			}
 		}
-		for _, currTest := range testsNotCompared {
-			if strings.Contains(apiFullTestName, currTest) {
-				return true
-			}
-		}
 	}
 
 	if config.ExcludeAPIList != "" {
@@ -918,26 +909,6 @@ func apiUnderTest(currAPI, testName string, config *Config) bool {
 		return verifyInLatestList(testName, config)
 	}
 
-	return false
-}
-
-func isNotComparedMessage(testName, net string) bool {
-	testFullName := net + "/" + testName
-	for _, currTestName := range testsNotComparedMessage {
-		if currTestName == testFullName {
-			return true
-		}
-	}
-	return false
-}
-
-func isNotComparedError(testName, net string) bool {
-	testFullName := net + "/" + testName
-	for _, currTestName := range testsNotComparedError {
-		if currTestName == testFullName {
-			return true
-		}
-	}
 	return false
 }
 
