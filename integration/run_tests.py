@@ -35,16 +35,6 @@ api_not_compared = [
     "mainnet/engine_"                     # not supported on external EP
 ]
 
-tests_not_compared = [
-]
-
-tests_not_compared_message = [
-]
-
-tests_not_compared_error = [
-]
-
-
 tests_on_latest = [
     "mainnet/debug_traceBlockByNumber/test_24.json",
     "mainnet/debug_traceBlockByNumber/test_30.json",
@@ -255,53 +245,6 @@ def get_jwt_secret(name):
         return ""
 
 
-def to_lower_case(file, dest_file):
-    """ converts input string into lower case
-    """
-    cmd = "tr '[:upper:]' '[:lower:]' < " + file + " > " + dest_file
-    os.system(cmd)
-
-
-def replace_str_from_file(filer, filew, matched_string):
-    """ parse file and replace string
-    """
-    with open(filer, "r", encoding='utf8') as input_file:
-        with open(filew, "w", encoding='utf8') as output_file:
-            # iterate all lines from file
-            for line in input_file:
-                # if text matches then don't write it
-                if (matched_string in line) == 0:
-                    output_file.write(line)
-
-
-def replace_message(filer, filew, matched_string):
-    """ parse file and replace string
-    """
-    with open(filer, "r", encoding='utf8') as input_file:
-        with open(filew, "w", encoding='utf8') as output_file:
-            # iterate all lines from file
-            for line in input_file:
-                # if text matches then don't write it
-                if (matched_string in line) == 0:
-                    output_file.write(line)
-                else:
-                    output_file.write("     \"message\": \"\"\n")
-
-
-def modified_str_from_file(filer, filew, matched_string):
-    """ parse file and convert string
-    """
-    with open(filer, "r", encoding='utf8') as input_file:
-        with open(filew, "w", encoding='utf8') as output_file:
-            # iterate all lines from file
-            for line in input_file:
-                # if text matches then don't write it
-                if (matched_string in line) == 1:
-                    output_file.write(line.lower())
-                else:
-                    output_file.write(line)
-
-
 def is_skipped(curr_api, test_name: str, global_test_number, config):
     """ determine if test must be skipped
     """
@@ -376,25 +319,6 @@ def api_under_test(curr_api, test_name, config):
 
     return in_latest_list
 
-
-def is_not_compared_message(test_name, net: str):
-    """ determine if test not compared message field
-    """
-    test_full_name = net + "/" + test_name
-    for curr_test_name in tests_not_compared_message:
-        if curr_test_name == test_full_name:
-            return 1
-    return 0
-
-
-def is_not_compared_error(test_name, net: str):
-    """ determine if test not compared error field
-    """
-    test_full_name = net + "/" + test_name
-    for curr_test_name in tests_not_compared_error:
-        if curr_test_name == test_full_name:
-            return 1
-    return 0
 
 def print_latest_block(server1_url: str, server2_url: str):
     """ print ltest block number
@@ -672,6 +596,7 @@ class TestMetrics:
         self.round_trip_time = timedelta(0)
         self.marshalling_time = timedelta(0)
         self.unmarshalling_time = timedelta(0)
+        self.noOfJsonDiffs = 0
 
 
 class TestOutcome:
@@ -679,6 +604,7 @@ class TestOutcome:
         self.return_code = return_code
         self.error_msg = error_msg
         self.metrics = TestMetrics()
+        self.noOfJsonDiffs = 0
 
 
 def dump_jsons(dump_json, daemon_file, exp_rsp_file, output_dir, response, expected_response: str, outcome: TestOutcome):
@@ -833,32 +759,8 @@ def run_compare(use_jsondiff, error_file, temp_file1, temp_file2, diff_file, tes
 
 def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_file: str, test_number):
     """ Compare JSON response. """
-    base_name = TEMP_DIRNAME + "/test_" + str(test_number) + "/"
-    if os.path.exists(base_name) == 0:
-        os.makedirs(base_name, exist_ok=True)
-    temp_file1 = base_name + "daemon_lower_case.txt"
-    temp_file2 = base_name + "rpc_lower_case.txt"
-    error_file = base_name + "ERROR.txt"
 
-    if "error" in response:
-        to_lower_case(daemon_file, temp_file1)
-        to_lower_case(exp_rsp_file, temp_file2)
-    else:
-        cmd = "cp " + daemon_file + " " + temp_file1
-        os.system(cmd)
-        cmd = "cp " + exp_rsp_file + " " + temp_file2
-        os.system(cmd)
-
-    if is_not_compared_message(json_file, config.net):
-        removed_line_string = "message"
-        replace_message(exp_rsp_file, temp_file1, removed_line_string)
-        replace_message(daemon_file, temp_file2, removed_line_string)
-    elif is_not_compared_error(json_file, config.net):
-        removed_line_string = "error"
-        replace_message(exp_rsp_file, temp_file1, removed_line_string)
-        replace_message(daemon_file, temp_file2, removed_line_string)
-
-    diff_result = run_compare(config.use_jsondiff, error_file, temp_file1, temp_file2, diff_file, test_number)
+    diff_result = run_compare(config.use_jsondiff, "/dev/null", daemon_file, exp_rsp_file, diff_file, test_number)
     diff_file_size = 0
     return_code = 1  # ok
     error_msg = ""
@@ -871,15 +773,6 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
             error_msg = "Failed"
         return_code = 0  # failed
 
-    if os.path.exists(temp_file1):
-        os.remove(temp_file1)
-    if os.path.exists(temp_file2):
-        os.remove(temp_file2)
-    if os.path.exists(base_name):
-        try:
-            shutil.rmtree(base_name)
-        except OSError:
-            pass
     return return_code, error_msg
 
 
@@ -940,6 +833,7 @@ def process_response(target, target1, result, result1: str, response_in_file, co
         dump_jsons(True, daemon_file, exp_rsp_file, output_dir, response, expected_response, outcome)
 
         same, error_msg = compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_file, test_number)
+        outcome.noOfJsonDiffs = 1
         # cleanup
         if same:
             os.remove(daemon_file)
@@ -1133,6 +1027,7 @@ def main(argv) -> int:
     total_round_trip_time = timedelta(0)
     total_marshalling_time = timedelta(0)
     total_unmarshalling_time = timedelta(0)
+    no_of_json_diffs = 0
     try:
         for test_rep in range(0, config.loop_number):  # makes tests more times
             if config.loop_number != 1:
@@ -1223,6 +1118,7 @@ def main(argv) -> int:
                     total_round_trip_time += test_outcome.metrics.round_trip_time
                     total_marshalling_time += test_outcome.metrics.marshalling_time
                     total_unmarshalling_time += test_outcome.metrics.unmarshalling_time
+                    no_of_json_diffs += test_outcome.noOfJsonDiffs
                     if result == 1:
                         success_tests = success_tests + 1
                         if config.verbose_level:
@@ -1252,6 +1148,7 @@ def main(argv) -> int:
     print(f"Total round_trip time:        {str(total_round_trip_time)}")
     print(f"Total marshalling time:       {str(total_marshalling_time)}")
     print(f"Total unmarshalling time:     {str(total_unmarshalling_time)}")
+    print(f"No of json Diffs:             {str(no_of_json_diffs)}")
     print(f"Test time-elapsed:            {str(elapsed)}")
     print(f"Available tests:              {global_test_number - 1}")
     print(f"Available tested api:         {available_tested_apis}")
