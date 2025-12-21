@@ -1326,32 +1326,8 @@ func extractJsonCommands(jsonFilename string, metrics *TestMetrics) ([]JsonRpcCo
 func (c *JsonRpcCommand) compareJSONFiles(kind JsonDiffKind, errorFileName, fileName1, fileName2, diffFileName string) (bool, error) {
 	switch kind {
 	case JdLibrary:
-		jsonNode1, err := jd.ReadJsonFile(fileName1)
-		if err != nil {
-			return false, err
-		}
-		jsonNode2, err := jd.ReadJsonFile(fileName2)
-		if err != nil {
-			return false, err
-		}
-		var diff jd.Diff
-		// Check if the test contains any response metadata with custom options for JSON diff
-		if c.TestInfo != nil && c.TestInfo.Metadata != nil && c.TestInfo.Metadata.Response != nil {
-			if c.TestInfo.Metadata.Response.PathOptions != nil {
-				pathOptions := c.TestInfo.Metadata.Response.PathOptions
-				options, err := jd.ReadOptionsString(string(pathOptions))
-				if err != nil {
-					return false, err
-				}
-				diff = jsonNode1.Diff(jsonNode2, options...)
-			}
-		} else {
-			diff = jsonNode1.Diff(jsonNode2)
-		}
-		diffString := diff.Render()
-		err = os.WriteFile(diffFileName, []byte(diffString), 0644)
-		if err != nil {
-			return false, err
+		if success, err := c.runCompareJD(fileName1, fileName2, diffFileName); !success {
+			return false, fmt.Errorf("failed to compare %s and %s using jd command %s", fileName1, fileName2, err)
 		}
 		return true, nil
 	case JsonDiffTool:
@@ -1366,6 +1342,67 @@ func (c *JsonRpcCommand) compareJSONFiles(kind JsonDiffKind, errorFileName, file
 		return true, nil
 	default:
 		return false, fmt.Errorf("unknown JSON diff kind: %d", kind)
+	}
+}
+
+func (c *JsonRpcCommand) runCompareJD(fileName1, fileName2, diffFileName string) (bool, error) {
+	jsonNode1, err := jd.ReadJsonFile(fileName1)
+	if err != nil {
+		return false, err
+	}
+	jsonNode2, err := jd.ReadJsonFile(fileName2)
+	if err != nil {
+		return false, err
+	}
+
+	type result struct {
+		diff jd.Diff
+		err  error
+	}
+
+	resChan := make(chan result, 1)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	go func() {
+		var d jd.Diff
+		var e error
+
+		if c.TestInfo != nil && c.TestInfo.Metadata != nil && c.TestInfo.Metadata.Response != nil {
+			if c.TestInfo.Metadata.Response.PathOptions != nil {
+				pathOptions := c.TestInfo.Metadata.Response.PathOptions
+				options, err := jd.ReadOptionsString(string(pathOptions))
+				if err != nil {
+					resChan <- result{err: err}
+					return
+				}
+				d = jsonNode1.Diff(jsonNode2, options...)
+			} else {
+				d = jsonNode1.Diff(jsonNode2)
+			}
+		} else {
+			d = jsonNode1.Diff(jsonNode2)
+		}
+
+		resChan <- result{diff: d, err: e}
+	}()
+
+	select {
+	case <-ctx.Done():
+		return false, fmt.Errorf("JSON diff (JD) timeout: operation exceeded timeout for files %s and %s", fileName1, fileName2)
+
+	case res := <-resChan:
+		if res.err != nil {
+			return false, res.err
+		}
+
+		diffString := res.diff.Render()
+		err = os.WriteFile(diffFileName, []byte(diffString), 0644)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
 	}
 }
 
