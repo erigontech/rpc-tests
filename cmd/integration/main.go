@@ -2,13 +2,13 @@ package main
 
 import (
 	"archive/tar"
+	"bufio"
 	"bytes"
 	"compress/bzip2"
 	"compress/gzip"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -32,7 +32,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 	"github.com/josephburnett/jd/v2"
+	jsoniter "github.com/json-iterator/go"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 const (
 	DaemonOnOtherPort   = "other-daemon"
@@ -383,7 +386,7 @@ type TestDescriptor struct {
 }
 
 type JsonRpcResponseMetadata struct {
-	PathOptions json.RawMessage `json:"pathOptions"`
+	PathOptions jsoniter.RawMessage `json:"pathOptions"`
 }
 
 type JsonRpcTestMetadata struct {
@@ -399,9 +402,9 @@ type JsonRpcTest struct {
 }
 
 type JsonRpcCommand struct {
-	Request  json.RawMessage `json:"request"`
-	Response json.RawMessage `json:"response"`
-	TestInfo *JsonRpcTest    `json:"test"`
+	Request  jsoniter.RawMessage `json:"request"`
+	Response jsoniter.RawMessage `json:"response"`
+	TestInfo *JsonRpcTest        `json:"test"`
 }
 
 func NewConfig() *Config {
@@ -1237,42 +1240,6 @@ func runCompare(jsonDiff bool, errorFile, tempFile1, tempFile2, diffFile string)
 	}
 }
 
-func copyFile(src, dst string) (int64, error) {
-	sourceFileStat, err := os.Stat(src)
-	if err != nil {
-		return 0, err
-	}
-
-	if !sourceFileStat.Mode().IsRegular() {
-		return 0, fmt.Errorf("%s is not a regular file", src)
-	}
-
-	source, err := os.Open(src)
-	if err != nil {
-		return 0, err
-	}
-	defer func(source *os.File) {
-		err := source.Close()
-		if err != nil {
-			fmt.Printf("failed to close source file: %v\n", err)
-		}
-	}(source)
-
-	destination, err := os.Create(dst)
-	if err != nil {
-		return 0, err
-	}
-	defer func(destination *os.File) {
-		err := destination.Close()
-		if err != nil {
-			fmt.Printf("failed to close destination file: %v\n", err)
-		}
-	}(destination)
-
-	nBytes, err := io.Copy(destination, source)
-	return nBytes, err
-}
-
 var (
 	errDiffTimeout  = errors.New("diff timeout")
 	errDiffMismatch = errors.New("diff mismatch")
@@ -1284,14 +1251,23 @@ func isArchive(jsonFilename string) bool {
 }
 
 func extractJsonCommands(jsonFilename string, metrics *TestMetrics) ([]JsonRpcCommand, error) {
-	var jsonrpcCommands []JsonRpcCommand
-	data, err := os.ReadFile(jsonFilename)
+	file, err := os.Open(jsonFilename)
 	if err != nil {
-		return jsonrpcCommands, errors.New("cannot read file " + jsonFilename + ": " + err.Error())
+		return nil, fmt.Errorf("cannot open file %s: %w", jsonFilename, err)
 	}
+	defer func(file *os.File) {
+		err = file.Close()
+		if err != nil {
+			fmt.Printf("failed to close file %s: %v\n", jsonFilename, err)
+		}
+	}(file)
+
+	reader := bufio.NewReaderSize(file, 8*os.Getpagesize())
+
+	var jsonrpcCommands []JsonRpcCommand
 	start := time.Now()
-	if err := json.Unmarshal(data, &jsonrpcCommands); err != nil {
-		return jsonrpcCommands, errors.New("cannot parse JSON " + jsonFilename + ": " + err.Error())
+	if err := json.NewDecoder(reader).Decode(&jsonrpcCommands); err != nil {
+		return nil, fmt.Errorf("cannot parse JSON %s: %w", jsonFilename, err)
 	}
 	metrics.UnmarshallingTime += time.Since(start)
 	return jsonrpcCommands, nil
@@ -1343,10 +1319,10 @@ func (c *JsonRpcCommand) compareJSONFiles(kind JsonDiffKind, errorFileName, file
 	}
 }
 
-func (c *JsonRpcCommand) compareJSON(config *Config, response interface{}, jsonFile, daemonFile, expRspFile, diffFile string, testNumber int, metrics *TestMetrics) (bool, error) {
-	diffFileSize := int64(0)
+func (c *JsonRpcCommand) compareJSON(config *Config, daemonFile, expRspFile, diffFile string, metrics *TestMetrics) (bool, error) {
 	metrics.ComparisonCount += 1
 
+	diffFileSize := int64(0)
 	diffResult, err := c.compareJSONFiles(config.DiffKind, "/dev/null", expRspFile, daemonFile, diffFile)
 	if diffResult {
 		fileInfo, err := os.Stat(diffFile)
@@ -1368,10 +1344,7 @@ func (c *JsonRpcCommand) compareJSON(config *Config, response interface{}, jsonF
 	return true, nil
 }
 
-func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byte, config *Config, outputDir, daemonFile, expRspFile, diffFile string, descriptor *TestDescriptor, outcome *TestOutcome) {
-	jsonFile := descriptor.Name
-	testNumber := descriptor.Number
-
+func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byte, config *Config, outputDir, daemonFile, expRspFile, diffFile string, outcome *TestOutcome) {
 	var expectedResponse []byte
 	if result1 != nil {
 		expectedResponse = result1
@@ -1392,7 +1365,7 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 	var responseMap map[string]interface{}
 	var respIsMap bool
 	start := time.Now()
-	if err := json.Unmarshal(response, &responseMap); err == nil {
+	if err := json.NewDecoder(bytes.NewReader(response)).Decode(&responseMap); err == nil {
 		outcome.Metrics.UnmarshallingTime += time.Since(start)
 		respIsMap = true
 		start = time.Now()
@@ -1411,7 +1384,7 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 	var expectedMap map[string]interface{}
 	var expIsMap bool
 	start = time.Now()
-	if err := json.Unmarshal(expectedResponse, &expectedMap); err == nil {
+	if err := json.NewDecoder(bytes.NewReader(expectedResponse)).Decode(&expectedMap); err == nil {
 		outcome.Metrics.UnmarshallingTime += time.Since(start)
 		expIsMap = true
 		start := time.Now()
@@ -1491,7 +1464,7 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 		return
 	}
 
-	same, err := c.compareJSON(config, responseMap, jsonFile, daemonFile, expRspFile, diffFile, testNumber, &outcome.Metrics)
+	same, err := c.compareJSON(config, daemonFile, expRspFile, diffFile, &outcome.Metrics)
 	if err != nil {
 		outcome.Error = err
 		return
@@ -1557,7 +1530,7 @@ func (c *JsonRpcCommand) run(ctx context.Context, config *Config, descriptor *Te
 		daemonFile := outputAPIFilename + "-response.json"
 		expRspFile := outputAPIFilename + "-expResponse.json"
 
-		c.processResponse(result, nil, responseInFile, config, outputDirName, daemonFile, expRspFile, diffFile, descriptor, outcome)
+		c.processResponse(result, nil, responseInFile, config, outputDirName, daemonFile, expRspFile, diffFile, outcome)
 	} else {
 		target = getTarget(DaemonOnDefaultPort, descriptor.Name, config)
 		result, err := executeRequest(ctx, config, transportType, jwtAuth, target, request, &outcome.Metrics)
@@ -1589,7 +1562,7 @@ func (c *JsonRpcCommand) run(ctx context.Context, config *Config, descriptor *Te
 		daemonFile := outputAPIFilename + getJSONFilenameExt(DaemonOnDefaultPort, target)
 		expRspFile := outputAPIFilename + getJSONFilenameExt(config.DaemonAsReference, target1)
 
-		c.processResponse(result, result1, nil, config, outputDirName, daemonFile, expRspFile, diffFile, descriptor, outcome)
+		c.processResponse(result, result1, nil, config, outputDirName, daemonFile, expRspFile, diffFile, outcome)
 		return
 	}
 }
