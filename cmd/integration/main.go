@@ -1096,6 +1096,75 @@ func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtA
 	return body, nil
 }
 
+
+ype RPCRequest struct {
+        Jsonrpc string        `json:"jsonrpc"`
+        Method  string        `json:"method"`
+        Params  []interface{} `json:"params"`
+        ID      int           `json:"id"`
+}
+
+type RPCResponse struct {
+        Result string `json:"result"`
+        Error  *struct {
+                Message string `json:"message"`
+        } `json:"error"`
+}
+
+func getBlockNumber(ctx context.Context, config *Config, url string, metrics *TestMetrics) (uint64, error) {
+        payload := RPCRequest{
+                Jsonrpc: "2.0",
+                Method:  "eth_blockNumber",
+                Params:  []interface{}{},
+                ID:      1,
+        }
+        requestBytes, _ := json.Marshal(payload)
+
+        responseBytes, err := executeHttpRequest(ctx, config, "http", "", url, requestBytes, metrics)
+        if err != nil {
+                return 0, err
+        }
+
+        var rpcResp RPCResponse
+        if err := json.Unmarshal(responseBytes, &rpcResp); err != nil {
+                return 0, fmt.Errorf("error decoding json: %w", err)
+        }
+
+        if rpcResp.Error != nil {
+                return 0, fmt.Errorf("RPC error: %s", rpcResp.Error.Message)
+        }
+
+        cleanHex := strings.TrimPrefix(rpcResp.Result, "0x")
+        return strconv.ParseUint(cleanHex, 16, 64)
+}
+
+func GetConsistentBlockNumber(config *Config, server1URL, server2URL string, maxRetries int, retryDelayMs int) *uint64 {
+        var bn1, bn2 uint64
+        delay := time.Duration(retryDelayMs) * time.Millisecond
+
+        metrics := TestMetrics{}
+        for i := 0; i < maxRetries; i++ {
+                ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+                var err1, err2 error
+                bn1, err1 = getBlockNumber(ctx, config, server1URL, &metrics)
+                bn2, err2 = getBlockNumber(ctx, config, server2URL, &metrics)
+                cancel()
+
+                if err1 == nil && err2 == nil && bn1 == bn2 {
+                        fmt.Printf("INFO: Nodi sincronizzati (Tentativo %d): %d\n", i+1, bn1)
+                        return &bn1
+                }
+
+                if i < maxRetries-1 {
+                        time.Sleep(delay)
+                }
+        }
+
+        fmt.Printf("ERROR: Nodi non sincronizzati o errori di rete. Ultimi valori: %d / %d\n", bn1, bn2)
+        return nil
+}
+
 func executeWebSocketRequest(config *Config, transportType, jwtAuth, target string, request []byte, metrics *TestMetrics) ([]byte, error) {
 	wsTarget := "ws://" + target
 	dialer := websocket.Dialer{
@@ -1775,6 +1844,17 @@ func runMain() int {
 	if strings.Contains(config.TransportType, "_comp") {
 		fmt.Println("Run tests using compression")
 	}
+
+        if config.VerifyWithDaemon && config.TestsOnLatestBlock {
+            var server1 = fmt.Sprintf("%s:%d", config.DaemonOnHost, config.ServerPort)
+            var maxRetries = 10
+            var retryDelayMs = 1000
+            var consistent_block = GetConsistentBlockNumber(config, server1, config.ExternalProviderURL, maxRetries, retryDelayMs)
+            if consistent_block == nil {
+                fmt.Printf("ERROR: Tests on latest block: two servers are not synchronized")
+                return 1
+            }
+        }
 
 	resultsAbsoluteDir, err := filepath.Abs(config.ResultsDir)
 	if err != nil {
