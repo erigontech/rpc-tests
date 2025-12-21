@@ -886,38 +886,20 @@ func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response
 		return nil
 	}
 
-	for attempt := 0; attempt < 10; attempt++ {
-		if err := os.MkdirAll(outputDir, 0755); err != nil {
-			fmt.Printf("Exception on makedirs: %s %v\n", outputDir, err)
-			continue
-		}
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return fmt.Errorf("Exception on makedirs: %s %v\n", outputDir, err)
+	}
 
-		if daemonFile != "" {
-			if _, err := os.Stat(daemonFile); err == nil {
-				err := os.Remove(daemonFile)
-				if err != nil {
-					return err
-				}
-			}
-			if err := os.WriteFile(daemonFile, response, 0644); err != nil {
-				fmt.Printf("Exception on file write daemon: %v attempt %d\n", err, attempt)
-				continue
-			}
+	if daemonFile != "" {
+		if err := os.WriteFile(daemonFile, response, 0644); err != nil {
+			return fmt.Errorf("Exception on file write daemon: %v\n", err)
 		}
+	}
 
-		if expRspFile != "" {
-			if _, err := os.Stat(expRspFile); err == nil {
-				err := os.Remove(expRspFile)
-				if err != nil {
-					return err
-				}
-			}
-			if err := os.WriteFile(expRspFile, expectedResponse, 0644); err != nil {
-				fmt.Printf("Exception on file write expected: %v attempt %d\n", err, attempt)
-				continue
-			}
+	if expRspFile != "" {
+		if err := os.WriteFile(expRspFile, expectedResponse, 0644); err != nil {
+			return fmt.Errorf("Exception on file write expected: %v\n", err)
 		}
-		break
 	}
 	return nil
 }
@@ -1096,73 +1078,72 @@ func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtA
 	return body, nil
 }
 
-
-ype RPCRequest struct {
-        Jsonrpc string        `json:"jsonrpc"`
-        Method  string        `json:"method"`
-        Params  []interface{} `json:"params"`
-        ID      int           `json:"id"`
+type RPCRequest struct {
+	Jsonrpc string        `json:"jsonrpc"`
+	Method  string        `json:"method"`
+	Params  []interface{} `json:"params"`
+	ID      int           `json:"id"`
 }
 
 type RPCResponse struct {
-        Result string `json:"result"`
-        Error  *struct {
-                Message string `json:"message"`
-        } `json:"error"`
+	Result string `json:"result"`
+	Error  *struct {
+		Message string `json:"message"`
+	} `json:"error"`
 }
 
 func getBlockNumber(ctx context.Context, config *Config, url string, metrics *TestMetrics) (uint64, error) {
-        payload := RPCRequest{
-                Jsonrpc: "2.0",
-                Method:  "eth_blockNumber",
-                Params:  []interface{}{},
-                ID:      1,
-        }
-        requestBytes, _ := json.Marshal(payload)
+	payload := RPCRequest{
+		Jsonrpc: "2.0",
+		Method:  "eth_blockNumber",
+		Params:  []interface{}{},
+		ID:      1,
+	}
+	requestBytes, _ := json.Marshal(payload)
 
-        responseBytes, err := executeHttpRequest(ctx, config, "http", "", url, requestBytes, metrics)
-        if err != nil {
-                return 0, err
-        }
+	responseBytes, err := executeHttpRequest(ctx, config, "http", "", url, requestBytes, metrics)
+	if err != nil {
+		return 0, err
+	}
 
-        var rpcResp RPCResponse
-        if err := json.Unmarshal(responseBytes, &rpcResp); err != nil {
-                return 0, fmt.Errorf("error decoding json: %w", err)
-        }
+	var rpcResp RPCResponse
+	if err := json.Unmarshal(responseBytes, &rpcResp); err != nil {
+		return 0, fmt.Errorf("error decoding json: %w", err)
+	}
 
-        if rpcResp.Error != nil {
-                return 0, fmt.Errorf("RPC error: %s", rpcResp.Error.Message)
-        }
+	if rpcResp.Error != nil {
+		return 0, fmt.Errorf("RPC error: %s", rpcResp.Error.Message)
+	}
 
-        cleanHex := strings.TrimPrefix(rpcResp.Result, "0x")
-        return strconv.ParseUint(cleanHex, 16, 64)
+	cleanHex := strings.TrimPrefix(rpcResp.Result, "0x")
+	return strconv.ParseUint(cleanHex, 16, 64)
 }
 
 func GetConsistentBlockNumber(config *Config, server1URL, server2URL string, maxRetries int, retryDelayMs int) *uint64 {
-        var bn1, bn2 uint64
-        delay := time.Duration(retryDelayMs) * time.Millisecond
+	var bn1, bn2 uint64
+	delay := time.Duration(retryDelayMs) * time.Millisecond
 
-        metrics := TestMetrics{}
-        for i := 0; i < maxRetries; i++ {
-                ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	metrics := TestMetrics{}
+	for i := 0; i < maxRetries; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-                var err1, err2 error
-                bn1, err1 = getBlockNumber(ctx, config, server1URL, &metrics)
-                bn2, err2 = getBlockNumber(ctx, config, server2URL, &metrics)
-                cancel()
+		var err1, err2 error
+		bn1, err1 = getBlockNumber(ctx, config, server1URL, &metrics)
+		bn2, err2 = getBlockNumber(ctx, config, server2URL, &metrics)
+		cancel()
 
-                if err1 == nil && err2 == nil && bn1 == bn2 {
-                        fmt.Printf("INFO: Nodi sincronizzati (Tentativo %d): %d\n", i+1, bn1)
-                        return &bn1
-                }
+		if err1 == nil && err2 == nil && bn1 == bn2 {
+			fmt.Printf("INFO: Nodi sincronizzati (Tentativo %d): %d\n", i+1, bn1)
+			return &bn1
+		}
 
-                if i < maxRetries-1 {
-                        time.Sleep(delay)
-                }
-        }
+		if i < maxRetries-1 {
+			time.Sleep(delay)
+		}
+	}
 
-        fmt.Printf("ERROR: Nodi non sincronizzati o errori di rete. Ultimi valori: %d / %d\n", bn1, bn2)
-        return nil
+	fmt.Printf("ERROR: Nodi non sincronizzati o errori di rete. Ultimi valori: %d / %d\n", bn1, bn2)
+	return nil
 }
 
 func executeWebSocketRequest(config *Config, transportType, jwtAuth, target string, request []byte, metrics *TestMetrics) ([]byte, error) {
@@ -1845,16 +1826,16 @@ func runMain() int {
 		fmt.Println("Run tests using compression")
 	}
 
-        if config.VerifyWithDaemon && config.TestsOnLatestBlock {
-            var server1 = fmt.Sprintf("%s:%d", config.DaemonOnHost, config.ServerPort)
-            var maxRetries = 10
-            var retryDelayMs = 1000
-            var consistent_block = GetConsistentBlockNumber(config, server1, config.ExternalProviderURL, maxRetries, retryDelayMs)
-            if consistent_block == nil {
-                fmt.Printf("ERROR: Tests on latest block: two servers are not synchronized")
-                return 1
-            }
-        }
+	if config.VerifyWithDaemon && config.TestsOnLatestBlock {
+		var server1 = fmt.Sprintf("%s:%d", config.DaemonOnHost, config.ServerPort)
+		var maxRetries = 10
+		var retryDelayMs = 1000
+		var consistent_block = GetConsistentBlockNumber(config, server1, config.ExternalProviderURL, maxRetries, retryDelayMs)
+		if consistent_block == nil {
+			fmt.Printf("ERROR: Tests on latest block: two servers are not synchronized")
+			return 1
+		}
+	}
 
 	resultsAbsoluteDir, err := filepath.Abs(config.ResultsDir)
 	if err != nil {
