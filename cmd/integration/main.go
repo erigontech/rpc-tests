@@ -1419,7 +1419,7 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 		outcome.Metrics.UnmarshallingTime += time.Since(start)
 		respIsMap = true
 		start = time.Now()
-		response, err = json.Marshal(responseMap)
+		response, err = json.MarshalIndent(responseMap, "", "    ")
 		if err != nil {
 			outcome.Error = err
 			return
@@ -1438,7 +1438,7 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 		outcome.Metrics.UnmarshallingTime += time.Since(start)
 		expIsMap = true
 		start := time.Now()
-		expectedResponse, err = json.Marshal(expectedMap)
+		expectedResponse, err = json.MarshalIndent(expectedMap, "", "    ")
 		if err != nil {
 			outcome.Error = err
 			return
