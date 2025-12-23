@@ -36,8 +36,6 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-var json = jsoniter.ConfigCompatibleWithStandardLibrary
-
 const (
 	DaemonOnOtherPort   = "other-daemon"
 	DaemonOnDefaultPort = "rpcdaemon"
@@ -289,7 +287,7 @@ func extractArchive(archivePath string, sanitizeExtension bool, metrics *TestMet
 	}
 
 	start := time.Now()
-	if err := json.NewDecoder(tarReader).Decode(&jsonrpcCommands); err != nil {
+	if err := jsoniter.NewDecoder(tarReader).Decode(&jsonrpcCommands); err != nil {
 		return jsonrpcCommands, errors.New("cannot parse JSON " + archivePath + ": " + err.Error())
 	}
 	metrics.UnmarshallingTime += time.Since(start)
@@ -894,7 +892,7 @@ func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response
 
 	if daemonFile != "" {
 		start := time.Now()
-		responseData, err := json.MarshalIndent(response, "", "  ")
+		responseData, err := jsoniter.MarshalIndent(response, "", "  ")
 		if err != nil {
 			return err
 		}
@@ -906,7 +904,7 @@ func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response
 
 	if expRspFile != "" {
 		start := time.Now()
-		expectedResponseData, err := json.MarshalIndent(expectedResponse, "", "  ")
+		expectedResponseData, err := jsoniter.MarshalIndent(expectedResponse, "", "  ")
 		if err != nil {
 			return err
 		}
@@ -1079,7 +1077,7 @@ func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtA
 	}
 
 	start = time.Now()
-	if err = json.NewDecoder(resp.Body).Decode(response); err != nil {
+	if err = jsoniter.NewDecoder(resp.Body).Decode(response); err != nil {
 		return fmt.Errorf("cannot decode http body as json %w", err)
 	}
 	metrics.UnmarshallingTime += time.Since(start)
@@ -1088,7 +1086,7 @@ func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtA
 	}
 
 	if config.VerboseLevel > 1 {
-		raw, _ := json.Marshal(response)
+		raw, _ := jsoniter.Marshal(response)
 		fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, request, string(raw))
 	}
 
@@ -1116,7 +1114,7 @@ func getLatestBlockNumber(ctx context.Context, config *Config, url string, metri
 		Params:  []interface{}{},
 		Id:      1,
 	}
-	requestBytes, _ := json.Marshal(request)
+	requestBytes, _ := jsoniter.Marshal(request)
 
 	var response JsonRpcResponse
 	err := executeHttpRequest(ctx, config, "http", "", url, requestBytes, response, metrics)
@@ -1205,7 +1203,7 @@ func executeWebSocketRequest(config *Config, transportType, jwtAuth, target stri
 	metrics.RoundTripTime = time.Since(start)
 
 	start = time.Now()
-	if err = json.NewDecoder(message).Decode(&response); err != nil {
+	if err = jsoniter.NewDecoder(message).Decode(&response); err != nil {
 		return fmt.Errorf("cannot decode websocket message as json %w", err)
 	}
 	metrics.UnmarshallingTime += time.Since(start)
@@ -1214,7 +1212,7 @@ func executeWebSocketRequest(config *Config, transportType, jwtAuth, target stri
 	}
 
 	if config.VerboseLevel > 1 {
-		raw, _ := json.Marshal(response)
+		raw, _ := jsoniter.Marshal(response)
 		fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, request, string(raw))
 	}
 
@@ -1341,7 +1339,7 @@ func extractJsonCommands(jsonFilename string, metrics *TestMetrics) ([]JsonRpcCo
 
 	var jsonrpcCommands []JsonRpcCommand
 	start := time.Now()
-	if err := json.NewDecoder(reader).Decode(&jsonrpcCommands); err != nil {
+	if err := jsoniter.NewDecoder(reader).Decode(&jsonrpcCommands); err != nil {
 		return nil, fmt.Errorf("cannot parse JSON %s: %w", jsonFilename, err)
 	}
 	metrics.UnmarshallingTime += time.Since(start)
@@ -2066,12 +2064,6 @@ func runMain() int {
 							shouldRun := false
 							if config.TestingAPIsWith == "" && config.TestingAPIs == "" && (config.ReqTestNumber == -1 || config.ReqTestNumber == testNumberInAnyLoop) {
 								shouldRun = true
-								/*if slices.Contains([]int{29, 37, 133, 173, 1008, 1272, 1274}, testNumberInAnyLoop) {
-									file := fmt.Sprintf("%-60s", jsonTestFullName)
-									tt := fmt.Sprintf("%-15s", transportType)
-									fmt.Printf("%04d. %s::%s   skipped as long-running\n", testNumberInAnyLoop, tt, file)
-									shouldRun = false
-								}*/
 							} else if config.TestingAPIsWith != "" && checkTestNameForNumber(testName, config.ReqTestNumber) {
 								shouldRun = true
 							} else if config.TestingAPIs != "" && checkTestNameForNumber(testName, config.ReqTestNumber) {
