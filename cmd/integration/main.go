@@ -18,6 +18,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"runtime"
 	"runtime/pprof"
@@ -365,6 +366,7 @@ type TestMetrics struct {
 	MarshallingTime   time.Duration
 	UnmarshallingTime time.Duration
 	ComparisonCount   int
+	EqualCount        int
 }
 
 type TestOutcome struct {
@@ -403,7 +405,7 @@ type JsonRpcTest struct {
 
 type JsonRpcCommand struct {
 	Request  jsoniter.RawMessage `json:"request"`
-	Response jsoniter.RawMessage `json:"response"`
+	Response any                 `json:"response"`
 	TestInfo *JsonRpcTest        `json:"test"`
 }
 
@@ -881,7 +883,7 @@ func apiUnderTest(currAPI, testName string, config *Config) bool {
 	return false
 }
 
-func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response, expectedResponse []byte) error {
+func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response, expectedResponse any, metrics *TestMetrics) error {
 	if !dumpJSON {
 		return nil
 	}
@@ -891,13 +893,25 @@ func dumpJSONs(dumpJSON bool, daemonFile, expRspFile, outputDir string, response
 	}
 
 	if daemonFile != "" {
-		if err := os.WriteFile(daemonFile, response, 0644); err != nil {
+		start := time.Now()
+		responseData, err := json.MarshalIndent(response, "", "  ")
+		if err != nil {
+			return err
+		}
+		metrics.MarshallingTime += time.Since(start)
+		if err := os.WriteFile(daemonFile, responseData, 0644); err != nil {
 			return fmt.Errorf("Exception on file write daemon: %v\n", err)
 		}
 	}
 
 	if expRspFile != "" {
-		if err := os.WriteFile(expRspFile, expectedResponse, 0644); err != nil {
+		start := time.Now()
+		expectedResponseData, err := json.MarshalIndent(expectedResponse, "", "  ")
+		if err != nil {
+			return err
+		}
+		metrics.MarshallingTime += time.Since(start)
+		if err := os.WriteFile(expRspFile, expectedResponseData, 0644); err != nil {
 			return fmt.Errorf("Exception on file write expected: %v\n", err)
 		}
 	}
@@ -969,8 +983,13 @@ func validateJsonRpcResponseObject(response map[string]any, strict bool) error {
 // This implies that the response must be either a valid JSON-RPC object, i.e. a JSON object containing at least
 // "jsonrpc" and "id" fields or a JSON array where each element (if any) is in turn a valid JSON-RPC object.
 func validateJsonRpcResponse(response any) error {
-	_, isArray := response.([]any)
-	responseAsMap, isMap := response.(map[string]any)
+	value := reflect.ValueOf(response)
+	if value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
+	unwrappedResponse := value.Interface()
+	responseAsArray, isArray := (unwrappedResponse).([]any)
+	responseAsMap, isMap := (unwrappedResponse).(map[string]any)
 	if !isArray && !isMap {
 		return errJsonRpcUnexpectedFormat
 	}
@@ -982,7 +1001,7 @@ func validateJsonRpcResponse(response any) error {
 		}
 	}
 	if isArray {
-		for _, element := range response.([]any) {
+		for _, element := range responseAsArray {
 			elementAsMap, isElementMap := element.(map[string]any)
 			if !isElementMap {
 				return errJsonRpcUnexpectedFormat
@@ -996,7 +1015,7 @@ func validateJsonRpcResponse(response any) error {
 	return nil
 }
 
-func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtAuth, target string, request []byte, metrics *TestMetrics) ([]byte, error) {
+func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtAuth, target string, request []byte, response any, metrics *TestMetrics) error {
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
@@ -1025,7 +1044,7 @@ func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtA
 		if config.VerboseLevel > 0 {
 			fmt.Printf("\nhttp request creation fail: %s %v\n", targetURL, err)
 		}
-		return nil, err
+		return err
 	}
 
 	for k, v := range headers {
@@ -1043,7 +1062,7 @@ func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtA
 		if config.VerboseLevel > 0 {
 			fmt.Printf("\nhttp connection fail: %s %v\n", targetURL, err)
 		}
-		return nil, err
+		return err
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -1056,70 +1075,64 @@ func executeHttpRequest(ctx context.Context, config *Config, transportType, jwtA
 		if config.VerboseLevel > 1 {
 			fmt.Printf("\npost result status_code: %d\n", resp.StatusCode)
 		}
-		return nil, fmt.Errorf("http status %v", resp.Status)
+		return fmt.Errorf("http status %v", resp.Status)
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		if config.VerboseLevel > 0 {
-			fmt.Printf("\nfailed to read response body: %v\n", err)
-		}
-		return nil, err
+	start = time.Now()
+	if err = json.NewDecoder(resp.Body).Decode(response); err != nil {
+		return fmt.Errorf("cannot decode http body as json %w", err)
 	}
-
-	if config.VerboseLevel > 1 {
-		fmt.Printf("\nhttp response body: %s\n", string(body))
+	metrics.UnmarshallingTime += time.Since(start)
+	if err = validateJsonRpcResponse(response); err != nil { // TODO: improve or remove (casts as well)
+		return fmt.Errorf("json response in invalid: %w", err)
 	}
 
 	if config.VerboseLevel > 1 {
-		fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, request, string(body))
+		raw, _ := json.Marshal(response)
+		fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, request, string(raw))
 	}
 
-	return body, nil
+	return nil
 }
 
-type RPCRequest struct {
+type JsonRpcRequest struct {
 	Jsonrpc string        `json:"jsonrpc"`
 	Method  string        `json:"method"`
 	Params  []interface{} `json:"params"`
-	ID      int           `json:"id"`
+	Id      int           `json:"id"`
 }
 
-type RPCResponse struct {
+type JsonRpcResponse struct {
 	Result string `json:"result"`
 	Error  *struct {
 		Message string `json:"message"`
 	} `json:"error"`
 }
 
-func getBlockNumber(ctx context.Context, config *Config, url string, metrics *TestMetrics) (uint64, error) {
-	payload := RPCRequest{
+func getLatestBlockNumber(ctx context.Context, config *Config, url string, metrics *TestMetrics) (uint64, error) {
+	request := JsonRpcRequest{
 		Jsonrpc: "2.0",
 		Method:  "eth_blockNumber",
 		Params:  []interface{}{},
-		ID:      1,
+		Id:      1,
 	}
-	requestBytes, _ := json.Marshal(payload)
+	requestBytes, _ := json.Marshal(request)
 
-	responseBytes, err := executeHttpRequest(ctx, config, "http", "", url, requestBytes, metrics)
+	var response JsonRpcResponse
+	err := executeHttpRequest(ctx, config, "http", "", url, requestBytes, response, metrics)
 	if err != nil {
 		return 0, err
 	}
 
-	var rpcResp RPCResponse
-	if err := json.Unmarshal(responseBytes, &rpcResp); err != nil {
-		return 0, fmt.Errorf("error decoding json: %w", err)
+	if response.Error != nil {
+		return 0, fmt.Errorf("RPC error: %s", response.Error.Message)
 	}
 
-	if rpcResp.Error != nil {
-		return 0, fmt.Errorf("RPC error: %s", rpcResp.Error.Message)
-	}
-
-	cleanHex := strings.TrimPrefix(rpcResp.Result, "0x")
-	return strconv.ParseUint(cleanHex, 16, 64)
+	result := strings.TrimPrefix(response.Result, "0x")
+	return strconv.ParseUint(result, 16, 64)
 }
 
-func GetConsistentBlockNumber(config *Config, server1URL, server2URL string, maxRetries int, retryDelayMs int) *uint64 {
+func getConsistentLatestBlock(config *Config, server1URL, server2URL string, maxRetries int, retryDelayMs int) (uint64, error) {
 	var bn1, bn2 uint64
 	delay := time.Duration(retryDelayMs) * time.Millisecond
 
@@ -1128,13 +1141,16 @@ func GetConsistentBlockNumber(config *Config, server1URL, server2URL string, max
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 		var err1, err2 error
-		bn1, err1 = getBlockNumber(ctx, config, server1URL, &metrics)
-		bn2, err2 = getBlockNumber(ctx, config, server2URL, &metrics)
+		bn1, err1 = getLatestBlockNumber(ctx, config, server1URL, &metrics)
+		bn2, err2 = getLatestBlockNumber(ctx, config, server2URL, &metrics)
 		cancel()
 
+		if config.VerboseLevel > 1 {
+			fmt.Printf("retry: %d nodes: %s, %s latest blocks: %d, %d\n", i+1, server1URL, server2URL, bn1, bn2)
+		}
+
 		if err1 == nil && err2 == nil && bn1 == bn2 {
-			fmt.Printf("INFO: Nodi sincronizzati (Tentativo %d): %d\n", i+1, bn1)
-			return &bn1
+			return bn1, nil
 		}
 
 		if i < maxRetries-1 {
@@ -1142,11 +1158,10 @@ func GetConsistentBlockNumber(config *Config, server1URL, server2URL string, max
 		}
 	}
 
-	fmt.Printf("ERROR: Nodi non sincronizzati o errori di rete. Ultimi valori: %d / %d\n", bn1, bn2)
-	return nil
+	return 0, fmt.Errorf("nodes not synced, last values: %d / %d", bn1, bn2)
 }
 
-func executeWebSocketRequest(config *Config, transportType, jwtAuth, target string, request []byte, metrics *TestMetrics) ([]byte, error) {
+func executeWebSocketRequest(config *Config, transportType, jwtAuth, target string, request []byte, response any, metrics *TestMetrics) error {
 	wsTarget := "ws://" + target
 	dialer := websocket.Dialer{
 		HandshakeTimeout:  300 * time.Second,
@@ -1163,7 +1178,7 @@ func executeWebSocketRequest(config *Config, transportType, jwtAuth, target stri
 		if config.VerboseLevel > 0 {
 			fmt.Printf("\nwebsocket connection fail: %v\n", err)
 		}
-		return nil, err
+		return err
 	}
 	defer func(conn *websocket.Conn) {
 		err := conn.Close()
@@ -1177,30 +1192,40 @@ func executeWebSocketRequest(config *Config, transportType, jwtAuth, target stri
 		if config.VerboseLevel > 0 {
 			fmt.Printf("\nwebsocket write fail: %v\n", err)
 		}
-		return nil, err
+		return err
 	}
 
-	_, message, err := conn.ReadMessage()
+	_, message, err := conn.NextReader()
 	if err != nil {
 		if config.VerboseLevel > 0 {
 			fmt.Printf("\nwebsocket read fail: %v\n", err)
 		}
-		return nil, err
+		return err
 	}
 	metrics.RoundTripTime = time.Since(start)
 
-	if config.VerboseLevel > 1 {
-		fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, request, string(message))
+	start = time.Now()
+	if err = json.NewDecoder(message).Decode(&response); err != nil {
+		return fmt.Errorf("cannot decode websocket message as json %w", err)
+	}
+	metrics.UnmarshallingTime += time.Since(start)
+	if err = validateJsonRpcResponse(response); err != nil { // TODO: improve or remove (casts as well)
+		return fmt.Errorf("json response in invalid %w", err)
 	}
 
-	return message, nil
+	if config.VerboseLevel > 1 {
+		raw, _ := json.Marshal(response)
+		fmt.Printf("Node: %s\nRequest: %s\nResponse: %v\n", target, request, string(raw))
+	}
+
+	return nil
 }
 
-func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth, target string, request []byte, metrics *TestMetrics) ([]byte, error) {
+func executeRequest(ctx context.Context, config *Config, transportType, jwtAuth, target string, request []byte, response any, metrics *TestMetrics) error {
 	if strings.HasPrefix(transportType, "http") {
-		return executeHttpRequest(ctx, config, transportType, jwtAuth, target, request, metrics)
+		return executeHttpRequest(ctx, config, transportType, jwtAuth, target, request, response, metrics)
 	}
-	return executeWebSocketRequest(config, transportType, jwtAuth, target, request, metrics)
+	return executeWebSocketRequest(config, transportType, jwtAuth, target, request, response, metrics)
 }
 
 func runCompare(jsonDiff bool, errorFile, tempFile1, tempFile2, diffFile string) bool {
@@ -1431,8 +1456,8 @@ func (c *JsonRpcCommand) compareJSON(config *Config, daemonFile, expRspFile, dif
 	return true, nil
 }
 
-func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byte, config *Config, outputDir, daemonFile, expRspFile, diffFile string, outcome *TestOutcome) {
-	var expectedResponse []byte
+func (c *JsonRpcCommand) processResponse(response, result1, responseInFile any, config *Config, outputDir, daemonFile, expRspFile, diffFile string, outcome *TestOutcome) {
+	var expectedResponse any
 	if result1 != nil {
 		expectedResponse = result1
 	} else {
@@ -1440,7 +1465,7 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 	}
 
 	if config.WithoutCompareResults {
-		err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+		err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
 		if err != nil {
 			outcome.Error = err
 			return
@@ -1449,48 +1474,46 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 		return
 	}
 
-	var responseMap map[string]interface{}
-	var respIsMap bool
-	start := time.Now()
-	if err := json.NewDecoder(bytes.NewReader(response)).Decode(&responseMap); err == nil {
-		outcome.Metrics.UnmarshallingTime += time.Since(start)
-		respIsMap = true
-		start = time.Now()
-		response, err = json.MarshalIndent(responseMap, "", "    ")
-		if err != nil {
-			outcome.Error = err
-			return
+	mapsEqual := func(lhs, rhs map[string]interface{}) bool {
+		if len(lhs) != len(rhs) {
+			return false
 		}
-		outcome.Metrics.MarshallingTime += time.Since(start)
-		err = validateJsonRpcResponse(responseMap)
-		if err != nil {
-			outcome.Error = err
-			return
+		for k, lv := range lhs {
+			rv, ok := rhs[k]
+			if !ok || !reflect.DeepEqual(lv, rv) {
+				return false
+			}
 		}
+		return true
 	}
-	var expectedMap map[string]interface{}
-	var expIsMap bool
-	start = time.Now()
-	if err := json.NewDecoder(bytes.NewReader(expectedResponse)).Decode(&expectedMap); err == nil {
-		outcome.Metrics.UnmarshallingTime += time.Since(start)
-		expIsMap = true
-		start := time.Now()
-		expectedResponse, err = json.MarshalIndent(expectedMap, "", "    ")
-		if err != nil {
-			outcome.Error = err
-			return
+	arrayEqual := func(lhs, rhs []map[string]interface{}) bool {
+		if len(lhs) != len(rhs) {
+			return false
 		}
-		outcome.Metrics.MarshallingTime += time.Since(start)
-		err = validateJsonRpcResponse(expectedMap)
-		if err != nil {
-			outcome.Error = err
-			return
+		for i := 0; i < len(lhs); i++ {
+			if !mapsEqual(lhs[i], rhs[i]) {
+				return false
+			}
 		}
+		return true
 	}
-
-	// Fast path: if actual/expected are identical byte-wise, no need to compare them
-	if bytes.Equal(response, expectedResponse) {
-		err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+	compareResponses := func(lhs, rhs any) bool {
+		leftMap, leftIsMap := lhs.(map[string]interface{})
+		rightMap, rightIsMap := rhs.(map[string]interface{})
+		if leftIsMap && rightIsMap {
+			return mapsEqual(leftMap, rightMap)
+		}
+		leftArray, leftIsArray := lhs.([]map[string]interface{})
+		rightArray, rightIsArray := rhs.([]map[string]interface{})
+		if leftIsArray && rightIsArray {
+			return arrayEqual(leftArray, rightArray)
+		}
+		return reflect.DeepEqual(lhs, rhs)
+	}
+	// Fast path: if actual/expected are identical, no need to compare them
+	if compareResponses(response, expectedResponse) {
+		outcome.Metrics.EqualCount += 1
+		err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
 		if err != nil {
 			outcome.Error = err
 			return
@@ -1500,13 +1523,15 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 	}
 
 	// Check various conditions where we don't care about differences
-	if respIsMap && expIsMap { // TODO: extract function ignoreDifferences and handle JSON batch responses
+	responseMap, respIsMap := response.(map[string]interface{})        // TODO: remove redundant casts
+	expectedMap, expIsMap := expectedResponse.(map[string]interface{}) // TODO: remove redundant casts
+	if respIsMap && expIsMap {                                         // TODO: extract function ignoreDifferences and handle JSON batch responses
 		_, responseHasResult := responseMap["result"]
 		expectedResult, expectedHasResult := expectedMap["result"]
 		_, responseHasError := responseMap["error"]
 		expectedError, expectedHasError := expectedMap["error"]
 		if responseHasResult && expectedHasResult && expectedResult == nil && result1 == nil {
-			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
 			if err != nil {
 				outcome.Error = err
 				return
@@ -1515,7 +1540,7 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 			return
 		}
 		if responseHasError && expectedHasError && expectedError == nil {
-			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
 			if err != nil {
 				outcome.Error = err
 				return
@@ -1525,7 +1550,7 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 		}
 		// TODO: improve len(expectedMap) == 2 which means: just "jsonrpc" and "id" are expected
 		if !expectedHasResult && !expectedHasError && len(expectedMap) == 2 {
-			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
 			if err != nil {
 				outcome.Error = err
 				return
@@ -1534,7 +1559,7 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 			return
 		}
 		if responseHasError && expectedHasError && config.DoNotCompareError {
-			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse)
+			err := dumpJSONs(config.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
 			if err != nil {
 				outcome.Error = err
 				return
@@ -1545,7 +1570,7 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile []byt
 	}
 
 	// We need to compare the response and expectedResponse, so we dump them to files first
-	err := dumpJSONs(true, daemonFile, expRspFile, outputDir, response, expectedResponse)
+	err := dumpJSONs(true, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
 	if err != nil {
 		outcome.Error = err
 		return
@@ -1600,17 +1625,14 @@ func (c *JsonRpcCommand) run(ctx context.Context, config *Config, descriptor *Te
 	diffFile := outputAPIFilename + "-diff.json"
 
 	if !config.VerifyWithDaemon {
-		result, err := executeRequest(ctx, config, transportType, jwtAuth, target, request, &outcome.Metrics)
+		var result any
+		err := executeRequest(ctx, config, transportType, jwtAuth, target, request, &result, &outcome.Metrics)
 		if err != nil {
 			outcome.Error = err
 			return
 		}
 		if config.VerboseLevel > 2 {
 			fmt.Printf("%s: [%v]\n", config.DaemonUnderTest, result)
-		}
-		if result == nil {
-			outcome.Error = errors.New("response is n il (maybe node at " + target + " is down?)")
-			return
 		}
 
 		responseInFile := c.Response
@@ -1620,7 +1642,8 @@ func (c *JsonRpcCommand) run(ctx context.Context, config *Config, descriptor *Te
 		c.processResponse(result, nil, responseInFile, config, outputDirName, daemonFile, expRspFile, diffFile, outcome)
 	} else {
 		target = getTarget(DaemonOnDefaultPort, descriptor.Name, config)
-		result, err := executeRequest(ctx, config, transportType, jwtAuth, target, request, &outcome.Metrics)
+		var result any
+		err := executeRequest(ctx, config, transportType, jwtAuth, target, request, &result, &outcome.Metrics)
 		if err != nil {
 			outcome.Error = err
 			return
@@ -1628,22 +1651,16 @@ func (c *JsonRpcCommand) run(ctx context.Context, config *Config, descriptor *Te
 		if config.VerboseLevel > 2 {
 			fmt.Printf("%s: [%v]\n", config.DaemonUnderTest, result)
 		}
-		if result == nil {
-			outcome.Error = errors.New("response is nil (maybe node at " + target + " is down?)")
-			return
-		}
+
 		target1 = getTarget(config.DaemonAsReference, descriptor.Name, config)
-		result1, err := executeRequest(ctx, config, transportType, jwtAuth, target1, request, &outcome.Metrics)
+		var result1 any
+		err = executeRequest(ctx, config, transportType, jwtAuth, target1, request, &result1, &outcome.Metrics)
 		if err != nil {
 			outcome.Error = err
 			return
 		}
 		if config.VerboseLevel > 2 {
 			fmt.Printf("%s: [%v]\n", config.DaemonAsReference, result1)
-		}
-		if result1 == nil {
-			outcome.Error = errors.New("response is nil (maybe node at " + target1 + " is down?)")
-			return
 		}
 
 		daemonFile := outputAPIFilename + getJSONFilenameExt(DaemonOnDefaultPort, target)
@@ -1704,6 +1721,7 @@ type ResultCollector struct {
 	totalMarshallingTime   time.Duration
 	totalUnmarshallingTime time.Duration
 	totalComparisonCount   int
+	totalEqualCount        int
 }
 
 func newResultCollector(resultsChan chan chan TestResult, config *Config) *ResultCollector {
@@ -1736,6 +1754,7 @@ func (c *ResultCollector) start(ctx context.Context, cancelCtx context.CancelFun
 						c.totalMarshallingTime += result.Outcome.Metrics.MarshallingTime
 						c.totalUnmarshallingTime += result.Outcome.Metrics.UnmarshallingTime
 						c.totalComparisonCount += result.Outcome.Metrics.ComparisonCount
+						c.totalEqualCount += result.Outcome.Metrics.EqualCount
 					} else {
 						c.failedTests++
 						fmt.Printf("failed: %s\n", result.Outcome.Error.Error())
@@ -1867,10 +1886,12 @@ func runMain() int {
 		var server1 = fmt.Sprintf("%s:%d", config.DaemonOnHost, config.ServerPort)
 		var maxRetries = 10
 		var retryDelayMs = 1000
-		var consistent_block = GetConsistentBlockNumber(config, server1, config.ExternalProviderURL, maxRetries, retryDelayMs)
-		if consistent_block == nil {
-			fmt.Printf("ERROR: Tests on latest block: two servers are not synchronized")
-			return 1
+		latestBlock, err := getConsistentLatestBlock(config, server1, config.ExternalProviderURL, maxRetries, retryDelayMs)
+		if err != nil {
+			return -1 // TODO: unique return codes?
+		}
+		if config.VerboseLevel > 0 {
+			fmt.Printf("Latest block number for %s, %s: %d\n", server1, config.ExternalProviderURL, latestBlock)
 		}
 	}
 
@@ -2134,6 +2155,7 @@ func runMain() int {
 	fmt.Printf("Total Marshalling time:       %v\n", resultsCollector.totalMarshallingTime)
 	fmt.Printf("Total Unmarshalling time:     %v\n", resultsCollector.totalUnmarshallingTime)
 	fmt.Printf("Total Comparison count:       %v\n", resultsCollector.totalComparisonCount)
+	fmt.Printf("Total Equal count:            %v\n", resultsCollector.totalEqualCount)
 	fmt.Printf("Test session duration:        %v\n", elapsed)
 	fmt.Printf("Test session iterations:      %d\n", testRep)
 	fmt.Printf("Test suite total APIs:        %d\n", availableTestedAPIs)
