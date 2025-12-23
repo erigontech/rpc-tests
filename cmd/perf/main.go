@@ -31,17 +31,15 @@ const (
 	DefaultRepetitions           = 10
 	DefaultVegetaPatternTarFile  = ""
 	DefaultDaemonVegetaOnCore    = "-:-"
-	DefaultErigonBuildDir        = ""
-	DefaultErigonAddress         = "localhost"
+	DefaultServerAddress         = "localhost"
 	DefaultWaitingTime           = 5
 	DefaultMaxConn               = "9000"
 	DefaultTestType              = "eth_getLogs"
 	DefaultVegetaResponseTimeout = "300s"
 	DefaultMaxBodyRsp            = "1500"
 
-	Erigon           = "rpcdaemon"
+	ServerName       = "rpcdaemon"
 	BinaryDir        = "bin"
-	ErigonServerName = "rpcdaemon"
 )
 
 var (
@@ -49,7 +47,7 @@ var (
 	VegetaPatternDirname    string
 	VegetaReport            string
 	VegetaTarFileName       string
-	VegetaPatternErigonBase string
+	VegetaPatternBase       string
 )
 
 func init() {
@@ -59,7 +57,7 @@ func init() {
 	VegetaPatternDirname = RunTestDirname + "/erigon_stress_test"
 	VegetaReport = RunTestDirname + "/vegeta_report.hrd"
 	VegetaTarFileName = RunTestDirname + "/vegeta_TAR_File"
-	VegetaPatternErigonBase = VegetaPatternDirname + "/vegeta_erigon_"
+	VegetaPatternBase       = VegetaPatternDirname + "/vegeta_erigon_"
 }
 
 // Config holds all configuration for the performance test
@@ -98,7 +96,7 @@ func NewConfig() *Config {
 		DaemonVegetaOnCore:     DefaultDaemonVegetaOnCore,
 		Repetitions:            DefaultRepetitions,
 		TestSequence:           DefaultTestSequence,
-		RPCDaemonAddress:       DefaultErigonAddress,
+		RPCDaemonAddress:       DefaultServerAddress,
 		TestType:               DefaultTestType,
 		TestingDaemon:          "",
 		WaitingTime:            DefaultWaitingTime,
@@ -566,10 +564,10 @@ func (pt *PerfTest) CopyAndExtractPatternFile() error {
 
 	// Substitute address if not localhost
 	if pt.config.RPCDaemonAddress != "localhost" {
-		patternDir := VegetaPatternErigonBase + pt.config.TestType + ".txt"
+		patternDir := VegetaPatternBase       + pt.config.TestType + ".txt"
 
 		if err := pt.replaceInFile(patternDir, "localhost", pt.config.RPCDaemonAddress); err != nil {
-			log.Printf("Warning: failed to replace address in erigon pattern: %v", err)
+			log.Printf("Warning: failed to replace address in pattern: %v", err)
 		}
 	}
 
@@ -691,7 +689,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 
 	// Determine pattern file
 	var pattern string
-	pattern = VegetaPatternErigonBase + pt.config.TestType + ".txt"
+	pattern = VegetaPatternBase       + pt.config.TestType + ".txt"
 
 	// Create the binary file name
 	timestamp := time.Now().Format("20060102150405")
@@ -745,7 +743,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 	// Check if the server is still alive during the test
 	if pt.config.CheckServerAlive {
 		var serverName string
-		serverName = ErigonServerName
+		serverName = ServerName
 
 		if !IsProcessRunning(serverName) {
 			fmt.Println("test failed: server is Dead")
@@ -878,7 +876,7 @@ func (pt *PerfTest) ExecuteSequence(ctx context.Context, sequence []TestSequence
 
 	// Get pattern to extract port information
 	var pattern string
-	pattern = VegetaPatternErigonBase + pt.config.TestType + ".txt"
+	pattern = VegetaPatternBase       + pt.config.TestType + ".txt"
 
 	// Print port information
 	if file, err := os.Open(pattern); err == nil {
@@ -1127,6 +1125,7 @@ func (tr *TestReport) Open() error {
 
 	// Initialise the JSON report if needed
 	if tr.config.JSONReportFile != "" {
+                fmt.Println ("init gen report file") 
 		tr.initializeJSONReport(cpuModel, bogomips, kernelVersion, checksum,
 			gccVersion, goVersion)
 	}
@@ -1316,6 +1315,7 @@ func (tr *TestReport) WriteTestReport(metrics *TestMetrics) error {
 
 	// Write to JSON if enabled
 	if tr.config.JSONReportFile != "" {
+                fmt.Println ("write Test Report")
 		if err := tr.writeTestReportToJSON(metrics); err != nil {
 			return fmt.Errorf("failed to write JSON report: %w", err)
 		}
@@ -1584,7 +1584,7 @@ func main() {
 			&cli.StringFlag{
 				Name:    "rpc-daemon-address",
 				Aliases: []string{"d"},
-				Value:   DefaultErigonAddress,
+				Value:   DefaultServerAddress,
 				Usage:   "RPC daemon address (e.g., 192.2.3.1)",
 			},
 			&cli.StringFlag{
@@ -1710,7 +1710,7 @@ func runPerfTests(c *cli.Context) error {
 	// Create context
 	ctx := context.Background()
 
-	if err := perfTest.ExecuteSequence(ctx, sequence, Erigon); err != nil {
+	if err := perfTest.ExecuteSequence(ctx, sequence, ServerName); err != nil {
 		fmt.Printf("Performance Test failed, error: %v\n", err)
 		return err
 	}
