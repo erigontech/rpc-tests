@@ -32,29 +32,24 @@ const (
 	DefaultVegetaPatternTarFile  = ""
 	DefaultDaemonVegetaOnCore    = "-:-"
 	DefaultErigonBuildDir        = ""
-	DefaultSilkwormBuildDir      = ""
 	DefaultErigonAddress         = "localhost"
-	DefaultTestMode              = "3"
 	DefaultWaitingTime           = 5
 	DefaultMaxConn               = "9000"
 	DefaultTestType              = "eth_getLogs"
 	DefaultVegetaResponseTimeout = "300s"
 	DefaultMaxBodyRsp            = "1500"
 
-	Silkworm           = "silkworm"
-	Erigon             = "rpcdaemon"
-	BinaryDir          = "bin"
-	SilkwormServerName = "rpcdaemon"
-	ErigonServerName   = "rpcdaemon"
+	Erigon           = "rpcdaemon"
+	BinaryDir        = "bin"
+	ErigonServerName = "rpcdaemon"
 )
 
 var (
-	RunTestDirname            string
-	VegetaPatternDirname      string
-	VegetaReport              string
-	VegetaTarFileName         string
-	VegetaPatternSilkwormBase string
-	VegetaPatternErigonBase   string
+	RunTestDirname          string
+	VegetaPatternDirname    string
+	VegetaReport            string
+	VegetaTarFileName       string
+	VegetaPatternErigonBase string
 )
 
 func init() {
@@ -64,7 +59,6 @@ func init() {
 	VegetaPatternDirname = RunTestDirname + "/erigon_stress_test"
 	VegetaReport = RunTestDirname + "/vegeta_report.hrd"
 	VegetaTarFileName = RunTestDirname + "/vegeta_TAR_File"
-	VegetaPatternSilkwormBase = VegetaPatternDirname + "/vegeta_geth_"
 	VegetaPatternErigonBase = VegetaPatternDirname + "/vegeta_erigon_"
 }
 
@@ -72,12 +66,9 @@ func init() {
 type Config struct {
 	VegetaPatternTarFile   string
 	DaemonVegetaOnCore     string
-	ErigonDir              string
-	SilkwormDir            string
 	Repetitions            int
 	TestSequence           string
 	RPCDaemonAddress       string
-	TestMode               string
 	TestType               string
 	TestingDaemon          string
 	WaitingTime            int
@@ -105,12 +96,9 @@ func NewConfig() *Config {
 	return &Config{
 		VegetaPatternTarFile:   DefaultVegetaPatternTarFile,
 		DaemonVegetaOnCore:     DefaultDaemonVegetaOnCore,
-		ErigonDir:              DefaultErigonBuildDir,
-		SilkwormDir:            DefaultSilkwormBuildDir,
 		Repetitions:            DefaultRepetitions,
 		TestSequence:           DefaultTestSequence,
 		RPCDaemonAddress:       DefaultErigonAddress,
-		TestMode:               DefaultTestMode,
 		TestType:               DefaultTestType,
 		TestingDaemon:          "",
 		WaitingTime:            DefaultWaitingTime,
@@ -136,21 +124,8 @@ func NewConfig() *Config {
 
 // Validate checks the configuration for conflicts and invalid values
 func (c *Config) Validate() error {
-	if c.JSONReportFile != "" && c.TestMode == "3" {
-		return fmt.Errorf("incompatible option json-report with test-mode=3")
-	}
-
-	if c.TestMode == "3" && c.TestingDaemon != "" {
-		return fmt.Errorf("incompatible option test-mode=3 and testing-daemon")
-	}
-
 	if c.JSONReportFile != "" && c.TestingDaemon == "" {
 		return fmt.Errorf("with json-report must also set testing-daemon")
-	}
-
-	if (c.ErigonDir != DefaultErigonBuildDir || c.SilkwormDir != DefaultSilkwormBuildDir) &&
-		c.RPCDaemonAddress != DefaultErigonAddress {
-		return fmt.Errorf("incompatible option rpc-daemon-address with erigon-dir/silk-dir")
 	}
 
 	if c.EmptyCache {
@@ -160,16 +135,6 @@ func (c *Config) Validate() error {
 		}
 		if currentUser.Username != "root" {
 			return fmt.Errorf("empty-cache option can only be used by root")
-		}
-	}
-
-	if c.CreateTestReport {
-		if _, err := os.Stat(c.ErigonDir); c.ErigonDir != "" && os.IsNotExist(err) {
-			return fmt.Errorf("erigon build dir not specified correctly: %s", c.ErigonDir)
-		}
-
-		if _, err := os.Stat(c.SilkwormDir); c.SilkwormDir != "" && os.IsNotExist(err) {
-			return fmt.Errorf("silkworm build dir not specified correctly: %s", c.SilkwormDir)
 		}
 	}
 
@@ -250,16 +215,14 @@ type JSONReport struct {
 
 // PlatformInfo holds platform hardware and software information
 type PlatformInfo struct {
-	Vendor        string `json:"vendor"`
-	Product       string `json:"product"`
-	Board         string `json:"board"`
-	CPU           string `json:"cpu"`
-	Bogomips      string `json:"bogomips"`
-	Kernel        string `json:"kernel"`
-	GCCVersion    string `json:"gccVersion"`
-	GoVersion     string `json:"goVersion"`
-	SilkrpcCommit string `json:"silkrpcCommit"`
-	ErigonCommit  string `json:"erigonCommit"`
+	Vendor     string `json:"vendor"`
+	Product    string `json:"product"`
+	Board      string `json:"board"`
+	CPU        string `json:"cpu"`
+	Bogomips   string `json:"bogomips"`
+	Kernel     string `json:"kernel"`
+	GCCVersion string `json:"gccVersion"`
+	GoVersion  string `json:"goVersion"`
 }
 
 // ConfigurationInfo holds test configuration information
@@ -603,14 +566,9 @@ func (pt *PerfTest) CopyAndExtractPatternFile() error {
 
 	// Substitute address if not localhost
 	if pt.config.RPCDaemonAddress != "localhost" {
-		silkwormPattern := VegetaPatternSilkwormBase + pt.config.TestType + ".txt"
-		erigonPattern := VegetaPatternErigonBase + pt.config.TestType + ".txt"
+		patternDir := VegetaPatternErigonBase + pt.config.TestType + ".txt"
 
-		if err := pt.replaceInFile(silkwormPattern, "localhost", pt.config.RPCDaemonAddress); err != nil {
-			log.Printf("Warning: failed to replace address in silkworm pattern: %v", err)
-		}
-
-		if err := pt.replaceInFile(erigonPattern, "localhost", pt.config.RPCDaemonAddress); err != nil {
+		if err := pt.replaceInFile(patternDir, "localhost", pt.config.RPCDaemonAddress); err != nil {
 			log.Printf("Warning: failed to replace address in erigon pattern: %v", err)
 		}
 	}
@@ -733,11 +691,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 
 	// Determine pattern file
 	var pattern string
-	if name == Silkworm {
-		pattern = VegetaPatternSilkwormBase + pt.config.TestType + ".txt"
-	} else {
-		pattern = VegetaPatternErigonBase + pt.config.TestType + ".txt"
-	}
+	pattern = VegetaPatternErigonBase + pt.config.TestType + ".txt"
 
 	// Create the binary file name
 	timestamp := time.Now().Format("20060102150405")
@@ -791,11 +745,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 	// Check if the server is still alive during the test
 	if pt.config.CheckServerAlive {
 		var serverName string
-		if name == Silkworm {
-			serverName = SilkwormServerName
-		} else {
-			serverName = ErigonServerName
-		}
+		serverName = ErigonServerName
 
 		if !IsProcessRunning(serverName) {
 			fmt.Println("test failed: server is Dead")
@@ -928,11 +878,7 @@ func (pt *PerfTest) ExecuteSequence(ctx context.Context, sequence []TestSequence
 
 	// Get pattern to extract port information
 	var pattern string
-	if tag == Silkworm {
-		pattern = VegetaPatternSilkwormBase + pt.config.TestType + ".txt"
-	} else {
-		pattern = VegetaPatternErigonBase + pt.config.TestType + ".txt"
-	}
+	pattern = VegetaPatternErigonBase + pt.config.TestType + ".txt"
 
 	// Print port information
 	if file, err := os.Open(pattern); err == nil {
@@ -1173,24 +1119,16 @@ func (tr *TestReport) Open() error {
 	cpuModel := tr.hardware.GetCPUModel()
 	bogomips := tr.hardware.GetBogomips()
 
-	var silkrpcCommit, erigonCommit string
-	if tr.config.TestMode == "1" || tr.config.TestMode == "3" {
-		silkrpcCommit = GetGitCommit(tr.config.SilkwormDir)
-	}
-	if tr.config.TestMode == "2" || tr.config.TestMode == "3" {
-		erigonCommit = GetGitCommit(tr.config.ErigonDir)
-	}
-
 	// Write headers
 	if err := tr.writeTestHeader(cpuModel, bogomips, kernelVersion, checksum,
-		gccVersion, goVersion, silkrpcCommit, erigonCommit); err != nil {
+		gccVersion, goVersion); err != nil {
 		return fmt.Errorf("failed to write test header: %w", err)
 	}
 
 	// Initialise the JSON report if needed
 	if tr.config.JSONReportFile != "" {
 		tr.initializeJSONReport(cpuModel, bogomips, kernelVersion, checksum,
-			gccVersion, goVersion, silkrpcCommit, erigonCommit)
+			gccVersion, goVersion)
 	}
 
 	return nil
@@ -1245,8 +1183,7 @@ func (tr *TestReport) createCSVFile() error {
 }
 
 // writeTestHeader writes the test configuration header to CSV
-func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksum,
-	gccVersion, goVersion, silkrpcCommit, erigonCommit string) error {
+func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksum, gccVersion, goVersion string) error {
 
 	// Write platform information
 	emptyRow := make([]string, 14)
@@ -1301,14 +1238,6 @@ func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksu
 	if err != nil {
 		return err
 	}
-	err = tr.csvWriter.Write(append(emptyRow[:12], "silkrpcVersion", silkrpcCommit))
-	if err != nil {
-		return err
-	}
-	err = tr.csvWriter.Write(append(emptyRow[:12], "erigonVersion", erigonCommit))
-	if err != nil {
-		return err
-	}
 
 	// Empty rows
 	for range 2 {
@@ -1334,20 +1263,18 @@ func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksu
 
 // initializeJSONReport initializes the JSON report structure
 func (tr *TestReport) initializeJSONReport(cpuModel, bogomips, kernelVersion, checksum,
-	gccVersion, goVersion, silkrpcCommit, erigonCommit string) {
+	gccVersion, goVersion string) {
 
 	tr.jsonReport = &JSONReport{
 		Platform: PlatformInfo{
-			Vendor:        strings.TrimSpace(tr.hardware.Vendor()),
-			Product:       strings.TrimSpace(tr.hardware.Product()),
-			Board:         strings.TrimSpace(tr.hardware.Board()),
-			CPU:           strings.TrimSpace(cpuModel),
-			Bogomips:      strings.TrimSpace(bogomips),
-			Kernel:        strings.TrimSpace(kernelVersion),
-			GCCVersion:    strings.TrimSpace(gccVersion),
-			GoVersion:     strings.TrimSpace(goVersion),
-			SilkrpcCommit: strings.TrimSpace(silkrpcCommit),
-			ErigonCommit:  strings.TrimSpace(erigonCommit),
+			Vendor:     strings.TrimSpace(tr.hardware.Vendor()),
+			Product:    strings.TrimSpace(tr.hardware.Product()),
+			Board:      strings.TrimSpace(tr.hardware.Board()),
+			CPU:        strings.TrimSpace(cpuModel),
+			Bogomips:   strings.TrimSpace(bogomips),
+			Kernel:     strings.TrimSpace(kernelVersion),
+			GCCVersion: strings.TrimSpace(gccVersion),
+			GoVersion:  strings.TrimSpace(goVersion),
 		},
 		Configuration: ConfigurationInfo{
 			TestingDaemon:   tr.config.TestingDaemon,
@@ -1631,12 +1558,6 @@ func main() {
 				Usage:   "Test type (e.g., eth_call, eth_getLogs)",
 			},
 			&cli.StringFlag{
-				Name:    "test-mode",
-				Aliases: []string{"m"},
-				Value:   DefaultTestMode,
-				Usage:   "Test mode: silkworm(1), erigon(2), both(3)",
-			},
-			&cli.StringFlag{
 				Name:    "pattern-file",
 				Aliases: []string{"p"},
 				Value:   DefaultVegetaPatternTarFile,
@@ -1665,18 +1586,6 @@ func main() {
 				Aliases: []string{"d"},
 				Value:   DefaultErigonAddress,
 				Usage:   "RPC daemon address (e.g., 192.2.3.1)",
-			},
-			&cli.StringFlag{
-				Name:    "erigon-dir",
-				Aliases: []string{"g"},
-				Value:   DefaultErigonBuildDir,
-				Usage:   "Path to Erigon folder",
-			},
-			&cli.StringFlag{
-				Name:    "silk-dir",
-				Aliases: []string{"s"},
-				Value:   DefaultSilkwormBuildDir,
-				Usage:   "Path to Silkworm folder",
 			},
 			&cli.StringFlag{
 				Name:    "run-vegeta-on-core",
@@ -1742,14 +1651,11 @@ func runPerfTests(c *cli.Context) error {
 	config.TestingDaemon = c.String("testing-daemon")
 	config.ChainName = c.String("blockchain")
 	config.TestType = c.String("test-type")
-	config.TestMode = c.String("test-mode")
 	config.VegetaPatternTarFile = c.String("pattern-file")
 	config.Repetitions = c.Int("repetitions")
 	config.TestSequence = c.String("test-sequence")
 	config.WaitingTime = c.Int("wait-after-test-sequence")
 	config.RPCDaemonAddress = c.String("rpc-daemon-address")
-	config.ErigonDir = c.String("erigon-dir")
-	config.SilkwormDir = c.String("silk-dir")
 	config.DaemonVegetaOnCore = c.String("run-vegeta-on-core")
 	config.VegetaResponseTimeout = c.String("response-timeout")
 	config.MaxBodyRsp = c.String("max-body-rsp")
@@ -1804,25 +1710,9 @@ func runPerfTests(c *cli.Context) error {
 	// Create context
 	ctx := context.Background()
 
-	// Run tests based on test mode
-	if config.TestMode == "1" || config.TestMode == "3" {
-		fmt.Println("Testing Silkworm...")
-		if err := perfTest.ExecuteSequence(ctx, sequence, Silkworm); err != nil {
-			fmt.Printf("Performance Test failed, error: %v\n", err)
-			return err
-		}
-
-		if config.TestMode == "3" {
-			fmt.Println("--------------------------------------------------------------------------------------------")
-		}
-	}
-
-	if config.TestMode == "2" || config.TestMode == "3" {
-		fmt.Println("Testing Erigon...")
-		if err := perfTest.ExecuteSequence(ctx, sequence, Erigon); err != nil {
-			fmt.Printf("Performance Test failed, error: %v\n", err)
-			return err
-		}
+	if err := perfTest.ExecuteSequence(ctx, sequence, Erigon); err != nil {
+		fmt.Printf("Performance Test failed, error: %v\n", err)
+		return err
 	}
 
 	fmt.Println("Performance Test completed successfully.")
