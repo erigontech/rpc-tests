@@ -1130,9 +1130,8 @@ func getLatestBlockNumber(ctx context.Context, config *Config, url string, metri
 	return strconv.ParseUint(result, 16, 64)
 }
 
-func getConsistentLatestBlock(config *Config, server1URL, server2URL string, maxRetries int, retryDelayMs int) (uint64, error) {
+func getConsistentLatestBlock(config *Config, server1URL, server2URL string, maxRetries int, retryDelay time.Duration) (uint64, error) {
 	var bn1, bn2 uint64
-	delay := time.Duration(retryDelayMs) * time.Millisecond
 
 	metrics := TestMetrics{}
 	for i := 0; i < maxRetries; i++ {
@@ -1152,7 +1151,7 @@ func getConsistentLatestBlock(config *Config, server1URL, server2URL string, max
 		}
 
 		if i < maxRetries-1 {
-			time.Sleep(delay)
+			time.Sleep(retryDelay)
 		}
 	}
 
@@ -1883,8 +1882,8 @@ func runMain() int {
 	if config.VerifyWithDaemon && config.TestsOnLatestBlock {
 		var server1 = fmt.Sprintf("%s:%d", config.DaemonOnHost, config.ServerPort)
 		var maxRetries = 10
-		var retryDelayMs = 1000
-		latestBlock, err := getConsistentLatestBlock(config, server1, config.ExternalProviderURL, maxRetries, retryDelayMs)
+		var retryDelay = 1 * time.Second
+		latestBlock, err := getConsistentLatestBlock(config, server1, config.ExternalProviderURL, maxRetries, retryDelay)
 		if err != nil {
 			return -1 // TODO: unique return codes?
 		}
