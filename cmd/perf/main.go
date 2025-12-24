@@ -30,24 +30,24 @@ const (
 	DefaultTestSequence          = "50:30,1000:30,2500:20,10000:20"
 	DefaultRepetitions           = 10
 	DefaultVegetaPatternTarFile  = ""
-	DefaultDaemonVegetaOnCore    = "-:-"
+	DefaultClientVegetaOnCore    = "-:-"
 	DefaultServerAddress         = "localhost"
 	DefaultWaitingTime           = 5
 	DefaultMaxConn               = "9000"
 	DefaultTestType              = "eth_getLogs"
 	DefaultVegetaResponseTimeout = "300s"
 	DefaultMaxBodyRsp            = "1500"
+	DefaultClientName            = "rpcdaemon"
 
-	ServerName       = "rpcdaemon"
-	BinaryDir        = "bin"
+	BinaryDir = "bin"
 )
 
 var (
-	RunTestDirname          string
-	VegetaPatternDirname    string
-	VegetaReport            string
-	VegetaTarFileName       string
-	VegetaPatternBase       string
+	RunTestDirname       string
+	VegetaPatternDirname string
+	VegetaReport         string
+	VegetaTarFileName    string
+	VegetaPatternBase    string
 )
 
 func init() {
@@ -57,18 +57,18 @@ func init() {
 	VegetaPatternDirname = RunTestDirname + "/erigon_stress_test"
 	VegetaReport = RunTestDirname + "/vegeta_report.hrd"
 	VegetaTarFileName = RunTestDirname + "/vegeta_TAR_File"
-	VegetaPatternBase       = VegetaPatternDirname + "/vegeta_erigon_"
+	VegetaPatternBase = VegetaPatternDirname + "/vegeta_erigon_"
 }
 
 // Config holds all configuration for the performance test
 type Config struct {
 	VegetaPatternTarFile   string
-	DaemonVegetaOnCore     string
+	ClientVegetaOnCore     string
 	Repetitions            int
 	TestSequence           string
-	RPCDaemonAddress       string
+	ClientAddress          string
 	TestType               string
-	TestingDaemon          string
+	TestingClient          string
 	WaitingTime            int
 	VersionedTestReport    bool
 	Verbose                bool
@@ -93,12 +93,12 @@ type Config struct {
 func NewConfig() *Config {
 	return &Config{
 		VegetaPatternTarFile:   DefaultVegetaPatternTarFile,
-		DaemonVegetaOnCore:     DefaultDaemonVegetaOnCore,
+		ClientVegetaOnCore:     DefaultClientVegetaOnCore,
 		Repetitions:            DefaultRepetitions,
 		TestSequence:           DefaultTestSequence,
-		RPCDaemonAddress:       DefaultServerAddress,
+		ClientAddress:          DefaultServerAddress,
 		TestType:               DefaultTestType,
-		TestingDaemon:          "",
+		TestingClient:          DefaultClientName,
 		WaitingTime:            DefaultWaitingTime,
 		VersionedTestReport:    false,
 		Verbose:                false,
@@ -122,8 +122,8 @@ func NewConfig() *Config {
 
 // Validate checks the configuration for conflicts and invalid values
 func (c *Config) Validate() error {
-	if c.JSONReportFile != "" && c.TestingDaemon == "" {
-		return fmt.Errorf("with json-report must also set testing-daemon")
+	if c.JSONReportFile != "" && c.TestingClient == "" {
+		return fmt.Errorf("with json-report must also set testing-client")
 	}
 
 	if c.EmptyCache {
@@ -187,7 +187,7 @@ type VegetaTarget struct {
 
 // TestMetrics holds the results of a performance test
 type TestMetrics struct {
-	DaemonName    string
+	ClientName    string
 	TestNumber    int
 	Repetition    int
 	QPS           int
@@ -225,7 +225,7 @@ type PlatformInfo struct {
 
 // ConfigurationInfo holds test configuration information
 type ConfigurationInfo struct {
-	TestingDaemon   string `json:"testingDaemon"`
+	TestingClient   string `json:"testingClient"`
 	TestingAPI      string `json:"testingApi"`
 	TestSequence    string `json:"testSequence"`
 	TestRepetitions int    `json:"testRepetitions"`
@@ -416,9 +416,10 @@ func GetFileChecksum(filepath string) string {
 
 // IsProcessRunning checks if a process with the given name is running
 func IsProcessRunning(processName string) bool {
-	cmd := exec.Command("pgrep", "-f", processName)
-	err := cmd.Run()
-	return err == nil
+	cmd := exec.Command("pgrep", "-x", processName)
+	out, err := cmd.Output()
+
+	return err == nil && len(out) > 0
 }
 
 // EmptyCache drops OS caches
@@ -563,10 +564,10 @@ func (pt *PerfTest) CopyAndExtractPatternFile() error {
 	}
 
 	// Substitute address if not localhost
-	if pt.config.RPCDaemonAddress != "localhost" {
-		patternDir := VegetaPatternBase       + pt.config.TestType + ".txt"
+	if pt.config.ClientAddress != "localhost" {
+		patternDir := VegetaPatternBase + pt.config.TestType + ".txt"
 
-		if err := pt.replaceInFile(patternDir, "localhost", pt.config.RPCDaemonAddress); err != nil {
+		if err := pt.replaceInFile(patternDir, "localhost", pt.config.ClientAddress); err != nil {
 			log.Printf("Warning: failed to replace address in pattern: %v", err)
 		}
 	}
@@ -689,14 +690,14 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 
 	// Determine pattern file
 	var pattern string
-	pattern = VegetaPatternBase       + pt.config.TestType + ".txt"
+	pattern = VegetaPatternBase + pt.config.TestType + ".txt"
 
 	// Create the binary file name
 	timestamp := time.Now().Format("20060102150405")
 	pt.config.BinaryFile = fmt.Sprintf("%s_%s_%s_%s_%d_%d_%d.bin",
 		timestamp,
 		pt.config.ChainName,
-		pt.config.TestingDaemon,
+		pt.config.TestingClient,
 		pt.config.TestType,
 		qps,
 		duration,
@@ -705,7 +706,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 	// Create the binary directory
 	var dirname string
 	if pt.config.VersionedTestReport {
-		dirname = "./reports/" + BinaryDir + "/"
+		dirname = "./perf/reports/" + BinaryDir + "/"
 	} else {
 		dirname = RunTestDirname + "/" + BinaryDir + "/"
 	}
@@ -720,13 +721,8 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 	maxRepetitionDigits := strconv.Itoa(format.maxRepetitionDigits)
 	maxQpsDigits := strconv.Itoa(format.maxQpsDigits)
 	maxDurationDigits := strconv.Itoa(format.maxDurationDigits)
-	if pt.config.TestingDaemon != "" {
-		fmt.Printf("[%d.%"+maxRepetitionDigits+"d] %s: executes test qps: %"+maxQpsDigits+"d time: %"+maxDurationDigits+"d -> ",
-			testNumber, repetition+1, pt.config.TestingDaemon, qps, duration)
-	} else {
-		fmt.Printf("[%d.%"+maxRepetitionDigits+"d] daemon: executes test qps: %"+maxQpsDigits+"d time: %"+maxDurationDigits+"d -> ",
-			testNumber, repetition+1, qps, duration)
-	}
+	fmt.Printf("[%d.%"+maxRepetitionDigits+"d] %s: executes test qps: %"+maxQpsDigits+"d time: %"+maxDurationDigits+"d -> ",
+		testNumber, repetition+1, pt.config.TestingClient, qps, duration)
 
 	// Load targets from pattern file
 	targets, err := pt.loadTargets(pattern)
@@ -742,10 +738,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 
 	// Check if the server is still alive during the test
 	if pt.config.CheckServerAlive {
-		var serverName string
-		serverName = ServerName
-
-		if !IsProcessRunning(serverName) {
+		if !IsProcessRunning(pt.config.TestingClient) {
 			fmt.Println("test failed: server is Dead")
 			return fmt.Errorf("server died during test")
 		}
@@ -876,7 +869,7 @@ func (pt *PerfTest) ExecuteSequence(ctx context.Context, sequence []TestSequence
 
 	// Get pattern to extract port information
 	var pattern string
-	pattern = VegetaPatternBase       + pt.config.TestType + ".txt"
+	pattern = VegetaPatternBase + pt.config.TestType + ".txt"
 
 	// Print port information
 	if file, err := os.Open(pattern); err == nil {
@@ -1017,7 +1010,7 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 	// Write to the test report if enabled
 	if pt.config.CreateTestReport {
 		testMetrics := &TestMetrics{
-			DaemonName:    name,
+			ClientName:    name,
 			TestNumber:    testNumber,
 			Repetition:    repetition,
 			QPS:           qps,
@@ -1125,7 +1118,6 @@ func (tr *TestReport) Open() error {
 
 	// Initialise the JSON report if needed
 	if tr.config.JSONReportFile != "" {
-                fmt.Println ("init gen report file") 
 		tr.initializeJSONReport(cpuModel, bogomips, kernelVersion, checksum,
 			gccVersion, goVersion)
 	}
@@ -1145,7 +1137,7 @@ func (tr *TestReport) createCSVFile() error {
 	csvFolder := tr.hardware.NormalizedVendor() + "_" + extension
 	var csvFolderPath string
 	if tr.config.VersionedTestReport {
-		csvFolderPath = filepath.Join("./reports", tr.config.ChainName, csvFolder)
+		csvFolderPath = filepath.Join("./perf/reports", tr.config.ChainName, csvFolder)
 	} else {
 		csvFolderPath = filepath.Join(RunTestDirname, tr.config.ChainName, csvFolder)
 	}
@@ -1157,9 +1149,9 @@ func (tr *TestReport) createCSVFile() error {
 	// Generate CSV filename
 	timestamp := time.Now().Format("20060102150405")
 	var csvFilename string
-	if tr.config.TestingDaemon != "" {
+	if tr.config.TestingClient != "" {
 		csvFilename = fmt.Sprintf("%s_%s_%s_perf.csv",
-			tr.config.TestType, timestamp, tr.config.TestingDaemon)
+			tr.config.TestType, timestamp, tr.config.TestingClient)
 	} else {
 		csvFilename = fmt.Sprintf("%s_%s_perf.csv",
 			tr.config.TestType, timestamp)
@@ -1217,7 +1209,7 @@ func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksu
 	if err != nil {
 		return err
 	}
-	err = tr.csvWriter.Write(append(emptyRow[:12], "taskset", tr.config.DaemonVegetaOnCore))
+	err = tr.csvWriter.Write(append(emptyRow[:12], "taskset", tr.config.ClientVegetaOnCore))
 	if err != nil {
 		return err
 	}
@@ -1248,7 +1240,7 @@ func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksu
 
 	// Write column headers
 	headers := []string{
-		"Daemon", "TestNo", "Repetition", "Qps", "Time(secs)",
+		"ClientName", "TestNo", "Repetition", "Qps", "Time(secs)",
 		"Min", "Mean", "50", "90", "95", "99", "Max", "Ratio", "Error",
 	}
 	err = tr.csvWriter.Write(headers)
@@ -1276,13 +1268,13 @@ func (tr *TestReport) initializeJSONReport(cpuModel, bogomips, kernelVersion, ch
 			GoVersion:  strings.TrimSpace(goVersion),
 		},
 		Configuration: ConfigurationInfo{
-			TestingDaemon:   tr.config.TestingDaemon,
+			TestingClient:   tr.config.TestingClient,
 			TestingAPI:      tr.config.TestType,
 			TestSequence:    tr.config.TestSequence,
 			TestRepetitions: tr.config.Repetitions,
 			VegetaFile:      tr.config.VegetaPatternTarFile,
 			VegetaChecksum:  checksum,
-			Taskset:         tr.config.DaemonVegetaOnCore,
+			Taskset:         tr.config.ClientVegetaOnCore,
 		},
 		Results: []TestResult{},
 	}
@@ -1292,7 +1284,7 @@ func (tr *TestReport) initializeJSONReport(cpuModel, bogomips, kernelVersion, ch
 func (tr *TestReport) WriteTestReport(metrics *TestMetrics) error {
 	// Write to CSV
 	row := []string{
-		metrics.DaemonName,
+		metrics.ClientName,
 		strconv.Itoa(metrics.TestNumber),
 		strconv.Itoa(metrics.Repetition),
 		strconv.Itoa(metrics.QPS),
@@ -1315,7 +1307,6 @@ func (tr *TestReport) WriteTestReport(metrics *TestMetrics) error {
 
 	// Write to JSON if enabled
 	if tr.config.JSONReportFile != "" {
-                fmt.Println ("write Test Report")
 		if err := tr.writeTestReportToJSON(metrics); err != nil {
 			return fmt.Errorf("failed to write JSON report: %w", err)
 		}
@@ -1541,9 +1532,10 @@ func main() {
 				Usage:   "Maximum number of connections",
 			},
 			&cli.StringFlag{
-				Name:    "testing-daemon",
+				Name:    "testing-client",
 				Aliases: []string{"D"},
-				Usage:   "Name of testing daemon",
+				Value:   DefaultClientName,
+				Usage:   "Name of testing client",
 			},
 			&cli.StringFlag{
 				Name:    "blockchain",
@@ -1582,15 +1574,15 @@ func main() {
 				Usage:   "Wait time between test iterations in seconds",
 			},
 			&cli.StringFlag{
-				Name:    "rpc-daemon-address",
+				Name:    "rpc-client-address",
 				Aliases: []string{"d"},
 				Value:   DefaultServerAddress,
-				Usage:   "RPC daemon address (e.g., 192.2.3.1)",
+				Usage:   "Client address (e.g., 192.2.3.1)",
 			},
 			&cli.StringFlag{
 				Name:    "run-vegeta-on-core",
 				Aliases: []string{"c"},
-				Value:   DefaultDaemonVegetaOnCore,
+				Value:   DefaultClientVegetaOnCore,
 				Usage:   "Taskset format for Vegeta (e.g., 0-1:2-3)",
 			},
 			&cli.StringFlag{
@@ -1648,15 +1640,15 @@ func runPerfTests(c *cli.Context) error {
 	config.EmptyCache = c.Bool("empty-cache")
 
 	config.MaxConnection = c.String("max-connections")
-	config.TestingDaemon = c.String("testing-daemon")
+	config.TestingClient = c.String("testing-client")
 	config.ChainName = c.String("blockchain")
 	config.TestType = c.String("test-type")
 	config.VegetaPatternTarFile = c.String("pattern-file")
 	config.Repetitions = c.Int("repetitions")
 	config.TestSequence = c.String("test-sequence")
 	config.WaitingTime = c.Int("wait-after-test-sequence")
-	config.RPCDaemonAddress = c.String("rpc-daemon-address")
-	config.DaemonVegetaOnCore = c.String("run-vegeta-on-core")
+	config.ClientAddress = c.String("rpc-client-address")
+	config.ClientVegetaOnCore = c.String("run-vegeta-on-core")
 	config.VegetaResponseTimeout = c.String("response-timeout")
 	config.MaxBodyRsp = c.String("max-body-rsp")
 	config.JSONReportFile = c.String("json-report")
@@ -1710,7 +1702,7 @@ func runPerfTests(c *cli.Context) error {
 	// Create context
 	ctx := context.Background()
 
-	if err := perfTest.ExecuteSequence(ctx, sequence, ServerName); err != nil {
+	if err := perfTest.ExecuteSequence(ctx, sequence, config.TestingClient); err != nil {
 		fmt.Printf("Performance Test failed, error: %v\n", err)
 		return err
 	}
