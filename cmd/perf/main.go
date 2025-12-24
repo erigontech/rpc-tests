@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/bzip2"
+	"compress/gzip"
 	"context"
 	"encoding/csv"
 	"encoding/json"
@@ -484,6 +485,53 @@ type PerfTest struct {
 	testReport *TestReport
 }
 
+// Supported compression types
+const (
+	GzipCompression  = ".gz"
+	Bzip2Compression = ".bz2"
+	NoCompression    = ""
+)
+
+// getCompressionType determines the compression from the filename extension.
+func getCompressionType(filename string) string {
+	if strings.HasSuffix(filename, ".tar.gz") || strings.HasSuffix(filename, ".tgz") {
+		return GzipCompression
+	}
+	if strings.HasSuffix(filename, ".tar.bz2") || strings.HasSuffix(filename, ".tbz") {
+		return Bzip2Compression
+	}
+	return NoCompression
+}
+
+func autodetectCompression(inFile *os.File) (string, error) {
+	// Assume we have no compression and try to detect it if the tar header is invalid
+	compressionType := NoCompression
+	tarReader := tar.NewReader(inFile)
+	_, err := tarReader.Next()
+	if err != nil && !errors.Is(err, io.EOF) {
+		// Reset the file position for read and check if it's gzip encoded
+		_, err = inFile.Seek(0, io.SeekStart)
+		if err != nil {
+			return compressionType, err
+		}
+		_, err = gzip.NewReader(inFile)
+		if err == nil {
+			compressionType = GzipCompression
+		} else {
+			// Reset the file position for read and check if it's gzip encoded
+			_, err = inFile.Seek(0, io.SeekStart)
+			if err != nil {
+				return compressionType, err
+			}
+			_, err = tar.NewReader(bzip2.NewReader(inFile)).Next()
+			if err == nil {
+				compressionType = Bzip2Compression
+			}
+		}
+	}
+	return compressionType, nil
+}
+
 // NewPerfTest creates a new performance test instance
 func NewPerfTest(config *Config, testReport *TestReport) (*PerfTest, error) {
 	pt := &PerfTest{
@@ -615,29 +663,42 @@ func (pt *PerfTest) copyFile(src, dst string) error {
 
 // extractTarGz extracts a tar.gz file to a destination directory
 func (pt *PerfTest) extractTarGz(tarFile, destDir string) error {
+	// Open the archive file
 	file, err := os.Open(tarFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open archive: %w", err)
 	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			log.Printf("Warning: failed to close tar file: %v", err)
-		}
+	defer func(inFile *os.File) {
+		_ = inFile.Close()
 	}(file)
 
-	/*gzr, err := gzip.NewReader(file)
-	if err != nil {
-		return err
-	}
-	defer func(gzr *gzip.Reader) {
-		err := gzr.Close()
+	// Wrap the input file with the correct compression reader
+	compressionType := getCompressionType(tarFile)
+	if compressionType == NoCompression {
+		// Possibly handle the corner case where the file is compressed but has tar extension
+		compressionType, err = autodetectCompression(file)
 		if err != nil {
-			log.Printf("Warning: failed to close gzip reader: %v", err)
+			return fmt.Errorf("failed to autodetect compression for archive: %w", err)
 		}
-	}(gzr)*/
+		file, err = os.Open(tarFile)
+		if err != nil {
+			return err
+		}
+	}
 
-	tr := tar.NewReader(bzip2.NewReader(file))
+	var reader io.Reader
+	switch compressionType {
+	case GzipCompression:
+		if reader, err = gzip.NewReader(file); err != nil {
+			return fmt.Errorf("failed to create gzip reader: %w", err)
+		}
+	case Bzip2Compression:
+		reader = bzip2.NewReader(file)
+	case NoCompression:
+		reader = file
+	}
+
+	tr := tar.NewReader(reader)
 
 	for {
 		header, err := tr.Next()
@@ -771,10 +832,11 @@ func (pt *PerfTest) loadTargets(filepath string) ([]vegeta.Target, error) {
 		}
 	}(file)
 
+	const maxCapacity = 1024 * 1024 // 1MB
 	var targets []vegeta.Target
 	scanner := bufio.NewScanner(file)
-	buffer := make([]byte, 0, 256*1024)
-	scanner.Buffer(buffer, cap(buffer))
+	buffer := make([]byte, 0, maxCapacity)
+	scanner.Buffer(buffer, maxCapacity)
 
 	for scanner.Scan() {
 		line := scanner.Text()
