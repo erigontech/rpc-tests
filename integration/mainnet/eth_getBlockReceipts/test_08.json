@@ -1,16 +1,21 @@
 [
   {
-        "request": {
-            "jsonrpc":"2.0",
-            "method":"eth_getBlockReceipts",
-            "params":["0xffffffff"],
-            "id":1
-        },
-        "response": {
-            "jsonrpc":"2.0",
-            "id":1,
-            "result": null
-        }
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getBlockReceipts",
+      "params": [
+        "0xffffffff"
+      ],
+      "id": 1
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "error": {
+        "code": -32000,
+        "message": "block not found: 4294967295"
+      }
     }
+  }
 ]
 

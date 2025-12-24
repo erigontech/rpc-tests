@@ -12,7 +12,10 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": "0x0"
+      "error": {
+        "code": -32000,
+        "message": "block not found: 68719476735"
+      }
     },
     "test": {
       "description": "invoke getBalance on invalid account on invalid block",

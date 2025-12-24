@@ -3,9 +3,10 @@
     "request": {
       "id": 1,
       "jsonrpc": "2.0",
-      "method": "eth_getBlockTransactionCountByNumber",
+      "method": "eth_getBalance",
       "params": [
-        "0xFFFFFFFFF"
+        "0x0000000000000000000000000000000000000000",
+        "0x99999999999999"
       ]
     },
     "response": {
@@ -13,11 +14,11 @@
       "jsonrpc": "2.0",
       "error": {
         "code": -32000,
-        "message": "block not found: 68719476735"
+        "message": "block not found: 43234556422756761"
       }
     },
     "test": {
-      "description": "invoke eth_getBlockTransactionCountByNumber on invalid block",
+      "description": "balance for account zero on invalid block",
       "reference": ""
     }
   }
