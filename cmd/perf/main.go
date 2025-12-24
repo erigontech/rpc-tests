@@ -38,6 +38,7 @@ const (
 	DefaultVegetaResponseTimeout = "300s"
 	DefaultMaxBodyRsp            = "1500"
 	DefaultClientName            = "rpcdaemon"
+	DefaultClientBuildDir        = ""
 
 	BinaryDir = "bin"
 )
@@ -64,6 +65,7 @@ func init() {
 type Config struct {
 	VegetaPatternTarFile   string
 	ClientVegetaOnCore     string
+	ClientBuildDir         string
 	Repetitions            int
 	TestSequence           string
 	ClientAddress          string
@@ -94,6 +96,7 @@ func NewConfig() *Config {
 	return &Config{
 		VegetaPatternTarFile:   DefaultVegetaPatternTarFile,
 		ClientVegetaOnCore:     DefaultClientVegetaOnCore,
+		ClientBuildDir:         DefaultClientBuildDir,
 		Repetitions:            DefaultRepetitions,
 		TestSequence:           DefaultTestSequence,
 		ClientAddress:          DefaultServerAddress,
@@ -124,6 +127,12 @@ func NewConfig() *Config {
 func (c *Config) Validate() error {
 	if c.JSONReportFile != "" && c.TestingClient == "" {
 		return fmt.Errorf("with json-report must also set testing-client")
+	}
+
+	if c.ClientBuildDir != "" {
+		if _, err := os.Stat(c.ClientBuildDir); c.ClientBuildDir != "" && os.IsNotExist(err) {
+			return fmt.Errorf("client build dir not specified correctly: %s", c.ClientBuildDir)
+		}
 	}
 
 	if c.EmptyCache {
@@ -213,14 +222,15 @@ type JSONReport struct {
 
 // PlatformInfo holds platform hardware and software information
 type PlatformInfo struct {
-	Vendor     string `json:"vendor"`
-	Product    string `json:"product"`
-	Board      string `json:"board"`
-	CPU        string `json:"cpu"`
-	Bogomips   string `json:"bogomips"`
-	Kernel     string `json:"kernel"`
-	GCCVersion string `json:"gccVersion"`
-	GoVersion  string `json:"goVersion"`
+	Vendor       string `json:"vendor"`
+	Product      string `json:"product"`
+	Board        string `json:"board"`
+	CPU          string `json:"cpu"`
+	Bogomips     string `json:"bogomips"`
+	Kernel       string `json:"kernel"`
+	GCCVersion   string `json:"gccVersion"`
+	GoVersion    string `json:"goVersion"`
+	ClientCommit string `json:"clientCommit"`
 }
 
 // ConfigurationInfo holds test configuration information
@@ -1110,16 +1120,23 @@ func (tr *TestReport) Open() error {
 	cpuModel := tr.hardware.GetCPUModel()
 	bogomips := tr.hardware.GetBogomips()
 
+	var clientCommit string
+	if tr.config.ClientBuildDir != "" {
+		clientCommit = GetGitCommit(tr.config.ClientBuildDir)
+	} else {
+		clientCommit = "none"
+	}
+
 	// Write headers
 	if err := tr.writeTestHeader(cpuModel, bogomips, kernelVersion, checksum,
-		gccVersion, goVersion); err != nil {
+		gccVersion, goVersion, clientCommit); err != nil {
 		return fmt.Errorf("failed to write test header: %w", err)
 	}
 
 	// Initialise the JSON report if needed
 	if tr.config.JSONReportFile != "" {
 		tr.initializeJSONReport(cpuModel, bogomips, kernelVersion, checksum,
-			gccVersion, goVersion)
+			gccVersion, goVersion, clientCommit)
 	}
 
 	return nil
@@ -1174,7 +1191,7 @@ func (tr *TestReport) createCSVFile() error {
 }
 
 // writeTestHeader writes the test configuration header to CSV
-func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksum, gccVersion, goVersion string) error {
+func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksum, gccVersion, goVersion, clientCommit string) error {
 
 	// Write platform information
 	emptyRow := make([]string, 14)
@@ -1229,6 +1246,10 @@ func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksu
 	if err != nil {
 		return err
 	}
+	err = tr.csvWriter.Write(append(emptyRow[:12], "clientVersion", clientCommit))
+	if err != nil {
+		return err
+	}
 
 	// Empty rows
 	for range 2 {
@@ -1254,18 +1275,19 @@ func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksu
 
 // initializeJSONReport initializes the JSON report structure
 func (tr *TestReport) initializeJSONReport(cpuModel, bogomips, kernelVersion, checksum,
-	gccVersion, goVersion string) {
+	gccVersion, goVersion, clientCommit string) {
 
 	tr.jsonReport = &JSONReport{
 		Platform: PlatformInfo{
-			Vendor:     strings.TrimSpace(tr.hardware.Vendor()),
-			Product:    strings.TrimSpace(tr.hardware.Product()),
-			Board:      strings.TrimSpace(tr.hardware.Board()),
-			CPU:        strings.TrimSpace(cpuModel),
-			Bogomips:   strings.TrimSpace(bogomips),
-			Kernel:     strings.TrimSpace(kernelVersion),
-			GCCVersion: strings.TrimSpace(gccVersion),
-			GoVersion:  strings.TrimSpace(goVersion),
+			Vendor:       strings.TrimSpace(tr.hardware.Vendor()),
+			Product:      strings.TrimSpace(tr.hardware.Product()),
+			Board:        strings.TrimSpace(tr.hardware.Board()),
+			CPU:          strings.TrimSpace(cpuModel),
+			Bogomips:     strings.TrimSpace(bogomips),
+			Kernel:       strings.TrimSpace(kernelVersion),
+			GCCVersion:   strings.TrimSpace(gccVersion),
+			GoVersion:    strings.TrimSpace(goVersion),
+			ClientCommit: strings.TrimSpace(clientCommit),
 		},
 		Configuration: ConfigurationInfo{
 			TestingClient:   tr.config.TestingClient,
@@ -1580,6 +1602,12 @@ func main() {
 				Usage:   "Client address (e.g., 192.2.3.1)",
 			},
 			&cli.StringFlag{
+				Name:    "client-build-dir",
+				Aliases: []string{"g"},
+				Value:   DefaultClientBuildDir,
+				Usage:   "Path to Client build folder",
+			},
+			&cli.StringFlag{
 				Name:    "run-vegeta-on-core",
 				Aliases: []string{"c"},
 				Value:   DefaultClientVegetaOnCore,
@@ -1648,6 +1676,7 @@ func runPerfTests(c *cli.Context) error {
 	config.TestSequence = c.String("test-sequence")
 	config.WaitingTime = c.Int("wait-after-test-sequence")
 	config.ClientAddress = c.String("rpc-client-address")
+	config.ClientBuildDir = c.String("client-build-dir")
 	config.ClientVegetaOnCore = c.String("run-vegeta-on-core")
 	config.VegetaResponseTimeout = c.String("response-timeout")
 	config.MaxBodyRsp = c.String("max-body-rsp")
