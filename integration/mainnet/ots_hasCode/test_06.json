@@ -1,15 +1,21 @@
 [
   {
     "request": {
-      "jsonrpc":"2.0",
-      "method":"ots_hasCode",
-      "params":["0x6d2e03b7EfFEae98BD302A9F836D0d6Ab0002766", "0xffffffff"],
-      "id":1
+      "jsonrpc": "2.0",
+      "method": "ots_hasCode",
+      "params": [
+        "0x6d2e03b7EfFEae98BD302A9F836D0d6Ab0002766",
+        "0xffffffff"
+      ],
+      "id": 1
     },
     "response": {
-      "id":1,
-      "jsonrpc":"2.0",
-      "result":false
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {
+        "code": -32000,
+        "message": "block not found: 4294967295"
+      }
     }
   }
 ]

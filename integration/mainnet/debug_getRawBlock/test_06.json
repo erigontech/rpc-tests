@@ -1,17 +1,20 @@
 [
-    {
-        "request": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "debug_getRawBlock",
-            "params": [
-                "0xFFFFFF0"
-            ]
-        },
-        "response": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "result": "0x"
-        }
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_getRawBlock",
+      "params": [
+        "0xFFFFFFFFF"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {
+        "code": -32000,
+        "message": "block not found: 68719476735"
+      }
     }
+  }
 ]
