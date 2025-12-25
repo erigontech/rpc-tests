@@ -90,6 +90,7 @@ type Config struct {
 	MorePercentiles        bool
 	InstantReport          bool
 	HaltOnVegetaError      bool
+	DisableHttpCompression bool
 }
 
 // NewConfig creates a new Config with default values
@@ -121,6 +122,7 @@ func NewConfig() *Config {
 		MorePercentiles:        false,
 		InstantReport:          false,
 		HaltOnVegetaError:      false,
+		DisableHttpCompression: false,
 	}
 }
 
@@ -894,7 +896,17 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 	maxConnInt, _ := strconv.Atoi(pt.config.MaxConnection)
 	maxBodyInt, _ := strconv.Atoi(pt.config.MaxBodyRsp)
 
+	tr := &http.Transport{
+		DisableCompression: pt.config.DisableHttpCompression,
+		Proxy:              http.ProxyFromEnvironment,
+	}
+
+	customClient := &http.Client{
+		Transport: tr,
+	}
+
 	attacker := vegeta.NewAttacker(
+		vegeta.Client(customClient),
 		vegeta.Timeout(timeout),
 		vegeta.Workers(uint64(maxConnInt)),
 		vegeta.MaxBody(int64(maxBodyInt)),
@@ -1580,6 +1592,11 @@ func main() {
 		Usage: "Launch an automated sequence of RPC performance tests on on target blockchain node(s)",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
+				Name:    "disable-http-compression",
+				Aliases: []string{"O"},
+				Usage:   "Disable Http compression",
+			},
+			&cli.BoolFlag{
 				Name:    "not-verify-server-alive",
 				Aliases: []string{"Z"},
 				Usage:   "Don't verify server is still active",
@@ -1722,6 +1739,7 @@ func runPerfTests(c *cli.Context) error {
 	// Create configuration from CLI flags
 	config := NewConfig()
 
+	config.DisableHttpCompression = c.Bool("disable-http-compression")
 	config.CheckServerAlive = !c.Bool("not-verify-server-alive")
 	config.CreateTestReport = c.Bool("tmp-test-report") || c.Bool("test-report")
 	config.VersionedTestReport = c.Bool("test-report")
