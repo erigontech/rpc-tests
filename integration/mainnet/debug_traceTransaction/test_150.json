@@ -1,0 +1,27 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0x0000000002970588a933c72e44f5a91c4e6d6c3e8f9e4f69b78c2e9c27d73a56",
+        {
+          "disableMemory": true,
+          "disableStack": true,
+          "disableStorage": true,
+          "tracer": "callTracer"
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null
+    },
+    "test": {
+      "description": "",
+      "reference": ""
+    }
+  }
+]
