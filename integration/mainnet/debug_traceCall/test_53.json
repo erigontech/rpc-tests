@@ -1,0 +1,27 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "debug_traceCall",
+      "params": [
+        {
+          "from": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+          "to": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+          "data": "0x70a0823100000000000000000000000071c7656ec7ab88b098defb751b7401b5f6d8976f"
+        },
+        "0x112A880",
+        {
+          "tracer": "4byteTracer"
+        }
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "0x70a08231-32": 1
+      }
+    }
+  }
+]
