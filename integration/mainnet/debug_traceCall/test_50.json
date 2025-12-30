@@ -1,0 +1,44 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "debug_traceCall",
+      "params": [
+        {
+          "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+          "to": "0xd100000000000000000000000000000000000000",
+          "data": "0x2e1a7d4d"
+        },
+        "0x15EF3C0",
+        {
+          "tracer": "callTracer",
+          "blockOverrides": {
+            "time": "0x65913200",
+            "prevRandao": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "stateOverrides": {
+            "0xe100000000000000000000000000000000000000": {
+              "state": {
+                "0x0000000000000000000000000000000000000000000000000000000000000000": "0x0000000000000000000000000000000000000000000000000000000000000001"
+              }
+            }
+          }
+        }
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "from": "0x742d35cc6634c0532925a3b844bc454e4438f44e",
+        "gas": "0x2faf080",
+        "gasUsed": "0x5248",
+        "input": "0x2e1a7d4d",
+        "to": "0xd100000000000000000000000000000000000000",
+        "type": "CALL",
+        "value": "0x0"
+      }
+    }
+  }
+]

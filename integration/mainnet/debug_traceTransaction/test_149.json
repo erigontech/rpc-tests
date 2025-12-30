@@ -1,0 +1,28 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0xcff3fb2b94ba2ee3730f3ca3347ca366abe80d9fbb6576a95d3fc278b9411f22",
+        {
+          "tracer": "prestateTracer",
+          "tracerConfig": {
+            "diffMode": false,
+            "disableCode": true
+          }
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null
+    },
+    "test": {
+      "description": "",
+      "reference": ""
+    }
+  }
+]
