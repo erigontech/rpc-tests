@@ -727,21 +727,10 @@ def run_compare(use_jsondiff, error_file, temp_file1, temp_file2, diff_file, tes
         idx += 1
         time.sleep(TIME)
         # verify if json-diff or diff in progress
-        cmd = "ps aux | grep -v run_tests | grep 'diff' | grep -v 'grep' | grep test_" + str(test_number) + " | awk '{print $2}'"
+        cmd = "ps aux | grep -v run_tests | grep 'diff' | grep -v 'grep' | awk '{print $2}'"
         pid = os.popen(cmd).read()
         if pid == "":
             # json-diff or diff terminated
-            error_file_size = os.stat(error_file).st_size
-            if error_file_size != 0:
-                if already_failed:
-                    # timeout with json-diff and diff so return timeout->0
-                    return 0
-                already_failed = True
-                # try json diffs with diff
-                cmd = "diff " + temp_file2 + " " + temp_file1 + " > " + diff_file + " 2> " + error_file + " &"
-                os.system(cmd)
-                idx = 0
-                continue
             return 1
         if idx >= MAX_TIME:
             killing_pid = pid.strip()
