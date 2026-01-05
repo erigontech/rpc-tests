@@ -25,30 +25,16 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": [
-        {
-          "action": {
-            "callType": "call",
-            "from": "0xb063f38343a46a8a9ffd52a47b26133b7c49788b",
-            "gas": "0x30d40",
-            "input": "0x47872b42bad3a36c7b8993d43fce8aa97c5d14a1828f559206552cd1e2e5167dbf7fab1c000000000000000000000000000000000000000000000000002386f26fc10000f3b7eaf85911f23fec4384f41e4e1432194fb7ae66ddef71f291412f7195713b",
-            "to": "0x6090a6e47849629b7245dfa1ca21d94cd15878ef",
-            "value": "0x0"
-          },
-          "blockHash": "0xb425a0ecfa4b74abf04a6f73c7e323b4b7220c8a96f12fff30b60172cfc50973",
-          "blockNumber": 0,
-          "error": "execution reverted",
-          "result": {
-            "gasUsed": "0x6a3e",
-            "output": "0x"
-          },
-          "subtraces": 0,
-          "traceAddress": [],
-          "transactionHash": null,
-          "transactionPosition": 0,
-          "type": "call"
-        }
-      ]
+      "result": {
+        "error": "execution reverted",
+        "from": "0xb063f38343a46a8a9ffd52a47b26133b7c49788b",
+        "gas": "0x30d40",
+        "gasUsed": "0x6a3e",
+        "input": "0x47872b42bad3a36c7b8993d43fce8aa97c5d14a1828f559206552cd1e2e5167dbf7fab1c000000000000000000000000000000000000000000000000002386f26fc10000f3b7eaf85911f23fec4384f41e4e1432194fb7ae66ddef71f291412f7195713b",
+        "to": "0x6090a6e47849629b7245dfa1ca21d94cd15878ef",
+        "type": "CALL",
+        "value": "0x0"
+      }
     }
   }
 ]
