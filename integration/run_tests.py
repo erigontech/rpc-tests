@@ -64,6 +64,8 @@ tests_on_latest = [
     "mainnet/debug_traceCall/test_41.json",
     "mainnet/debug_traceCall/test_42.json",
     "mainnet/debug_traceCall/test_43.json",
+    "mainnet/debug_traceCall/test_61.json",
+    "mainnet/debug_traceCall/test_62.json",
     "mainnet/debug_traceCallMany/test_11.json",
     "mainnet/debug_traceCallMany/test_12.json",
     "mainnet/eth_blobBaseFee",                                                 # works always on latest block
