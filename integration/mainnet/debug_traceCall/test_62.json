@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceCall",
+      "params": [
+        {
+          "data": "0xcdf0641500000000000000000000000000000000000000000000000000000000000003db",
+          "from": "0xA01919B3d5bc306eEC3674DeC92Cc20581257B81",
+          "gas": "0x14588E",
+          "gasPrice": "0x2825B0",
+          "to": "0xF09404cf54C48763b56F96C8080AAa72bD407Cb7",
+          "value": "0x0"
+        },
+        "latest",
+        {
+          "tracer": "flatCallTracer",
+          "disableMemory": true,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0"
+    }
+  }
+]
