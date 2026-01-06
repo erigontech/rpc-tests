@@ -1,0 +1,86 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceTransaction",
+      "params": [
+        "0xf57414989193e5e5ce57bd041a267868b02955a7c7e68401ab8510c3695d25c3",
+        {
+          "tracer": "flatCallTracer"
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "action": {
+            "callType": "call",
+            "from": "0x2ac8ffa449827c507deea7072edf19edb6c4b1ba",
+            "gas": "0xbffb",
+            "input": "0x9cb8a26a",
+            "to": "0xad95a4aa3383b3df742e9f84e139d08e3a265268",
+            "value": "0x0"
+          },
+          "blockHash": "0xda5440519a3db61ccd81118aa263653966b05bfad0067951eb12c1f3f4b8ee2f",
+          "blockNumber": 0,
+          "result": {
+            "gasUsed": "0x7e9a",
+            "output": "0x"
+          },
+          "subtraces": 1,
+          "traceAddress": [],
+          "transactionHash": null,
+          "transactionPosition": 83,
+          "type": "call"
+        },
+        {
+          "action": {
+            "callType": "delegatecall",
+            "from": "0xad95a4aa3383b3df742e9f84e139d08e3a265268",
+            "gas": "0x61e0",
+            "input": "0x9cb8a26a",
+            "to": "0x0532fd6e1109756be1503dabe7194b70df0257a7",
+            "value": "0x0"
+          },
+          "blockHash": "0xda5440519a3db61ccd81118aa263653966b05bfad0067951eb12c1f3f4b8ee2f",
+          "blockNumber": 0,
+          "result": {
+            "gasUsed": "0x21eb",
+            "output": "0x"
+          },
+          "subtraces": 1,
+          "traceAddress": [
+            0
+          ],
+          "transactionHash": null,
+          "transactionPosition": 83,
+          "type": "call"
+        },
+        {
+          "action": {
+            "address": "0xad95a4aa3383b3df742e9f84e139d08e3a265268",
+            "balance": "0x0",
+            "refundAddress": "0x2ac8ffa449827c507deea7072edf19edb6c4b1ba"
+          },
+          "blockHash": "0xda5440519a3db61ccd81118aa263653966b05bfad0067951eb12c1f3f4b8ee2f",
+          "blockNumber": 0,
+          "subtraces": 0,
+          "traceAddress": [
+            0,
+            0
+          ],
+          "transactionHash": null,
+          "transactionPosition": 83,
+          "type": "suicide"
+        }
+      ]
+    },
+    "test": {
+      "description": "After EIP-6780 (Dencun), when a contract calls SELFDESTRUCT in a different transaction than its creation, the contract should remain in state (code/storage persist, only balance transferred). This test is postCancun. The contract not show in pre/post because is not deleted",
+      "reference": "https://etherscan.io/tx/0xf57414989193e5e5ce57bd041a267868b02955a7c7e68401ab8510c3695d25c3"
+    }
+  }
+]
