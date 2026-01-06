@@ -51,6 +51,7 @@ tests_on_latest = [
     "mainnet/debug_traceBlockByNumber/test_42.json",
     "mainnet/debug_traceBlockByNumber/test_43.json",
     "mainnet/debug_traceBlockByNumber/test_44.json",
+    "mainnet/debug_traceBlockByNumber/test_47.json",
     "mainnet/debug_traceCall/test_22.json",
     "mainnet/debug_traceCall/test_33.json",
     "mainnet/debug_traceCall/test_34.json",
