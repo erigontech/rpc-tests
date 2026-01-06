@@ -35,7 +35,7 @@
             "to": "0xf09404cf54c48763b56f96c8080aaa72bd407cb7",
             "value": "0x0"
           },
-          "blockHash": "0x8a243990f320834c540bcb421aca6bba325a8f69cc812ffe73d7b05a90729720",
+          "blockHash": null,
           "blockNumber": 0,
           "error": "execution reverted",
           "result": {
@@ -57,7 +57,7 @@
             "to": "0xd112f302969901fedd28756efe8170b80c746ccc",
             "value": "0x0"
           },
-          "blockHash": "0x8a243990f320834c540bcb421aca6bba325a8f69cc812ffe73d7b05a90729720",
+          "blockHash": null,
           "blockNumber": 0,
           "result": {
             "gasUsed": "0x1c87",
@@ -80,7 +80,7 @@
             "to": "0xd112f302969901fedd28756efe8170b80c746ccc",
             "value": "0x0"
           },
-          "blockHash": "0x8a243990f320834c540bcb421aca6bba325a8f69cc812ffe73d7b05a90729720",
+          "blockHash": null,
           "blockNumber": 0,
           "result": {
             "gasUsed": "0x473",
