@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "invalid block number"
+      "description": "invalid input: block number in the future"
     },
     "request": {
       "jsonrpc": "2.0",
@@ -16,10 +16,7 @@
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "error": {
-        "code": -32000,
-        "message": "block not found: 68719476735"
-      }
+      "result": null
     }
   }
 ]
