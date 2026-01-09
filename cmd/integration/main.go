@@ -30,6 +30,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/erigontech/rpc-tests/cmd/integration/jsondiff"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 	"github.com/josephburnett/jd/v2"
@@ -286,8 +287,10 @@ func extractArchive(archivePath string, sanitizeExtension bool, metrics *TestMet
 		return nil, fmt.Errorf("archive must contain a single JSON file, found %s", header.Name)
 	}
 
+	bufferedReader := bufio.NewReaderSize(tarReader, 8*os.Getpagesize())
+
 	start := time.Now()
-	if err := jsoniter.NewDecoder(tarReader).Decode(&jsonrpcCommands); err != nil {
+	if err := jsoniter.NewDecoder(bufferedReader).Decode(&jsonrpcCommands); err != nil {
 		return jsonrpcCommands, errors.New("cannot parse JSON " + archivePath + ": " + err.Error())
 	}
 	metrics.UnmarshallingTime += time.Since(start)
@@ -301,10 +304,11 @@ const (
 	JdLibrary JsonDiffKind = iota
 	JsonDiffTool
 	DiffTool
+	JsonDiffGo
 )
 
 func (k JsonDiffKind) String() string {
-	return [...]string{"jd", "json-diff", "diff"}[k]
+	return [...]string{"jd", "json-diff", "diff", "json-diff-go"}[k]
 }
 
 // ParseJsonDiffKind converts a string into a JsonDiffKind enum type
@@ -316,6 +320,8 @@ func ParseJsonDiffKind(s string) (JsonDiffKind, error) {
 		return JsonDiffTool, nil
 	case "diff":
 		return DiffTool, nil
+	case "json-diff-go":
+		return JsonDiffGo, nil
 	default:
 		return JdLibrary, fmt.Errorf("invalid JsonDiffKind value: %s", s)
 	}
@@ -368,9 +374,10 @@ type TestMetrics struct {
 }
 
 type TestOutcome struct {
-	Success bool
-	Error   error
-	Metrics TestMetrics
+	Success     bool
+	Error       error
+	ColoredDiff string
+	Metrics     TestMetrics
 }
 
 type TestResult struct {
@@ -429,7 +436,7 @@ func NewConfig() *Config {
 		DisplayOnlyFail:       false,
 		TransportType:         "http",
 		Parallel:              true,
-		DiffKind:              JdLibrary,
+		DiffKind:              JsonDiffGo,
 		WithoutCompareResults: false,
 		WaitingTime:           0,
 		DoNotCompareError:     false,
@@ -1573,11 +1580,57 @@ func (c *JsonRpcCommand) processResponse(response, result1, responseInFile any, 
 		return
 	}
 
-	same, err := c.compareJSON(config, daemonFile, expRspFile, diffFile, &outcome.Metrics)
-	if err != nil {
-		outcome.Error = err
-		return
+	var same bool
+	if config.DiffKind == JsonDiffGo { // TODO: move within compareJSON
+		outcome.Metrics.ComparisonCount += 1
+		opts := &jsondiff.Options{
+			SortArrays: true,
+		}
+		if respIsMap && expIsMap {
+			diff := jsondiff.DiffJSON(expectedMap, responseMap, opts)
+			same = len(diff) == 0
+			diffString := jsondiff.DiffString(expectedMap, responseMap, opts)
+			err = os.WriteFile(diffFile, []byte(diffString), 0644)
+			if err != nil {
+				outcome.Error = err
+				return
+			}
+			if !same {
+				outcome.Error = errDiffMismatch
+				if config.ReqTestNumber != -1 { // only when a single test is run TODO: add option to control it
+					outcome.ColoredDiff = jsondiff.ColoredString(expectedMap, responseMap, opts)
+				}
+			}
+		} else {
+			responseArray, respIsArray := response.([]any)
+			expectedArray, expIsArray := expectedResponse.([]any)
+			if !respIsArray || !expIsArray {
+				outcome.Error = errors.New("cannot compare JSON objects (neither maps nor arrays)")
+				return
+			}
+			diff := jsondiff.DiffJSON(expectedArray, responseArray, opts)
+			same = len(diff) == 0
+			diffString := jsondiff.DiffString(expectedArray, responseArray, opts)
+			err = os.WriteFile(diffFile, []byte(diffString), 0644)
+			if err != nil {
+				outcome.Error = err
+				return
+			}
+			if !same {
+				outcome.Error = errDiffMismatch
+				if config.ReqTestNumber != -1 { // only when a single test is run TODO: add option to control it
+					outcome.ColoredDiff = jsondiff.ColoredString(expectedArray, responseArray, opts)
+				}
+			}
+		}
+	} else {
+		same, err = c.compareJSON(config, daemonFile, expRspFile, diffFile, &outcome.Metrics)
+		if err != nil {
+			outcome.Error = err
+			return
+		}
 	}
+
 	if same && !config.ForceDumpJSONs {
 		err := os.Remove(daemonFile)
 		if err != nil {
@@ -1754,7 +1807,14 @@ func (c *ResultCollector) start(ctx context.Context, cancelCtx context.CancelFun
 						c.totalEqualCount += result.Outcome.Metrics.EqualCount
 					} else {
 						c.failedTests++
-						fmt.Printf("failed: %s\n", result.Outcome.Error.Error())
+						if result.Outcome.Error != nil {
+							fmt.Printf("failed: %s\n", result.Outcome.Error.Error())
+							if errors.Is(result.Outcome.Error, errDiffMismatch) && result.Outcome.ColoredDiff != "" {
+								fmt.Printf(result.Outcome.ColoredDiff)
+							}
+						} else {
+							fmt.Printf("failed: no error\n")
+						}
 						if c.config.ExitOnFail {
 							// Signal other tasks to stop and exit
 							cancelCtx()
