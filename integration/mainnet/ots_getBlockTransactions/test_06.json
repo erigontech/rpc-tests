@@ -13,10 +13,7 @@
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "error": {
-        "code": -32000,
-        "message": "block not found: 268435440"
-      }
+      "result": null
     }
   }
 ]

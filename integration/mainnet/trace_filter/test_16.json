@@ -14,11 +14,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": {
-        "code": -32000,
-        "message": "block not found: 68719476735"
-      },
-      "result": null
+      "result": []
     },
     "test": {
       "description": "fromBlock is non-existent",
