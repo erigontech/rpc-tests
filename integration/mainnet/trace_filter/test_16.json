@@ -1,20 +1,24 @@
 [
-    {
-        "request": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "trace_filter",
-            "params": [
-                {
-                    "fromBlock": "0x1C9C380",
-                    "toBlock": "0x1C9C381"
-                }
-            ]
-        },
-        "response": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "result": []
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_filter",
+      "params": [
+        {
+          "fromBlock": "0xFFFFFFFFF",
+          "toBlock": "0x6C5669"
         }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": []
+    },
+    "test": {
+      "description": "fromBlock is non-existent",
+      "reference": ""
     }
+  }
 ]

@@ -6,7 +6,7 @@
     },
     "request": {
       "jsonrpc": "2.0",
-      "method": "eth_getUncleByBlockNumberAndIndex",
+      "method": "eth_getTransactionByBlockNumberAndIndex",
       "params": [
         "0xFFFFFFFF",
         "0x0"

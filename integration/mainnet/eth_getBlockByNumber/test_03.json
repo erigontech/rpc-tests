@@ -1,20 +1,23 @@
 [
-    {
-      "test": {
-           "reference": "",
-           "description": "invalid block number"
-        },
-        "request":{
-            "jsonrpc":"2.0",
-            "method":"eth_getBlockByNumber",
-            "params":["0xFFFFFFFFF", false],
-            "id":1
-        },
-        "response":{
-            "jsonrpc":"2.0",
-            "id":1,
-           "result": null
-      }
+  {
+    "test": {
+      "reference": "",
+      "description": "invalid input: block number in the future"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getBlockByNumber",
+      "params": [
+        "0xFFFFFFFFF",
+        false
+      ],
+      "id": 1
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": null
     }
+  }
 ]
 
