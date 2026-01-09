@@ -20,7 +20,7 @@
     "response": {
       "error": {
         "code": -32000,
-        "message": "could not find the header 4294967295 in cache or db"
+        "message": "block not found: 4294967295"
       },
       "id": 1,
       "jsonrpc": "2.0"
