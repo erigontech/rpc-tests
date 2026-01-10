@@ -1140,7 +1140,6 @@ func getLatestBlockNumber(ctx context.Context, config *Config, url string, metri
 		}
 
 		cleanHex := strings.TrimPrefix(resultStr, "0x")
-		fmt.Println("ret:", cleanHex)
 		return strconv.ParseUint(cleanHex, 16, 64)
 	}
 	if errorVal, hasError := responseMap["error"]; hasError {
