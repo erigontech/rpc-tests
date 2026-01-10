@@ -1945,6 +1945,7 @@ func runMain() int {
 		var retryDelay = 1 * time.Second
 		latestBlock, err := getConsistentLatestBlock(config, server1, config.ExternalProviderURL, maxRetries, retryDelay)
 		if err != nil {
+			fmt.Printf("sync on latest block number failed ",err)
 			return -1 // TODO: unique return codes?
 		}
 		if config.VerboseLevel > 0 {
