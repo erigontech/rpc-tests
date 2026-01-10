@@ -1123,18 +1123,30 @@ func getLatestBlockNumber(ctx context.Context, config *Config, url string, metri
 	}
 	requestBytes, _ := jsoniter.Marshal(request)
 
-	var response JsonRpcResponse
-	err := executeHttpRequest(ctx, config, "http", "", url, requestBytes, response, metrics)
+	var response any
+	err := executeHttpRequest(ctx, config, "http", "", url, requestBytes, &response, metrics)
 	if err != nil {
 		return 0, err
 	}
 
-	if response.Error != nil {
-		return 0, fmt.Errorf("RPC error: %s", response.Error.Message)
+	responseMap, ok := response.(map[string]interface{})
+	if !ok {
+		return 0, fmt.Errorf("response is not a map: %v", response)
 	}
+	if resultVal, hasResult := responseMap["result"]; hasResult {
+		resultStr, isString := resultVal.(string)
+		if !isString {
+			return 0, fmt.Errorf("result is not a string: %v", resultVal)
+		}
 
-	result := strings.TrimPrefix(response.Result, "0x")
-	return strconv.ParseUint(result, 16, 64)
+		cleanHex := strings.TrimPrefix(resultStr, "0x")
+		fmt.Println("ret:", cleanHex)
+		return strconv.ParseUint(cleanHex, 16, 64)
+	}
+	if errorVal, hasError := responseMap["error"]; hasError {
+		return 0, fmt.Errorf("RPC error: %v", errorVal)
+	}
+	return 0, fmt.Errorf("no result or error found in response")
 }
 
 func getConsistentLatestBlock(config *Config, server1URL, server2URL string, maxRetries int, retryDelay time.Duration) (uint64, error) {
@@ -1945,7 +1957,7 @@ func runMain() int {
 		var retryDelay = 1 * time.Second
 		latestBlock, err := getConsistentLatestBlock(config, server1, config.ExternalProviderURL, maxRetries, retryDelay)
 		if err != nil {
-			fmt.Println("sync on latest block number failed ",err)
+			fmt.Println("sync on latest block number failed ", err)
 			return -1 // TODO: unique return codes?
 		}
 		if config.VerboseLevel > 0 {
