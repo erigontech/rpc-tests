@@ -1,0 +1,40 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceCall",
+      "params": [
+        {
+          "data": "0x47872b42bad3a36c7b8993d43fce8aa97c5d14a1828f559206552cd1e2e5167dbf7fab1c000000000000000000000000000000000000000000000000002386f26fc10000f3b7eaf85911f23fec4384f41e4e1432194fb7ae66ddef71f291412f7195713b",
+          "from": "0xB063F38343a46a8A9fFD52a47b26133b7c49788B",
+          "to": "0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef",
+          "gas": "0x30D40",
+          "gasPrice": "0x4",
+          "value": "0x0"
+        },
+        "0xb425a0ecfa4b74abf04a6f73c7e323b4b7220c8a96f12fff30b60172cfc50973",
+        {
+          "tracer": "callTracer",
+          "disableMemory": true,
+          "disableStack": false,
+          "disableStorage": false
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "error": "execution reverted",
+        "from": "0xb063f38343a46a8a9ffd52a47b26133b7c49788b",
+        "gas": "0x30d40",
+        "gasUsed": "0x6a3e",
+        "input": "0x47872b42bad3a36c7b8993d43fce8aa97c5d14a1828f559206552cd1e2e5167dbf7fab1c000000000000000000000000000000000000000000000000002386f26fc10000f3b7eaf85911f23fec4384f41e4e1432194fb7ae66ddef71f291412f7195713b",
+        "to": "0x6090a6e47849629b7245dfa1ca21d94cd15878ef",
+        "type": "CALL",
+        "value": "0x0"
+      }
+    }
+  }
+]
