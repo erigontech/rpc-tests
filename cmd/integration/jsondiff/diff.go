@@ -26,15 +26,15 @@ type Diff struct {
 	NewValue interface{}
 }
 
-// Options configures the diff behavior
+// Options configures the diff behaviour
 type Options struct {
-	// Full causes all unchanged values to be included in output
+	// Full causes all unchanged values to be included in the output
 	Full bool
 	// KeepUnchangedValues includes unchanged values in the diff result
 	KeepUnchangedValues bool
 	// OutputKeys are the keys to include in the output
 	OutputKeys []string
-	// Sort keys in output
+	// Sort keys in the output
 	Sort bool
 	// SortArrays sorts primitive values in arrays before comparing
 	SortArrays bool
@@ -205,7 +205,7 @@ func diffArrays(obj1, obj2 interface{}, path string, result map[string]interface
 	v1 := reflect.ValueOf(obj1)
 	v2 := reflect.ValueOf(obj2)
 
-	// Sort arrays if option is enabled
+	// Sort arrays if required
 	arr1 := obj1
 	arr2 := obj2
 
@@ -358,7 +358,7 @@ func sortArrayIfPrimitive(arr interface{}) interface{} {
 		return arr
 	}
 
-	// Check if array contains only primitives
+	// Check that the array contains only primitives
 	firstElem := v.Index(0).Interface()
 	if !isPrimitive(firstElem) {
 		return arr
