@@ -4,8 +4,6 @@ import (
 	"archive/tar"
 	"bufio"
 	"bytes"
-	"compress/bzip2"
-	"compress/gzip"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
@@ -30,11 +28,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/erigontech/rpc-tests/cmd/integration/jsondiff"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 	"github.com/josephburnett/jd/v2"
 	jsoniter "github.com/json-iterator/go"
+
+	"github.com/erigontech/rpc-tests/cmd/integration/archive"
+	"github.com/erigontech/rpc-tests/cmd/integration/jsondiff"
 )
 
 const (
@@ -175,128 +175,6 @@ var (
 		"mainnet/trace_replayBlockTransactions/test_36.json",
 	}
 )
-
-// Supported compression types
-const (
-	GzipCompression  = ".gz"
-	Bzip2Compression = ".bz2"
-	NoCompression    = ""
-)
-
-// --- Helper Functions ---
-
-// getCompressionType determines the compression from the filename extension.
-func getCompressionType(filename string) string {
-	if strings.HasSuffix(filename, ".tar.gz") || strings.HasSuffix(filename, ".tgz") {
-		return GzipCompression
-	}
-	if strings.HasSuffix(filename, ".tar.bz2") || strings.HasSuffix(filename, ".tbz") {
-		return Bzip2Compression
-	}
-	return NoCompression
-}
-
-func autodetectCompression(inFile *os.File) (string, error) {
-	// Assume we have no compression and try to detect it if the tar header is invalid
-	compressionType := NoCompression
-	tarReader := tar.NewReader(inFile)
-	_, err := tarReader.Next()
-	if err != nil && !errors.Is(err, io.EOF) {
-		// Reset the file position for read and check if it's gzip encoded
-		_, err = inFile.Seek(0, io.SeekStart)
-		if err != nil {
-			return compressionType, err
-		}
-		_, err = gzip.NewReader(inFile)
-		if err == nil {
-			compressionType = GzipCompression
-		} else {
-			// Reset the file position for read and check if it's gzip encoded
-			_, err = inFile.Seek(0, io.SeekStart)
-			if err != nil {
-				return compressionType, err
-			}
-			_, err = tar.NewReader(bzip2.NewReader(inFile)).Next()
-			if err == nil {
-				compressionType = Bzip2Compression
-			}
-		}
-	}
-	return compressionType, nil
-}
-
-// extractArchive extracts a compressed or uncompressed tar archive.
-func extractArchive(archivePath string, sanitizeExtension bool, metrics *TestMetrics) ([]JsonRpcCommand, error) {
-	// Open the archive file
-	inputFile, err := os.Open(archivePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open archive: %w", err)
-	}
-	defer func(inFile *os.File) {
-		_ = inFile.Close()
-	}(inputFile)
-
-	// Wrap the input file with the correct compression reader
-	compressionType := getCompressionType(archivePath)
-	if compressionType == NoCompression {
-		// Possibly handle the corner case where the file is compressed but has tar extension
-		compressionType, err = autodetectCompression(inputFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to autodetect compression for archive: %w", err)
-		}
-		if compressionType != NoCompression {
-			// If any compression was detected, optionally rename and reopen the archive file
-			if sanitizeExtension {
-				err = os.Rename(archivePath, archivePath+compressionType)
-				if err != nil {
-					return nil, err
-				}
-				archivePath = archivePath + compressionType
-			}
-		}
-		inputFile, err = os.Open(archivePath)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	var reader io.Reader
-	switch compressionType {
-	case GzipCompression:
-		if reader, err = gzip.NewReader(inputFile); err != nil {
-			return nil, fmt.Errorf("failed to create gzip reader: %w", err)
-		}
-	case Bzip2Compression:
-		reader = bzip2.NewReader(inputFile)
-	case NoCompression:
-		reader = inputFile
-	}
-
-	var jsonrpcCommands []JsonRpcCommand
-
-	// We expect the archive to contain a single JSON file
-	tarReader := tar.NewReader(reader)
-	header, err := tarReader.Next()
-	if err == io.EOF {
-		return jsonrpcCommands, nil // Empty archive
-	}
-	if err != nil {
-		return nil, fmt.Errorf("failed to read tar header: %w", err)
-	}
-	if header.Typeflag != tar.TypeReg {
-		return nil, fmt.Errorf("archive must contain a single JSON file, found %s", header.Name)
-	}
-
-	bufferedReader := bufio.NewReaderSize(tarReader, 8*os.Getpagesize())
-
-	start := time.Now()
-	if err := jsoniter.NewDecoder(bufferedReader).Decode(&jsonrpcCommands); err != nil {
-		return jsonrpcCommands, errors.New("cannot parse JSON " + archivePath + ": " + err.Error())
-	}
-	metrics.UnmarshallingTime += time.Since(start)
-
-	return jsonrpcCommands, nil
-}
 
 type JsonDiffKind int
 
@@ -1340,7 +1218,24 @@ func isArchive(jsonFilename string) bool {
 	return !strings.HasSuffix(jsonFilename, ".json")
 }
 
-func extractJsonCommands(jsonFilename string, metrics *TestMetrics) ([]JsonRpcCommand, error) {
+func extractJsonCommands(jsonFilename string, sanitizeExtension bool, metrics *TestMetrics) ([]JsonRpcCommand, error) {
+	var jsonrpcCommands []JsonRpcCommand
+	err := archive.ExtractAndApply(jsonFilename, sanitizeExtension, func(reader *tar.Reader) error {
+		bufferedReader := bufio.NewReaderSize(reader, 8*os.Getpagesize())
+		start := time.Now()
+		if err := jsoniter.NewDecoder(bufferedReader).Decode(&jsonrpcCommands); err != nil {
+			return fmt.Errorf("failed to decode JSON: %w", err)
+		}
+		metrics.UnmarshallingTime += time.Since(start)
+		return nil
+	})
+	if err != nil {
+		return nil, errors.New("cannot extract archive file " + jsonFilename)
+	}
+	return jsonrpcCommands, nil
+}
+
+func readJsonCommands(jsonFilename string, metrics *TestMetrics) ([]JsonRpcCommand, error) {
 	file, err := os.Open(jsonFilename)
 	if err != nil {
 		return nil, fmt.Errorf("cannot open file %s: %w", jsonFilename, err)
@@ -1740,17 +1635,13 @@ func runTest(ctx context.Context, descriptor *TestDescriptor, config *Config) Te
 	var jsonrpcCommands []JsonRpcCommand
 	var err error
 	if isArchive(jsonFilename) {
-		jsonrpcCommands, err = extractArchive(jsonFilename, config.SanitizeArchiveExt, &outcome.Metrics)
-		if err != nil {
-			outcome.Error = errors.New("cannot extract archive file " + jsonFilename)
-			return outcome
-		}
+		jsonrpcCommands, err = extractJsonCommands(jsonFilename, config.SanitizeArchiveExt, &outcome.Metrics)
 	} else {
-		jsonrpcCommands, err = extractJsonCommands(jsonFilename, &outcome.Metrics)
-		if err != nil {
-			outcome.Error = err
-			return outcome
-		}
+		jsonrpcCommands, err = readJsonCommands(jsonFilename, &outcome.Metrics)
+	}
+	if err != nil {
+		outcome.Error = err
+		return outcome
 	}
 
 	if len(jsonrpcCommands) != 1 {
