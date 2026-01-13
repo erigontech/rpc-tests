@@ -68,8 +68,8 @@ func autodetectCompression(inFile *os.File) (Compression, error) {
 	return compressionType, nil
 }
 
-// ExtractAndApply extracts a compressed or uncompressed tar archive and applies the given function to it.
-func ExtractAndApply(archivePath string, sanitizeExtension bool, f func(*tar.Reader) error) error {
+// Extract extracts a compressed or uncompressed tar archive and applies the given function to it.
+func Extract(archivePath string, sanitizeExtension bool, f func(*tar.Reader) error) error {
 	inputFile, err := os.Open(archivePath)
 	if err != nil {
 		return fmt.Errorf("failed to open archive: %w", err)

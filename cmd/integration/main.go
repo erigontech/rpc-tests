@@ -1220,7 +1220,7 @@ func isArchive(jsonFilename string) bool {
 
 func extractJsonCommands(jsonFilename string, sanitizeExtension bool, metrics *TestMetrics) ([]JsonRpcCommand, error) {
 	var jsonrpcCommands []JsonRpcCommand
-	err := archive.ExtractAndApply(jsonFilename, sanitizeExtension, func(reader *tar.Reader) error {
+	err := archive.Extract(jsonFilename, sanitizeExtension, func(reader *tar.Reader) error {
 		bufferedReader := bufio.NewReaderSize(reader, 8*os.Getpagesize())
 		start := time.Now()
 		if err := jsoniter.NewDecoder(bufferedReader).Decode(&jsonrpcCommands); err != nil {
