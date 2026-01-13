@@ -241,24 +241,24 @@ func TestAutodetectCompression_InvalidFile(t *testing.T) {
 
 var nullTarFunc = func(*tar.Reader) error { return nil }
 
-func TestExtractAndApply_NonExistentFile(t *testing.T) {
-	err := ExtractAndApply("/nonexistent/path/file.tar", false, nullTarFunc)
+func TestExtract_NonExistentFile(t *testing.T) {
+	err := Extract("/nonexistent/path/file.tar", false, nullTarFunc)
 	if err == nil {
 		t.Error("expected error for non-existent file")
 	}
 }
 
-func TestExtractAndApply_UncompressedTar(t *testing.T) {
+func TestExtract_UncompressedTar(t *testing.T) {
 	tmpFilePath := createTempTarWithJSON(t, NoCompression)
 	defer removeTempFile(t, tmpFilePath)
 
-	err := ExtractAndApply(tmpFilePath, false, nullTarFunc)
+	err := Extract(tmpFilePath, false, nullTarFunc)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
-func TestExtractAndApply_GzipTar(t *testing.T) {
+func TestExtract_GzipTar(t *testing.T) {
 	tmpFile := createTempTarWithJSON(t, GzipCompression)
 	defer removeTempFile(t, tmpFile)
 
@@ -269,49 +269,49 @@ func TestExtractAndApply_GzipTar(t *testing.T) {
 	}
 	defer removeTempFile(t, newPath)
 
-	err := ExtractAndApply(newPath, false, nullTarFunc)
+	err := Extract(newPath, false, nullTarFunc)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
-func TestExtractAndApply_NilMetrics(t *testing.T) {
+func TestExtract_NilMetrics(t *testing.T) {
 	tmpFile := createTempTarWithJSON(t, NoCompression)
 	defer removeTempFile(t, tmpFile)
 
-	err := ExtractAndApply(tmpFile, false, nullTarFunc)
+	err := Extract(tmpFile, false, nullTarFunc)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
-func TestExtractAndApply_EmptyArchive(t *testing.T) {
+func TestExtract_EmptyArchive(t *testing.T) {
 	tmpFile := createEmptyTarFile(t)
 	defer removeTempFile(t, tmpFile)
 
 	// Empty archive should return error since Next() is called internally
-	err := ExtractAndApply(tmpFile, false, nullTarFunc)
+	err := Extract(tmpFile, false, nullTarFunc)
 	if err == nil {
 		t.Error("expected error for empty archive")
 	}
 }
 
-func TestExtractAndApply_InvalidJSON(t *testing.T) {
+func TestExtract_InvalidJSON(t *testing.T) {
 	tmpFile := createTempTarFile(t, "invalid json content", NoCompression)
 	defer removeTempFile(t, tmpFile)
 
-	err := ExtractAndApply(tmpFile, false, nullTarFunc)
+	err := Extract(tmpFile, false, nullTarFunc)
 	if err != nil {
-		t.Fatalf("unexpected error from ExtractAndApply: %v", err)
+		t.Fatalf("unexpected error from Extract: %v", err)
 	}
 }
 
-func TestExtractAndApply_SanitizeExtension(t *testing.T) {
+func TestExtract_SanitizeExtension(t *testing.T) {
 	tmpFile := createTempTarWithJSON(t, GzipCompression)
 	defer removeTempFile(t, tmpFile)
 	defer removeTempFile(t, tmpFile+".gz")
 
-	err := ExtractAndApply(tmpFile, true, nullTarFunc)
+	err := Extract(tmpFile, true, nullTarFunc)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -325,17 +325,17 @@ func TestExtractAndApply_SanitizeExtension(t *testing.T) {
 	}
 }
 
-func TestExtractAndApply_DirectoryInArchive(t *testing.T) {
+func TestExtract_DirectoryInArchive(t *testing.T) {
 	tmpFile := createTempTarWithDirectory(t)
 	defer removeTempFile(t, tmpFile)
 
-	err := ExtractAndApply(tmpFile, false, nullTarFunc)
+	err := Extract(tmpFile, false, nullTarFunc)
 	if err == nil {
 		t.Error("expected error for directory in archive as unsupported")
 	}
 }
 
-func TestExtractAndApply_TgzExtension(t *testing.T) {
+func TestExtract_TgzExtension(t *testing.T) {
 	tmpFile := createTempTarWithJSON(t, GzipCompression)
 
 	// Rename to .tgz
@@ -345,30 +345,30 @@ func TestExtractAndApply_TgzExtension(t *testing.T) {
 	}
 	defer removeTempFile(t, tgzPath)
 
-	err := ExtractAndApply(tgzPath, false, nullTarFunc)
+	err := Extract(tgzPath, false, nullTarFunc)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
-func TestExtractAndApply_AutodetectGzip(t *testing.T) {
+func TestExtract_AutodetectGzip(t *testing.T) {
 	// Create gzip tar but with .tar extension (no compression hint)
 	tmpFile := createTempTarWithJSON(t, GzipCompression)
 	defer removeTempFile(t, tmpFile)
 	defer removeTempFile(t, tmpFile+".gz")
 
-	err := ExtractAndApply(tmpFile, false, nullTarFunc)
+	err := Extract(tmpFile, false, nullTarFunc)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
-func TestExtractAndApply_Bzip2Tar(t *testing.T) {
+func TestExtract_Bzip2Tar(t *testing.T) {
 	tmpFile := createTempTarWithJSON(t, Bzip2Compression)
 	defer removeTempFile(t, tmpFile)
 
 	var callbackInvoked bool
-	err := ExtractAndApply(tmpFile, false, func(tr *tar.Reader) error {
+	err := Extract(tmpFile, false, func(tr *tar.Reader) error {
 		callbackInvoked = true
 		// Verify we can read from the tar - Next() already called, second should be EOF
 		_, err := tr.Next()
@@ -409,7 +409,7 @@ func TestGetCompressionType_EdgeCases(t *testing.T) {
 	}
 }
 
-func TestExtractAndApply_CorruptedGzip(t *testing.T) {
+func TestExtract_CorruptedGzip(t *testing.T) {
 	tmpDir := t.TempDir()
 	tmpFile := filepath.Join(tmpDir, "corrupted.tar.gz")
 
@@ -428,7 +428,7 @@ func TestExtractAndApply_CorruptedGzip(t *testing.T) {
 		t.Fatalf("failed to close file %s: %v", tmpFile, err)
 	}
 
-	err = ExtractAndApply(tmpFile, false, nullTarFunc)
+	err = Extract(tmpFile, false, nullTarFunc)
 	if err == nil {
 		t.Error("expected error for corrupted gzip")
 	}
@@ -451,7 +451,7 @@ func BenchmarkGetCompressionType(b *testing.B) {
 	}
 }
 
-func BenchmarkExtractArchive(b *testing.B) {
+func BenchmarkExtract(b *testing.B) {
 	tmpDir := b.TempDir()
 	tmpFile := filepath.Join(tmpDir, "bench.tar")
 
@@ -484,14 +484,14 @@ func BenchmarkExtractArchive(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		err := ExtractAndApply(tmpFile, false, nullTarFunc)
+		err := Extract(tmpFile, false, nullTarFunc)
 		if err != nil {
 			b.Fatalf("unexpected error: %v", err)
 		}
 	}
 }
 
-func TestExtractAndApply_LargeJSON(t *testing.T) {
+func TestExtract_LargeJSON(t *testing.T) {
 	// Create a large JSON payload
 	var buf bytes.Buffer
 	buf.WriteString("[")
@@ -506,18 +506,18 @@ func TestExtractAndApply_LargeJSON(t *testing.T) {
 	tmpFile := createTempTarFile(t, buf.String(), NoCompression)
 	defer removeTempFile(t, tmpFile)
 
-	err := ExtractAndApply(tmpFile, false, nullTarFunc)
+	err := Extract(tmpFile, false, nullTarFunc)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
-func TestExtractAndApply_CallbackError(t *testing.T) {
+func TestExtract_CallbackError(t *testing.T) {
 	tmpFile := createTempTarWithJSON(t, NoCompression)
 	defer removeTempFile(t, tmpFile)
 
 	expectedErr := io.ErrUnexpectedEOF
-	err := ExtractAndApply(tmpFile, false, func(tr *tar.Reader) error {
+	err := Extract(tmpFile, false, func(tr *tar.Reader) error {
 		return expectedErr
 	})
 	if !errors.Is(err, expectedErr) {
@@ -525,13 +525,13 @@ func TestExtractAndApply_CallbackError(t *testing.T) {
 	}
 }
 
-func TestExtractAndApply_CallbackReadsContent(t *testing.T) {
+func TestExtract_CallbackReadsContent(t *testing.T) {
 	expectedContent := `{"test":"value"}`
 	tmpFile := createTempTarFile(t, expectedContent, NoCompression)
 	defer removeTempFile(t, tmpFile)
 
 	var readContent []byte
-	err := ExtractAndApply(tmpFile, false, func(tr *tar.Reader) error {
+	err := Extract(tmpFile, false, func(tr *tar.Reader) error {
 		var err error
 		readContent, err = io.ReadAll(tr)
 		return err
@@ -544,9 +544,9 @@ func TestExtractAndApply_CallbackReadsContent(t *testing.T) {
 	}
 }
 
-func TestExtractAndApply_NonExistentFileCallbackNotCalled(t *testing.T) {
+func TestExtract_NonExistentFileCallbackNotCalled(t *testing.T) {
 	callbackCalled := false
-	err := ExtractAndApply("/nonexistent/path/file.tar", false, func(tr *tar.Reader) error {
+	err := Extract("/nonexistent/path/file.tar", false, func(tr *tar.Reader) error {
 		callbackCalled = true
 		return nil
 	})
