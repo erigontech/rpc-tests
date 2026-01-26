@@ -34,8 +34,7 @@ DEFAULT_MAX_BODY_RSP = "1500"
 SILKWORM = "silkworm"
 ERIGON = "rpcdaemon"
 BINARY = "bin"
-SILKWORM_SERVER_NAME = "rpcdaemon"
-ERIGON_SERVER_NAME = "rpcdaemon"
+ERIGON_RPC_SERVER_NAME = "rpcdaemon"
 RAND_NUM = randint(0, 100000)
 RUN_TEST_DIRNAME = "/tmp/run_tests_" + str(RAND_NUM)
 VEGETA_PATTERN_DIRNAME = RUN_TEST_DIRNAME + "/erigon_stress_test"
@@ -344,10 +343,10 @@ class PerfTest:
         while 1:
             time.sleep(3)
             if self.config.check_server_alive:
-                if name == SILKWORM:
-                    cmd = "ps aux | grep '" + SILKWORM_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
+                if self.config.testing_daemon != "":
+                    cmd = "ps aux | grep '" + self.config.testing_daemon + "' | grep -v 'grep' | awk '{print $2}'"
                 else:
-                    cmd = "ps aux | grep '" + ERIGON_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
+                    cmd = "ps aux | grep '" + ERIGON_RPC_SERVER_NAME + "' | grep -v 'grep' | awk '{print $2}'"
                 pid = os.popen(cmd).read()
                 if pid == "":
                     # the server is dead; kill vegeta and returns fails
