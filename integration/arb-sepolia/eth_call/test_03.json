@@ -18,7 +18,7 @@
       "id": 1,
       "error": {
         "code": -32000,
-        "message": "intrinsic gas too low: have 20999, want 21000"
+        "message": "gasRemaining underflow in TransitionDb (intrinsic gas): gasRemaining=20999, gas=21000"
       }
     },
     "meta": {
