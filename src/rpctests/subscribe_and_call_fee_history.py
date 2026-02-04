@@ -24,9 +24,7 @@ async def main():
                 print(f"✅ eth_feeHistory succeeded for block {block_number}")
             except Exception as e:
                 error_msg = str(e)
-                print(
-                    f"❌ eth_feeHistory FAILED for block {block_number} {error_msg}"
-                )
+                print(f"❌ eth_feeHistory FAILED for block {block_number} {error_msg}")
 
 
 if __name__ == "__main__":

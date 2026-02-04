@@ -322,7 +322,7 @@ class AsyncTransactionSender:
 
             # Add timeout parameter if provided and supported
             if timeout is not None:
-                params.append(hex(timeout*1000))
+                params.append(timeout*1000)
 
             logger.info(f"📤 Sending transaction via eth_sendRawTransactionSync...")
             if timeout:
