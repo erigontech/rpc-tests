@@ -11,6 +11,9 @@ latest_block_logs = "rpctests.latest_block_logs:main"
 replay_request = "rpctests.replay_request:main"
 replay_tx = "rpctests.replay_tx:main"
 scan_block_receipts = "rpctests.scan_block_receipts:main"
+send_raw_transaction_sync = "rpctests.send_raw_transaction_sync:main"
+subscribe_and_call_fee_history = "rpctests.subscribe_and_call_fee_history:main"
+subscribe_and_check_receipts = "rpctests.subscribe_and_check_receipts:main"
 subscriptions = "rpctests.subscriptions:main"
 
 [tool.pytest.ini_options]
