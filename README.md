@@ -66,6 +66,11 @@ Check out the dedicated guide in [Performance Tests](./perf/README.md).
 
 ## Standalone Testing Tools
 
+To run standalone tools:
+```
+cd src
+```
+
 ### Get Latest/Safe/Finalized Blocks
 ```commandline
 python3 -m rpctests.block_by_number
@@ -101,7 +106,22 @@ python3 -m rpctests.replay_request
 python3 -m rpctests.replay_tx
 ```
 
-### Subscribe-And-Listen For Notifications
+### Send Raw Transaction Sync
+```commandline
+python3 -m rpctests.send_raw_transaction_sync
+```
+
+### Subscribe For NewHeads And Call Fee History
+```commandline
+python3 -m rpctests.subscribe_and_call_fee_history
+```
+
+### Subscribe For NewHeads And Verify Receipts
+```commandline
+python3 -m rpctests.subscribe_and_check_receipts
+```
+
+### Subscribe And Listen For Notifications
 ```commandline
 python3 -m rpctests.subscriptions
 ```

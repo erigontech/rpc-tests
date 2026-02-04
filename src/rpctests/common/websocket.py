@@ -15,7 +15,9 @@ class Client(jsonrpc.Client):
         """
         # Create WebSocket provider
         parsed_url = Client.parse_url(node_url, ['ws', 'wss'])
-        websocket_kwargs = {"ssl": Client.ssl_context(server_ca_file)} if parsed_url.scheme == 'wss' else None
+        websocket_kwargs = {"max_size": 10 * 1024 * 1024}  # 10MB
+        if parsed_url.scheme == 'wss':
+            websocket_kwargs["ssl"] = Client.ssl_context(server_ca_file)
         provider = web3.WebSocketProvider(node_url, websocket_kwargs, max_connection_retries=1)
 
         jsonrpc.Client.__init__(self, node_url, provider)
