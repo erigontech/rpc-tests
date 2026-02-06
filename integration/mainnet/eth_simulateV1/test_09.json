@@ -39,7 +39,7 @@
           "calls": [
             {
               "error": {
-                "code": -32000,
+                "code": 3,
                 "data": "0x",
                 "message": "execution reverted"
               },
