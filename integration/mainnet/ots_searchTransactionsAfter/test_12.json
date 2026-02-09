@@ -4,11 +4,7 @@
       "id": 1,
       "jsonrpc": "2.0",
       "method": "ots_searchTransactionsAfter",
-      "params": [
-        "0x630ea66c8c5dc205d45a978573fa86df5af1fe7a",
-        49019,
-        12
-      ]
+      "params": ["0x630ea66c8c5dc205d45a978573fa86df5af1fe7a", 49019, 12]
     },
     "response": {
       "id": 1,
@@ -40,6 +36,7 @@
             "accessList": [],
             "blockHash": "0x3c73a4a94d69130eedda42b1f199e5e5dbe50c190763d0e6ce861e4fd8a7a06d",
             "blockNumber": "0xd66259",
+            "blockTimestamp": "0x61ead99c",
             "chainId": "0x1",
             "from": "0x975d1040e93316917bd67dd32a02e1929f8af8d3",
             "gas": "0x9c845",

@@ -4,11 +4,7 @@
       "id": 1,
       "jsonrpc": "2.0",
       "method": "ots_searchTransactionsBefore",
-      "params": [
-        "0x630ea66c8c5dc205d45a978573fa86df5af1fe7a",
-        49019,
-        1
-      ]
+      "params": ["0x630ea66c8c5dc205d45a978573fa86df5af1fe7a", 49019, 1]
     },
     "response": {
       "id": 1,
@@ -39,6 +35,7 @@
           {
             "blockHash": "0x71508d8b2fdfc3bde1992fe79ab9d51999b7f14342252d160cc5b5100cdc42a0",
             "blockNumber": "0xbf7a",
+            "blockTimestamp": "0x55c4e2b6",
             "from": "0x3d0768da09ce77d25e2d998e6a7b6ed4b9116c2d",
             "gas": "0x23685",
             "gasPrice": "0xdb5aaa975",
