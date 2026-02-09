@@ -11,8 +11,8 @@
       "id": 1
     },
     "response": {
-      "jsonrpc": "2.0",
       "id": 1,
+      "jsonrpc": "2.0",
       "result": {
         "baseFeePerGas": "0x17399520f",
         "difficulty": "0x0",

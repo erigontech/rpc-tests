@@ -4,11 +4,7 @@
       "id": 1,
       "jsonrpc": "2.0",
       "method": "ots_searchTransactionsAfter",
-      "params": [
-        "0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8",
-        3894031,
-        5
-      ]
+      "params": ["0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8", 3894031, 5]
     },
     "response": {
       "id": 1,
@@ -168,6 +164,7 @@
           {
             "blockHash": "0xaf7a5b994f6cd0f8d2710150bcad5b08d39b3ba499d72781a168c18c05650fc7",
             "blockNumber": "0x3b6b12",
+            "blockTimestamp": "0x5946c18f",
             "chainId": "0x1",
             "from": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
             "gas": "0xc350",
@@ -186,6 +183,7 @@
           {
             "blockHash": "0xaf7a5b994f6cd0f8d2710150bcad5b08d39b3ba499d72781a168c18c05650fc7",
             "blockNumber": "0x3b6b12",
+            "blockTimestamp": "0x5946c18f",
             "chainId": "0x1",
             "from": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
             "gas": "0xc350",
@@ -204,6 +202,7 @@
           {
             "blockHash": "0xaf7a5b994f6cd0f8d2710150bcad5b08d39b3ba499d72781a168c18c05650fc7",
             "blockNumber": "0x3b6b12",
+            "blockTimestamp": "0x5946c18f",
             "chainId": "0x1",
             "from": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
             "gas": "0xc350",
@@ -222,6 +221,7 @@
           {
             "blockHash": "0xaf7a5b994f6cd0f8d2710150bcad5b08d39b3ba499d72781a168c18c05650fc7",
             "blockNumber": "0x3b6b12",
+            "blockTimestamp": "0x5946c18f",
             "chainId": "0x1",
             "from": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
             "gas": "0xc350",
@@ -240,6 +240,7 @@
           {
             "blockHash": "0x84f0bdb9186ef62c4246a881763353dfb460a6e51b2943c7b8df038dc8e407c0",
             "blockNumber": "0x3b6b10",
+            "blockTimestamp": "0x5946c157",
             "chainId": "0x1",
             "from": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
             "gas": "0xc350",
@@ -258,6 +259,7 @@
           {
             "blockHash": "0x84f0bdb9186ef62c4246a881763353dfb460a6e51b2943c7b8df038dc8e407c0",
             "blockNumber": "0x3b6b10",
+            "blockTimestamp": "0x5946c157",
             "chainId": "0x1",
             "from": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
             "gas": "0xc350",
@@ -276,6 +278,7 @@
           {
             "blockHash": "0x84f0bdb9186ef62c4246a881763353dfb460a6e51b2943c7b8df038dc8e407c0",
             "blockNumber": "0x3b6b10",
+            "blockTimestamp": "0x5946c157",
             "chainId": "0x1",
             "from": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
             "gas": "0xc350",
