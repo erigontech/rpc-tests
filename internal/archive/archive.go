@@ -2,13 +2,14 @@ package archive
 
 import (
 	"archive/tar"
-	"compress/bzip2"
 	"compress/gzip"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/dsnet/compress/bzip2"
 )
 
 // Compression defines the supported compression types
@@ -59,7 +60,13 @@ func autodetectCompression(inFile *os.File) (Compression, error) {
 			if err != nil {
 				return compressionType, err
 			}
-			_, err = tar.NewReader(bzip2.NewReader(inFile)).Next()
+			bzReader, bzErr := bzip2.NewReader(inFile, nil)
+			if bzErr == nil {
+				_, err = tar.NewReader(bzReader).Next()
+				bzReader.Close()
+			} else {
+				err = bzErr
+			}
 			if err == nil {
 				compressionType = Bzip2Compression
 			}
@@ -118,7 +125,12 @@ func Extract(archivePath string, sanitizeExtension bool, f func(*tar.Reader) err
 		}(gzReader)
 		reader = gzReader
 	case Bzip2Compression:
-		reader = bzip2.NewReader(inputFile)
+		bzReader, bzErr := bzip2.NewReader(inputFile, nil)
+		if bzErr != nil {
+			return fmt.Errorf("failed to create bzip2 reader: %w", bzErr)
+		}
+		defer bzReader.Close()
+		reader = bzReader
 	case NoCompression:
 		reader = inputFile
 	}
