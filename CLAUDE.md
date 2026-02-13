@@ -13,8 +13,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 go build -o ./build/bin/rpc_int ./cmd/integration/main.go
 
 # Run Go unit tests
-go test ./cmd/integration/archive/
-go test ./cmd/integration/jsondiff/
+go test ./internal/archive/
+go test ./internal/jsondiff/
 
 # Run Python unit tests
 pytest
@@ -43,12 +43,16 @@ pytest
 5. Compares actual response against expected response using JSON diff
 6. Reports results with colored output, saves diffs to `{network}/results/`
 
-**Supporting packages:**
-- `cmd/integration/archive/` — Extract test fixtures from tar/gzip/bzip2 archives
-- `cmd/integration/jsondiff/` — Pure Go JSON diff with colored output
-- `cmd/integration/rpc/` — HTTP JSON-RPC client with JWT auth and compression support
-
-**Active v2 refactor** (branch `canepat/v2`): `integration/cli/` is a restructured version of the test runner using `urfave/cli/v2`, splitting the monolithic main.go into focused modules: `flags.go` (config), `test_runner.go` (orchestration), `test_execution.go` (per-test logic), `test_comparator.go` (response comparison), `test_filter.go` (filtering), `rpc.go` (client), `utils.go`.
+**Internal packages** under `internal/`:
+- `internal/archive/` — Extract test fixtures from tar/gzip/bzip2 archives
+- `internal/jsondiff/` — Pure Go JSON diff with colored output
+- `internal/rpc/` — HTTP/WebSocket JSON-RPC client with JWT auth and compression support
+- `internal/compare/` — Response comparison (exact match, JSON diff, external diff)
+- `internal/config/` — Configuration, CLI flag parsing, JWT secret management
+- `internal/filter/` — Test filtering (API name, pattern, exclusion, latest block)
+- `internal/runner/` — Parallel test orchestration (worker pool, scheduling, stats)
+- `internal/testdata/` — Test discovery, fixture loading, types
+- `internal/perf/` — Performance test support (Vegeta integration, reporting)
 
 **Test fixture format** — each test is a JSON file (or tarball containing JSON):
 ```json

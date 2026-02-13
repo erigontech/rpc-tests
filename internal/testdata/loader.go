@@ -11,7 +11,7 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 
-	"github.com/erigontech/rpc-tests/cmd/integration/archive"
+	"github.com/erigontech/rpc-tests/internal/archive"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
