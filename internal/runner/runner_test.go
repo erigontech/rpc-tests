@@ -1,6 +1,11 @@
 package runner
 
 import (
+	"bufio"
+	"bytes"
+	"context"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -145,5 +150,65 @@ func TestCheckTestNameForNumber(t *testing.T) {
 		if got != tt.want {
 			t.Errorf("checkTestNameForNumber(%q, %d): got %v, want %v", tt.name, tt.num, got, tt.want)
 		}
+	}
+}
+
+func TestPrintResult_OrderedOutput(t *testing.T) {
+	const numTests = 50
+
+	// Send results in reverse order to simulate out-of-order parallel completion
+	resultsChan := make(chan testdata.TestResult, numTests)
+	for i := numTests - 1; i >= 0; i-- {
+		resultsChan <- testdata.TestResult{
+			Outcome: testdata.TestOutcome{Success: true},
+			Test: &testdata.TestDescriptor{
+				Name:          "eth_call/test_01.json",
+				Number:        i + 1,
+				TransportType: "http",
+				Index:         i,
+			},
+		}
+	}
+	close(resultsChan)
+
+	// Run the collector logic
+	cfg := config.NewConfig()
+	cfg.VerboseLevel = 1
+	_, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	var buf bytes.Buffer
+	w := bufio.NewWriter(&buf)
+	stats := &Stats{}
+	pending := make(map[int]testdata.TestResult)
+	nextIndex := 0
+
+	for result := range resultsChan {
+		pending[result.Test.Index] = result
+		for {
+			r, exists := pending[nextIndex]
+			if !exists {
+				break
+			}
+			delete(pending, nextIndex)
+			nextIndex++
+			printResult(w, &r, stats, cfg, cancel)
+		}
+	}
+	w.Flush()
+
+	// Verify output is in order
+	lines := strings.Split(strings.TrimSpace(buf.String()), "\n")
+	if len(lines) != numTests {
+		t.Fatalf("expected %d lines, got %d", numTests, len(lines))
+	}
+	for i, line := range lines {
+		expectedPrefix := fmt.Sprintf("%04d.", i+1)
+		if !strings.HasPrefix(line, expectedPrefix) {
+			t.Errorf("line %d: expected prefix %q, got %q", i, expectedPrefix, line[:min(len(line), 10)])
+		}
+	}
+	if stats.SuccessTests != numTests {
+		t.Errorf("SuccessTests: got %d, want %d", stats.SuccessTests, numTests)
 	}
 }
