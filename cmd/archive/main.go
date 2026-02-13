@@ -103,7 +103,7 @@ func addFileToTar(tarWriter *tar.Writer, filePath, baseDir string) error {
 	}
 
 	// If baseDir is not empty, use the relative path, otherwise use the basename
-	nameInArchive := filePath
+	var nameInArchive string
 	if baseDir != "" && strings.HasPrefix(filePath, baseDir) {
 		nameInArchive = filePath[len(baseDir)+1:]
 	} else {
@@ -168,16 +168,21 @@ func autodetectCompression(archivePath string, inFile *os.File) (string, error) 
 	if err != nil {
 		inFile.Close()
 		inFile, err = os.Open(archivePath)
+		if err != nil {
+			return compressionType, err
+		}
 		_, err = gzip.NewReader(inFile)
 		if err == nil { // gzip is OK, rename
 			compressionType = GzipCompression
-			err := inFile.Close()
-			if err != nil {
+			if err := inFile.Close(); err != nil {
 				return compressionType, err
 			}
 		} else {
 			inFile.Close()
 			inFile, err = os.Open(archivePath)
+			if err != nil {
+				return compressionType, err
+			}
 			_, err = tar.NewReader(bzip2.NewReader(inFile)).Next()
 			inFile.Close()
 			if err == nil { // bzip2 is OK, rename

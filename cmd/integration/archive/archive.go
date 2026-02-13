@@ -125,7 +125,7 @@ func Extract(archivePath string, sanitizeExtension bool, f func(*tar.Reader) err
 
 	tarReader := tar.NewReader(reader)
 	header, err := tarReader.Next()
-	if err == io.EOF {
+	if errors.Is(err, io.EOF) {
 		return fmt.Errorf("archive is empty")
 	}
 	if err != nil {

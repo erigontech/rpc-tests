@@ -66,17 +66,6 @@ linters:
       # Test files: relax errcheck
       - linters: [errcheck]
         path: _test\.go
-      # Legacy cmd/ code - not part of v2 refactor
-      - path: cmd/archive/
-        linters: [errcheck, ineffassign, wastedassign, staticcheck, govet]
-      - path: cmd/integration/main\.go
-        linters: [errcheck, errorlint]
-      - path: cmd/integration/jsondiff/
-        linters: [ineffassign, modernize, intrange]
-      - path: cmd/integration/archive/
-        linters: [errorlint, intrange, modernize]
-      - path: cmd/integration/jsondiff/
-        linters: [wastedassign]
       # bodyclose false positives on websocket dial and raw HTTP handler
       - path: internal/rpc/websocket\.go
         linters: [bodyclose]
