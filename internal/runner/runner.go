@@ -112,7 +112,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 		}()
 	}
 
-	// Results collector with buffered stdout
+	// Results collector with buffered stdout — prints in scheduling order
 	var resultsWg sync.WaitGroup
 	resultsWg.Add(1)
 	stats := &Stats{}
@@ -120,40 +120,28 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 		defer resultsWg.Done()
 		w := bufio.NewWriterSize(os.Stdout, 64*1024)
 		defer w.Flush()
+		pending := make(map[int]testdata.TestResult)
+		nextIndex := 0
 		for {
 			select {
 			case result, ok := <-resultsChan:
 				if !ok {
 					return
 				}
-				file := fmt.Sprintf("%-60s", result.Test.Name)
-				tt := fmt.Sprintf("%-15s", result.Test.TransportType)
-				fmt.Fprintf(w, "%04d. %s::%s   ", result.Test.Number, tt, file)
-
-				if result.Outcome.Success {
-					stats.AddSuccess(result.Outcome.Metrics)
-					if cfg.VerboseLevel > 0 {
-						fmt.Fprintln(w, "OK")
-					} else {
-						fmt.Fprint(w, "OK\r")
+				pending[result.Test.Index] = result
+				// Flush all consecutive results starting from nextIndex
+				for {
+					r, exists := pending[nextIndex]
+					if !exists {
+						break
 					}
-				} else {
-					stats.AddFailure()
-					if result.Outcome.Error != nil {
-						fmt.Fprintf(w, "failed: %s\n", result.Outcome.Error.Error())
-						if errors.Is(result.Outcome.Error, compare.ErrDiffMismatch) && result.Outcome.ColoredDiff != "" {
-							fmt.Fprint(w, result.Outcome.ColoredDiff)
-						}
-					} else {
-						fmt.Fprintf(w, "failed: no error\n")
-					}
-					if cfg.ExitOnFail {
-						w.Flush()
-						cancelCtx()
+					delete(pending, nextIndex)
+					nextIndex++
+					printResult(w, &r, stats, cfg, cancelCtx)
+					if cfg.ExitOnFail && stats.FailedTests > 0 {
 						return
 					}
 				}
-				w.Flush()
 			case <-ctx.Done():
 				return
 			}
@@ -282,4 +270,34 @@ done:
 		return 1, nil
 	}
 	return 0, nil
+}
+
+func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg *config.Config, cancelCtx context.CancelFunc) {
+	file := fmt.Sprintf("%-60s", result.Test.Name)
+	tt := fmt.Sprintf("%-15s", result.Test.TransportType)
+	fmt.Fprintf(w, "%04d. %s::%s   ", result.Test.Number, tt, file)
+
+	if result.Outcome.Success {
+		stats.AddSuccess(result.Outcome.Metrics)
+		if cfg.VerboseLevel > 0 {
+			fmt.Fprintln(w, "OK")
+		} else {
+			fmt.Fprint(w, "OK\r")
+		}
+	} else {
+		stats.AddFailure()
+		if result.Outcome.Error != nil {
+			fmt.Fprintf(w, "failed: %s\n", result.Outcome.Error.Error())
+			if errors.Is(result.Outcome.Error, compare.ErrDiffMismatch) && result.Outcome.ColoredDiff != "" {
+				fmt.Fprint(w, result.Outcome.ColoredDiff)
+			}
+		} else {
+			fmt.Fprintf(w, "failed: no error\n")
+		}
+		if cfg.ExitOnFail {
+			w.Flush()
+			cancelCtx()
+		}
+	}
+	w.Flush()
 }
