@@ -221,10 +221,9 @@ func TestGetCompressionType(t *testing.T) {
 func TestHardware_NonLinux(t *testing.T) {
 	h := &Hardware{}
 	// On macOS (darwin), all Linux-specific methods return "unknown"
-	if h.Vendor() != "unknown" && h.Vendor() != "" {
-		// On Linux, this would return actual vendor. On macOS, "unknown".
-		// Just make sure it doesn't panic.
-	}
+	// On Linux, Vendor() returns actual vendor. On macOS, "unknown".
+	// Just verify it doesn't panic.
+	_ = h.Vendor()
 	_ = h.NormalizedVendor()
 	_ = h.Product()
 	_ = h.Board()

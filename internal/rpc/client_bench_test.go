@@ -20,20 +20,20 @@ func BenchmarkCallHTTP(b *testing.B) {
 	ctx := context.Background()
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		var result interface{}
+	for b.Loop() {
+		var result any
 		client.Call(ctx, server.URL, request, &result)
 	}
 }
 
 func BenchmarkValidateJsonRpcResponse(b *testing.B) {
-	response := map[string]interface{}{
+	response := map[string]any{
 		"jsonrpc": "2.0",
 		"id":      float64(1),
 		"result":  "0x1",
 	}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		ValidateJsonRpcResponse(response)
 	}
 }

@@ -208,7 +208,7 @@ func (pt *PerfTest) ExecuteSequence(ctx context.Context, sequence TestSequence, 
 	}
 
 	for _, test := range sequence {
-		for rep := 0; rep < pt.Config.Repetitions; rep++ {
+		for rep := range pt.Config.Repetitions {
 			if test.QPS > 0 {
 				if err := pt.Execute(ctx, testNumber, rep, tag, test.QPS, test.Duration, resultFormat); err != nil {
 					return err

@@ -37,7 +37,7 @@ func TestCallHTTP_Success(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		json.NewEncoder(w).Encode(map[string]any{
 			"jsonrpc": "2.0",
 			"id":      1,
 			"result":  "0x1",
@@ -62,7 +62,7 @@ func TestCallHTTP_Success(t *testing.T) {
 		t.Error("UnmarshallingTime should be > 0")
 	}
 
-	respMap, ok := response.(map[string]interface{})
+	respMap, ok := response.(map[string]any)
 	if !ok {
 		t.Fatal("response is not a map")
 	}
@@ -76,7 +76,7 @@ func TestCallHTTP_JWTHeader(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotAuth = r.Header.Get("Authorization")
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		json.NewEncoder(w).Encode(map[string]any{
 			"jsonrpc": "2.0",
 			"id":      1,
 			"result":  nil,
@@ -103,7 +103,7 @@ func TestCallHTTP_Compression(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotAcceptEncoding = r.Header.Get("Accept-Encoding")
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		json.NewEncoder(w).Encode(map[string]any{
 			"jsonrpc": "2.0",
 			"id":      1,
 			"result":  nil,

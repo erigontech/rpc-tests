@@ -1,6 +1,7 @@
 package filter
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -181,12 +182,7 @@ func CheckTestNameForNumber(testName string, reqTestNumber int) bool {
 // ShouldCompareMessage checks if the message field should be compared for a given test.
 func (f *TestFilter) ShouldCompareMessage(testPath string) bool {
 	fullPath := f.cfg.Net + "/" + testPath
-	for _, pattern := range testsNotComparedMessage {
-		if pattern == fullPath {
-			return false
-		}
-	}
-	return true
+	return !slices.Contains(testsNotComparedMessage, fullPath)
 }
 
 // ShouldCompareError checks if the error field should be compared for a given test.
@@ -195,10 +191,5 @@ func (f *TestFilter) ShouldCompareError(testPath string) bool {
 		return false
 	}
 	fullPath := f.cfg.Net + "/" + testPath
-	for _, pattern := range testsNotComparedError {
-		if pattern == fullPath {
-			return false
-		}
-	}
-	return true
+	return !slices.Contains(testsNotComparedError, fullPath)
 }

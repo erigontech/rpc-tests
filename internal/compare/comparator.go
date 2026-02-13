@@ -75,8 +75,8 @@ func ProcessResponse(
 	}
 
 	// Check "don't care" conditions
-	responseMap, respIsMap := response.(map[string]interface{})
-	expectedMap, expIsMap := expectedResponse.(map[string]interface{})
+	responseMap, respIsMap := response.(map[string]any)
+	expectedMap, expIsMap := expectedResponse.(map[string]any)
 	if respIsMap && expIsMap {
 		_, responseHasResult := responseMap["result"]
 		expectedResult, expectedHasResult := expectedMap["result"]
@@ -190,13 +190,13 @@ func ProcessResponse(
 
 // compareResponses does a fast structural equality check.
 func compareResponses(lhs, rhs any) bool {
-	leftMap, leftIsMap := lhs.(map[string]interface{})
-	rightMap, rightIsMap := rhs.(map[string]interface{})
+	leftMap, leftIsMap := lhs.(map[string]any)
+	rightMap, rightIsMap := rhs.(map[string]any)
 	if leftIsMap && rightIsMap {
 		return mapsEqual(leftMap, rightMap)
 	}
-	leftArray, leftIsArray := lhs.([]map[string]interface{})
-	rightArray, rightIsArray := rhs.([]map[string]interface{})
+	leftArray, leftIsArray := lhs.([]map[string]any)
+	rightArray, rightIsArray := rhs.([]map[string]any)
 	if leftIsArray && rightIsArray {
 		return arrayEqual(leftArray, rightArray)
 	}
@@ -204,7 +204,7 @@ func compareResponses(lhs, rhs any) bool {
 }
 
 // jsonValuesEqual compares two JSON-decoded values without reflection for common types.
-// JSON only produces: string, float64, bool, nil, map[string]interface{}, []interface{}.
+// JSON only produces: string, float64, bool, nil, map[string]any, []any.
 func jsonValuesEqual(lhs, rhs any) bool {
 	if lhs == nil && rhs == nil {
 		return true
@@ -222,11 +222,11 @@ func jsonValuesEqual(lhs, rhs any) bool {
 	case bool:
 		r, ok := rhs.(bool)
 		return ok && l == r
-	case map[string]interface{}:
-		r, ok := rhs.(map[string]interface{})
+	case map[string]any:
+		r, ok := rhs.(map[string]any)
 		return ok && mapsEqual(l, r)
-	case []interface{}:
-		r, ok := rhs.([]interface{})
+	case []any:
+		r, ok := rhs.([]any)
 		if !ok || len(l) != len(r) {
 			return false
 		}
@@ -241,7 +241,7 @@ func jsonValuesEqual(lhs, rhs any) bool {
 	}
 }
 
-func mapsEqual(lhs, rhs map[string]interface{}) bool {
+func mapsEqual(lhs, rhs map[string]any) bool {
 	if len(lhs) != len(rhs) {
 		return false
 	}
@@ -254,7 +254,7 @@ func mapsEqual(lhs, rhs map[string]interface{}) bool {
 	return true
 }
 
-func arrayEqual(lhs, rhs []map[string]interface{}) bool {
+func arrayEqual(lhs, rhs []map[string]any) bool {
 	if len(lhs) != len(rhs) {
 		return false
 	}
@@ -281,7 +281,7 @@ func marshalToFile(value any, filename string, metrics *testdata.TestMetrics) er
 	metrics.MarshallingTime += time.Since(start)
 
 	if err := os.WriteFile(filename, buf.Bytes(), 0644); err != nil {
-		return fmt.Errorf("exception on file write: %v", err)
+		return fmt.Errorf("exception on file write: %w", err)
 	}
 	return nil
 }
@@ -293,7 +293,7 @@ func dumpJSONs(dump bool, daemonFile, expRspFile, outputDir string, response, ex
 	}
 
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
-		return fmt.Errorf("exception on makedirs: %s %v", outputDir, err)
+		return fmt.Errorf("exception on makedirs: %s %w", outputDir, err)
 	}
 
 	if daemonFile != "" {
@@ -403,8 +403,9 @@ func runExternalCompare(useJsonDiff bool, errorFile, file1, file2, diffFile stri
 	cmd := exec.CommandContext(ctx, "sh", "-c", cmdStr)
 	if err := cmd.Run(); err != nil {
 		// diff returns 1 when files differ, which is not an error for us
-		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 && !useJsonDiff {
-			// diff found differences
+		var exitErr *exec.ExitError
+		if !(errors.As(err, &exitErr) && exitErr.ExitCode() == 1 && !useJsonDiff) {
+			return false, fmt.Errorf("external compare command failed: %w", err)
 		}
 	}
 

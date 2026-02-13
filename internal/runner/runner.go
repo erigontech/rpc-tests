@@ -93,7 +93,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 	}
 
 	// Start workers
-	for i := 0; i < numWorkers; i++ {
+	for range numWorkers {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -161,15 +161,15 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 	}()
 
 	// Main scheduling loop
-	testRep := 0
 	globalTestNumber := 0
 	availableTestedAPIs := discovery.TotalAPIs
 	scheduledIndex := 0
+	testRep := 0
 
-	for testRep = 0; testRep < cfg.LoopNumber; testRep++ {
+	for testRep = range cfg.LoopNumber {
 		select {
 		case <-ctx.Done():
-			break
+			goto done
 		default:
 		}
 
@@ -181,7 +181,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 		for _, transportType := range transportTypes {
 			select {
 			case <-ctx.Done():
-				break
+				goto done
 			default:
 			}
 

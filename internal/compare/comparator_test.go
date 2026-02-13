@@ -10,32 +10,32 @@ import (
 )
 
 func TestCompareResponses_EqualMaps(t *testing.T) {
-	a := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
-	b := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
+	a := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
+	b := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
 	if !compareResponses(a, b) {
 		t.Error("identical maps should be equal")
 	}
 }
 
 func TestCompareResponses_DifferentMaps(t *testing.T) {
-	a := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
-	b := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
+	a := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
+	b := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
 	if compareResponses(a, b) {
 		t.Error("different maps should not be equal")
 	}
 }
 
 func TestCompareResponses_DifferentLengths(t *testing.T) {
-	a := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1)}
-	b := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
+	a := map[string]any{"jsonrpc": "2.0", "id": float64(1)}
+	b := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
 	if compareResponses(a, b) {
 		t.Error("maps with different lengths should not be equal")
 	}
 }
 
 func TestCompareResponses_EqualArrays(t *testing.T) {
-	a := []map[string]interface{}{{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}}
-	b := []map[string]interface{}{{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}}
+	a := []map[string]any{{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}}
+	b := []map[string]any{{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}}
 	if !compareResponses(a, b) {
 		t.Error("identical arrays should be equal")
 	}
@@ -48,8 +48,8 @@ func TestProcessResponse_WithoutCompare(t *testing.T) {
 
 	outcome := &testdata.TestOutcome{}
 	cmd := &testdata.JsonRpcCommand{}
-	response := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
-	expected := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
 
 	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
 
@@ -64,8 +64,8 @@ func TestProcessResponse_ExactMatch(t *testing.T) {
 
 	outcome := &testdata.TestOutcome{}
 	cmd := &testdata.JsonRpcCommand{}
-	response := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
-	expected := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
 
 	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
 
@@ -83,8 +83,8 @@ func TestProcessResponse_NullExpectedResult(t *testing.T) {
 
 	outcome := &testdata.TestOutcome{}
 	cmd := &testdata.JsonRpcCommand{}
-	response := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0xabc"}
-	expected := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": nil}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0xabc"}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": nil}
 
 	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
 
@@ -99,8 +99,8 @@ func TestProcessResponse_NullExpectedError(t *testing.T) {
 
 	outcome := &testdata.TestOutcome{}
 	cmd := &testdata.JsonRpcCommand{}
-	response := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "error": map[string]interface{}{"code": float64(-32000), "message": "some error"}}
-	expected := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "error": nil}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32000), "message": "some error"}}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": nil}
 
 	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
 
@@ -115,8 +115,8 @@ func TestProcessResponse_EmptyExpected(t *testing.T) {
 
 	outcome := &testdata.TestOutcome{}
 	cmd := &testdata.JsonRpcCommand{}
-	response := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
-	expected := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1)}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1)}
 
 	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
 
@@ -132,8 +132,8 @@ func TestProcessResponse_DoNotCompareError(t *testing.T) {
 
 	outcome := &testdata.TestOutcome{}
 	cmd := &testdata.JsonRpcCommand{}
-	response := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "error": map[string]interface{}{"code": float64(-32000), "message": "err1"}}
-	expected := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "error": map[string]interface{}{"code": float64(-32001), "message": "err2"}}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32000), "message": "err1"}}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32001), "message": "err2"}}
 
 	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
 
@@ -153,8 +153,8 @@ func TestProcessResponse_DiffMismatch_JsonDiffGo(t *testing.T) {
 
 	outcome := &testdata.TestOutcome{}
 	cmd := &testdata.JsonRpcCommand{}
-	response := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
-	expected := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
 
 	ProcessResponse(response, nil, expected, cfg, cmd, dir, daemonFile, expRspFile, diffFile, outcome)
 
@@ -178,8 +178,8 @@ func TestProcessResponse_DiffMismatch_SingleTest_HasColoredDiff(t *testing.T) {
 
 	outcome := &testdata.TestOutcome{}
 	cmd := &testdata.JsonRpcCommand{}
-	response := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
-	expected := map[string]interface{}{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
 
 	ProcessResponse(response, nil, expected, cfg, cmd, dir, daemonFile, expRspFile, diffFile, outcome)
 
@@ -194,8 +194,8 @@ func TestDumpJSONs_WritesFiles(t *testing.T) {
 	expRspFile := filepath.Join(dir, "expected.json")
 	metrics := &testdata.TestMetrics{}
 
-	response := map[string]interface{}{"result": "0x1"}
-	expected := map[string]interface{}{"result": "0x2"}
+	response := map[string]any{"result": "0x1"}
+	expected := map[string]any{"result": "0x2"}
 
 	err := dumpJSONs(true, daemonFile, expRspFile, dir, response, expected, metrics)
 	if err != nil {

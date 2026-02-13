@@ -52,7 +52,7 @@ type JsonRpcResponseMetadata struct {
 
 // JsonRpcTestMetadata holds metadata about the test request/response.
 type JsonRpcTestMetadata struct {
-	Request  interface{}              `json:"request"`
+	Request  any              `json:"request"`
 	Response *JsonRpcResponseMetadata `json:"response"`
 }
 
