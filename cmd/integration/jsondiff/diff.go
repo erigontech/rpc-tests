@@ -22,8 +22,8 @@ const (
 type Diff struct {
 	Type     DiffType
 	Path     string
-	OldValue interface{}
-	NewValue interface{}
+	OldValue any
+	NewValue any
 }
 
 // Options configures the diff behaviour
@@ -41,19 +41,19 @@ type Options struct {
 }
 
 // DiffJSON computes the difference between two JSON objects
-func DiffJSON(obj1, obj2 interface{}, opts *Options) map[string]interface{} {
+func DiffJSON(obj1, obj2 any, opts *Options) map[string]any {
 	if opts == nil {
 		opts = &Options{}
 	}
 
-	result := make(map[string]interface{})
+	result := make(map[string]any)
 	diff(obj1, obj2, "", result, opts)
 
 	return result
 }
 
 // DiffString returns a human-readable string representation of differences
-func DiffString(obj1, obj2 interface{}, opts *Options) string {
+func DiffString(obj1, obj2 any, opts *Options) string {
 	if opts == nil {
 		opts = &Options{}
 	}
@@ -80,7 +80,7 @@ func DiffString(obj1, obj2 interface{}, opts *Options) string {
 }
 
 // ColoredString returns a colored diff string (for terminal output)
-func ColoredString(obj1, obj2 interface{}, opts *Options) string {
+func ColoredString(obj1, obj2 any, opts *Options) string {
 	if opts == nil {
 		opts = &Options{}
 	}
@@ -113,22 +113,22 @@ func ColoredString(obj1, obj2 interface{}, opts *Options) string {
 	return sb.String()
 }
 
-func diff(obj1, obj2 interface{}, path string, result map[string]interface{}, opts *Options) {
+func diff(obj1, obj2 any, path string, result map[string]any, opts *Options) {
 	// Handle nil cases
 	if obj1 == nil && obj2 == nil {
 		if opts.KeepUnchangedValues {
-			result[path] = map[string]interface{}{"__old": obj1, "__new": obj2}
+			result[path] = map[string]any{"__old": obj1, "__new": obj2}
 		}
 		return
 	}
 
 	if obj1 == nil {
-		result[path] = map[string]interface{}{"__old": obj1, "__new": obj2}
+		result[path] = map[string]any{"__old": obj1, "__new": obj2}
 		return
 	}
 
 	if obj2 == nil {
-		result[path] = map[string]interface{}{"__old": obj1, "__new": obj2}
+		result[path] = map[string]any{"__old": obj1, "__new": obj2}
 		return
 	}
 
@@ -137,7 +137,7 @@ func diff(obj1, obj2 interface{}, path string, result map[string]interface{}, op
 
 	// If types are different, mark as changed
 	if v1.Kind() != v2.Kind() {
-		result[path] = map[string]interface{}{"__old": obj1, "__new": obj2}
+		result[path] = map[string]any{"__old": obj1, "__new": obj2}
 		return
 	}
 
@@ -148,19 +148,19 @@ func diff(obj1, obj2 interface{}, path string, result map[string]interface{}, op
 		diffArrays(obj1, obj2, path, result, opts)
 	default:
 		if !reflect.DeepEqual(obj1, obj2) {
-			result[path] = map[string]interface{}{"__old": obj1, "__new": obj2}
+			result[path] = map[string]any{"__old": obj1, "__new": obj2}
 		} else if opts.KeepUnchangedValues {
-			result[path] = map[string]interface{}{"__old": obj1, "__new": obj2}
+			result[path] = map[string]any{"__old": obj1, "__new": obj2}
 		}
 	}
 }
 
-func diffMaps(obj1, obj2 interface{}, path string, result map[string]interface{}, opts *Options) {
-	m1, ok1 := obj1.(map[string]interface{})
-	m2, ok2 := obj2.(map[string]interface{})
+func diffMaps(obj1, obj2 any, path string, result map[string]any, opts *Options) {
+	m1, ok1 := obj1.(map[string]any)
+	m2, ok2 := obj2.(map[string]any)
 
 	if !ok1 || !ok2 {
-		result[path] = map[string]interface{}{"__old": obj1, "__new": obj2}
+		result[path] = map[string]any{"__old": obj1, "__new": obj2}
 		return
 	}
 
@@ -192,58 +192,50 @@ func diffMaps(obj1, obj2 interface{}, path string, result map[string]interface{}
 		}
 
 		if !exists1 {
-			result[newPath] = map[string]interface{}{"__new": v2}
+			result[newPath] = map[string]any{"__new": v2}
 		} else if !exists2 {
-			result[newPath] = map[string]interface{}{"__old": v1}
+			result[newPath] = map[string]any{"__old": v1}
 		} else {
 			diff(v1, v2, newPath, result, opts)
 		}
 	}
 }
 
-func diffArrays(obj1, obj2 interface{}, path string, result map[string]interface{}, opts *Options) {
+func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Options) {
 	v1 := reflect.ValueOf(obj1)
 	v2 := reflect.ValueOf(obj2)
 
 	// Sort arrays if required
-	arr1 := obj1
-	arr2 := obj2
-
 	if opts.SortArrays {
-		arr1 = sortArrayIfPrimitive(obj1)
-		arr2 = sortArrayIfPrimitive(obj2)
-		v1 = reflect.ValueOf(arr1)
-		v2 = reflect.ValueOf(arr2)
+		v1 = reflect.ValueOf(sortArrayIfPrimitive(obj1))
+		v2 = reflect.ValueOf(sortArrayIfPrimitive(obj2))
 	}
 
 	len1 := v1.Len()
 	len2 := v2.Len()
 
-	maxLen := len1
-	if len2 > maxLen {
-		maxLen = len2
-	}
+	maxLen := max(len1, len2)
 
-	for i := 0; i < maxLen; i++ {
+	for i := range maxLen {
 		newPath := fmt.Sprintf("%s[%d]", path, i)
 
 		if i >= len1 {
-			result[newPath] = map[string]interface{}{"__new": v2.Index(i).Interface()}
+			result[newPath] = map[string]any{"__new": v2.Index(i).Interface()}
 		} else if i >= len2 {
-			result[newPath] = map[string]interface{}{"__old": v1.Index(i).Interface()}
+			result[newPath] = map[string]any{"__old": v1.Index(i).Interface()}
 		} else {
 			diff(v1.Index(i).Interface(), v2.Index(i).Interface(), newPath, result, opts)
 		}
 	}
 }
 
-func collectDiffs(obj1, obj2 interface{}, path string) []Diff {
+func collectDiffs(obj1, obj2 any, path string) []Diff {
 	var diffs []Diff
 	collectDiffsRec(obj1, obj2, path, &diffs)
 	return diffs
 }
 
-func collectDiffsRec(obj1, obj2 interface{}, path string, diffs *[]Diff) {
+func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff) {
 	if obj1 == nil && obj2 == nil {
 		*diffs = append(*diffs, Diff{Type: DiffEqual, Path: path, NewValue: obj2})
 		return
@@ -281,9 +273,9 @@ func collectDiffsRec(obj1, obj2 interface{}, path string, diffs *[]Diff) {
 	}
 }
 
-func collectMapDiffs(obj1, obj2 interface{}, path string, diffs *[]Diff) {
-	m1, ok1 := obj1.(map[string]interface{})
-	m2, ok2 := obj2.(map[string]interface{})
+func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
+	m1, ok1 := obj1.(map[string]any)
+	m2, ok2 := obj2.(map[string]any)
 
 	if !ok1 || !ok2 {
 		*diffs = append(*diffs, Diff{Type: DiffUpdate, Path: path, OldValue: obj1, NewValue: obj2})
@@ -323,19 +315,16 @@ func collectMapDiffs(obj1, obj2 interface{}, path string, diffs *[]Diff) {
 	}
 }
 
-func collectArrayDiffs(obj1, obj2 interface{}, path string, diffs *[]Diff) {
+func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
 	v1 := reflect.ValueOf(obj1)
 	v2 := reflect.ValueOf(obj2)
 
 	len1 := v1.Len()
 	len2 := v2.Len()
 
-	maxLen := len1
-	if len2 > maxLen {
-		maxLen = len2
-	}
+	maxLen := max(len1, len2)
 
-	for i := 0; i < maxLen; i++ {
+	for i := range maxLen {
 		newPath := fmt.Sprintf("%s[%d]", path, i)
 
 		if i >= len1 {
@@ -348,7 +337,7 @@ func collectArrayDiffs(obj1, obj2 interface{}, path string, diffs *[]Diff) {
 	}
 }
 
-func sortArrayIfPrimitive(arr interface{}) interface{} {
+func sortArrayIfPrimitive(arr any) any {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
 		return arr
@@ -365,8 +354,8 @@ func sortArrayIfPrimitive(arr interface{}) interface{} {
 	}
 
 	// Create a copy and sort it
-	slice := make([]interface{}, v.Len())
-	for i := 0; i < v.Len(); i++ {
+	slice := make([]any, v.Len())
+	for i := range v.Len() {
 		slice[i] = v.Index(i).Interface()
 	}
 
@@ -377,7 +366,7 @@ func sortArrayIfPrimitive(arr interface{}) interface{} {
 	return slice
 }
 
-func isPrimitive(v interface{}) bool {
+func isPrimitive(v any) bool {
 	if v == nil {
 		return true
 	}
@@ -392,7 +381,7 @@ func isPrimitive(v interface{}) bool {
 	}
 }
 
-func comparePrimitives(a, b interface{}) int {
+func comparePrimitives(a, b any) int {
 	if a == nil && b == nil {
 		return 0
 	}
@@ -453,7 +442,7 @@ func comparePrimitives(a, b interface{}) int {
 	}
 }
 
-func formatValue(v interface{}) string {
+func formatValue(v any) string {
 	if v == nil {
 		return "null"
 	}
@@ -461,7 +450,7 @@ func formatValue(v interface{}) string {
 	switch val := v.(type) {
 	case string:
 		return fmt.Sprintf(`"%s"`, val)
-	case map[string]interface{}, []interface{}:
+	case map[string]any, []any:
 		b, _ := json.Marshal(val)
 		return string(b)
 	default:

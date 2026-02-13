@@ -444,7 +444,7 @@ func BenchmarkGetCompressionType(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		for _, f := range filenames {
 			getCompressionKind(f)
 		}
@@ -483,7 +483,7 @@ func BenchmarkExtract(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		err := Extract(tmpFile, false, nullTarFunc)
 		if err != nil {
 			b.Fatalf("unexpected error: %v", err)
@@ -495,7 +495,7 @@ func TestExtract_LargeJSON(t *testing.T) {
 	// Create a large JSON payload
 	var buf bytes.Buffer
 	buf.WriteString("[")
-	for i := 0; i < 100_000; i++ {
+	for i := range 100_000 {
 		if i > 0 {
 			buf.WriteString(",")
 		}

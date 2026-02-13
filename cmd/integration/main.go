@@ -159,11 +159,11 @@ func parseFlags(cfg *config.Config) error {
 
 	if *createJWT != "" {
 		if err := config.GenerateJWTSecret(*createJWT, 64); err != nil {
-			return fmt.Errorf("failed to create JWT secret: %v", err)
+			return fmt.Errorf("failed to create JWT secret: %w", err)
 		}
 		secret, err := config.GetJWTSecret(*createJWT)
 		if err != nil {
-			return fmt.Errorf("failed to read JWT secret: %v", err)
+			return fmt.Errorf("failed to read JWT secret: %w", err)
 		}
 		cfg.JWTSecret = secret
 	} else if *jwtFile != "" {
