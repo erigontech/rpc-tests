@@ -1,0 +1,97 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    # Bugs & correctness
+    - errcheck
+    - govet
+    - staticcheck
+    - ineffassign
+    - unused
+    - bodyclose
+    - durationcheck
+    - errorlint
+    - nilerr
+
+    # Code simplification
+    - intrange
+    - copyloopvar
+    - modernize
+
+    # Performance
+    - prealloc
+
+    # Style consistency
+    - misspell
+    - unconvert
+    - wastedassign
+
+  settings:
+    errcheck:
+      exclude-functions:
+        - fmt.Fprintf
+        - fmt.Fprintln
+        - fmt.Fprint
+        - fmt.Printf
+        - fmt.Println
+        - fmt.Print
+        - (io.Closer).Close
+        - (*os.File).Close
+        - (*bufio.Writer).Flush
+        - (*bufio.Writer).Write
+        - (net/http.ResponseWriter).Write
+        - (*encoding/json.Encoder).Encode
+        - os.Remove
+        - os.RemoveAll
+        - os.MkdirAll
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+        - shadow  # Too noisy, many false positives with err shadowing
+    staticcheck:
+      checks:
+        - "all"
+        - "-QF*"    # Disable quickfix suggestions
+        - "-ST1003" # Naming conventions: renaming exports is a breaking change
+    errorlint:
+      asserts: false
+
+  exclusions:
+    presets:
+      - comments
+      - std-error-handling
+    rules:
+      # Test files: relax errcheck
+      - linters: [errcheck]
+        path: _test\.go
+      # Legacy cmd/ code - not part of v2 refactor
+      - path: cmd/archive/
+        linters: [errcheck, ineffassign, wastedassign, staticcheck, govet]
+      - path: cmd/integration/main\.go
+        linters: [errcheck, errorlint]
+      - path: cmd/integration/jsondiff/
+        linters: [ineffassign, modernize, intrange]
+      - path: cmd/integration/archive/
+        linters: [errorlint, intrange, modernize]
+      - path: cmd/integration/jsondiff/
+        linters: [wastedassign]
+      # bodyclose false positives on websocket dial and raw HTTP handler
+      - path: internal/rpc/websocket\.go
+        linters: [bodyclose]
+      - path: internal/rpc/http\.go
+        text: "response body must be closed"
+        linters: [bodyclose]
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+output:
+  sort-order:
+    - file
+
+run:
+  timeout: 5m

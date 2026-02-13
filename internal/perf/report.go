@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -75,9 +76,9 @@ type JSONTestResult struct {
 
 // RepetitionInfo holds information for a single test repetition.
 type RepetitionInfo struct {
-	VegetaBinary        string                 `json:"vegetaBinary"`
-	VegetaReport        map[string]interface{} `json:"vegetaReport"`
-	VegetaReportHdrPlot string                 `json:"vegetaReportHdrPlot"`
+	VegetaBinary        string         `json:"vegetaBinary"`
+	VegetaReport        map[string]any `json:"vegetaReport"`
+	VegetaReportHdrPlot string         `json:"vegetaReportHdrPlot"`
 }
 
 // TestReport manages CSV and JSON report generation.
@@ -332,7 +333,7 @@ func (tr *TestReport) writeTestReportToJSON(metrics *PerfMetrics) error {
 }
 
 // generateJSONReport generates a JSON report from a vegeta binary file.
-func generateJSONReport(binaryFile string) (map[string]interface{}, error) {
+func generateJSONReport(binaryFile string) (map[string]any, error) {
 	file, err := os.Open(binaryFile)
 	if err != nil {
 		return nil, err
@@ -344,7 +345,7 @@ func generateJSONReport(binaryFile string) (map[string]interface{}, error) {
 	for {
 		var result vegeta.Result
 		if err := dec.Decode(&result); err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
 			return nil, err
@@ -353,13 +354,13 @@ func generateJSONReport(binaryFile string) (map[string]interface{}, error) {
 	}
 	metrics.Close()
 
-	report := map[string]interface{}{
+	report := map[string]any{
 		"requests":   metrics.Requests,
 		"duration":   metrics.Duration.Seconds(),
 		"rate":       metrics.Rate,
 		"throughput": metrics.Throughput,
 		"success":    metrics.Success,
-		"latencies": map[string]interface{}{
+		"latencies": map[string]any{
 			"min":  metrics.Latencies.Min.Seconds(),
 			"mean": metrics.Latencies.Mean.Seconds(),
 			"p50":  metrics.Latencies.P50.Seconds(),
@@ -388,7 +389,7 @@ func generateHdrPlot(binaryFile string) (string, error) {
 	for {
 		var result vegeta.Result
 		if err := dec.Decode(&result); err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
 			return "", err

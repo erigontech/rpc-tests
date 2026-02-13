@@ -187,16 +187,16 @@ func validateJsonRpcResponseObject(obj map[string]any) error {
 // GetLatestBlockNumber queries eth_blockNumber and returns the result as uint64.
 func GetLatestBlockNumber(ctx context.Context, client *Client, url string) (uint64, Metrics, error) {
 	type rpcReq struct {
-		Jsonrpc string        `json:"jsonrpc"`
-		Method  string        `json:"method"`
-		Params  []interface{} `json:"params"`
-		Id      int           `json:"id"`
+		Jsonrpc string `json:"jsonrpc"`
+		Method  string `json:"method"`
+		Params  []any  `json:"params"`
+		Id      int    `json:"id"`
 	}
 
 	reqBytes, _ := jsonAPI.Marshal(rpcReq{
 		Jsonrpc: "2.0",
 		Method:  "eth_blockNumber",
-		Params:  []interface{}{},
+		Params:  []any{},
 		Id:      1,
 	})
 
@@ -206,7 +206,7 @@ func GetLatestBlockNumber(ctx context.Context, client *Client, url string) (uint
 		return 0, metrics, err
 	}
 
-	responseMap, ok := response.(map[string]interface{})
+	responseMap, ok := response.(map[string]any)
 	if !ok {
 		return 0, metrics, fmt.Errorf("response is not a map: %v", response)
 	}
@@ -248,7 +248,7 @@ func GetConsistentLatestBlock(verbose int, server1URL, server2URL string, maxRet
 	client := NewClient("http", "", verbose)
 	var bn1, bn2 uint64
 
-	for i := 0; i < maxRetries; i++ {
+	for i := range maxRetries {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 		var err1, err2 error

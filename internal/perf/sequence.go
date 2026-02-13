@@ -20,8 +20,7 @@ type TestSequence []TestSequenceItem
 func ParseTestSequence(sequence string) (TestSequence, error) {
 	var items TestSequence
 
-	parts := strings.Split(sequence, ",")
-	for _, part := range parts {
+	for part := range strings.SplitSeq(sequence, ",") {
 		qpsDur := strings.Split(part, ":")
 		if len(qpsDur) != 2 {
 			return nil, fmt.Errorf("invalid test sequence format: %s", part)

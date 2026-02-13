@@ -17,7 +17,7 @@ func BenchmarkStats_AddSuccess(b *testing.B) {
 		EqualCount:        1,
 	}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		s := &Stats{}
 		s.AddSuccess(metrics)
 	}
@@ -26,7 +26,7 @@ func BenchmarkStats_AddSuccess(b *testing.B) {
 func BenchmarkShouldRunTest_NoFilters(b *testing.B) {
 	cfg := config.NewConfig()
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		ShouldRunTest(cfg, "test_01.json", 1)
 	}
 }
@@ -35,14 +35,14 @@ func BenchmarkShouldRunTest_WithTestNumber(b *testing.B) {
 	cfg := config.NewConfig()
 	cfg.ReqTestNum = 5
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		ShouldRunTest(cfg, "test_05.json", 5)
 	}
 }
 
 func BenchmarkCheckTestNameForNumber(b *testing.B) {
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		checkTestNameForNumber("test_01.json", 1)
 	}
 }
@@ -52,7 +52,7 @@ func BenchmarkIsStartTestReached(b *testing.B) {
 	cfg.StartTest = "100"
 	cfg.UpdateDirs()
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		IsStartTestReached(cfg, 50)
 	}
 }

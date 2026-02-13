@@ -165,8 +165,7 @@ func (c *Config) Validate() error {
 
 	// Validate transport types
 	if c.TransportType != "" {
-		types := strings.Split(c.TransportType, ",")
-		for _, t := range types {
+		for t := range strings.SplitSeq(c.TransportType, ",") {
 			if !IsValidTransport(t) {
 				return fmt.Errorf("invalid connection type: %s", t)
 			}
