@@ -16,7 +16,7 @@ import (
 	"github.com/josephburnett/jd/v2"
 	jsoniter "github.com/json-iterator/go"
 
-	"github.com/erigontech/rpc-tests/cmd/integration/jsondiff"
+	"github.com/erigontech/rpc-tests/internal/jsondiff"
 	"github.com/erigontech/rpc-tests/internal/config"
 	"github.com/erigontech/rpc-tests/internal/testdata"
 )
