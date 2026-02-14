@@ -254,13 +254,13 @@ done:
 			}
 			subfolder := fmt.Sprintf("%s/%s", cfg.OutputDir, entry.Name())
 			if subEntries, err := os.ReadDir(subfolder); err == nil && len(subEntries) == 0 {
-				os.Remove(subfolder)
+				_ = os.Remove(subfolder)
 			}
 		}
 	}
 
 	// Clean temp dir
-	os.RemoveAll(config.TempDirName)
+	_ = os.RemoveAll(config.TempDirName)
 
 	// Print summary
 	elapsed := time.Since(startTime)

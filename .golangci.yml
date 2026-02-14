@@ -42,9 +42,6 @@ linters:
         - (*bufio.Writer).Write
         - (net/http.ResponseWriter).Write
         - (*encoding/json.Encoder).Encode
-        - os.Remove
-        - os.RemoveAll
-        - os.MkdirAll
     govet:
       enable-all: true
       disable:
@@ -61,13 +58,17 @@ linters:
   exclusions:
     presets:
       - comments
-      - std-error-handling
     rules:
       # Test files: relax errcheck
       - linters: [errcheck]
         path: _test\.go
+      # defer Close/Flush: universally safe to ignore
+      - linters: [errcheck]
+        text: "Error return value of .*(Close|Flush).* is not checked"
       # bodyclose false positives on websocket dial and raw HTTP handler
       - path: internal/rpc/websocket\.go
+        linters: [bodyclose]
+      - path: internal/rpc/wsconn\.go
         linters: [bodyclose]
       - path: internal/rpc/http\.go
         text: "response body must be closed"
@@ -77,6 +78,10 @@ formatters:
   enable:
     - gofmt
     - goimports
+
+issues:
+  max-same-issues: 0
+  max-issues-per-linter: 0
 
 output:
   sort-order:
