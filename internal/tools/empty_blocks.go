@@ -42,12 +42,12 @@ var emptyBlocksCommand = &cli.Command{
 }
 
 type blockInfo struct {
-	Number       uint64
-	Transactions []any
-	Withdrawals  []any
+	Number         uint64
+	Transactions   []any
+	Withdrawals    []any
 	HasWithdrawals bool
-	StateRoot    string
-	ParentHash   string
+	StateRoot      string
+	ParentHash     string
 }
 
 func runEmptyBlocks(c *cli.Context) error {

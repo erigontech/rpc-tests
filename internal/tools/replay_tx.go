@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	silkTarget     = "127.0.0.1:51515"
+	silkTarget      = "127.0.0.1:51515"
 	rpcdaemonTarget = "localhost:8545"
-	outputDir      = "./output/"
+	outputDir       = "./output/"
 )
 
 var replayTxCommand = &cli.Command{

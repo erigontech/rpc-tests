@@ -101,13 +101,13 @@ func encodeLog(logMap map[string]any) ([]byte, error) {
 	topicsRaw, _ := logMap["topics"].([]any)
 	data, _ := logMap["data"].(string)
 
-	var items [][]byte
+	items := make([][]byte, 0, 3)
 
 	// address
 	items = append(items, rlpEncodeBytes(hexToBytes(address)))
 
 	// topics
-	var topicItems [][]byte
+	topicItems := make([][]byte, 0, len(topicsRaw))
 	for _, t := range topicsRaw {
 		topicStr, _ := t.(string)
 		topicItems = append(topicItems, rlpEncodeBytes(hexToBytes(topicStr)))
@@ -146,7 +146,11 @@ func rlpEncodeBytes(b []byte) []byte {
 }
 
 func rlpEncodeListFromRLP(rlpItems [][]byte) []byte {
-	var payload []byte
+	totalLen := 0
+	for _, item := range rlpItems {
+		totalLen += len(item)
+	}
+	payload := make([]byte, 0, totalLen)
 	for _, item := range rlpItems {
 		payload = append(payload, item...)
 	}
@@ -208,7 +212,7 @@ func keccak256(data []byte) []byte {
 // mpt is a simple implementation of Ethereum's Modified Merkle-Patricia Trie
 // sufficient for computing root hashes of receipt tries.
 type mpt struct {
-	db map[string][]byte
+	db   map[string][]byte
 	root []byte
 }
 
