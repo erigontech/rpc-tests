@@ -13,6 +13,8 @@ import (
 
 	"github.com/erigontech/rpc-tests/internal/config"
 	"github.com/erigontech/rpc-tests/internal/runner"
+	"github.com/erigontech/rpc-tests/internal/tools"
+	"github.com/urfave/cli/v2"
 )
 
 func parseFlags(cfg *config.Config) error {
@@ -310,5 +312,16 @@ func runMain() int {
 }
 
 func main() {
+	if len(os.Args) > 1 && tools.IsSubcommand(os.Args[1]) {
+		app := &cli.App{
+			Name:     "rpc_int",
+			Commands: tools.Commands(),
+		}
+		if err := app.Run(os.Args); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
+	}
 	os.Exit(runMain())
 }
