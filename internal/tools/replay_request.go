@@ -192,9 +192,9 @@ func findJSONRPCRequest(logDir, method string, methodIndex int, verbose bool) (s
 			continue
 		}
 
-		for _, line := range strings.Split(string(data), "\n") {
-			reqIdx := strings.Index(line, "REQ -> ")
-			if reqIdx == -1 {
+		for line := range strings.SplitSeq(string(data), "\n") {
+			_, reqBody, found := strings.Cut(line, "REQ -> ")
+			if !found {
 				continue
 			}
 
@@ -212,7 +212,7 @@ func findJSONRPCRequest(logDir, method string, methodIndex int, verbose bool) (s
 
 			methodCount++
 			if methodCount == methodIndex {
-				return line[reqIdx+len("REQ -> "):], nil
+				return reqBody, nil
 			}
 		}
 	}

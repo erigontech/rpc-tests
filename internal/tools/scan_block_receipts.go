@@ -98,7 +98,7 @@ func scanReceiptsRange(ctx context.Context, client *rpc.Client, target string, s
 	for blockNum := start; blockNum <= end; blockNum++ {
 		if ctx.Err() != nil {
 			log.Printf("Scan terminated by user.")
-			return nil
+			return nil //nolint:nilerr // graceful shutdown on signal
 		}
 
 		if err := verifyReceiptsRoot(ctx, client, target, blockNum); err != nil {
@@ -217,7 +217,7 @@ func scanReceiptsBeyondLatest(ctx context.Context, client *rpc.Client, target st
 			sleepCtx(ctx, interval)
 		}
 		if ctx.Err() != nil {
-			break
+			return nil //nolint:nilerr // graceful shutdown on signal
 		}
 
 		if err := verifyBlockReceipts(ctx, client, target, nextBlock, reorgDetected); err != nil {
