@@ -31,6 +31,11 @@ cd <erigon_home_path> && ./build/bin/rpcdaemon --datadir=<datadir_path> --http.p
 cd <erigon_home_path> && ./build/bin/rpcdaemon --datadir=<datadir_path> --ws
 ```
 
+### GraphQL support
+```bash
+cd <erigon_home_path> && ./build/bin/rpcdaemon --datadir=<datadir_path> --graphql
+```
+
 ## Important Considerations
 
 ### Before Running
