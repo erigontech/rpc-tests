@@ -107,7 +107,7 @@ func executeGraphQLTests(client *http.Client, httpURL, testsURL string, stopAtEr
 	}
 	defer func() {
 		log.Printf("Cleaning up temporary directory: %s", tempDir)
-		os.RemoveAll(tempDir)
+		_ = os.RemoveAll(tempDir)
 	}()
 
 	log.Printf("Starting test execution using files from %s", tempDir)
@@ -275,20 +275,20 @@ func downloadGitHubDirectory(client *http.Client, treeURL string) (string, error
 
 	resp, err := client.Get(apiURL)
 	if err != nil {
-		os.RemoveAll(tempDir)
+		_ = os.RemoveAll(tempDir)
 		return "", fmt.Errorf("fetch GitHub API: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		os.RemoveAll(tempDir)
+		_ = os.RemoveAll(tempDir)
 		body, _ := io.ReadAll(resp.Body)
 		return "", fmt.Errorf("GitHub API error %d: %s", resp.StatusCode, string(body[:min(len(body), 100)]))
 	}
 
 	var contents []githubContent
 	if err := json.NewDecoder(resp.Body).Decode(&contents); err != nil {
-		os.RemoveAll(tempDir)
+		_ = os.RemoveAll(tempDir)
 		return "", fmt.Errorf("decode GitHub API response: %w", err)
 	}
 

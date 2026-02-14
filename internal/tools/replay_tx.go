@@ -75,7 +75,7 @@ func runReplayTx(c *cli.Context) error {
 	log.Printf("Starting scans from: %d tx-index: %d", startBlock, startTx)
 
 	// Clean and recreate output directory
-	os.RemoveAll(outputDir)
+	_ = os.RemoveAll(outputDir)
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return fmt.Errorf("create output dir: %w", err)
 	}
@@ -185,8 +185,8 @@ func compareTxResponses(ctx context.Context, client *rpc.Client, makeRequest req
 	}
 
 	// Clean up if no diff
-	os.Remove(silkFilename)
-	os.Remove(rpcdaemonFilename)
-	os.Remove(diffFilename)
+	_ = os.Remove(silkFilename)
+	_ = os.Remove(rpcdaemonFilename)
+	_ = os.Remove(diffFilename)
 	return 0
 }

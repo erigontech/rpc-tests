@@ -16,8 +16,8 @@ import (
 	"github.com/josephburnett/jd/v2"
 	jsoniter "github.com/json-iterator/go"
 
-	"github.com/erigontech/rpc-tests/internal/jsondiff"
 	"github.com/erigontech/rpc-tests/internal/config"
+	"github.com/erigontech/rpc-tests/internal/jsondiff"
 	"github.com/erigontech/rpc-tests/internal/testdata"
 )
 
@@ -180,9 +180,9 @@ func ProcessResponse(
 	}
 
 	if same && !cfg.ForceDumpJSONs {
-		os.Remove(daemonFile)
-		os.Remove(expRspFile)
-		os.Remove(diffFile)
+		_ = os.Remove(daemonFile)
+		_ = os.Remove(expRspFile)
+		_ = os.Remove(diffFile)
 	}
 
 	outcome.Success = same
