@@ -81,8 +81,8 @@ func encodeReceipt(receipt map[string]any) ([]byte, error) {
 	bloomBytes := hexToBytes(bloomHex)
 	items = append(items, rlpEncodeBytes(bloomBytes))
 
-	// logs
-	items = append(items, rlpEncodeList(encodedLogs))
+	// logs (each encodedLog is already a full RLP-encoded list)
+	items = append(items, rlpEncodeListFromRLP(encodedLogs))
 
 	value := rlpEncodeListFromRLP(items)
 
@@ -143,18 +143,6 @@ func rlpEncodeBytes(b []byte) []byte {
 	lenBytes := encodeLength(len(b))
 	prefix := append([]byte{byte(0xb7 + len(lenBytes))}, lenBytes...)
 	return append(prefix, b...)
-}
-
-func rlpEncodeList(items [][]byte) []byte {
-	return rlpEncodeListFromRLP(encodeItemsToRLP(items))
-}
-
-func encodeItemsToRLP(items [][]byte) [][]byte {
-	var rlpItems [][]byte
-	for _, item := range items {
-		rlpItems = append(rlpItems, rlpEncodeBytes(item))
-	}
-	return rlpItems
 }
 
 func rlpEncodeListFromRLP(rlpItems [][]byte) []byte {

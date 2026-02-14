@@ -99,32 +99,13 @@ func runSubscriptions(c *cli.Context) error {
 	go func() {
 		<-sigs
 		log.Printf("Received interrupt signal")
-		// Unsubscribe
-		var resp jsonRPCResponse
-		_ = conn.CallJSON(jsonRPCRequest{
-			Jsonrpc: "2.0",
-			Method:  "eth_unsubscribe",
-			Params:  []any{newHeadsSubID},
-			ID:      3,
-		}, &resp)
-		_ = conn.CallJSON(jsonRPCRequest{
-			Jsonrpc: "2.0",
-			Method:  "eth_unsubscribe",
-			Params:  []any{logsSubID},
-			ID:      4,
-		}, &resp)
+		// Signal done first, then close connection to break the read loop
 		close(done)
+		conn.Close()
 	}()
 
 	// Listen for incoming subscription events
 	for {
-		select {
-		case <-done:
-			log.Printf("Handle subscriptions terminated")
-			return nil
-		default:
-		}
-
 		var notification subscriptionNotification
 		if err := conn.RecvJSON(&notification); err != nil {
 			select {
@@ -136,9 +117,10 @@ func runSubscriptions(c *cli.Context) error {
 			}
 		}
 
-		if notification.Params.Subscription == newHeadsSubID {
+		switch notification.Params.Subscription {
+		case newHeadsSubID:
 			fmt.Printf("New block header: %s\n\n", notification.Params.Result)
-		} else if notification.Params.Subscription == logsSubID {
+		case logsSubID:
 			fmt.Printf("Log receipt: %s\n\n", notification.Params.Result)
 		}
 	}

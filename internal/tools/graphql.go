@@ -80,12 +80,15 @@ func runGraphQL(c *cli.Context) error {
 }
 
 func executeGraphQLQuery(client *http.Client, url, query string) ([]byte, error) {
-	body := []byte(query)
-	req, err := http.NewRequest("POST", url, bytes.NewReader(body))
+	payload, err := json.Marshal(map[string]string{"query": query})
+	if err != nil {
+		return nil, fmt.Errorf("marshal query: %w", err)
+	}
+	req, err := http.NewRequest("POST", url, bytes.NewReader(payload))
 	if err != nil {
 		return nil, fmt.Errorf("create request: %w", err)
 	}
-	req.Header.Set("Content-Type", "application/graphql")
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
 	if err != nil {
