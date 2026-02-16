@@ -3,12 +3,7 @@
     "test": {
       "id": "debug_getModifiedAccountsByNumber_6371578_6371580",
       "reference": "",
-      "description": "modified accounts between block 6371578 and 6371580",
-      "metadata": {
-        "response": {
-          "pathOptions": [{"@": ["result"], "^": ["SET"]}]
-        }
-      }
+      "description": "modified accounts between block 6371578 and 6371580"
     },
     "request": {
       "id": 1,
