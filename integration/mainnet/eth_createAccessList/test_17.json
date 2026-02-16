@@ -3,12 +3,7 @@
     "test": {
       "id": "eth_createAccessList_at_block_130572_contract_deploy_and_access_list_with_to",
       "reference": "https://etherscan.io/tx/0x4ee2bbfbaf90afef640c6ddacde696e6c4b81f9f644fc8c78670b910f922236b",
-      "description": "at block 130572 with contract deploy and access list with to",
-      "metadata": {
-        "response": {
-          "pathOptions": [{"@": ["result", "accessList", {}, "storageKeys"], "^": ["SET"]}]
-        }
-      }
+      "description": "at block 130572 with contract deploy and access list with to"
     },
     "request": {
       "jsonrpc": "2.0",

@@ -3,12 +3,7 @@
     "test": {
       "id": "eth_createAccessList_at_block_12000000_revert",
       "reference": "https://etherscan.io/tx/0xdea8cf208ab5a75e25d168115f85ed5e612ad978b9b8ccc462f69feca5a9a6db",
-      "description": "no access list entry at block 12000000",
-      "metadata": {
-        "response": {
-          "pathOptions": [{"@": ["result", "accessList", {}, "storageKeys"], "^": ["SET"]}]
-        }
-      }
+      "description": "no access list entry at block 12000000"
     },
     "request": {
       "jsonrpc": "2.0",
@@ -56,4 +51,3 @@
     }
   }
 ]
-
