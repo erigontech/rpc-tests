@@ -1169,7 +1169,7 @@ def main(argv) -> int:
     print(f"Total unmarshalling time:     {str(total_unmarshalling_time)}")
     print(f"No of json Diffs:             {str(no_of_json_diffs)}")
     print(f"Test time-elapsed:            {str(elapsed)}")
-    print(f"Available tests:              {global_test_number - 1}")
+    print(f"Available tests:              {global_test_number}")
     print(f"Available tested api:         {available_tested_apis}")
     print(f"Number of loop:               {test_rep + 1}")
     print(f"Number of executed tests:     {executed_tests}")
