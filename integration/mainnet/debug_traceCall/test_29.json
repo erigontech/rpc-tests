@@ -1,32 +1,31 @@
 [
-    {
-        "request": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "debug_traceCall",
-            "params": [
-                {
-                    "from": "0xae2fc483527b8ef99eb5d9b44875f005ba1fae13",
-                    "to": "0x6b75d8af000000e20b7a7ddf000ba900b4009a80",
-                    "value": "0x16906ca2e71",
-                    "gas": "0x2eaf9",
-                    "gasPrice": "0x1175c375f",
-                    "data": "0x57c7bbec68d12a0d1830360f8ec58fa599ba1b0e9b5fedbf9b6fdac17f958d2ee523a2206206994597c13d831ec70064",
-                    "accessList": [],
-                    "type": "0x2"
-                },
-                "0x27a66641a0f38c81e961deeb142d54dc20ba64632f31ebc3c814057ed502c3e5",
-                {}
-            ]
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "debug_traceCall",
+      "params": [
+        {
+          "from": "0xae2fc483527b8ef99eb5d9b44875f005ba1fae13",
+          "to": "0x6b75d8af000000e20b7a7ddf000ba900b4009a80",
+          "value": "0x16906ca2e71",
+          "gas": "0x2eaf9",
+          "gasPrice": "0x1175c375f",
+          "data": "0x57c7bbec68d12a0d1830360f8ec58fa599ba1b0e9b5fedbf9b6fdac17f958d2ee523a2206206994597c13d831ec70064",
+          "accessList": [],
+          "type": "0x2"
         },
-        "response": {
-            "error": {
-                "code": -32000,
-                "message": "tracing failed: fee cap less than block base fee: address 0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13, feeCap: 4686886751 baseFee: 4756259370"
-            },
-            "id": 1,
-            "jsonrpc": "2.0",
-            "result": null
-        }
+        "0x27a66641a0f38c81e961deeb142d54dc20ba64632f31ebc3c814057ed502c3e5",
+        {}
+      ]
+    },
+    "response": {
+      "error": {
+        "code": -32000,
+        "message": "tracing failed: fee cap less than block base fee: address 0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13, feeCap: 4686886751 baseFee: 4756259370"
+      },
+      "id": 1,
+      "jsonrpc": "2.0"
     }
+  }
 ]
