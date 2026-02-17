@@ -194,12 +194,10 @@ func TestParseDiffKind(t *testing.T) {
 		want  DiffKind
 		err   bool
 	}{
-		{"jd", JdLibrary, false},
 		{"json-diff", JsonDiffTool, false},
 		{"diff", DiffTool, false},
 		{"json-diff-go", JsonDiffGo, false},
-		{"JD", JdLibrary, false},
-		{"invalid", JdLibrary, true},
+		{"invalid", JsonDiffGo, true},
 	}
 
 	for _, tt := range tests {
@@ -218,10 +216,9 @@ func TestDiffKind_String(t *testing.T) {
 		kind DiffKind
 		want string
 	}{
-		{JdLibrary, "jd"},
+		{JsonDiffGo, "json-diff-go"},
 		{JsonDiffTool, "json-diff"},
 		{DiffTool, "diff"},
-		{JsonDiffGo, "json-diff-go"},
 	}
 
 	for _, tt := range tests {

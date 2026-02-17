@@ -40,21 +40,18 @@ var JSON = jsoniter.ConfigCompatibleWithStandardLibrary
 type DiffKind int
 
 const (
-	JdLibrary DiffKind = iota
+	JsonDiffGo DiffKind = iota
 	JsonDiffTool
 	DiffTool
-	JsonDiffGo
 )
 
 func (k DiffKind) String() string {
-	return [...]string{"jd", "json-diff", "diff", "json-diff-go"}[k]
+	return [...]string{"json-diff-go", "json-diff", "diff"}[k]
 }
 
 // ParseDiffKind converts a string into a DiffKind enum type.
 func ParseDiffKind(s string) (DiffKind, error) {
 	switch strings.ToLower(s) {
-	case "jd":
-		return JdLibrary, nil
 	case "json-diff":
 		return JsonDiffTool, nil
 	case "diff":
@@ -62,7 +59,7 @@ func ParseDiffKind(s string) (DiffKind, error) {
 	case "json-diff-go":
 		return JsonDiffGo, nil
 	default:
-		return JdLibrary, fmt.Errorf("invalid DiffKind value: %s", s)
+		return JsonDiffGo, fmt.Errorf("invalid DiffKind value: %s", s)
 	}
 }
 
