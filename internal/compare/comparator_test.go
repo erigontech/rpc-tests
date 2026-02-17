@@ -47,11 +47,10 @@ func TestProcessResponse_WithoutCompare(t *testing.T) {
 	cfg.WithoutCompareResults = true
 
 	outcome := &testdata.TestOutcome{}
-	cmd := &testdata.JsonRpcCommand{}
 	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
 	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
 
-	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
+	ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome)
 
 	if !outcome.Success {
 		t.Error("WithoutCompareResults should always succeed")
@@ -63,11 +62,10 @@ func TestProcessResponse_ExactMatch(t *testing.T) {
 	cfg := config.NewConfig()
 
 	outcome := &testdata.TestOutcome{}
-	cmd := &testdata.JsonRpcCommand{}
 	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
 	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
 
-	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
+	ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome)
 
 	if !outcome.Success {
 		t.Errorf("exact match should succeed, error: %v", outcome.Error)
@@ -82,11 +80,10 @@ func TestProcessResponse_NullExpectedResult(t *testing.T) {
 	cfg := config.NewConfig()
 
 	outcome := &testdata.TestOutcome{}
-	cmd := &testdata.JsonRpcCommand{}
 	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0xabc"}
 	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": nil}
 
-	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
+	ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome)
 
 	if !outcome.Success {
 		t.Errorf("null expected result should be accepted, error: %v", outcome.Error)
@@ -98,11 +95,10 @@ func TestProcessResponse_NullExpectedError(t *testing.T) {
 	cfg := config.NewConfig()
 
 	outcome := &testdata.TestOutcome{}
-	cmd := &testdata.JsonRpcCommand{}
 	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32000), "message": "some error"}}
 	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": nil}
 
-	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
+	ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome)
 
 	if !outcome.Success {
 		t.Errorf("null expected error should be accepted, error: %v", outcome.Error)
@@ -114,11 +110,10 @@ func TestProcessResponse_EmptyExpected(t *testing.T) {
 	cfg := config.NewConfig()
 
 	outcome := &testdata.TestOutcome{}
-	cmd := &testdata.JsonRpcCommand{}
 	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
 	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1)}
 
-	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
+	ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome)
 
 	if !outcome.Success {
 		t.Errorf("empty expected (just jsonrpc+id) should be accepted, error: %v", outcome.Error)
@@ -131,11 +126,10 @@ func TestProcessResponse_DoNotCompareError(t *testing.T) {
 	cfg.DoNotCompareError = true
 
 	outcome := &testdata.TestOutcome{}
-	cmd := &testdata.JsonRpcCommand{}
 	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32000), "message": "err1"}}
 	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32001), "message": "err2"}}
 
-	ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
+	ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome)
 
 	if !outcome.Success {
 		t.Errorf("DoNotCompareError should accept different errors, error: %v", outcome.Error)
@@ -152,11 +146,10 @@ func TestProcessResponse_DiffMismatch_JsonDiffGo(t *testing.T) {
 	diffFile := filepath.Join(dir, "diff.json")
 
 	outcome := &testdata.TestOutcome{}
-	cmd := &testdata.JsonRpcCommand{}
 	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
 	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
 
-	ProcessResponse(response, nil, expected, cfg, cmd, dir, daemonFile, expRspFile, diffFile, outcome)
+	ProcessResponse(response, nil, expected, cfg, dir, daemonFile, expRspFile, diffFile, outcome)
 
 	if outcome.Success {
 		t.Error("mismatched responses should fail")
@@ -177,11 +170,10 @@ func TestProcessResponse_DiffMismatch_SingleTest_HasColoredDiff(t *testing.T) {
 	diffFile := filepath.Join(dir, "diff.json")
 
 	outcome := &testdata.TestOutcome{}
-	cmd := &testdata.JsonRpcCommand{}
 	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x1"}
 	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "result": "0x2"}
 
-	ProcessResponse(response, nil, expected, cfg, cmd, dir, daemonFile, expRspFile, diffFile, outcome)
+	ProcessResponse(response, nil, expected, cfg, dir, daemonFile, expRspFile, diffFile, outcome)
 
 	if outcome.ColoredDiff == "" {
 		t.Error("single test mode should produce colored diff on mismatch")

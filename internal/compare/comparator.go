@@ -13,7 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/josephburnett/jd/v2"
 	jsoniter "github.com/json-iterator/go"
 
 	"github.com/erigontech/rpc-tests/internal/config"
@@ -41,7 +40,6 @@ const (
 func ProcessResponse(
 	response, referenceResponse, responseInFile any,
 	cfg *config.Config,
-	cmd *testdata.JsonRpcCommand,
 	outputDir, daemonFile, expRspFile, diffFile string,
 	outcome *testdata.TestOutcome,
 ) {
@@ -172,7 +170,7 @@ func ProcessResponse(
 			}
 		}
 	} else {
-		same, err = compareJSON(cfg, cmd, daemonFile, expRspFile, diffFile, &outcome.Metrics)
+		same, err = compareJSON(cfg, daemonFile, expRspFile, diffFile, &outcome.Metrics)
 		if err != nil {
 			outcome.Error = err
 			return
@@ -311,73 +309,16 @@ func dumpJSONs(dump bool, daemonFile, expRspFile, outputDir string, response, ex
 }
 
 // compareJSON dispatches to the appropriate external diff tool.
-func compareJSON(cfg *config.Config, cmd *testdata.JsonRpcCommand, daemonFile, expRspFile, diffFile string, metrics *testdata.TestMetrics) (bool, error) {
+func compareJSON(cfg *config.Config, daemonFile, expRspFile, diffFile string, metrics *testdata.TestMetrics) (bool, error) {
 	metrics.ComparisonCount++
 
 	switch cfg.DiffKind {
-	case config.JdLibrary:
-		return runCompareJD(cmd, expRspFile, daemonFile, diffFile)
 	case config.JsonDiffTool:
 		return runExternalCompare(true, "/dev/null", expRspFile, daemonFile, diffFile)
 	case config.DiffTool:
 		return runExternalCompare(false, "/dev/null", expRspFile, daemonFile, diffFile)
 	default:
 		return false, fmt.Errorf("unknown JSON diff kind: %d", cfg.DiffKind)
-	}
-}
-
-// runCompareJD uses the JD library for comparison, with 30s timeout and pathOptions support.
-func runCompareJD(cmd *testdata.JsonRpcCommand, file1, file2, diffFile string) (bool, error) {
-	node1, err := jd.ReadJsonFile(file1)
-	if err != nil {
-		return false, err
-	}
-	node2, err := jd.ReadJsonFile(file2)
-	if err != nil {
-		return false, err
-	}
-
-	type result struct {
-		diff jd.Diff
-		err  error
-	}
-
-	resChan := make(chan result, 1)
-	ctx, cancel := context.WithTimeout(context.Background(), externalToolTimeout)
-	defer cancel()
-
-	go func() {
-		var d jd.Diff
-		if cmd.TestInfo != nil && cmd.TestInfo.Metadata != nil && cmd.TestInfo.Metadata.Response != nil && cmd.TestInfo.Metadata.Response.PathOptions != nil {
-			options, err := jd.ReadOptionsString(string(cmd.TestInfo.Metadata.Response.PathOptions))
-			if err != nil {
-				resChan <- result{err: err}
-				return
-			}
-			d = node1.Diff(node2, options...)
-		} else {
-			d = node1.Diff(node2)
-		}
-		resChan <- result{diff: d}
-	}()
-
-	select {
-	case <-ctx.Done():
-		return false, fmt.Errorf("JSON diff (JD) timeout for files %s and %s", file1, file2)
-	case res := <-resChan:
-		if res.err != nil {
-			return false, res.err
-		}
-		diffString := res.diff.Render()
-		if err := os.WriteFile(diffFile, []byte(diffString), 0644); err != nil {
-			return false, err
-		}
-		// Check if diff file is empty (no differences)
-		info, err := os.Stat(diffFile)
-		if err != nil {
-			return false, err
-		}
-		return info.Size() == 0, nil
 	}
 }
 

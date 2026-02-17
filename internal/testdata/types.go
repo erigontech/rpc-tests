@@ -45,23 +45,11 @@ type TestMetrics struct {
 	EqualCount        int
 }
 
-// JsonRpcResponseMetadata holds metadata about the expected response.
-type JsonRpcResponseMetadata struct {
-	PathOptions jsoniter.RawMessage `json:"pathOptions"`
-}
-
-// JsonRpcTestMetadata holds metadata about the test request/response.
-type JsonRpcTestMetadata struct {
-	Request  any              `json:"request"`
-	Response *JsonRpcResponseMetadata `json:"response"`
-}
-
-// JsonRpcTest holds test-level information (identifier, description, metadata).
+// JsonRpcTest holds test-level information (identifier, description).
 type JsonRpcTest struct {
-	Identifier  string               `json:"id"`
-	Reference   string               `json:"reference"`
-	Description string               `json:"description"`
-	Metadata    *JsonRpcTestMetadata `json:"metadata"`
+	Identifier  string `json:"id"`
+	Reference   string `json:"reference"`
+	Description string `json:"description"`
 }
 
 // JsonRpcCommand represents a single JSON-RPC command in a test fixture.

@@ -105,7 +105,7 @@ Test data lives in `integration/{network}/{api_name}/test_NN.json` across networ
 
 ## Dependencies
 
-Go 1.24. Key libraries: `gorilla/websocket` (WebSocket transport), `josephburnett/jd/v2` (JSON diffing), `tsenart/vegeta/v12` (load testing), `urfave/cli/v2` (CLI framework for subcommands), `golang-jwt/jwt/v5` (JWT auth), `dsnet/compress` (bzip2), `golang.org/x/crypto` (Keccak256 for MPT).
+Go 1.24. Key libraries: `gorilla/websocket` (WebSocket transport), `tsenart/vegeta/v12` (load testing), `urfave/cli/v2` (CLI framework for subcommands), `golang-jwt/jwt/v5` (JWT auth), `dsnet/compress` (bzip2), `golang.org/x/crypto` (Keccak256 for MPT).
 
 **Constraint: `github.com/ethereum/go-ethereum` must NOT be added as a dependency.** Ethereum primitives (RLP, Keccak256, MPT) are implemented from scratch in `internal/eth/`.
 

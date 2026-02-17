@@ -81,7 +81,7 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 			fmt.Printf("%s: [%v]\n", cfg.DaemonUnderTest, result)
 		}
 
-		compare.ProcessResponse(result, nil, cmd.Response, cfg, cmd, outputDirName, daemonFile, expRspFile, diffFile, outcome)
+		compare.ProcessResponse(result, nil, cmd.Response, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome)
 	} else {
 		target = cfg.GetTarget(config.DaemonOnDefaultPort, descriptor.Name)
 
@@ -113,7 +113,7 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 		daemonFile = outputAPIFilename + config.GetJSONFilenameExt(config.DaemonOnDefaultPort, target)
 		expRspFile = outputAPIFilename + config.GetJSONFilenameExt(cfg.DaemonAsReference, target1)
 
-		compare.ProcessResponse(result, result1, nil, cfg, cmd, outputDirName, daemonFile, expRspFile, diffFile, outcome)
+		compare.ProcessResponse(result, result1, nil, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome)
 	}
 }
 

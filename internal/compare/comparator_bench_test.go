@@ -53,8 +53,7 @@ func BenchmarkProcessResponse_ExactMatch(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		outcome := &testdata.TestOutcome{}
-		cmd := &testdata.JsonRpcCommand{}
-		ProcessResponse(response, nil, expected, cfg, cmd, dir, "", "", "", outcome)
+		ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome)
 	}
 }
 
@@ -73,8 +72,7 @@ func BenchmarkProcessResponse_DiffMismatch_JsonDiffGo(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		outcome := &testdata.TestOutcome{}
-		cmd := &testdata.JsonRpcCommand{}
-		ProcessResponse(response, nil, expected, cfg, cmd, dir, daemonFile, expRspFile, diffFile, outcome)
+		ProcessResponse(response, nil, expected, cfg, dir, daemonFile, expRspFile, diffFile, outcome)
 	}
 }
 
