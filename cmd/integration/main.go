@@ -87,8 +87,8 @@ func parseFlags(cfg *config.Config) error {
 	excludeTestList := flag.String("X", "", "exclude test list")
 	flag.StringVar(excludeTestList, "exclude-test-list", "", "exclude test list")
 
-	diffKind := flag.String("j", cfg.DiffKind.String(), "diff for JSON values")
-	flag.StringVar(diffKind, "json-diff", cfg.DiffKind.String(), "diff for JSON values")
+	jsonDiff := flag.Bool("j", false, "use json-diff for compare")
+	flag.BoolVar(jsonDiff, "json-diff", false, "use json-diff for compare")
 
 	waitingTime := flag.Int("w", 0, "waiting time in milliseconds")
 	flag.IntVar(waitingTime, "waiting-time", 0, "waiting time in milliseconds")
@@ -138,11 +138,9 @@ func parseFlags(cfg *config.Config) error {
 	cfg.MemProfile = *memProfile
 	cfg.TraceFile = *traceFile
 
-	kind, err := config.ParseDiffKind(*diffKind)
-	if err != nil {
-		return err
+	if *jsonDiff {
+		cfg.DiffKind = config.JsonDiffTool
 	}
-	cfg.DiffKind = kind
 
 	if *daemonPort {
 		cfg.DaemonUnderTest = config.DaemonOnOtherPort
@@ -196,7 +194,7 @@ func usage() {
 	fmt.Println("")
 	fmt.Println("Options:")
 	fmt.Println("  -h, --help                        print this help")
-	fmt.Println("  -j, --json-diff                   use json-diff to make compare [default use json-diff]")
+	fmt.Println("  -j, --json-diff                   use json-diff tool to make compare [default: json-diff-go]")
 	fmt.Println("  -f, --display-only-fail           shows only failed tests (not Skipped) [default: print all]")
 	fmt.Println("  -E, --do-not-compare-error        do not compare error")
 	fmt.Println("  -v, --verbose <level>             0: no message; 1: print result; 2: print request/response [default 0]")
