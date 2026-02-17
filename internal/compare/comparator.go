@@ -134,20 +134,9 @@ func ProcessResponse(
 	if cfg.DiffKind == config.JsonDiffGo {
 		outcome.Metrics.ComparisonCount++
 		opts := &jsondiff.Options{SortArrays: true}
+		var expected, actual any
 		if respIsMap && expIsMap {
-			diff := jsondiff.DiffJSON(expectedMap, responseMap, opts)
-			same = len(diff) == 0
-			diffString := jsondiff.DiffString(expectedMap, responseMap, opts)
-			if writeErr := os.WriteFile(diffFile, []byte(diffString), 0644); writeErr != nil {
-				outcome.Error = writeErr
-				return
-			}
-			if !same {
-				outcome.Error = ErrDiffMismatch
-				if cfg.ReqTestNum != -1 {
-					outcome.ColoredDiff = jsondiff.ColoredString(expectedMap, responseMap, opts)
-				}
-			}
+			expected, actual = expectedMap, responseMap
 		} else {
 			responseArray, respIsArray := response.([]any)
 			expectedArray, expIsArray := expectedResponse.([]any)
@@ -155,18 +144,19 @@ func ProcessResponse(
 				outcome.Error = errors.New("cannot compare JSON objects (neither maps nor arrays)")
 				return
 			}
-			diff := jsondiff.DiffJSON(expectedArray, responseArray, opts)
-			same = len(diff) == 0
-			diffString := jsondiff.DiffString(expectedArray, responseArray, opts)
-			if writeErr := os.WriteFile(diffFile, []byte(diffString), 0644); writeErr != nil {
-				outcome.Error = writeErr
-				return
-			}
-			if !same {
-				outcome.Error = ErrDiffMismatch
-				if cfg.ReqTestNum != -1 {
-					outcome.ColoredDiff = jsondiff.ColoredString(expectedArray, responseArray, opts)
-				}
+			expected, actual = expectedArray, responseArray
+		}
+		diff := jsondiff.DiffJSON(expected, actual, opts)
+		same = len(diff) == 0
+		diffString := jsondiff.DiffString(expected, actual, opts)
+		if writeErr := os.WriteFile(diffFile, []byte(diffString), 0644); writeErr != nil {
+			outcome.Error = writeErr
+			return
+		}
+		if !same {
+			outcome.Error = ErrDiffMismatch
+			if cfg.ReqTestNum != -1 {
+				outcome.ColoredDiff = jsondiff.ColoredString(expected, actual, opts)
 			}
 		}
 	} else {
