@@ -76,11 +76,6 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 		return -1, err
 	}
 
-	// Worker pool setup
-	var wg sync.WaitGroup
-	testsChan := make(chan *testdata.TestDescriptor, 2000)
-	resultsChan := make(chan testdata.TestResult, 2000)
-
 	numWorkers := 1
 	if cfg.Parallel {
 		numWorkers = runtime.NumCPU()
@@ -92,95 +87,89 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 		clients[tt] = internalrpc.NewClient(tt, "", cfg.VerboseLevel)
 	}
 
-	// Start workers
-	for range numWorkers {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case test := <-testsChan:
-					if test == nil {
+	availableTestedAPIs := discovery.TotalAPIs
+	globalTestNumber := 0
+	stats := &Stats{}
+
+	// Each loop iteration runs as a complete batch: all tests are scheduled,
+	// workers drain the channel, results are collected, then the next iteration starts.
+	for loopNum := range cfg.LoopNumber {
+		if ctx.Err() != nil {
+			break
+		}
+
+		if cfg.LoopNumber != 1 {
+			fmt.Printf("\nTest iteration: %d\n", loopNum+1)
+		}
+
+		testsChan := make(chan *testdata.TestDescriptor, 2000)
+		resultsChan := make(chan testdata.TestResult, 2000)
+
+		var wg sync.WaitGroup
+		for range numWorkers {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for {
+					select {
+					case test := <-testsChan:
+						if test == nil {
+							return
+						}
+						testOutcome := RunTest(ctx, test, cfg, clients[test.TransportType])
+						resultsChan <- testdata.TestResult{Outcome: testOutcome, Test: test}
+					case <-ctx.Done():
 						return
 					}
-					testOutcome := RunTest(ctx, test, cfg, clients[test.TransportType])
-					resultsChan <- testdata.TestResult{Outcome: testOutcome, Test: test}
+				}
+			}()
+		}
+
+		var resultsWg sync.WaitGroup
+		resultsWg.Add(1)
+		go func() {
+			defer resultsWg.Done()
+			w := bufio.NewWriterSize(os.Stdout, 64*1024)
+			defer w.Flush()
+			pending := make(map[int]testdata.TestResult)
+			nextIndex := 0
+			for {
+				select {
+				case result, ok := <-resultsChan:
+					if !ok {
+						return
+					}
+					pending[result.Test.Index] = result
+					// Flush all consecutive results starting from nextIndex
+					for {
+						r, exists := pending[nextIndex]
+						if !exists {
+							break
+						}
+						delete(pending, nextIndex)
+						nextIndex++
+						printResult(w, &r, stats, cfg, cancelCtx)
+						if cfg.ExitOnFail && stats.FailedTests > 0 {
+							return
+						}
+					}
 				case <-ctx.Done():
 					return
 				}
 			}
 		}()
-	}
 
-	// Results collector with buffered stdout — prints in scheduling order
-	var resultsWg sync.WaitGroup
-	resultsWg.Add(1)
-	stats := &Stats{}
-	go func() {
-		defer resultsWg.Done()
-		w := bufio.NewWriterSize(os.Stdout, 64*1024)
-		defer w.Flush()
-		pending := make(map[int]testdata.TestResult)
-		nextIndex := 0
-		for {
-			select {
-			case result, ok := <-resultsChan:
-				if !ok {
-					return
-				}
-				pending[result.Test.Index] = result
-				// Flush all consecutive results starting from nextIndex
-				for {
-					r, exists := pending[nextIndex]
-					if !exists {
-						break
-					}
-					delete(pending, nextIndex)
-					nextIndex++
-					printResult(w, &r, stats, cfg, cancelCtx)
-					if cfg.ExitOnFail && stats.FailedTests > 0 {
-						return
-					}
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
-
-	// Main scheduling loop
-	globalTestNumber := 0
-	availableTestedAPIs := discovery.TotalAPIs
-	scheduledIndex := 0
-	testRep := 0
-
-	for testRep = range cfg.LoopNumber {
-		select {
-		case <-ctx.Done():
-			goto done
-		default:
-		}
-
-		if cfg.LoopNumber != 1 {
-			fmt.Printf("\nTest iteration: %d\n", testRep+1)
-		}
-
+		// Schedule all tests for this iteration
+		scheduledIndex := 0
 		transportTypes := cfg.TransportTypes()
+	transportLoop:
 		for _, transportType := range transportTypes {
-			select {
-			case <-ctx.Done():
-				goto done
-			default:
-			}
-
 			testNumberInAnyLoop := 1
 			globalTestNumber = 0
 
 			for _, tc := range discovery.Tests {
-				select {
-				case <-ctx.Done():
-					goto done
-				default:
+				if ctx.Err() != nil {
+					break transportLoop
 				}
 
 				globalTestNumber = tc.Number
@@ -214,7 +203,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 							scheduledIndex++
 							select {
 							case <-ctx.Done():
-								goto done
+								break transportLoop
 							case testsChan <- testDesc:
 							}
 							stats.ScheduledTests++
@@ -229,14 +218,13 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 				testNumberInAnyLoop++
 			}
 		}
-	}
 
-done:
-	// Close channels and wait
-	close(testsChan)
-	wg.Wait()
-	close(resultsChan)
-	resultsWg.Wait()
+		// Wait for this iteration to fully complete before starting the next
+		close(testsChan)
+		wg.Wait()
+		close(resultsChan)
+		resultsWg.Wait()
+	}
 
 	if stats.ScheduledTests == 0 && cfg.TestingAPIsWith != "" {
 		fmt.Printf("WARN: API filter %s selected no tests\n", cfg.TestingAPIsWith)
@@ -264,7 +252,7 @@ done:
 
 	// Print summary
 	elapsed := time.Since(startTime)
-	stats.PrintSummary(elapsed, testRep, availableTestedAPIs, globalTestNumber)
+	stats.PrintSummary(elapsed, cfg.LoopNumber, availableTestedAPIs, globalTestNumber)
 
 	if stats.FailedTests > 0 {
 		return 1, nil
