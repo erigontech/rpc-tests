@@ -259,9 +259,6 @@ def is_skipped(curr_api, test_name: str, global_test_number, config):
         for curr_test_name in api_not_compared:
             if curr_test_name in api_full_name:
                 return 1
-        for curr_test in tests_not_compared:
-            if curr_test in api_full_test_name:
-                return 1
     if config.exclude_api_list != "":  # scans exclude api list (-x)
         tokenize_exclude_api_list = config.exclude_api_list.split(",")
         for exclude_api in tokenize_exclude_api_list:
@@ -321,6 +318,27 @@ def api_under_test(curr_api, test_name, config):
         in_latest_list = verify_in_latest_list(test_name, config)
 
     return in_latest_list
+
+def generate_json_report(filename, start_time, elapsed, total_tests, tested_apis,
+                        loops, executed_tests, not_executed_tests, success_tests,
+                        failed_tests, test_results):
+    """ Generate JSON report with test results """
+    report = {
+        "summary": {
+            "start_time": start_time.isoformat(),
+            "time_elapsed": str(elapsed),
+            "available_tests": total_tests,
+            "available_tested_api": tested_apis,
+            "number_of_loops": loops + 1,
+            "executed_tests": executed_tests,
+            "not_executed_tests": not_executed_tests,
+            "success_tests": success_tests,
+            "failed_tests": failed_tests
+        },
+        "test_results": test_results
+    }
+    with open(filename, 'w', encoding='utf8') as f:
+        json.dump(report, f, indent=2)
 
 
 def print_latest_block(server1_url: str, server2_url: str):
