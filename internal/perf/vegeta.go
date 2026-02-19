@@ -288,18 +288,22 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 	maxBodyInt, _ := strconv.Atoi(pt.Config.MaxBodyRsp)
 
 	tr := &http.Transport{
-		DisableCompression: pt.Config.DisableHttpCompression,
-		Proxy:              http.ProxyFromEnvironment,
+		DisableCompression:  pt.Config.DisableHttpCompression,
+		Proxy:               http.ProxyFromEnvironment,
+		MaxIdleConnsPerHost: maxConnInt,
 	}
 
 	customClient := &http.Client{
 		Transport: tr,
 	}
 
+        //
+        // High workers() counts can saturate server resources
+        //
 	attacker := vegeta.NewAttacker(
 		vegeta.Client(customClient),
 		vegeta.Timeout(timeout),
-		vegeta.Workers(uint64(maxConnInt)),
+                vegeta.Workers(vegeta.DefaultWorkers),
 		vegeta.MaxBody(int64(maxBodyInt)),
 		vegeta.KeepAlive(true),
 	)
