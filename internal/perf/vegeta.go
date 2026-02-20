@@ -291,6 +291,7 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 		DisableCompression:  pt.Config.DisableHttpCompression,
 		Proxy:               http.ProxyFromEnvironment,
 		MaxIdleConnsPerHost: maxConnInt,
+		MaxConnsPerHost:     maxConnInt,
 	}
 
 	customClient := &http.Client{
