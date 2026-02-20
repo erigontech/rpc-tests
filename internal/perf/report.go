@@ -45,20 +45,21 @@ type JSONReport struct {
 
 // PlatformInfo holds platform hardware and software information.
 type PlatformInfo struct {
-	Vendor       string `json:"vendor"`
-	Product      string `json:"product"`
-	Board        string `json:"board"`
-	CPU          string `json:"cpu"`
-	Bogomips     string `json:"bogomips"`
-	Kernel       string `json:"kernel"`
-	GCCVersion   string `json:"gccVersion"`
-	GoVersion    string `json:"goVersion"`
-	ClientCommit string `json:"clientCommit"`
+	Vendor        string `json:"vendor"`
+	Product       string `json:"product"`
+	Board         string `json:"board"`
+	CPU           string `json:"cpu"`
+	Bogomips      string `json:"bogomips"`
+	Kernel        string `json:"kernel"`
+	GCCVersion    string `json:"gccVersion"`
+	GoVersion     string `json:"goVersion"`
+	SilkrpcCommit string `json:"silkrpcCommit"`
+	ErigonCommit  string `json:"erigonCommit"`
 }
 
 // ConfigurationInfo holds test configuration information.
 type ConfigurationInfo struct {
-	TestingClient   string `json:"testingClient"`
+	TestingDaemon   string `json:"testingDaemon"`
 	TestingAPI      string `json:"testingApi"`
 	TestSequence    string `json:"testSequence"`
 	TestRepetitions int    `json:"testRepetitions"`
@@ -69,8 +70,8 @@ type ConfigurationInfo struct {
 
 // JSONTestResult holds results for a single QPS/duration test.
 type JSONTestResult struct {
-	QPS             int              `json:"qps"`
-	Duration        int              `json:"duration"`
+	QPS             string           `json:"qps"`
+	Duration        string           `json:"duration"`
 	TestRepetitions []RepetitionInfo `json:"testRepetitions"`
 }
 
@@ -239,18 +240,19 @@ func (tr *TestReport) initializeJSONReport(cpuModel, bogomips, kernelVersion, ch
 
 	tr.jsonReport = &JSONReport{
 		Platform: PlatformInfo{
-			Vendor:       strings.TrimSpace(tr.hardware.Vendor()),
-			Product:      strings.TrimSpace(tr.hardware.Product()),
-			Board:        strings.TrimSpace(tr.hardware.Board()),
-			CPU:          strings.TrimSpace(cpuModel),
-			Bogomips:     strings.TrimSpace(bogomips),
-			Kernel:       strings.TrimSpace(kernelVersion),
-			GCCVersion:   strings.TrimSpace(gccVersion),
-			GoVersion:    strings.TrimSpace(goVersion),
-			ClientCommit: strings.TrimSpace(clientCommit),
+			Vendor:        strings.TrimSpace(tr.hardware.Vendor()),
+			Product:       strings.TrimSpace(tr.hardware.Product()),
+			Board:         strings.TrimSpace(tr.hardware.Board()),
+			CPU:           strings.TrimSpace(cpuModel),
+			Bogomips:      strings.TrimSpace(bogomips),
+			Kernel:        strings.TrimSpace(kernelVersion),
+			GCCVersion:    strings.TrimSpace(gccVersion),
+			GoVersion:     strings.TrimSpace(goVersion),
+			SilkrpcCommit: "",
+			ErigonCommit:  strings.TrimSpace(clientCommit),
 		},
 		Configuration: ConfigurationInfo{
-			TestingClient:   tr.Config.TestingClient,
+			TestingDaemon:   tr.Config.TestingClient,
 			TestingAPI:      tr.Config.TestType,
 			TestSequence:    tr.Config.TestSequence,
 			TestRepetitions: tr.Config.Repetitions,
@@ -300,8 +302,8 @@ func (tr *TestReport) writeTestReportToJSON(metrics *PerfMetrics) error {
 	if metrics.Repetition == 0 {
 		tr.currentTestIdx++
 		tr.jsonReport.Results = append(tr.jsonReport.Results, JSONTestResult{
-			QPS:             metrics.QPS,
-			Duration:        metrics.Duration,
+			QPS:             strconv.Itoa(metrics.QPS),
+			Duration:        strconv.Itoa(metrics.Duration),
 			TestRepetitions: []RepetitionInfo{},
 		})
 	}
@@ -332,7 +334,8 @@ func (tr *TestReport) writeTestReportToJSON(metrics *PerfMetrics) error {
 	return nil
 }
 
-// generateJSONReport generates a JSON report from a vegeta binary file.
+// generateJSONReport generates a JSON report from a vegeta binary file,
+// using Vegeta's native JSON marshaling (equivalent to `vegeta report --type=json`).
 func generateJSONReport(binaryFile string) (map[string]any, error) {
 	file, err := os.Open(binaryFile)
 	if err != nil {
@@ -354,29 +357,21 @@ func generateJSONReport(binaryFile string) (map[string]any, error) {
 	}
 	metrics.Close()
 
-	report := map[string]any{
-		"requests":   metrics.Requests,
-		"duration":   metrics.Duration.Seconds(),
-		"rate":       metrics.Rate,
-		"throughput": metrics.Throughput,
-		"success":    metrics.Success,
-		"latencies": map[string]any{
-			"min":  metrics.Latencies.Min.Seconds(),
-			"mean": metrics.Latencies.Mean.Seconds(),
-			"p50":  metrics.Latencies.P50.Seconds(),
-			"p90":  metrics.Latencies.P90.Seconds(),
-			"p95":  metrics.Latencies.P95.Seconds(),
-			"p99":  metrics.Latencies.P99.Seconds(),
-			"max":  metrics.Latencies.Max.Seconds(),
-		},
-		"status_codes": metrics.StatusCodes,
-		"errors":       metrics.Errors,
+	data, err := json.Marshal(&metrics)
+	if err != nil {
+		return nil, err
+	}
+
+	var report map[string]any
+	if err := json.Unmarshal(data, &report); err != nil {
+		return nil, err
 	}
 
 	return report, nil
 }
 
-// generateHdrPlot generates HDR histogram plot data from a vegeta binary file.
+// generateHdrPlot generates HDR histogram plot data from a vegeta binary file,
+// equivalent to `vegeta report --type=hdrplot`.
 func generateHdrPlot(binaryFile string) (string, error) {
 	file, err := os.Open(binaryFile)
 	if err != nil {
@@ -399,13 +394,9 @@ func generateHdrPlot(binaryFile string) (string, error) {
 	metrics.Close()
 
 	var buf bytes.Buffer
-	histogram := metrics.Histogram
-	if histogram != nil {
-		for i, bucket := range histogram.Buckets {
-			if _, err := fmt.Fprintf(&buf, "%.6f %d\n", float64(bucket), histogram.Counts[i]); err != nil {
-				return "", err
-			}
-		}
+	reporter := vegeta.NewHDRHistogramPlotReporter(&metrics)
+	if err := reporter(&buf); err != nil {
+		return "", err
 	}
 
 	return buf.String(), nil
