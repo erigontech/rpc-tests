@@ -292,7 +292,6 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 		Proxy:               http.ProxyFromEnvironment,
 		MaxIdleConns:        maxConnInt,
 		MaxIdleConnsPerHost: maxConnInt,
-		MaxConnsPerHost:     maxConnInt,
 	}
 
 	customClient := &http.Client{
@@ -325,6 +324,7 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 		case result := <-resultCh:
 			if result == nil {
 				metrics.Close()
+				tr.CloseIdleConnections()
 				return &metrics, nil
 			}
 			metrics.Add(result)
