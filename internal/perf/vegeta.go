@@ -285,7 +285,6 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 
 	timeout, _ := time.ParseDuration(pt.Config.VegetaResponseTimeout)
 	maxConnInt, _ := strconv.Atoi(pt.Config.MaxConnection)
-	maxBodyInt, _ := strconv.Atoi(pt.Config.MaxBodyRsp)
 
 	tr := &http.Transport{
 		DisableCompression:  pt.Config.DisableHttpCompression,
@@ -299,14 +298,21 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 		Transport: tr,
 	}
 
+	// Vegeta v12 reads MaxBody bytes then drains the remainder with
+	// io.Copy(io.Discard, r.Body). If the drain fails (e.g. server RST on a
+	// keepalive connection), res.Code stays 0 and the request is counted as
+	// failed even though a 200 OK was received.
+	// With MaxBody(-1) Vegeta reads the full body; the drain is then a no-op
+	// (0 bytes remaining), res.Code is always set correctly, and success
+	// counting matches Python/vegeta-CLI behaviour.
         //
-        // High workers() counts can saturate server resources
+        // High workers() counts can saturate server resources.
         //
 	attacker := vegeta.NewAttacker(
 		vegeta.Client(customClient),
 		vegeta.Timeout(timeout),
-                vegeta.Workers(vegeta.DefaultWorkers),
-		vegeta.MaxBody(int64(maxBodyInt)),
+		vegeta.Workers(vegeta.DefaultWorkers),
+		vegeta.MaxBody(-1),
 		vegeta.KeepAlive(true),
 	)
 
