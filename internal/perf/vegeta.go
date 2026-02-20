@@ -292,6 +292,7 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 		Proxy:               http.ProxyFromEnvironment,
 		MaxIdleConns:        maxConnInt,
 		MaxIdleConnsPerHost: maxConnInt,
+		MaxConnsPerHost:     maxConnInt,
 	}
 
 	customClient := &http.Client{
