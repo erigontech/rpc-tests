@@ -1,29 +1,27 @@
 [
-    {
-        "test": {
-           "reference": "https://etherscan.io/tx/0x3d63e943b1d979968db3da08a9a0d355f71af46ec3481ce313afbad733f77776",
-           "description": "1 access list entry" 
+  {
+    "test": {
+      "reference": "https://etherscan.io/tx/0x3d63e943b1d979968db3da08a9a0d355f71af46ec3481ce313afbad733f77776",
+      "description": "1 access list entry"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_createAccessList",
+      "params": [
+        {
+          "from": "0xa9Ac1233699BDae25abeBae4f9Fb54DbB1b44700",
+          "to": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "gas": "0xC2A005",
+          "gasPrice": "0x8000BEFC0",
+          "data": "0x095ea7b3000000000000000000000000a87eaf82f287a2c67cb74130906d5ac01f2f925100000000000000000000000000000000000000000000000000000000126af740"
         },
-        "request": {
-            "jsonrpc":"2.0",
-            "method":"eth_createAccessList",
-            "params":[
-                {
-		  "from": "0xa9Ac1233699BDae25abeBae4f9Fb54DbB1b44700",
-                  "to":  "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                  "gas": "0xC2A005",
-                  "gasPrice": "0x8000BEFC0",
-                  "data": "0x095ea7b3000000000000000000000000a87eaf82f287a2c67cb74130906d5ac01f2f925100000000000000000000000000000000000000000000000000000000126af740"
-
-                },
-                "latest" 
-            ],
-            "id":1
-        },
-        "response": {
-            "id":1,
-            "jsonrpc":"2.0"
-        }
+        "latest"
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0"
     }
+  }
 ]
-
