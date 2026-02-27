@@ -14,10 +14,6 @@
       ]
     },
     "response": {
-      "error": {
-        "code": -32000,
-        "message": "only replay-protected (EIP-155) transactions allowed over RPC"
-      },
       "id": 1,
       "jsonrpc": "2.0"
     }

@@ -31,7 +31,6 @@ TEMP_DIRNAME="./temp_rpc_tests"
 
 api_not_compared = [
     "mainnet/engine_getClientVersionV1",  # not supported by erigon
-    "mainnet/trace_rawTransaction",       # not supported by erigon
     "mainnet/engine_"                     # not supported on external EP
 ]
 
