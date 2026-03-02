@@ -31,7 +31,7 @@
     "response": {
       "error": {
         "code": -32000,
-        "message": "BlockOverrides.Withdrawals not supported"
+        "message": "block override \"withdrawals\" is not supported for this RPC method"
       },
       "id": 1,
       "jsonrpc": "2.0"
