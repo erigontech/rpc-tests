@@ -70,6 +70,7 @@
                   "transactionIndex": "0x0"
                 }
               ],
+              "maxUsedGas": "0x5208",
               "returnData": "0x",
               "status": "0x1"
             },
@@ -93,6 +94,7 @@
                   "transactionIndex": "0x1"
                 }
               ],
+              "maxUsedGas": "0x5208",
               "returnData": "0x",
               "status": "0x1"
             }
