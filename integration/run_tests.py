@@ -860,6 +860,7 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
     diff_file_size = 0
     return_code = 1  # ok
     error_msg = ""
+    diff_content = ""
     if diff_result == 1:
         diff_file_size = os.stat(diff_file).st_size
     if diff_file_size != 0 or diff_result == 0:
@@ -867,6 +868,11 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
             error_msg = "Failed Timeout"
         else:
             error_msg = "Failed"
+            try:
+                with open(diff_file, 'r', encoding='utf8') as f:
+                    diff_content = f.read()
+            except OSError:
+                pass
         return_code = 0  # failed
 
     if os.path.exists(temp_file1):
@@ -878,7 +884,7 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
             shutil.rmtree(base_name)
         except OSError:
             pass
-    return return_code, error_msg
+    return return_code, error_msg, diff_content
 
 
 def process_response(target, target1, result, result1: str, response_in_file, config,
@@ -887,44 +893,46 @@ def process_response(target, target1, result, result1: str, response_in_file, co
 
     response, error_msg = get_json_from_response(target, config.daemon_under_test, config.verbose_level, result)
     if response is None:
-        return 0, error_msg
+        return 0, error_msg, {"message": error_msg, "target": target}
 
     if result1 != "":
         expected_response, error_msg = get_json_from_response(target1, config.daemon_as_reference, config.verbose_level, result1)
         if expected_response is None:
-            return 0, error_msg
+            return 0, error_msg, {"message": error_msg, "target": target1}
     else:
         expected_response = response_in_file
 
     if config.without_compare_results is True:
         dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
-        return 1, ""
+        return 1, "", {}
 
     if response is None:
-        return 0, "Failed [" + config.daemon_under_test + "] (server doesn't response)"
+        error_msg = "Failed [" + config.daemon_under_test + "] (server doesn't response)"
+        return 0, error_msg, {"message": error_msg, "target": target}
 
     if expected_response is None:
-        return 0, "Failed [" + config.daemon_as_reference + "] (server doesn't response)"
+        error_msg = "Failed [" + config.daemon_as_reference + "] (server doesn't response)"
+        return 0, error_msg, {"message": error_msg, "target": target1}
 
     if response != expected_response:
         if "result" in response and "result" in expected_response and expected_response["result"] is None and result1 == "":
             # response and expected_response are different but don't care
             dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
-            return 1, ""
+            return 1, "", {}
         if "error" in response and "error" in expected_response and expected_response["error"] is None:
             # response and expected_response are different but don't care
             dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
-            return 1, ""
+            return 1, "", {}
         if "error" not in expected_response and "result" not in expected_response and not isinstance(expected_response, list) and len(expected_response) == 2:
             # response and expected_response are different but don't care
             dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
-            return 1, ""
+            return 1, "", {}
         if "error" in response and "error" in expected_response and config.do_not_compare_error:
             dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
-            return 1, ""
+            return 1, "", {}
         dump_jsons(True, daemon_file, exp_rsp_file, output_dir, response, expected_response)
 
-        same, error_msg = compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_file, test_number)
+        same, error_msg, diff_content = compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_file, test_number)
         # cleanup
         if same:
             os.remove(daemon_file)
@@ -937,10 +945,17 @@ def process_response(target, target1, result, result1: str, response_in_file, co
                 pass
 
         dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
-        return same, error_msg
+        error_details = {
+            "message": error_msg,
+            "target": target,
+            "actual_response": response,
+            "expected_response": expected_response,
+            "diff": diff_content,
+        }
+        return same, error_msg, error_details
 
     dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
-    return 1, ""
+    return 1, "", {}
 
 
 def run_test(json_file: str, test_number, transport_type, config):
@@ -1008,7 +1023,7 @@ def run_test(json_file: str, test_number, transport_type, config):
             daemon_file = output_api_filename + get_json_filename_ext(DAEMON_ON_DEFAULT_PORT, target)
             exp_rsp_file = output_api_filename + get_json_filename_ext(config.daemon_as_reference, target1)
 
-        return process_response(
+        result_code, error_msg, error_details = process_response(
             target,
             target1,
             result,
@@ -1021,6 +1036,10 @@ def run_test(json_file: str, test_number, transport_type, config):
             diff_file,
             json_file,
             test_number)
+        if not result_code and error_details is not None:
+            error_details["request"] = json.loads(request_dumps)
+            error_details.setdefault("target", target)
+        return result_code, error_msg, error_details
 
 
 def extract_number(filename):
@@ -1193,7 +1212,7 @@ def main(argv) -> int:
                         curr_future.cancel()
                         continue
                     print(f"{curr_test_number_in_any_loop:04d}. {curr_tt}::{file}   ", end='', flush=True)
-                    result, error_msg = curr_future.result()
+                    result, error_msg, error_details = curr_future.result()
                     if result == 1:
                         success_tests = success_tests + 1
                         if config.verbose_level:
@@ -1219,7 +1238,7 @@ def main(argv) -> int:
                                 "transport_type": curr_transport_type,
                                 "test_name": curr_json_test_full_name,
                                 "result": "FAILED",
-                                "error_message": error_msg
+                                "error_message": error_details if error_details else error_msg
                             })
                         if config.exit_on_fail:
                             cancel = True
