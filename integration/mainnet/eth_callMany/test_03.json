@@ -33,7 +33,7 @@
     "response": {
       "error": {
         "code": -32000,
-        "message": "insufficient funds for gas * price + value: address 0xb5772b3a6be702d0387770c64bf17e36a4d38188 have 5120 want 1239566"
+        "message": "insufficient funds for gas * price + value: address 0xB5772B3A6Be702D0387770C64bf17e36a4D38188 have 5120 want 1239566"
       },
       "id": 1,
       "jsonrpc": "2.0"
