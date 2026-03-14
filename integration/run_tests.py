@@ -642,17 +642,19 @@ def dump_jsons(dump_json, daemon_file, exp_rsp_file, output_dir, response, expec
             if daemon_file != "":
                 if os.path.exists(daemon_file):
                     os.remove(daemon_file)
+                start_time = datetime.now()
+                serialized = json.dumps(response, indent=2, sort_keys=True)
+                outcome.metrics.marshalling_time += (datetime.now() - start_time)
                 with open(daemon_file, 'w', encoding='utf8') as json_file_ptr:
-                    start_time = datetime.now()
-                    json_file_ptr.write(json.dumps(response, indent=2, sort_keys=True))
-                    outcome.metrics.marshalling_time += (datetime.now() - start_time)
+                    json_file_ptr.write(serialized)
             if exp_rsp_file != "":
                 if os.path.exists(exp_rsp_file):
                     os.remove(exp_rsp_file)
+                start_time = datetime.now()
+                serialized = json.dumps(expected_response, indent=2, sort_keys=True)
+                outcome.metrics.marshalling_time += (datetime.now() - start_time)
                 with open(exp_rsp_file, 'w', encoding='utf8') as json_file_ptr:
-                    start_time = datetime.now()
-                    json_file_ptr.write(json.dumps(expected_response, indent=2, sort_keys=True))
-                    outcome.metrics.marshalling_time += (datetime.now() - start_time)
+                    json_file_ptr.write(serialized)
             break
 
         except OSError as e:
@@ -788,15 +790,6 @@ def compare_json(config, response, json_file, daemon_file, exp_rsp_file, diff_fi
                 pass
         return_code = 0  # failed
 
-    if os.path.exists(temp_file1):
-        os.remove(temp_file1)
-    if os.path.exists(temp_file2):
-        os.remove(temp_file2)
-    if os.path.exists(base_name):
-        try:
-            shutil.rmtree(base_name)
-        except OSError:
-            pass
     return return_code, error_msg, diff_content
 
 
@@ -820,36 +813,32 @@ def process_response(target, target1, result, result1: str, response_in_file, co
         expected_response = response_in_file
 
     if config.without_compare_results is True:
-        dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
+        dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response, outcome)
         return 1, "", {}
-
-    if response is None:
-        error_msg = "Failed [" + config.daemon_under_test + "] (server doesn't response)"
-        return 0, error_msg, {"message": error_msg, "target": target}
 
     if expected_response is None:
         error_msg = "Failed [" + config.daemon_as_reference + "] (server doesn't response)"
-        outcome.return_code = 1
+        outcome.return_code = 0
         return 0, error_msg, {"message": error_msg, "target": target1}
 
     if response != expected_response:
         if "result" in response and "result" in expected_response and expected_response["result"] is None and result1 == "":
             # response and expected_response are different but don't care
-            dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
+            dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response, outcome)
             outcome.return_code = 1
             return 1, "", {}
         if "error" in response and "error" in expected_response and expected_response["error"] is None:
             # response and expected_response are different but don't care
-            dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
+            dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response, outcome)
             outcome.return_code = 1
             return 1, "", {}
         if "error" not in expected_response and "result" not in expected_response and not isinstance(expected_response, list) and len(expected_response) == 2:
             # response and expected_response are different but don't care
-            dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
+            dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response, outcome)
             outcome.return_code = 1
             return 1, "", {}
         if "error" in response and "error" in expected_response and config.do_not_compare_error:
-            dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
+            dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response, outcome)
             outcome.return_code = 1
             return 1, "", {}
         dump_jsons(True, daemon_file, exp_rsp_file, output_dir, response, expected_response, outcome)
@@ -867,7 +856,7 @@ def process_response(target, target1, result, result1: str, response_in_file, co
             except OSError:
                 pass
 
-        dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
+        dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response, outcome)
         outcome.return_code = same
         outcome.error_msg = error_msg
         error_details = {
@@ -879,7 +868,7 @@ def process_response(target, target1, result, result1: str, response_in_file, co
         }
         return same, error_msg, error_details
 
-    dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response)
+    dump_jsons(config.force_dump_jsons, daemon_file, exp_rsp_file, output_dir, response, expected_response, outcome)
     outcome.return_code = 1
     return 1, "", {}
 
@@ -910,9 +899,10 @@ def run_test(json_file: str, test_number, transport_type, config):
             outcome.metrics.unmarshalling_time += (datetime.now() - start_time)
     else:
         with open(json_filename, encoding='utf8') as json_file_ptr:
-            start_time = datetime.now()
-            jsonrpc_commands = json.load(json_file_ptr)
-            outcome.metrics.unmarshalling_time += (datetime.now() - start_time)
+            buff = json_file_ptr.read()
+        start_time = datetime.now()
+        jsonrpc_commands = json.loads(buff)
+        outcome.metrics.unmarshalling_time += (datetime.now() - start_time)
     for json_rpc in jsonrpc_commands:
         request = json_rpc["request"]
         try:
@@ -1155,7 +1145,6 @@ def main(argv) -> int:
                         continue
                     print(f"{curr_test_number_in_any_loop:04d}. {curr_tt}::{file}   ", end='', flush=True)
                     result, error_msg, error_details, test_outcome = curr_future.result()
-                    result, error_msg = test_outcome.return_code, test_outcome.error_msg
                     total_round_trip_time += test_outcome.metrics.round_trip_time
                     total_marshalling_time += test_outcome.metrics.marshalling_time
                     total_unmarshalling_time += test_outcome.metrics.unmarshalling_time
