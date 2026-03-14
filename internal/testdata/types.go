@@ -28,12 +28,23 @@ type TestResult struct {
 	Test    *TestDescriptor
 }
 
+// ErrorDetails holds structured failure information for the JSON report.
+type ErrorDetails struct {
+	Message          string `json:"message,omitempty"`
+	Target           string `json:"target,omitempty"`
+	ActualResponse   any    `json:"actual_response,omitempty"`
+	ExpectedResponse any    `json:"expected_response,omitempty"`
+	Diff             string `json:"diff,omitempty"`
+	Request          any    `json:"request,omitempty"`
+}
+
 // TestOutcome holds the result of executing a single test.
 type TestOutcome struct {
-	Success     bool
-	Error       error
-	ColoredDiff string
-	Metrics     TestMetrics
+	Success      bool
+	Error        error
+	ColoredDiff  string
+	Metrics      TestMetrics
+	ErrorDetails *ErrorDetails
 }
 
 // TestMetrics tracks timing and comparison statistics for a single test.

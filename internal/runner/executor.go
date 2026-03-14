@@ -3,6 +3,7 @@ package runner
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -47,6 +48,26 @@ func RunTest(ctx context.Context, descriptor *testdata.TestDescriptor, cfg *conf
 	return outcome
 }
 
+// enrichErrorDetails fills in Target and Request on an existing or newly created ErrorDetails.
+func enrichErrorDetails(outcome *testdata.TestOutcome, target string, request []byte) {
+	if outcome.ErrorDetails == nil {
+		if outcome.Error != nil {
+			outcome.ErrorDetails = &testdata.ErrorDetails{Message: outcome.Error.Error()}
+		} else {
+			return
+		}
+	}
+	if outcome.ErrorDetails.Target == "" {
+		outcome.ErrorDetails.Target = target
+	}
+	if outcome.ErrorDetails.Request == nil && len(request) > 0 {
+		var req any
+		if err := json.Unmarshal(request, &req); err == nil {
+			outcome.ErrorDetails.Request = req
+		}
+	}
+}
+
 // runCommand executes a single JSON-RPC command against the target.
 func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCommand, descriptor *testdata.TestDescriptor, outcome *testdata.TestOutcome, baseClient *internalrpc.Client) {
 	transportType := descriptor.TransportType
@@ -75,6 +96,7 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 		outcome.Metrics.UnmarshallingTime += metrics.UnmarshallingTime
 		if err != nil {
 			outcome.Error = err
+			enrichErrorDetails(outcome, target, request)
 			return
 		}
 		if cfg.VerboseLevel > 2 {
@@ -82,6 +104,9 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 		}
 
 		compare.ProcessResponse(result, nil, cmd.Response, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome)
+		if !outcome.Success {
+			enrichErrorDetails(outcome, target, request)
+		}
 	} else {
 		target = cfg.GetTarget(config.DaemonOnDefaultPort, descriptor.Name)
 
@@ -91,6 +116,7 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 		outcome.Metrics.UnmarshallingTime += metrics.UnmarshallingTime
 		if err != nil {
 			outcome.Error = err
+			enrichErrorDetails(outcome, target, request)
 			return
 		}
 		if cfg.VerboseLevel > 2 {
@@ -104,6 +130,7 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 		outcome.Metrics.UnmarshallingTime += metrics1.UnmarshallingTime
 		if err != nil {
 			outcome.Error = err
+			enrichErrorDetails(outcome, target1, request)
 			return
 		}
 		if cfg.VerboseLevel > 2 {
@@ -114,6 +141,9 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 		expRspFile = outputAPIFilename + config.GetJSONFilenameExt(cfg.DaemonAsReference, target1)
 
 		compare.ProcessResponse(result, result1, nil, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome)
+		if !outcome.Success {
+			enrichErrorDetails(outcome, target, request)
+		}
 	}
 }
 

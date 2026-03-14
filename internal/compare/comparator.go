@@ -158,12 +158,28 @@ func ProcessResponse(
 			if cfg.ReqTestNum != -1 {
 				outcome.ColoredDiff = jsondiff.ColoredString(expected, actual, opts)
 			}
+			outcome.ErrorDetails = &testdata.ErrorDetails{
+				Message:          ErrDiffMismatch.Error(),
+				ActualResponse:   response,
+				ExpectedResponse: expectedResponse,
+				Diff:             diffString,
+			}
 		}
 	} else {
 		same, err = compareJSON(cfg, daemonFile, expRspFile, diffFile, &outcome.Metrics)
 		if err != nil {
 			outcome.Error = err
 			return
+		}
+		if !same {
+			diffContent, _ := os.ReadFile(diffFile)
+			outcome.Error = ErrDiffMismatch
+			outcome.ErrorDetails = &testdata.ErrorDetails{
+				Message:          ErrDiffMismatch.Error(),
+				ActualResponse:   response,
+				ExpectedResponse: expectedResponse,
+				Diff:             string(diffContent),
+			}
 		}
 	}
 

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -91,6 +92,9 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 	globalTestNumber := 0
 	stats := &Stats{}
 
+	var reportEntries []reportEntry
+	var reportMu sync.Mutex
+
 	// Each loop iteration runs as a complete batch: all tests are scheduled,
 	// workers drain the channel, results are collected, then the next iteration starts.
 	for loopNum := range cfg.LoopNumber {
@@ -148,7 +152,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 						}
 						delete(pending, nextIndex)
 						nextIndex++
-						printResult(w, &r, stats, cfg, cancelCtx)
+						printResult(w, &r, stats, cfg, cancelCtx, &reportEntries, &reportMu)
 						if cfg.ExitOnFail && stats.FailedTests > 0 {
 							return
 						}
@@ -189,6 +193,17 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 								fmt.Printf("%04d. %s::%s   skipped\n", testNumberInAnyLoop, tt, file)
 							}
 							stats.SkippedTests++
+							if cfg.VerboseLevel == 1 {
+								reportMu.Lock()
+								reportEntries = append(reportEntries, reportEntry{
+									TestNumber:    testNumberInAnyLoop,
+									TransportType: transportType,
+									TestName:      jsonTestFullName,
+									Result:        "SKIPPED",
+									ErrorMessage:  "",
+								})
+								reportMu.Unlock()
+							}
 						}
 					} else {
 						shouldRun := ShouldRunTest(cfg, testName, testNumberInAnyLoop)
@@ -254,13 +269,26 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 	elapsed := time.Since(startTime)
 	stats.PrintSummary(elapsed, cfg.LoopNumber, availableTestedAPIs, globalTestNumber)
 
+	// Generate JSON report when verbose == 1 (mirrors Python behaviour)
+	if cfg.VerboseLevel == 1 {
+		reportFile := filepath.Join(cfg.OutputDir, "test_report.json")
+		reportMu.Lock()
+		entries := reportEntries
+		reportMu.Unlock()
+		if err := generateReport(reportFile, startTime, elapsed, stats, globalTestNumber, availableTestedAPIs, cfg.LoopNumber, entries); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to generate report: %v\n", err)
+		} else {
+			fmt.Printf("\nJSON report generated: %s\n", reportFile)
+		}
+	}
+
 	if stats.FailedTests > 0 {
 		return 1, nil
 	}
 	return 0, nil
 }
 
-func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg *config.Config, cancelCtx context.CancelFunc) {
+func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg *config.Config, cancelCtx context.CancelFunc, reportEntries *[]reportEntry, reportMu *sync.Mutex) {
 	file := fmt.Sprintf("%-60s", result.Test.Name)
 	tt := fmt.Sprintf("%-15s", result.Test.TransportType)
 	fmt.Fprintf(w, "%04d. %s::%s   ", result.Test.Number, tt, file)
@@ -272,15 +300,43 @@ func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg
 		} else {
 			fmt.Fprint(w, "OK\r")
 		}
+		if cfg.VerboseLevel == 1 {
+			reportMu.Lock()
+			*reportEntries = append(*reportEntries, reportEntry{
+				TestNumber:    result.Test.Number,
+				TransportType: result.Test.TransportType,
+				TestName:      result.Test.Name,
+				Result:        "OK",
+				ErrorMessage:  "",
+			})
+			reportMu.Unlock()
+		}
 	} else {
 		stats.AddFailure()
+		errMsg := "no error"
 		if result.Outcome.Error != nil {
-			fmt.Fprintf(w, "failed: %s\n", result.Outcome.Error.Error())
+			errMsg = result.Outcome.Error.Error()
+			fmt.Fprintf(w, "failed: %s\n", errMsg)
 			if errors.Is(result.Outcome.Error, compare.ErrDiffMismatch) && result.Outcome.ColoredDiff != "" {
 				fmt.Fprint(w, result.Outcome.ColoredDiff)
 			}
 		} else {
-			fmt.Fprintf(w, "failed: no error\n")
+			fmt.Fprintf(w, "failed: %s\n", errMsg)
+		}
+		if cfg.VerboseLevel == 1 {
+			var errField any = errMsg
+			if result.Outcome.ErrorDetails != nil {
+				errField = result.Outcome.ErrorDetails
+			}
+			reportMu.Lock()
+			*reportEntries = append(*reportEntries, reportEntry{
+				TestNumber:    result.Test.Number,
+				TransportType: result.Test.TransportType,
+				TestName:      result.Test.Name,
+				Result:        "FAILED",
+				ErrorMessage:  errField,
+			})
+			reportMu.Unlock()
 		}
 		if cfg.ExitOnFail {
 			w.Flush()
