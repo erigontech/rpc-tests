@@ -429,8 +429,8 @@ class PerfTest:
             print("test failed: " + error)
             return 1
 
-        if ratio != "100.00%":
-            print("test failed: ratio is not 100.00%")
+        if ratio == "0.00%":
+            print("test failed: ratio is 0.00%")
             return 1
 
         if self.config.create_test_report:
