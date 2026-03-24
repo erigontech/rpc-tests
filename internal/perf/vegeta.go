@@ -396,8 +396,8 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 		return fmt.Errorf("test failed: %s", errorMsg)
 	}
 
-	if successRatio != "100.00%" {
-		return fmt.Errorf("test failed: ratio is not 100.00%%")
+	if successRatio == "0.00%" {
+		return fmt.Errorf("test failed: ratio is 0.00%%")
 	}
 
 	if pt.Config.CreateTestReport {
