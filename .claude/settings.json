@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/lint-after-build.sh",
+            "timeout": 120,
+            "statusMessage": "Running golangci-lint..."
+          }
+        ]
+      }
+    ]
+  }
+}
