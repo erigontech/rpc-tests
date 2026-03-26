@@ -1193,6 +1193,7 @@ def main(argv) -> int:
     # print results at the end of all the tests
     elapsed = datetime.now() - start_time
     print("                                                                                                                  \r")
+    print(f"Time:                         {str(datetime.now())}")
     print(f"Total round_trip time:        {str(total_round_trip_time)}")
     print(f"Total marshalling time:       {str(total_marshalling_time)}")
     print(f"Total unmarshalling time:     {str(total_unmarshalling_time)}")
