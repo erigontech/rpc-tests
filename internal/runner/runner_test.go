@@ -194,8 +194,8 @@ func TestPrintResult_OrderedOutput(t *testing.T) {
 			delete(pending, nextIndex)
 			nextIndex++
 			var entries []reportEntry
-		var mu sync.Mutex
-		printResult(w, &r, stats, cfg, cancel, &entries, &mu)
+			var mu sync.Mutex
+			printResult(w, &r, stats, cfg, cancel, &entries, &mu)
 		}
 	}
 	w.Flush()

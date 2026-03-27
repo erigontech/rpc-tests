@@ -1,92 +1,74 @@
 # Integration Test Suite
 
-These integration tests currently available for Goerli testnet must run as non-regression suite
+These integration tests run as a non-regression suite against a running Ethereum RPC daemon.
 
-# Requirements
+## Build
 
-```
-pip3 install -r requirements.txt
-```
-
-Currently, `json-diff` and `json-patch-jsondiff` are also required:
-
-## Linux
-```
-sudo apt update
-sudo apt install npm
-npm install -g json-diff
-
-sudo apt install python3-jsonpatch
+Build the integration test runner:
+```bash
+go build -o ./build/bin/rpc_int ./cmd/integration/main.go
 ```
 
-## macOS
-```
-brew update
-brew install node
-npm install -g json-diff
-```
+## Run tests
 
-# Run tests
-
-```
-python3 ./run_tests.py -c -k jwt.hex -b <chain>
+```bash
+./build/bin/rpc_int -c -k jwt.hex -b <chain>
 ```
 
-# Synopsis
+## Synopsis
 
 ```
-python3 ./run_tests.py -h
+./build/bin/rpc_int -h
 
-Usage: ./run_tests.py:
+Usage: rpc_int [options]
 
-Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon
+Launch an automated sequence of RPC integration tests on target blockchain node(s)
 
-Usage: ./run_tests.py:
-
-Launch an automated test sequence on Silkworm RpcDaemon (aka Silkrpc) or Erigon RpcDaemon
-
--h,--help: print this help
--j,--json-diff: use json-diff to make compare [default use json-diff]
--f,--display-only-fail: shows only failed tests (not Skipped) [default: print all] 
--E,--do-not-compare-error: do not compare error
--v,--verbose: <verbose_level> 0: no message for each test; 1: print operation result; 2: print request and response message) [default verbose_level 0]
--c,--continue: runs all tests even if one test fails [default: exit at first failed test]
--l,--loops: <number of loops> [default loop 1]
--b,--blockchain: [default: mainnet]
--s,--start-from-test: <test_number>: run tests starting from specified test number [default starts from 1]
--t,--run-test: <test_number>: run single test using global test number (i.e: -t 256 runs 256 test) or test number of one specified APi used in combination with -a or -A (i.e -a eth_getLogs() -t 3: run test 3 of eth_getLogs())
--d,--compare-erigon-rpcdaemon: send requests also to the reference daemon e.g.: Erigon RpcDaemon
--T,--transport_type: <http,http_comp,https,websocket,websocket_comp> [default http]
--k,--jwt: authentication token file (i.e -k /tmp/jwt_file.hex) 
--K,--create-jwt: generate authentication token file and use it (-K /tmp/jwt_file.hex) 
--a,--api-list-with: <apis>: run all tests of the specified API that contains string (e.g.: eth_,debug_)
--A,--api-list: <apis>: run all tests of the specified API that match full name (e.g.: eth_call,eth_getLogs)
--x,--exclude-api-list < list of tested api>: exclude API list (e.g.: txpool_content,txpool_status,engine_)
--X,--exclude-test-list <test-list>: exclude test list (e.g.: 18,22, 18,22 are global test number)
--o,--dump-response: dump JSON RPC response even if the response are the same
--H,--host: host where the RpcDaemon is located (e.g.: 10.10.2.3)
--p,--port: port where the RpcDaemon is located (e.g.: 8545)
--I,--daemon-port: Use 51515/51516 ports to server
--e,--verify-external-provider: <provider_url> send any request also to external API endpoint as reference
--i,--without-compare-results: send request and waits response without compare results (used only to see the response time to execute one api or more apis)
--w,--waiting_time: wait time after test execution in milliseconds (can be used only for serial test see -S)
--S,--serial: all tests run in serial way [default: the selected files run in parallel]
--L,--tests-on-latest-block: runs only test on latest block]
-
+Options:
+  -h, --help                           print this help
+  -j, --json-diff                      use json-diff to make compare [default: use json-diff-go]
+  -f, --display-only-fail              shows only failed tests (not Skipped) [default: print all]
+  -E, --do-not-compare-error           do not compare error
+  -v, --verbose <level>                0: no message; 1: print result; 2: print request/response [default: 0]
+  -c, --continue                       runs all tests even if one test fails [default: exit at first failed test]
+  -l, --loops <number>                 the number of integration tests loops [default: 1]
+  -b, --blockchain <name>              the network to test [default: mainnet]
+  -s, --start-from-test <number>       run tests starting from specified test number [default: 1]
+  -t, --run-test <number>              run single test using global test number
+  -d, --compare-erigon-rpcdaemon       send requests also to the reference daemon e.g.: Erigon RpcDaemon
+  -T, --transport-type <type>          http,http_comp,https,websocket,websocket_comp [default: http]
+  -k, --jwt <file>                     authentication token file
+  -K, --create-jwt <file>              generate authentication token file and use it
+  -a, --api-list-with <apis>           run all tests of the specified API that contains string
+  -A, --api-list <apis>                run all tests of the specified API that match full name
+  -x, --exclude-api-list <list>        exclude API list
+  -X, --exclude-test-list <list>       exclude test list
+  -o, --dump-response                  dump JSON RPC response even if responses are the same
+  -H, --host <host>                    host where the RpcDaemon is located [default: localhost]
+  -p, --port <port>                    port where the RpcDaemon is located [default: 8545]
+  -P, --engine-port <port>             engine port
+  -I, --daemon-port                    use 51515/51516 ports to server
+  -e, --verify-external-provider <url> send any request also to external API endpoint as reference
+  -i, --without-compare-results        send request and waits response without compare results
+  -w, --waiting-time <ms>              wait time after test execution in milliseconds
+  -S, --serial                         all tests run in serial way [default: parallel]
+  -L, --tests-on-latest-block          runs only test on latest block
+      --cpuprofile <file>              write cpu profile to file
+      --memprofile <file>              write memory profile to file
+      --trace <file>                   write execution trace to file
 
 Note:
-* in case of authentication it is necessary use option k or (--jwt) to read authentication token if present or create a new one token using option -K ( --create-jwt) 
-
+* In case of authentication, use option -k (--jwt) to read an existing authentication token
+  or -K (--create-jwt) to generate a new one.
 ```
 
+## Invoke examples
 
-# Invoke examples
+### Run all tests in parallel, show only failures
 
-Runs all tests in parallel way; and compare the response with the expected response; it shows only failed test (not success and skipped test)
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```bash
+./build/bin/rpc_int -c -f
 
-```
-./run_tests.py -c -f
 Run tests in parallel on localhost:8545/localhost:8551
 
 Test time-elapsed:            0:01:15.715804
@@ -99,13 +81,13 @@ Number of success tests:      1132
 Number of failed tests:       0
 ```
 
-Runs all tests in serial way; and compare the response with the expeceted json response; it shows only failed test (not success and skipped test)
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+### Run all tests in serial, show only failures
 
-```
-./run_tests.py -c -f -S
+```bash
+./build/bin/rpc_int -c -f -S
+
 Run tests in serial on localhost:8545/localhost:8551
-                                                                                                                  
+
 Test time-elapsed:            0:06:14.423804
 Available tests:              1203
 Available tested api:         108
@@ -116,18 +98,18 @@ Number of success tests:      1132
 Number of failed tests:       0
 ```
 
-Runs all tests of eth_getLogs() in parallel way; and compare the response with the expected json response; it prints only failed and skipped tests 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+### Run all tests of eth_getLogs in parallel
 
-```
-./run_tests.py -c -A eth_getLogs
+```bash
+./build/bin/rpc_int -c -A eth_getLogs
+
 Run tests in parallel on localhost:8545/localhost:8551
 0672. http           ::eth_getLogs/test_16.tar                                      Skipped
 0673. http           ::eth_getLogs/test_17.json                                     Skipped
 0674. http           ::eth_getLogs/test_18.json                                     Skipped
 0675. http           ::eth_getLogs/test_19.tar                                      Skipped
 0676. http           ::eth_getLogs/test_20.json                                     Skipped
-                                                                                                                  
+
 Test time-elapsed:            0:00:00.125199
 Available tests:              1203
 Available tested api:         108
@@ -138,14 +120,14 @@ Number of success tests:      15
 Number of failed tests:       0
 ```
 
-Runs test 1 of eth_getLogs() and compare the response with the expected json response; it prints tests result (failed, ok, skipped) 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+### Run test 1 of eth_getLogs with verbose output
 
-```
-./run_tests.py -c -A eth_getLogs -t 1 -v 1
+```bash
+./build/bin/rpc_int -c -A eth_getLogs -t 1 -v 1
+
 Run tests in parallel on localhost:8545/localhost:8551
-0657. http           ::eth_getLogs/test_01.json                                       OK                   
-                                                                                                                  
+0657. http           ::eth_getLogs/test_01.json                                       OK
+
 Test time-elapsed:            0:00:00.024762
 Available tests:              1203
 Available tested api:         108
@@ -154,25 +136,24 @@ Number of executed tests:     1
 Number of NOT executed tests: 0
 Number of success tests:      1
 Number of failed tests:       0
-
 ```
 
-Runs tests 5 of eth_call 3 times (each iteration is executed in parallel); and compare the response with the expected json response; it prints test result
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+### Run test 5 of eth_call 3 times with verbose output
 
-```
-./run_tests.py -c -A eth_call -t 5 -l 3 -v 1
+```bash
+./build/bin/rpc_int -c -A eth_call -t 5 -l 3 -v 1
+
 Run tests in parallel on localhost:8545/localhost:8551
-                                                                                                             
-Test iteration:  1                                                                       
-0448. http           ::eth_call/test_05.json                                          OK                   
-                                                                                                             
-Test iteration:  2                                                                       
-0448. http           ::eth_call/test_05.json                                          OK                   
-                                                                                                             
-Test iteration:  3                                                                       
-0448. http           ::eth_call/test_05.json                                          OK                   
-                                                                                                                  
+
+Test iteration:  1
+0448. http           ::eth_call/test_05.json                                          OK
+
+Test iteration:  2
+0448. http           ::eth_call/test_05.json                                          OK
+
+Test iteration:  3
+0448. http           ::eth_call/test_05.json                                          OK
+
 Test time-elapsed:            0:00:00.035965
 Available tests:              1203
 Available tested api:         108
@@ -183,15 +164,14 @@ Number of success tests:      3
 Number of failed tests:       0
 ```
 
+### Run a single test by global number (e.g. test 246)
 
-Runs global test 246(debug_trace_transaction test 46); and compare the response with the expected json response; it prints test result 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```bash
+./build/bin/rpc_int -c -t 246 -v 1
 
-```
-./run_tests.py  -c -t 246 -v 1
 Run tests in parallel on localhost:8545/localhost:8551
-0246. http           ::debug_traceTransaction/test_46.json                            OK                   
-                                                                                                                  
+0246. http           ::debug_traceTransaction/test_46.json                            OK
+
 Test time-elapsed:            0:00:00.023964
 Available tests:              1203
 Available tested api:         108
@@ -202,16 +182,16 @@ Number of success tests:      1
 Number of failed tests:       0
 ```
 
-Runs all tests (excluding global test number 181) in parallel way comparing the response with expected json response file. it prints failed and skipped test
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+### Exclude specific test numbers
 
-```
-./run_tests.py -c -X 335,336,337
+```bash
+./build/bin/rpc_int -c -X 335,336,337
+
 Run tests in parallel on localhost:8545/localhost:8551
 0335. http           ::engine_exchangeCapabilities/test_1.json                      Skipped
 0336. http           ::engine_forkchoiceUpdatedV1/test_01.json                      Skipped
 0337. http           ::engine_forkchoiceUpdatedV2/test_01.json                      Skipped
-                                                                                                                  
+
 Test time-elapsed:            0:00:24.617112
 Available tests:              1203
 Available tested api:         108
@@ -220,32 +200,20 @@ Number of executed tests:     1201
 Number of NOT executed tests: 3
 Number of success tests:      1198
 Number of failed tests:       0
-
 ```
 
-Runs all tests (excluding tests with engin_, admin_ and eth_getLogs/test_05) in parallel way comparing response with expected json response, it prints failed and skipped test
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+### Exclude APIs by pattern
 
-```
-./run_tests.py -c -x engine_,admin_,eth_getLogs/test_05
+```bash
+./build/bin/rpc_int -c -x engine_,admin_,eth_getLogs/test_05
+
 Run tests in parallel on localhost:8545/localhost:8551
 0001. http           ::admin_nodeInfo/test_01.json                                  Skipped
 0002. http           ::admin_peers/test_01.json                                     Skipped
 0335. http           ::engine_exchangeCapabilities/test_1.json                      Skipped
-0336. http           ::engine_forkchoiceUpdatedV1/test_01.json                      Skipped
-0337. http           ::engine_forkchoiceUpdatedV2/test_01.json                      Skipped
-0338. http           ::engine_getClientVersionV1/test_1.json                        Skipped
-0339. http           ::engine_getPayloadBodiesByHashV1/test_01.json                 Skipped
-0340. http           ::engine_getPayloadBodiesByHashV1/test_02.json                 Skipped
-0341. http           ::engine_getPayloadBodiesByRangeV1/test_01.json                Skipped
-0342. http           ::engine_getPayloadBodiesByRangeV1/test_02.json                Skipped
-0343. http           ::engine_getPayloadBodiesByRangeV1/test_03.json                Skipped
-0344. http           ::engine_getPayloadV1/test_01.json                             Skipped
-0345. http           ::engine_getPayloadV2/test_01.json                             Skipped
-0346. http           ::engine_newPayloadV1/test_01.json                             Skipped
-0347. http           ::engine_newPayloadV2/test_01.json                             Skipped
+...
 0661. http           ::eth_getLogs/test_05.json                                     Skipped
-                                                                                                                  
+
 Test time-elapsed:            0:00:28.677763
 Available tests:              1203
 Available tested api:         108
@@ -254,15 +222,33 @@ Number of executed tests:     1188
 Number of NOT executed tests: 16
 Number of success tests:      1188
 Number of failed tests:       0
-
 ```
 
-Run all CI tests within any Erigon installation
------------------------------------------------
+### Run CI tests with Erigon
+
 Assuming you have `erigon` installed beside `rpc-tests`:
 
-```shell
+```bash
 ./../../erigon/.github/workflows/scripts/run_rpc_tests_ethereum.sh # for Ethereum mainnet
-./../../erigon/.github/workflows/scripts/run_rpc_tests_gnosis.sh # for Gnosis mainnet
-./../../erigon/.github/workflows/scripts/run_rpc_tests_polygon.sh # for Polygon Bor mainnet
+./../../erigon/.github/workflows/scripts/run_rpc_tests_gnosis.sh   # for Gnosis mainnet
+./../../erigon/.github/workflows/scripts/run_rpc_tests_polygon.sh  # for Polygon Bor mainnet
 ```
+
+## Legacy Python Runner
+
+<details>
+<summary>Python integration test runner (run_tests.py)</summary>
+
+The previous Python-based integration test runner is still available. It requires:
+* Python >= 3.10
+* `pip3 install -r requirements.txt`
+* `json-diff` (via npm: `npm install -g json-diff`)
+* `python3-jsonpatch` >= 1.32
+
+```bash
+python3 ./run_tests.py -c -k jwt.hex -b <chain>
+```
+
+Run `python3 ./run_tests.py -h` for full help.
+
+</details>
