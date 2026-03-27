@@ -305,9 +305,9 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 	// With MaxBody(-1) Vegeta reads the full body; the drain is then a no-op
 	// (0 bytes remaining), res.Code is always set correctly, and success
 	// counting matches Python/vegeta-CLI behaviour.
-        //
-        // High workers() counts can saturate server resources.
-        //
+	//
+	// High workers() counts can saturate server resources.
+	//
 	attacker := vegeta.NewAttacker(
 		vegeta.Client(customClient),
 		vegeta.Timeout(timeout),

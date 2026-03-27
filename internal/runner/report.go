@@ -29,8 +29,8 @@ type reportSummary struct {
 }
 
 type testReport struct {
-	Summary     reportSummary  `json:"summary"`
-	TestResults []reportEntry  `json:"test_results"`
+	Summary     reportSummary `json:"summary"`
+	TestResults []reportEntry `json:"test_results"`
 }
 
 func generateReport(filename string, startTime time.Time, elapsed time.Duration, s *Stats, totalTests, totalAPIs, loopNumber int, entries []reportEntry) error {
