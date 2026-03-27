@@ -105,6 +105,9 @@ func parseFlags(cfg *config.Config) error {
 	reportFile := flag.String("R", "", "write CSV summary report to file")
 	flag.StringVar(reportFile, "report-file", "", "write CSV summary report to file")
 
+	reportFile := flag.String("R", "", "write CSV summary report to file")
+	flag.StringVar(reportFile, "report-file", "", "write CSV summary report to file")
+
 	cpuProfile := flag.String("cpuprofile", "", "write cpu profile to file")
 	memProfile := flag.String("memprofile", "", "write memory profile to file")
 	traceFile := flag.String("trace", "", "write execution trace to file")
