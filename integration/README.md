@@ -53,6 +53,7 @@ Options:
   -w, --waiting-time <ms>              wait time after test execution in milliseconds
   -S, --serial                         all tests run in serial way [default: parallel]
   -L, --tests-on-latest-block          runs only test on latest block
+  -R, --report-file <file>             write summary report to file (.csv or .txt)
       --cpuprofile <file>              write cpu profile to file
       --memprofile <file>              write memory profile to file
       --trace <file>                   write execution trace to file

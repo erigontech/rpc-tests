@@ -102,6 +102,9 @@ func parseFlags(cfg *config.Config) error {
 	doNotCompareError := flag.Bool("E", false, "do not compare error")
 	flag.BoolVar(doNotCompareError, "do-not-compare-error", false, "do not compare error")
 
+	reportFile := flag.String("R", "", "write CSV summary report to file")
+	flag.StringVar(reportFile, "report-file", "", "write CSV summary report to file")
+
 	cpuProfile := flag.String("cpuprofile", "", "write cpu profile to file")
 	memProfile := flag.String("memprofile", "", "write memory profile to file")
 	traceFile := flag.String("trace", "", "write execution trace to file")
@@ -134,6 +137,7 @@ func parseFlags(cfg *config.Config) error {
 	cfg.WithoutCompareResults = *withoutCompare
 	cfg.DoNotCompareError = *doNotCompareError
 	cfg.TestsOnLatestBlock = *testOnLatest
+	cfg.ReportFile = *reportFile
 	cfg.CpuProfile = *cpuProfile
 	cfg.MemProfile = *memProfile
 	cfg.TraceFile = *traceFile
@@ -216,12 +220,17 @@ func usage() {
 	fmt.Println("  -o, --dump-response                  dump JSON RPC response even if responses are the same")
 	fmt.Println("  -H, --host <host>                    host where the RpcDaemon is located [default: localhost]")
 	fmt.Println("  -p, --port <port>                    port where the RpcDaemon is located [default: 8545]")
+	fmt.Println("  -P, --engine-port <port>             engine port")
 	fmt.Println("  -I, --daemon-port                    use 51515/51516 ports to server")
 	fmt.Println("  -e, --verify-external-provider <url> send any request also to external API endpoint as reference")
 	fmt.Println("  -i, --without-compare-results        send request and waits response without compare results")
 	fmt.Println("  -w, --waiting-time <ms>              wait time after test execution in milliseconds")
 	fmt.Println("  -S, --serial                         all tests run in serial way [default: parallel]")
 	fmt.Println("  -L, --tests-on-latest-block          runs only test on latest block")
+	fmt.Println("  -R, --report-file <file>             write summary report to file (.csv or .txt)")
+	fmt.Println("      --cpuprofile <file>              write cpu profile to file")
+	fmt.Println("      --memprofile <file>              write memory profile to file")
+	fmt.Println("      --trace <file>                   write execution trace to file")
 }
 
 func runMain() int {

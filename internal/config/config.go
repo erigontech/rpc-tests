@@ -113,6 +113,9 @@ type Config struct {
 	// Archive handling
 	SanitizeArchiveExt bool
 
+	// Report
+	ReportFile string
+
 	// Profiling
 	CpuProfile string
 	MemProfile string
