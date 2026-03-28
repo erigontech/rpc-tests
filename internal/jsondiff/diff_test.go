@@ -390,7 +390,7 @@ func TestCollectArrayDiffs(t *testing.T) {
 	}
 }
 
-func TestSortArrayIfPrimitive(t *testing.T) {
+func TestSortArray(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    any
@@ -400,16 +400,56 @@ func TestSortArrayIfPrimitive(t *testing.T) {
 		{"empty slice", []any{}, []any{}},
 		{"primitive ints", []any{3, 1, 2}, []any{1, 2, 3}},
 		{"primitive strings", []any{"c", "a", "b"}, []any{"a", "b", "c"}},
-		{"non-primitive", []any{map[string]any{"a": 1}}, []any{map[string]any{"a": 1}}},
+		{"single object", []any{map[string]any{"a": 1}}, []any{map[string]any{"a": 1}}},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := sortArrayIfPrimitive(tt.input)
+			result := sortArray(tt.input)
 			if result == nil {
 				t.Error("expected non-nil result")
 			}
 		})
+	}
+}
+
+func TestDiffJSONAccessListOrderIndependent(t *testing.T) {
+	// accessList with entries in different order and storageKeys in different order
+	// should be considered equal when SortArrays is true.
+	geth := map[string]any{
+		"result": map[string]any{
+			"gasUsed": "0xc2af",
+			"accessList": []any{
+				map[string]any{
+					"address":     "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+					"storageKeys": []any{"0xfb19a963", "0xb78cb516"},
+				},
+				map[string]any{
+					"address":     "0x2de6b0e3947a35aa897d0cb7e4e5c25aba89c6b7",
+					"storageKeys": []any{"0x87f98d47"},
+				},
+			},
+		},
+	}
+	erigon := map[string]any{
+		"result": map[string]any{
+			"gasUsed": "0xc2af",
+			"accessList": []any{
+				map[string]any{
+					"address":     "0x2de6b0e3947a35aa897d0cb7e4e5c25aba89c6b7",
+					"storageKeys": []any{"0x87f98d47"},
+				},
+				map[string]any{
+					"address":     "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+					"storageKeys": []any{"0xb78cb516", "0xfb19a963"},
+				},
+			},
+		},
+	}
+
+	diff := DiffJSON(geth, erigon, &Options{SortArrays: true})
+	if len(diff) != 0 {
+		t.Errorf("expected no diff, got: %v", diff)
 	}
 }
 
@@ -700,7 +740,7 @@ func TestCollectDiffs_Path(t *testing.T) {
 func TestSortArrayIfPrimitive_MixedPrimitives(t *testing.T) {
 	// Test sorting with mixed primitive types
 	input := []any{"b", "a", "c"}
-	result := sortArrayIfPrimitive(input)
+	result := sortArray(input)
 
 	resultSlice, ok := result.([]any)
 	if !ok {

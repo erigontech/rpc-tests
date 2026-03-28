@@ -207,8 +207,8 @@ func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Option
 
 	// Sort arrays if required
 	if opts.SortArrays {
-		v1 = reflect.ValueOf(sortArrayIfPrimitive(obj1))
-		v2 = reflect.ValueOf(sortArrayIfPrimitive(obj2))
+		v1 = reflect.ValueOf(sortArray(obj1))
+		v2 = reflect.ValueOf(sortArray(obj2))
 	}
 
 	len1 := v1.Len()
@@ -337,33 +337,58 @@ func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
 	}
 }
 
-func sortArrayIfPrimitive(arr any) any {
+func sortArray(arr any) any {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
 		return arr
 	}
-
 	if v.Len() == 0 {
 		return arr
 	}
 
-	// Check that the array contains only primitives
-	firstElem := v.Index(0).Interface()
-	if !isPrimitive(firstElem) {
-		return arr
-	}
-
-	// Create a copy and sort it
 	slice := make([]any, v.Len())
 	for i := range v.Len() {
 		slice[i] = v.Index(i).Interface()
 	}
 
-	sort.Slice(slice, func(i, j int) bool {
-		return comparePrimitives(slice[i], slice[j]) < 0
-	})
+	if isPrimitive(slice[0]) {
+		sort.Slice(slice, func(i, j int) bool {
+			return comparePrimitives(slice[i], slice[j]) < 0
+		})
+	} else {
+		// Sort objects/nested arrays by their canonical JSON representation.
+		// normalizeForSort recursively sorts nested arrays first so that
+		// {"address":"0x1","storageKeys":["0xb","0xa"]} and
+		// {"address":"0x1","storageKeys":["0xa","0xb"]} produce the same key.
+		sort.Slice(slice, func(i, j int) bool {
+			return canonicalSortKey(slice[i]) < canonicalSortKey(slice[j])
+		})
+	}
 
 	return slice
+}
+
+// canonicalSortKey returns a stable JSON string for v with all nested arrays sorted.
+func canonicalSortKey(v any) string {
+	b, _ := json.Marshal(normalizeForSort(v))
+	return string(b)
+}
+
+// normalizeForSort recursively sorts all arrays inside v so the result is
+// order-independent and can be used as a canonical sort key.
+func normalizeForSort(v any) any {
+	switch val := v.(type) {
+	case []any:
+		return sortArray(val)
+	case map[string]any:
+		result := make(map[string]any, len(val))
+		for k, elem := range val {
+			result[k] = normalizeForSort(elem)
+		}
+		return result
+	default:
+		return v
+	}
 }
 
 func isPrimitive(v any) bool {
