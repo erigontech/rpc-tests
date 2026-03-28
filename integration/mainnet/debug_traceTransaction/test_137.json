@@ -33,7 +33,7 @@
                   {
                     "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
                     "data": "0x0000000000000000000000000000000000000000000000005ea0a1fe55143c0d",
-                    "index": 0,
+                    "index": "0x0",
                     "position": "0x0",
                     "topics": [
                       "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
@@ -67,7 +67,7 @@
                       {
                         "address": "0xaaaebe6fe48e54f431b0c390cfaf0b017d09d42d",
                         "data": "0x0000000000000000000000000000000000000000000000000000000003e36632",
-                        "index": 1,
+                        "index": "0x1",
                         "position": "0x0",
                         "topics": [
                           "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
@@ -108,7 +108,7 @@
               {
                 "address": "0x06729eb2424da47898f935267bd4a62940de5105",
                 "data": "0x0000000000000000000000000000000000000000000000000000000003e36632ffffffffffffffffffffffffffffffffffffffffffffffffa15f5e01aaebc3f3000000000000000000000000000000000004edecb5011d0b8b9b79eef69071a600000000000000000000000000000000000000000000000000106d92143f5669000000000000000000000000000000000000000000000000000000000003df1c",
-                "index": 2,
+                "index": "0x2",
                 "position": "0x4",
                 "topics": [
                   "0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67",
