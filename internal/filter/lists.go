@@ -3,7 +3,6 @@ package filter
 // apiNotCompared contains API paths that are skipped by default (when no explicit filters are set).
 var apiNotCompared = []string{
 	"mainnet/engine_getClientVersionV1",
-	"mainnet/trace_rawTransaction",
 	"mainnet/engine_",
 }
 
