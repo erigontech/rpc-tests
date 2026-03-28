@@ -99,8 +99,8 @@ func parseFlags(cfg *config.Config) error {
 	withoutCompare := flag.Bool("i", false, "without compare results")
 	flag.BoolVar(withoutCompare, "without-compare-results", false, "without compare results")
 
-	doNotCompareError := flag.Bool("E", false, "do not compare error")
-	flag.BoolVar(doNotCompareError, "do-not-compare-error", false, "do not compare error")
+	doNotCompareError := flag.Bool("E", false, "compare error code only, ignore error message")
+	flag.BoolVar(doNotCompareError, "do-not-compare-error", false, "compare error code only, ignore error message")
 
 	reportFile := flag.String("R", "", "write CSV summary report to file")
 	flag.StringVar(reportFile, "report-file", "", "write CSV summary report to file")
@@ -202,7 +202,7 @@ func usage() {
 	fmt.Println("  -h, --help                           print this help")
 	fmt.Println("  -j, --json-diff                      use json-diff to make compare [default: use json-diff-go]")
 	fmt.Println("  -f, --display-only-fail              shows only failed tests (not Skipped) [default: print all]")
-	fmt.Println("  -E, --do-not-compare-error           do not compare error")
+	fmt.Println("  -E, --do-not-compare-error           compare error code only, ignore error message")
 	fmt.Println("  -v, --verbose <level>                0: no message; 1: print result; 2: print request/response [default: 0]")
 	fmt.Println("  -c, --continue                       runs all tests even if one test fails [default: exit at first failed test]")
 	fmt.Println("  -l, --loops <number>                 the number of integration tests loops [default: 1]")
