@@ -317,7 +317,7 @@ func TestCollectDiffs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			diffs := collectDiffs(tt.obj1, tt.obj2, "")
+			diffs := collectDiffs(tt.obj1, tt.obj2, "", &Options{})
 			if len(diffs) == 0 {
 				t.Error("expected at least one diff")
 				return
@@ -349,7 +349,7 @@ func TestCollectMapDiffs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			diffs := collectDiffs(tt.obj1, tt.obj2, "")
+			diffs := collectDiffs(tt.obj1, tt.obj2, "", &Options{})
 			if diffs == nil {
 				t.Error("expected non-nil diffs")
 			}
@@ -382,7 +382,7 @@ func TestCollectArrayDiffs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			diffs := collectDiffs(tt.obj1, tt.obj2, "")
+			diffs := collectDiffs(tt.obj1, tt.obj2, "", &Options{})
 			if diffs == nil {
 				t.Error("expected non-nil diffs")
 			}
@@ -724,7 +724,7 @@ func TestCollectDiffs_Path(t *testing.T) {
 		},
 	}
 
-	diffs := collectDiffs(obj1, obj2, "")
+	diffs := collectDiffs(obj1, obj2, "", &Options{})
 	found := false
 	for _, d := range diffs {
 		if d.Path == "level1.level2" && d.Type == DiffUpdate {

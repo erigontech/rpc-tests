@@ -58,7 +58,7 @@ func DiffString(obj1, obj2 any, opts *Options) string {
 		opts = &Options{}
 	}
 
-	diffs := collectDiffs(obj1, obj2, "")
+	diffs := collectDiffs(obj1, obj2, "", opts)
 
 	var sb strings.Builder
 	for _, d := range diffs {
@@ -85,7 +85,7 @@ func ColoredString(obj1, obj2 any, opts *Options) string {
 		opts = &Options{}
 	}
 
-	diffs := collectDiffs(obj1, obj2, "")
+	diffs := collectDiffs(obj1, obj2, "", opts)
 
 	const (
 		colorReset  = "\033[0m"
@@ -229,13 +229,13 @@ func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Option
 	}
 }
 
-func collectDiffs(obj1, obj2 any, path string) []Diff {
+func collectDiffs(obj1, obj2 any, path string, opts *Options) []Diff {
 	var diffs []Diff
-	collectDiffsRec(obj1, obj2, path, &diffs)
+	collectDiffsRec(obj1, obj2, path, &diffs, opts)
 	return diffs
 }
 
-func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff) {
+func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
 	if obj1 == nil && obj2 == nil {
 		*diffs = append(*diffs, Diff{Type: DiffEqual, Path: path, NewValue: obj2})
 		return
@@ -261,9 +261,9 @@ func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff) {
 
 	switch v1.Kind() {
 	case reflect.Map:
-		collectMapDiffs(obj1, obj2, path, diffs)
+		collectMapDiffs(obj1, obj2, path, diffs, opts)
 	case reflect.Slice, reflect.Array:
-		collectArrayDiffs(obj1, obj2, path, diffs)
+		collectArrayDiffs(obj1, obj2, path, diffs, opts)
 	default:
 		if !reflect.DeepEqual(obj1, obj2) {
 			*diffs = append(*diffs, Diff{Type: DiffUpdate, Path: path, OldValue: obj1, NewValue: obj2})
@@ -273,7 +273,7 @@ func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff) {
 	}
 }
 
-func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
+func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
 	m1, ok1 := obj1.(map[string]any)
 	m2, ok2 := obj2.(map[string]any)
 
@@ -310,12 +310,17 @@ func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
 		} else if !exists2 {
 			*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1})
 		} else {
-			collectDiffsRec(v1, v2, newPath, diffs)
+			collectDiffsRec(v1, v2, newPath, diffs, opts)
 		}
 	}
 }
 
-func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
+func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
+	if opts.SortArrays {
+		obj1 = sortArray(obj1)
+		obj2 = sortArray(obj2)
+	}
+
 	v1 := reflect.ValueOf(obj1)
 	v2 := reflect.ValueOf(obj2)
 
@@ -332,7 +337,7 @@ func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
 		} else if i >= len2 {
 			*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1.Index(i).Interface()})
 		} else {
-			collectDiffsRec(v1.Index(i).Interface(), v2.Index(i).Interface(), newPath, diffs)
+			collectDiffsRec(v1.Index(i).Interface(), v2.Index(i).Interface(), newPath, diffs, opts)
 		}
 	}
 }
