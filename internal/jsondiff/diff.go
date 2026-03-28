@@ -58,7 +58,7 @@ func DiffString(obj1, obj2 any, opts *Options) string {
 		opts = &Options{}
 	}
 
-	diffs := collectDiffs(obj1, obj2, "")
+	diffs := collectDiffs(obj1, obj2, "", opts)
 
 	var sb strings.Builder
 	for _, d := range diffs {
@@ -85,7 +85,7 @@ func ColoredString(obj1, obj2 any, opts *Options) string {
 		opts = &Options{}
 	}
 
-	diffs := collectDiffs(obj1, obj2, "")
+	diffs := collectDiffs(obj1, obj2, "", opts)
 
 	const (
 		colorReset  = "\033[0m"
@@ -207,8 +207,8 @@ func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Option
 
 	// Sort arrays if required
 	if opts.SortArrays {
-		v1 = reflect.ValueOf(sortArrayIfPrimitive(obj1))
-		v2 = reflect.ValueOf(sortArrayIfPrimitive(obj2))
+		v1 = reflect.ValueOf(sortArray(obj1))
+		v2 = reflect.ValueOf(sortArray(obj2))
 	}
 
 	len1 := v1.Len()
@@ -229,13 +229,13 @@ func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Option
 	}
 }
 
-func collectDiffs(obj1, obj2 any, path string) []Diff {
+func collectDiffs(obj1, obj2 any, path string, opts *Options) []Diff {
 	var diffs []Diff
-	collectDiffsRec(obj1, obj2, path, &diffs)
+	collectDiffsRec(obj1, obj2, path, &diffs, opts)
 	return diffs
 }
 
-func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff) {
+func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
 	if obj1 == nil && obj2 == nil {
 		*diffs = append(*diffs, Diff{Type: DiffEqual, Path: path, NewValue: obj2})
 		return
@@ -261,9 +261,9 @@ func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff) {
 
 	switch v1.Kind() {
 	case reflect.Map:
-		collectMapDiffs(obj1, obj2, path, diffs)
+		collectMapDiffs(obj1, obj2, path, diffs, opts)
 	case reflect.Slice, reflect.Array:
-		collectArrayDiffs(obj1, obj2, path, diffs)
+		collectArrayDiffs(obj1, obj2, path, diffs, opts)
 	default:
 		if !reflect.DeepEqual(obj1, obj2) {
 			*diffs = append(*diffs, Diff{Type: DiffUpdate, Path: path, OldValue: obj1, NewValue: obj2})
@@ -273,7 +273,7 @@ func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff) {
 	}
 }
 
-func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
+func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
 	m1, ok1 := obj1.(map[string]any)
 	m2, ok2 := obj2.(map[string]any)
 
@@ -310,12 +310,17 @@ func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
 		} else if !exists2 {
 			*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1})
 		} else {
-			collectDiffsRec(v1, v2, newPath, diffs)
+			collectDiffsRec(v1, v2, newPath, diffs, opts)
 		}
 	}
 }
 
-func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
+func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
+	if opts.SortArrays {
+		obj1 = sortArray(obj1)
+		obj2 = sortArray(obj2)
+	}
+
 	v1 := reflect.ValueOf(obj1)
 	v2 := reflect.ValueOf(obj2)
 
@@ -332,38 +337,63 @@ func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff) {
 		} else if i >= len2 {
 			*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1.Index(i).Interface()})
 		} else {
-			collectDiffsRec(v1.Index(i).Interface(), v2.Index(i).Interface(), newPath, diffs)
+			collectDiffsRec(v1.Index(i).Interface(), v2.Index(i).Interface(), newPath, diffs, opts)
 		}
 	}
 }
 
-func sortArrayIfPrimitive(arr any) any {
+func sortArray(arr any) any {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
 		return arr
 	}
-
 	if v.Len() == 0 {
 		return arr
 	}
 
-	// Check that the array contains only primitives
-	firstElem := v.Index(0).Interface()
-	if !isPrimitive(firstElem) {
-		return arr
-	}
-
-	// Create a copy and sort it
 	slice := make([]any, v.Len())
 	for i := range v.Len() {
 		slice[i] = v.Index(i).Interface()
 	}
 
-	sort.Slice(slice, func(i, j int) bool {
-		return comparePrimitives(slice[i], slice[j]) < 0
-	})
+	if isPrimitive(slice[0]) {
+		sort.Slice(slice, func(i, j int) bool {
+			return comparePrimitives(slice[i], slice[j]) < 0
+		})
+	} else {
+		// Sort objects/nested arrays by their canonical JSON representation.
+		// normalizeForSort recursively sorts nested arrays first so that
+		// {"address":"0x1","storageKeys":["0xb","0xa"]} and
+		// {"address":"0x1","storageKeys":["0xa","0xb"]} produce the same key.
+		sort.Slice(slice, func(i, j int) bool {
+			return canonicalSortKey(slice[i]) < canonicalSortKey(slice[j])
+		})
+	}
 
 	return slice
+}
+
+// canonicalSortKey returns a stable JSON string for v with all nested arrays sorted.
+func canonicalSortKey(v any) string {
+	b, _ := json.Marshal(normalizeForSort(v))
+	return string(b)
+}
+
+// normalizeForSort recursively sorts all arrays inside v so the result is
+// order-independent and can be used as a canonical sort key.
+func normalizeForSort(v any) any {
+	switch val := v.(type) {
+	case []any:
+		return sortArray(val)
+	case map[string]any:
+		result := make(map[string]any, len(val))
+		for k, elem := range val {
+			result[k] = normalizeForSort(elem)
+		}
+		return result
+	default:
+		return v
+	}
 }
 
 func isPrimitive(v any) bool {
