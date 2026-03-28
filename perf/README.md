@@ -92,6 +92,7 @@ OPTIONS:
    -e, --empty-cache                       Empty OS cache before each test
    -C, --max-connections <value>           Maximum number of connections [default: 9000]
    -D, --testing-client <value>            Name of testing client [default: rpcdaemon]
+   -n, --process-name <value>             Server process name for liveness check (default: testing-client)
    -b, --blockchain <value>               Blockchain network name [default: mainnet]
    -y, --test-type <value>                Test type (e.g., eth_call, eth_getLogs) [default: eth_getLogs]
    -p, --pattern-file <value>             Path to the Vegeta attack pattern file

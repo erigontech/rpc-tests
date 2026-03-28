@@ -34,6 +34,7 @@ type Config struct {
 	ClientAddress          string
 	TestType               string
 	TestingClient          string
+	ServerProcessName      string
 	WaitingTime            int
 	VersionedTestReport    bool
 	Verbose                bool
@@ -66,6 +67,7 @@ func NewConfig() *Config {
 		ClientAddress:          DefaultServerAddress,
 		TestType:               DefaultTestType,
 		TestingClient:          DefaultClientName,
+		ServerProcessName:      "",
 		WaitingTime:            DefaultWaitingTime,
 		VersionedTestReport:    false,
 		Verbose:                false,
@@ -86,6 +88,15 @@ func NewConfig() *Config {
 		HaltOnVegetaError:      false,
 		DisableHttpCompression: false,
 	}
+}
+
+// ProcessName returns the process name to use for liveness checks.
+// Falls back to TestingClient if ServerProcessName is not set.
+func (c *Config) ProcessName() string {
+	if c.ServerProcessName != "" {
+		return c.ServerProcessName
+	}
+	return c.TestingClient
 }
 
 // Validate checks the configuration for conflicts and invalid values.

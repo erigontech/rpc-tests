@@ -174,7 +174,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 	}
 
 	if pt.Config.CheckServerAlive {
-		if !IsProcessRunning(pt.Config.TestingClient) {
+		if !IsProcessRunning(pt.Config.ProcessName()) {
 			fmt.Println("test failed: server is Dead")
 			return fmt.Errorf("server died during test")
 		}
