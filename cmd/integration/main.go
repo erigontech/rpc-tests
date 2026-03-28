@@ -99,8 +99,11 @@ func parseFlags(cfg *config.Config) error {
 	withoutCompare := flag.Bool("i", false, "without compare results")
 	flag.BoolVar(withoutCompare, "without-compare-results", false, "without compare results")
 
-	doNotCompareError := flag.Bool("E", false, "do not compare error")
-	flag.BoolVar(doNotCompareError, "do-not-compare-error", false, "do not compare error")
+	doNotCompareError := flag.Bool("E", false, "compare error code only, ignore error message")
+	flag.BoolVar(doNotCompareError, "do-not-compare-error", false, "compare error code only, ignore error message")
+
+	reportFile := flag.String("R", "", "write CSV summary report to file")
+	flag.StringVar(reportFile, "report-file", "", "write CSV summary report to file")
 
 	cpuProfile := flag.String("cpuprofile", "", "write cpu profile to file")
 	memProfile := flag.String("memprofile", "", "write memory profile to file")
@@ -134,6 +137,7 @@ func parseFlags(cfg *config.Config) error {
 	cfg.WithoutCompareResults = *withoutCompare
 	cfg.DoNotCompareError = *doNotCompareError
 	cfg.TestsOnLatestBlock = *testOnLatest
+	cfg.ReportFile = *reportFile
 	cfg.CpuProfile = *cpuProfile
 	cfg.MemProfile = *memProfile
 	cfg.TraceFile = *traceFile
@@ -198,7 +202,7 @@ func usage() {
 	fmt.Println("  -h, --help                           print this help")
 	fmt.Println("  -j, --json-diff                      use json-diff to make compare [default: use json-diff-go]")
 	fmt.Println("  -f, --display-only-fail              shows only failed tests (not Skipped) [default: print all]")
-	fmt.Println("  -E, --do-not-compare-error           do not compare error")
+	fmt.Println("  -E, --do-not-compare-error           compare error code only, ignore error message")
 	fmt.Println("  -v, --verbose <level>                0: no message; 1: print result; 2: print request/response [default: 0]")
 	fmt.Println("  -c, --continue                       runs all tests even if one test fails [default: exit at first failed test]")
 	fmt.Println("  -l, --loops <number>                 the number of integration tests loops [default: 1]")
@@ -216,12 +220,17 @@ func usage() {
 	fmt.Println("  -o, --dump-response                  dump JSON RPC response even if responses are the same")
 	fmt.Println("  -H, --host <host>                    host where the RpcDaemon is located [default: localhost]")
 	fmt.Println("  -p, --port <port>                    port where the RpcDaemon is located [default: 8545]")
+	fmt.Println("  -P, --engine-port <port>             engine port")
 	fmt.Println("  -I, --daemon-port                    use 51515/51516 ports to server")
 	fmt.Println("  -e, --verify-external-provider <url> send any request also to external API endpoint as reference")
 	fmt.Println("  -i, --without-compare-results        send request and waits response without compare results")
 	fmt.Println("  -w, --waiting-time <ms>              wait time after test execution in milliseconds")
 	fmt.Println("  -S, --serial                         all tests run in serial way [default: parallel]")
 	fmt.Println("  -L, --tests-on-latest-block          runs only test on latest block")
+	fmt.Println("  -R, --report-file <file>             write summary report to file (.csv or .txt)")
+	fmt.Println("      --cpuprofile <file>              write cpu profile to file")
+	fmt.Println("      --memprofile <file>              write memory profile to file")
+	fmt.Println("      --trace <file>                   write execution trace to file")
 }
 
 func runMain() int {

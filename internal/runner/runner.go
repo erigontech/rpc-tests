@@ -193,7 +193,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 								fmt.Printf("%04d. %s::%s   skipped\n", testNumberInAnyLoop, tt, file)
 							}
 							stats.SkippedTests++
-							if cfg.VerboseLevel == 1 {
+							if cfg.VerboseLevel == 1 || cfg.ReportFile != "" {
 								reportMu.Lock()
 								reportEntries = append(reportEntries, reportEntry{
 									TestNumber:    testNumberInAnyLoop,
@@ -269,16 +269,26 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 	elapsed := time.Since(startTime)
 	stats.PrintSummary(elapsed, cfg.LoopNumber, availableTestedAPIs, globalTestNumber)
 
+	reportMu.Lock()
+	entries := reportEntries
+	reportMu.Unlock()
+
 	// Generate JSON report when verbose == 1 (mirrors Python behaviour)
 	if cfg.VerboseLevel == 1 {
 		reportFile := filepath.Join(cfg.OutputDir, "test_report.json")
-		reportMu.Lock()
-		entries := reportEntries
-		reportMu.Unlock()
 		if err := generateReport(reportFile, startTime, elapsed, stats, globalTestNumber, availableTestedAPIs, cfg.LoopNumber, entries); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to generate report: %v\n", err)
 		} else {
 			fmt.Printf("\nJSON report generated: %s\n", reportFile)
+		}
+	}
+
+	// Generate CSV summary report when -R / --report-file is specified
+	if cfg.ReportFile != "" {
+		if err := generateCSVReport(cfg.ReportFile, entries); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to generate report: %v\n", err)
+		} else {
+			fmt.Printf("\nReport generated: %s\n", cfg.ReportFile)
 		}
 	}
 
@@ -300,7 +310,7 @@ func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg
 		} else {
 			fmt.Fprint(w, "OK\r")
 		}
-		if cfg.VerboseLevel == 1 {
+		if cfg.VerboseLevel == 1 || cfg.ReportFile != "" {
 			reportMu.Lock()
 			*reportEntries = append(*reportEntries, reportEntry{
 				TestNumber:    result.Test.Number,
@@ -323,7 +333,7 @@ func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg
 		} else {
 			fmt.Fprintf(w, "failed: %s\n", errMsg)
 		}
-		if cfg.VerboseLevel == 1 {
+		if cfg.VerboseLevel == 1 || cfg.ReportFile != "" {
 			var errField any = errMsg
 			if result.Outcome.ErrorDetails != nil {
 				errField = result.Outcome.ErrorDetails

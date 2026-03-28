@@ -111,15 +111,19 @@ func ProcessResponse(
 			outcome.Success = true
 			return
 		}
-		// Both have error and DoNotCompareError -> accept
+		// Both have error and DoNotCompareError -> compare only error code, ignore message
 		if responseHasError && expectedHasError && cfg.DoNotCompareError {
-			err := dumpJSONs(cfg.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
-			if err != nil {
-				outcome.Error = err
+			respErrMap, respErrIsMap := responseMap["error"].(map[string]any)
+			expErrMap, expErrIsMap := expectedMap["error"].(map[string]any)
+			if respErrIsMap && expErrIsMap && jsonValuesEqual(respErrMap["code"], expErrMap["code"]) {
+				err := dumpJSONs(cfg.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
+				if err != nil {
+					outcome.Error = err
+					return
+				}
+				outcome.Success = true
 				return
 			}
-			outcome.Success = true
-			return
 		}
 	}
 

@@ -28,7 +28,7 @@ Options:
   -h, --help                           print this help
   -j, --json-diff                      use json-diff to make compare [default: use json-diff-go]
   -f, --display-only-fail              shows only failed tests (not Skipped) [default: print all]
-  -E, --do-not-compare-error           do not compare error
+  -E, --do-not-compare-error           compare error code only, ignore error message
   -v, --verbose <level>                0: no message; 1: print result; 2: print request/response [default: 0]
   -c, --continue                       runs all tests even if one test fails [default: exit at first failed test]
   -l, --loops <number>                 the number of integration tests loops [default: 1]
@@ -53,6 +53,7 @@ Options:
   -w, --waiting-time <ms>              wait time after test execution in milliseconds
   -S, --serial                         all tests run in serial way [default: parallel]
   -L, --tests-on-latest-block          runs only test on latest block
+  -R, --report-file <file>             write summary report to file (.csv or .txt)
       --cpuprofile <file>              write cpu profile to file
       --memprofile <file>              write memory profile to file
       --trace <file>                   write execution trace to file

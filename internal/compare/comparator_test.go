@@ -120,19 +120,40 @@ func TestProcessResponse_EmptyExpected(t *testing.T) {
 	}
 }
 
-func TestProcessResponse_DoNotCompareError(t *testing.T) {
+func TestProcessResponse_DoNotCompareError_SameCode(t *testing.T) {
 	dir := t.TempDir()
 	cfg := config.NewConfig()
 	cfg.DoNotCompareError = true
 
 	outcome := &testdata.TestOutcome{}
 	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32000), "message": "err1"}}
-	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32001), "message": "err2"}}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32000), "message": "err2"}}
 
 	ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome)
 
 	if !outcome.Success {
-		t.Errorf("DoNotCompareError should accept different errors, error: %v", outcome.Error)
+		t.Errorf("DoNotCompareError should accept same error code with different message, error: %v", outcome.Error)
+	}
+}
+
+func TestProcessResponse_DoNotCompareError_DifferentCode(t *testing.T) {
+	dir := t.TempDir()
+	cfg := config.NewConfig()
+	cfg.DoNotCompareError = true
+	cfg.DiffKind = config.JsonDiffGo
+
+	daemonFile := filepath.Join(dir, "response.json")
+	expRspFile := filepath.Join(dir, "expected.json")
+	diffFile := filepath.Join(dir, "diff.json")
+
+	outcome := &testdata.TestOutcome{}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32000), "message": "err1"}}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32001), "message": "err2"}}
+
+	ProcessResponse(response, nil, expected, cfg, dir, daemonFile, expRspFile, diffFile, outcome)
+
+	if outcome.Success {
+		t.Error("DoNotCompareError should reject different error codes")
 	}
 }
 
