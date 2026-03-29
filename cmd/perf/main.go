@@ -24,6 +24,7 @@ func main() {
 			&cli.BoolFlag{Name: "empty-cache", Aliases: []string{"e"}, Usage: "Empty OS cache before each test"},
 			&cli.StringFlag{Name: "max-connections", Aliases: []string{"C"}, Value: perf.DefaultMaxConn, Usage: "Maximum number of connections"},
 			&cli.StringFlag{Name: "testing-client", Aliases: []string{"D"}, Value: perf.DefaultClientName, Usage: "Name of testing client"},
+			&cli.StringFlag{Name: "process-name", Aliases: []string{"n"}, Usage: "Server process name for liveness check (default: testing-client)"},
 			&cli.StringFlag{Name: "blockchain", Aliases: []string{"b"}, Value: "mainnet", Usage: "Blockchain network name"},
 			&cli.StringFlag{Name: "test-type", Aliases: []string{"y"}, Value: perf.DefaultTestType, Usage: "Test type (e.g., eth_call, eth_getLogs)"},
 			&cli.StringFlag{Name: "pattern-file", Aliases: []string{"p"}, Value: perf.DefaultVegetaPatternTarFile, Usage: "Path to the Vegeta attack pattern file"},
@@ -63,6 +64,7 @@ func runPerfTests(c *cli.Context) error {
 
 	cfg.MaxConnection = c.String("max-connections")
 	cfg.TestingClient = c.String("testing-client")
+	cfg.ServerProcessName = c.String("process-name")
 	cfg.ChainName = c.String("blockchain")
 	cfg.TestType = c.String("test-type")
 	cfg.VegetaPatternTarFile = c.String("pattern-file")
