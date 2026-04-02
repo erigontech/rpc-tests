@@ -1,0 +1,65 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "HasStorage RAM-batch bug: block 1 deploys contract C via CREATE2 from factory (constructor sets storage[0]=42); block 2 clears C code+nonce via stateOverrides then calls factory again with same salt; EIP-7610 must detect storage collision and CREATE2 must return 0; bug: simulationIntraBlockStateReader.HasStorage only checks RangeAsOf(firstMinTxNum) and misses RAM-batch storage written by prior simulated blocks. Factory=0xf1f1..., C=0x3f66e869196db7f72c20dc13b8e3a1437035e786. With fix: block2 call returnData=0x000..000 (collision). With bug: returnData=0x000...[C address] (wrong CREATE2 success)."
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1",
+                  "gas": "0x100000"
+                }
+              ],
+              "stateOverrides": {
+                "0x1111111111111111111111111111111111111111": {
+                  "balance": "0x8ac7230489e80000"
+                },
+                "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1": {
+                  "code": "0x7f0000000000000000000000000000000000602a600055604260005360016000f36000526000600f60116000f56000526020600cf3"
+                }
+              },
+              "blockOverrides": {
+                "number": "0x15c8b94",
+                "timestamp": "0x68D3B730"
+              }
+            },
+            {
+              "calls": [
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1",
+                  "gas": "0x100000"
+                }
+              ],
+              "stateOverrides": {
+                "0x3f66e869196db7f72c20dc13b8e3a1437035e786": {
+                  "code": "0x",
+                  "nonce": "0x0"
+                }
+              },
+              "blockOverrides": {
+                "number": "0x15c8b95",
+                "timestamp": "0x68D3B73C"
+              }
+            }
+          ]
+        },
+        "0x15c8b93"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": null
+    }
+  }
+]
