@@ -286,7 +286,7 @@ func (c *Config) CleanOutputDir() error {
 
 // ResultsAbsDir returns the absolute path to the results directory.
 func (c *Config) ResultsAbsDir() (string, error) {
-	return filepath.Abs(c.ResultsDir)
+	return filepath.Abs(c.OutputDir)
 }
 
 // GetJWTSecret reads a JWT secret from a file.

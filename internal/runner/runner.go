@@ -52,6 +52,10 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 		}
 	}
 
+	if err := cfg.CleanOutputDir(); err != nil {
+		return -1, err
+	}
+
 	resultsAbsDir, err := cfg.ResultsAbsDir()
 	if err != nil {
 		return -1, err
