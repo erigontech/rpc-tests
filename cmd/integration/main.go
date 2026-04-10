@@ -186,10 +186,6 @@ func parseFlags(cfg *config.Config) error {
 
 	cfg.UpdateDirs()
 
-	if err := cfg.CleanOutputDir(); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -315,7 +311,7 @@ func runMain() int {
 	exitCode, err := runner.Run(ctx, cancelCtx, cfg)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		return -1
+		return 2
 	}
 	return exitCode
 }
