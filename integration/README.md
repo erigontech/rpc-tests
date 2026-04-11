@@ -53,6 +53,7 @@ Options:
   -w, --waiting-time <ms>              wait time after test execution in milliseconds
   -S, --serial                         all tests run in serial way [default: parallel]
   -L, --tests-on-latest-block          runs only test on latest block
+  -M, --max-failures <n>               stop after n failures, 0 = unlimited [default: 100]
   -R, --report-file <file>             write summary report to file (.csv or .txt)
       --cpuprofile <file>              write cpu profile to file
       --memprofile <file>              write memory profile to file
@@ -223,6 +224,24 @@ Number of executed tests:     1188
 Number of NOT executed tests: 16
 Number of success tests:      1188
 Number of failed tests:       0
+```
+
+### Stop after too many failures
+
+By default the runner stops after 100 failures to keep result artifacts small. Use `-M` to
+override the limit or set it to `0` for unlimited:
+
+```bash
+# Stop after 50 failures (stricter than default)
+./build/bin/rpc_int -c -f -M 50
+
+# Run all tests regardless of failure count
+./build/bin/rpc_int -c -f -M 0
+```
+
+When the limit is reached the runner prints:
+```
+ABORTED: too many failures (100), test sequence stopped early
 ```
 
 ### Run CI tests with Erigon

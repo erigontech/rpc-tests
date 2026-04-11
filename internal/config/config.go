@@ -113,6 +113,9 @@ type Config struct {
 	// Archive handling
 	SanitizeArchiveExt bool
 
+	// Failure cap
+	MaxFailures int // stop after this many failures (0 = unlimited)
+
 	// Report
 	ReportFile string
 
@@ -142,6 +145,7 @@ func NewConfig() *Config {
 		DiffKind:          JsonDiffGo,
 		TransportType:     TransportHTTP,
 		ResultsDir:        ResultsDir,
+		MaxFailures:       100,
 	}
 }
 

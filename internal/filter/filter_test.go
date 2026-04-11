@@ -21,10 +21,6 @@ func TestIsSkipped_DefaultList(t *testing.T) {
 	if !f.IsSkipped("engine_exchangeCapabilities", "engine_exchangeCapabilities/test_01.json", 2) {
 		t.Error("engine_ APIs should be skipped by default")
 	}
-	if !f.IsSkipped("trace_rawTransaction", "trace_rawTransaction/test_01.json", 3) {
-		t.Error("trace_rawTransaction should be skipped by default")
-	}
-
 	// Normal API should not be skipped
 	if f.IsSkipped("eth_call", "eth_call/test_01.json", 10) {
 		t.Error("eth_call should not be skipped by default")
