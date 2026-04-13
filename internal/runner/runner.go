@@ -274,7 +274,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 
 	// Print summary
 	elapsed := time.Since(startTime)
-	stats.PrintSummary(elapsed, cfg.LoopNumber, availableTestedAPIs, globalTestNumber)
+	stats.PrintSummary(startTime, elapsed, cfg.LoopNumber, availableTestedAPIs, globalTestNumber)
 
 	reportMu.Lock()
 	entries := reportEntries
