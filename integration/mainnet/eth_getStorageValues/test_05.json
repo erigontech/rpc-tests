@@ -1,0 +1,18 @@
+[
+    {
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_getStorageValues",
+            "params": [
+                {"0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B": ["0x0000000000000000000000000000000000000000000000000000000000000001"]},
+                "latest"
+            ],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null
+        }
+    }
+]
