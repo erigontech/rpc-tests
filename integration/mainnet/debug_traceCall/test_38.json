@@ -21,7 +21,10 @@
         "response": {
             "id": 1,
             "jsonrpc": "2.0",
-            "result": null 
+            "result": null
+        },
+        "metadata": {
+            "latest": true
         }
     }
 ]

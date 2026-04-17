@@ -12,6 +12,7 @@ type TestCase struct {
 	Number        int    // Global test number (1-based, across all APIs)
 	APIName       string // API directory name
 	TransportType string // Assigned at scheduling time
+	Latest        bool
 }
 
 // TestDescriptor is a scheduled test sent to workers.
@@ -63,11 +64,18 @@ type JsonRpcTest struct {
 	Description string `json:"description"`
 }
 
+// TestMetadata holds runner hints embedded in a test fixture.
+type TestMetadata struct {
+	Latest       bool     `json:"latest"`
+	IgnoreFields []string `json:"ignoreFields"`
+}
+
 // JsonRpcCommand represents a single JSON-RPC command in a test fixture.
 type JsonRpcCommand struct {
 	Request  jsoniter.RawMessage `json:"request"`
 	Response any                 `json:"response"`
 	TestInfo *JsonRpcTest        `json:"test"`
+	Metadata *TestMetadata       `json:"metadata"`
 }
 
 // DiscoveryResult holds the results of test discovery.

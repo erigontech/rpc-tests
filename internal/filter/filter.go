@@ -1,7 +1,6 @@
 package filter
 
 import (
-	"slices"
 	"strconv"
 	"strings"
 )
@@ -29,7 +28,6 @@ type TestFilter struct {
 	excludeTestSet  map[int]struct{} // O(1) lookup by test number
 	testingAPIsList []string
 	testingWithList []string
-	useDefaultSkip  bool
 }
 
 // New creates a new TestFilter from the given configuration.
@@ -59,11 +57,6 @@ func New(cfg FilterConfig) *TestFilter {
 		f.testingWithList = strings.Split(cfg.TestingAPIsWith, ",")
 	}
 
-	// Default skip list applies when no specific test/API is requested and no exclude filters are set.
-	f.useDefaultSkip = (cfg.ReqTestNum == -1 || cfg.TestingAPIs != "" || cfg.TestingAPIsWith != "") &&
-		!(cfg.ReqTestNum != -1 && (cfg.TestingAPIs != "" || cfg.TestingAPIsWith != "")) &&
-		cfg.ExcludeAPIList == "" && cfg.ExcludeTestList == ""
-
 	return f
 }
 
@@ -72,14 +65,6 @@ func New(cfg FilterConfig) *TestFilter {
 func (f *TestFilter) IsSkipped(currAPI, testName string, globalTestNumber int) bool {
 	apiFullName := f.cfg.Net + "/" + currAPI
 	apiFullTestName := f.cfg.Net + "/" + testName
-
-	if f.useDefaultSkip {
-		for _, currTestName := range apiNotCompared {
-			if strings.Contains(apiFullName, currTestName) {
-				return true
-			}
-		}
-	}
 
 	for _, excludeAPI := range f.excludeAPIs {
 		if strings.Contains(apiFullName, excludeAPI) || strings.Contains(apiFullTestName, excludeAPI) {
@@ -97,8 +82,8 @@ func (f *TestFilter) IsSkipped(currAPI, testName string, globalTestNumber int) b
 }
 
 // APIUnderTest determines if a test should run based on API/pattern/latest filters.
-// This matches v1 apiUnderTest() exactly.
-func (f *TestFilter) APIUnderTest(currAPI, testName string) bool {
+// tcLatest reflects the metadata.latest field from the test fixture.
+func (f *TestFilter) APIUnderTest(currAPI, testName string, tcLatest bool) bool {
 	if len(f.testingWithList) == 0 && len(f.testingAPIsList) == 0 && !f.cfg.TestsOnLatestBlock {
 		return true
 	}
@@ -106,11 +91,8 @@ func (f *TestFilter) APIUnderTest(currAPI, testName string) bool {
 	if len(f.testingWithList) > 0 {
 		for _, test := range f.testingWithList {
 			if strings.Contains(currAPI, test) {
-				if f.cfg.TestsOnLatestBlock && f.VerifyInLatestList(testName) {
-					return true
-				}
 				if f.cfg.TestsOnLatestBlock {
-					return false
+					return tcLatest
 				}
 				return true
 			}
@@ -121,11 +103,8 @@ func (f *TestFilter) APIUnderTest(currAPI, testName string) bool {
 	if len(f.testingAPIsList) > 0 {
 		for _, test := range f.testingAPIsList {
 			if test == currAPI {
-				if f.cfg.TestsOnLatestBlock && f.VerifyInLatestList(testName) {
-					return true
-				}
 				if f.cfg.TestsOnLatestBlock {
-					return false
+					return tcLatest
 				}
 				return true
 			}
@@ -134,24 +113,15 @@ func (f *TestFilter) APIUnderTest(currAPI, testName string) bool {
 	}
 
 	if f.cfg.TestsOnLatestBlock {
-		return f.VerifyInLatestList(testName)
+		return tcLatest
 	}
 
 	return false
 }
 
-// VerifyInLatestList checks if a test is in the latest block list.
-// This matches v1 verifyInLatestList() exactly.
-func (f *TestFilter) VerifyInLatestList(testName string) bool {
-	apiFullTestName := f.cfg.Net + "/" + testName
-	if f.cfg.TestsOnLatestBlock {
-		for _, currTest := range testsOnLatest {
-			if strings.Contains(apiFullTestName, currTest) {
-				return true
-			}
-		}
-	}
-	return false
+// VerifyInLatestList reports whether a test is a latest-block test.
+func (f *TestFilter) VerifyInLatestList(tcLatest bool) bool {
+	return f.cfg.TestsOnLatestBlock && tcLatest
 }
 
 // CheckTestNameForNumber checks if a test filename like "test_01.json" matches a requested
@@ -177,19 +147,4 @@ func CheckTestNameForNumber(testName string, reqTestNumber int) bool {
 		return false
 	}
 	return n == reqTestNumber
-}
-
-// ShouldCompareMessage checks if the message field should be compared for a given test.
-func (f *TestFilter) ShouldCompareMessage(testPath string) bool {
-	fullPath := f.cfg.Net + "/" + testPath
-	return !slices.Contains(testsNotComparedMessage, fullPath)
-}
-
-// ShouldCompareError checks if the error field should be compared for a given test.
-func (f *TestFilter) ShouldCompareError(testPath string) bool {
-	if f.cfg.DoNotCompareError {
-		return false
-	}
-	fullPath := f.cfg.Net + "/" + testPath
-	return !slices.Contains(testsNotComparedError, fullPath)
 }

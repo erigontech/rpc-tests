@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/erigontech/rpc-tests/internal/config"
+	"github.com/erigontech/rpc-tests/internal/filter"
 	"github.com/erigontech/rpc-tests/internal/testdata"
 )
 
@@ -54,26 +55,6 @@ func TestStats_AddFailure(t *testing.T) {
 	}
 	if s.ExecutedTests != 2 {
 		t.Errorf("ExecutedTests: got %d, want 2", s.ExecutedTests)
-	}
-}
-
-func TestMustAtoi(t *testing.T) {
-	tests := []struct {
-		input string
-		want  int
-	}{
-		{"", 0},
-		{"0", 0},
-		{"1", 1},
-		{"42", 42},
-		{"abc", 0},
-	}
-
-	for _, tt := range tests {
-		got := mustAtoi(tt.input)
-		if got != tt.want {
-			t.Errorf("mustAtoi(%q): got %d, want %d", tt.input, got, tt.want)
-		}
 	}
 }
 
@@ -147,9 +128,9 @@ func TestCheckTestNameForNumber(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := checkTestNameForNumber(tt.name, tt.num)
+		got := filter.CheckTestNameForNumber(tt.name, tt.num)
 		if got != tt.want {
-			t.Errorf("checkTestNameForNumber(%q, %d): got %v, want %v", tt.name, tt.num, got, tt.want)
+			t.Errorf("CheckTestNameForNumber(%q, %d): got %v, want %v", tt.name, tt.num, got, tt.want)
 		}
 	}
 }

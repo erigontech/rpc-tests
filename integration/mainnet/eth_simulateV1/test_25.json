@@ -1,28 +1,30 @@
 [
-  {
-    "test": {
-      "reference": "",
-      "description": "empty block on latest"
-    },
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "eth_simulateV1",
-      "params": [
-        {
-          "blockStateCalls": [
-            {
-            }
-          ],
-          "returnFullTransactions": true
+    {
+        "test": {
+            "reference": "",
+            "description": "empty block on latest"
         },
-        "latest"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": null
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {}
+                    ],
+                    "returnFullTransactions": true
+                },
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null
+        },
+        "metadata": {
+            "latest": true
+        }
     }
-  }
 ]

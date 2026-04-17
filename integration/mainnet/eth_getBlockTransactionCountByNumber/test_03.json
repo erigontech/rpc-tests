@@ -1,21 +1,24 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "eth_getBlockTransactionCountByNumber",
-      "params": [
-        "latest"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": null
-    },
-    "test": {
-      "description": "invoke eth_getBlockTransactionCountByNumber on latest block",
-      "reference": ""
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_getBlockTransactionCountByNumber",
+            "params": [
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null
+        },
+        "test": {
+            "description": "invoke eth_getBlockTransactionCountByNumber on latest block",
+            "reference": ""
+        },
+        "metadata": {
+            "latest": true
+        }
     }
-  }
 ]

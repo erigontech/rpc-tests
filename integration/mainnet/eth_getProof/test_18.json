@@ -1,25 +1,27 @@
 [
     {
         "test": {
-           "reference": "",
-           "description": ""
+            "reference": "",
+            "description": ""
         },
         "request": {
-            "jsonrpc":"2.0",
-            "method":"eth_getProof",
-            "params":[
-                   "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                   [
-			"0x0000000000000000000000000000000000000000000000000000000000000000"
-                   ],
-                   "latest"
+            "jsonrpc": "2.0",
+            "method": "eth_getProof",
+            "params": [
+                "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                [
+                    "0x0000000000000000000000000000000000000000000000000000000000000000"
+                ],
+                "latest"
             ],
-            "id":1
+            "id": 1
         },
         "response": {
-            "id":1,
-            "jsonrpc":"2.0"
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
         }
     }
 ]
-

@@ -7,16 +7,18 @@
             "params": [
                 "latest",
                 [
-                   "vmTrace",
-                   "trace",
-                   "stateDiff"
+                    "vmTrace",
+                    "trace",
+                    "stateDiff"
                 ]
             ]
         },
         "response": {
             "id": 1,
             "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
         }
     }
 ]
-

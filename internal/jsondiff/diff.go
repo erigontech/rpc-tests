@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -38,6 +39,29 @@ type Options struct {
 	Sort bool
 	// SortArrays sorts primitive values in arrays before comparing
 	SortArrays bool
+	// IgnorePatterns excludes volatile or don't-care fields from diff output.
+	IgnorePatterns []*regexp.Regexp
+}
+
+// CompileIgnorePattern converts a fixture ignoreFields pattern such as
+// "result[*].structLogs[*].error" into a compiled regexp. [*] matches any
+// array index; the pattern also matches any sub-paths beneath the given path.
+func CompileIgnorePattern(pattern string) (*regexp.Regexp, error) {
+	// QuoteMeta escapes dots and brackets; replace the escaped [*] with [\d+]
+	re := strings.ReplaceAll(regexp.QuoteMeta(pattern), `\[\*\]`, `\[\d+\]`)
+	return regexp.Compile(`^` + re + `([\.\[].*)?$`)
+}
+
+func shouldIgnore(path string, opts *Options) bool {
+	if len(opts.IgnorePatterns) == 0 {
+		return false
+	}
+	for _, re := range opts.IgnorePatterns {
+		if re.MatchString(path) {
+			return true
+		}
+	}
+	return false
 }
 
 // DiffJSON computes the difference between two JSON objects
@@ -114,6 +138,9 @@ func ColoredString(obj1, obj2 any, opts *Options) string {
 }
 
 func diff(obj1, obj2 any, path string, result map[string]any, opts *Options) {
+	if shouldIgnore(path, opts) {
+		return
+	}
 	// Handle nil cases
 	if obj1 == nil && obj2 == nil {
 		if opts.KeepUnchangedValues {
@@ -236,6 +263,9 @@ func collectDiffs(obj1, obj2 any, path string, opts *Options) []Diff {
 }
 
 func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
+	if shouldIgnore(path, opts) {
+		return
+	}
 	if obj1 == nil && obj2 == nil {
 		*diffs = append(*diffs, Diff{Type: DiffEqual, Path: path, NewValue: obj2})
 		return

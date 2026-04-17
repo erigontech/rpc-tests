@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -42,6 +43,7 @@ func ProcessResponse(
 	cfg *config.Config,
 	outputDir, daemonFile, expRspFile, diffFile string,
 	outcome *testdata.TestOutcome,
+	ignoreFields []string,
 ) {
 	var expectedResponse any
 	if referenceResponse != nil {
@@ -60,8 +62,10 @@ func ProcessResponse(
 		return
 	}
 
-	// Fast path: structural equality check
-	if compareResponses(response, expectedResponse) {
+	ignorePatterns := compileIgnorePatterns(ignoreFields)
+
+	// Fast path: structural equality check (skip when ignoreFields are set — diff handles them)
+	if len(ignorePatterns) == 0 && compareResponses(response, expectedResponse) {
 		outcome.Metrics.EqualCount++
 		err := dumpJSONs(cfg.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
 		if err != nil {
@@ -137,7 +141,7 @@ func ProcessResponse(
 	var same bool
 	if cfg.DiffKind == config.JsonDiffGo {
 		outcome.Metrics.ComparisonCount++
-		opts := &jsondiff.Options{SortArrays: true}
+		opts := &jsondiff.Options{SortArrays: true, IgnorePatterns: ignorePatterns}
 		var expected, actual any
 		if respIsMap && expIsMap {
 			expected, actual = expectedMap, responseMap
@@ -378,6 +382,22 @@ func runExternalCompare(useJsonDiff bool, errorFile, file1, file2, diffFile stri
 		return false, err
 	}
 	return fi.Size() == 0, nil
+}
+
+func compileIgnorePatterns(patterns []string) []*regexp.Regexp {
+	if len(patterns) == 0 {
+		return nil
+	}
+	compiled := make([]*regexp.Regexp, 0, len(patterns))
+	for _, p := range patterns {
+		re, err := jsondiff.CompileIgnorePattern(p)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "WARNING: invalid ignoreFields pattern %q: %v\n", p, err)
+			continue
+		}
+		compiled = append(compiled, re)
+	}
+	return compiled
 }
 
 // OutputFilePaths returns the standard output file paths for a test.

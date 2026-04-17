@@ -1,4 +1,3 @@
-
 [
     {
         "request": {
@@ -20,7 +19,9 @@
         "test": {
             "description": "request on latest block",
             "reference": ""
+        },
+        "metadata": {
+            "latest": true
         }
     }
 ]
-

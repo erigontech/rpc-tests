@@ -1,25 +1,29 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceBlockByNumber",
-      "params": [
-        "latest",
-        {
-          "disableMemory": true,
-          "disableStack": true,
-          "disableStorage": true
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceBlockByNumber",
+            "params": [
+                "latest",
+                {
+                    "disableMemory": true,
+                    "disableStack": true,
+                    "disableStorage": true
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "test": {
+            "description": "trace the latest block",
+            "reference": ""
+        },
+        "metadata": {
+            "latest": true,
+            "ignoreFields": ["result[*].result.structLogs[*].error"]
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0"
-    },
-    "test": {
-      "description": "trace the latest block",
-      "reference": ""
     }
-  }
 ]

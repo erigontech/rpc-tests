@@ -16,7 +16,9 @@
         "test": {
             "description": "trace latest block",
             "reference": ""
+        },
+        "metadata": {
+            "latest": true
         }
     }
 ]
-

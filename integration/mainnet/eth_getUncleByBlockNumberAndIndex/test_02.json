@@ -1,21 +1,25 @@
 [
     {
         "test": {
-           "reference": "",
-           "description": "latest block" 
+            "reference": "",
+            "description": "latest block"
         },
-
         "request": {
-            "jsonrpc":"2.0",
-            "method":"eth_getUncleByBlockNumberAndIndex",
-            "params":["latest", "0x0"],
-            "id":1
+            "jsonrpc": "2.0",
+            "method": "eth_getUncleByBlockNumberAndIndex",
+            "params": [
+                "latest",
+                "0x0"
+            ],
+            "id": 1
         },
         "response": {
-            "jsonrpc":"2.0",
-            "id":1,
-            "result":null
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": null
+        },
+        "metadata": {
+            "latest": true
         }
     }
 ]
-

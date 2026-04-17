@@ -1,16 +1,22 @@
 [
-   {
+    {
         "request": {
-            "jsonrpc":"2.0",
-            "method":"eth_getStorageAt",
-            "params":["0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413", "0x3", "latest"],
-            "id":1
+            "jsonrpc": "2.0",
+            "method": "eth_getStorageAt",
+            "params": [
+                "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413",
+                "0x3",
+                "latest"
+            ],
+            "id": 1
         },
         "response": {
-            "id":1,
-            "jsonrpc":"2.0",
+            "id": 1,
+            "jsonrpc": "2.0",
             "result": null
+        },
+        "metadata": {
+            "latest": true
         }
     }
 ]
-

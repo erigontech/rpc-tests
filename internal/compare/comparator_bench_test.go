@@ -53,7 +53,7 @@ func BenchmarkProcessResponse_ExactMatch(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		outcome := &testdata.TestOutcome{}
-		ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome)
+		ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome, nil)
 	}
 }
 
@@ -72,7 +72,7 @@ func BenchmarkProcessResponse_DiffMismatch_JsonDiffGo(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		outcome := &testdata.TestOutcome{}
-		ProcessResponse(response, nil, expected, cfg, dir, daemonFile, expRspFile, diffFile, outcome)
+		ProcessResponse(response, nil, expected, cfg, dir, daemonFile, expRspFile, diffFile, outcome, nil)
 	}
 }
 

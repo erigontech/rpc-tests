@@ -1,8 +1,8 @@
 [
     {
         "test": {
-         "reference": "",
-         "description": "with latest block"
+            "reference": "",
+            "description": "with latest block"
         },
         "request": {
             "jsonrpc": "2.0",
@@ -10,13 +10,21 @@
             "params": [
                 "0x2",
                 "latest",
-                [1,5,95,100]
+                [
+                    1,
+                    5,
+                    95,
+                    100
+                ]
             ],
             "id": 1
         },
         "response": {
-         "id": 1,
-         "jsonrpc": "2.0"
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
+        }
     }
-  }
 ]
