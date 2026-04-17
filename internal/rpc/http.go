@@ -257,7 +257,7 @@ func GetConsistentLatestBlock(verbose int, server1URL, server2URL string, maxRet
 		cancel()
 
 		if verbose > 1 {
-			fmt.Printf("retry: %d nodes: %s, %s latest blocks: %d, %d\n", i+1, server1URL, server2URL, bn1, bn2)
+			fmt.Printf("retry: %d testingNode=%s:%d referenceNode=%s:%d\n", i+1, server1URL, bn1, server2URL, bn2)
 		}
 
 		if err1 == nil && err2 == nil && bn1 == bn2 {
@@ -269,5 +269,5 @@ func GetConsistentLatestBlock(verbose int, server1URL, server2URL string, maxRet
 		}
 	}
 
-	return 0, fmt.Errorf("nodes not synced, last values: %d / %d", bn1, bn2)
+	return 0, fmt.Errorf("nodes not synced, testingNode=%d referenceNode=%d", bn1, bn2)
 }
