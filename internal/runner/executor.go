@@ -124,8 +124,12 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 		}
 
 		target1 := cfg.GetTarget(cfg.DaemonAsReference, descriptor.Name)
+		referenceClient := client
+		if len(cfg.ExternalProviderHeaders) > 0 {
+			referenceClient = internalrpc.NewClientWithHeaders(transportType, "", cfg.VerboseLevel, cfg.ExternalProviderHeaders)
+		}
 		var result1 any
-		metrics1, err := client.Call(ctx, target1, request, &result1)
+		metrics1, err := referenceClient.Call(ctx, target1, request, &result1)
 		outcome.Metrics.RoundTripTime += metrics1.RoundTripTime
 		outcome.Metrics.UnmarshallingTime += metrics1.UnmarshallingTime
 		if err != nil {
