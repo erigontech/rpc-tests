@@ -234,8 +234,8 @@ func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Option
 
 	// Sort arrays if required
 	if opts.SortArrays {
-		v1 = reflect.ValueOf(sortArray(obj1))
-		v2 = reflect.ValueOf(sortArray(obj2))
+		v1 = reflect.ValueOf(sortArray(obj1, path, opts))
+		v2 = reflect.ValueOf(sortArray(obj2, path, opts))
 	}
 
 	len1 := v1.Len()
@@ -347,8 +347,8 @@ func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) 
 
 func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
 	if opts.SortArrays {
-		obj1 = sortArray(obj1)
-		obj2 = sortArray(obj2)
+		obj1 = sortArray(obj1, path, opts)
+		obj2 = sortArray(obj2, path, opts)
 	}
 
 	v1 := reflect.ValueOf(obj1)
@@ -372,7 +372,10 @@ func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options
 	}
 }
 
-func sortArray(arr any) any {
+// sortArray sorts arr in-place (returns a new slice). path is the JSON path to
+// the array itself (e.g. "result[0].structLogs"); opts supplies ignore patterns
+// so that ignored fields are excluded from the sort key of object elements.
+func sortArray(arr any, path string, opts *Options) any {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
 		return arr
@@ -392,33 +395,44 @@ func sortArray(arr any) any {
 		})
 	} else {
 		// Sort objects/nested arrays by their canonical JSON representation.
-		// normalizeForSort recursively sorts nested arrays first so that
-		// {"address":"0x1","storageKeys":["0xb","0xa"]} and
-		// {"address":"0x1","storageKeys":["0xa","0xb"]} produce the same key.
+		// Use a canonical element path (index 0) for all elements: since ignore
+		// patterns use [*], any concrete index would match, so this is correct.
+		elemPath := fmt.Sprintf("%s[0]", path)
 		sort.Slice(slice, func(i, j int) bool {
-			return canonicalSortKey(slice[i]) < canonicalSortKey(slice[j])
+			return canonicalSortKey(slice[i], elemPath, opts) < canonicalSortKey(slice[j], elemPath, opts)
 		})
 	}
 
 	return slice
 }
 
-// canonicalSortKey returns a stable JSON string for v with all nested arrays sorted.
-func canonicalSortKey(v any) string {
-	b, _ := json.Marshal(normalizeForSort(v))
+// canonicalSortKey returns a stable JSON string for v with all nested arrays
+// sorted and ignored fields stripped, so it can be used as an order-independent
+// sort key.
+func canonicalSortKey(v any, path string, opts *Options) string {
+	b, _ := json.Marshal(normalizeForSort(v, path, opts))
 	return string(b)
 }
 
-// normalizeForSort recursively sorts all arrays inside v so the result is
-// order-independent and can be used as a canonical sort key.
-func normalizeForSort(v any) any {
+// normalizeForSort recursively sorts all arrays inside v and strips ignored
+// fields so the result is order-independent and ignore-aware.
+func normalizeForSort(v any, path string, opts *Options) any {
 	switch val := v.(type) {
 	case []any:
-		return sortArray(val)
+		return sortArray(val, path, opts)
 	case map[string]any:
 		result := make(map[string]any, len(val))
 		for k, elem := range val {
-			result[k] = normalizeForSort(elem)
+			var fieldPath string
+			if path != "" {
+				fieldPath = path + "." + k
+			} else {
+				fieldPath = k
+			}
+			if shouldIgnore(fieldPath, opts) {
+				continue
+			}
+			result[k] = normalizeForSort(elem, fieldPath, opts)
 		}
 		return result
 	default:

@@ -406,7 +406,7 @@ func TestSortArray(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := sortArray(tt.input)
+			result := sortArray(tt.input, "", &Options{})
 			if result == nil {
 				t.Error("expected non-nil result")
 			}
@@ -741,7 +741,7 @@ func TestCollectDiffs_Path(t *testing.T) {
 func TestSortArrayIfPrimitive_MixedPrimitives(t *testing.T) {
 	// Test sorting with mixed primitive types
 	input := []any{"b", "a", "c"}
-	result := sortArray(input)
+	result := sortArray(input, "", &Options{})
 
 	resultSlice, ok := result.([]any)
 	if !ok {
@@ -895,11 +895,9 @@ func TestDiffJSON_IgnorePatterns(t *testing.T) {
 		},
 	}
 
-	// With ignore pattern: only error fields differ, so DiffJSON should return empty.
-	// Note: SortArrays is intentionally not used here — sorting objects by canonical JSON
-	// would include the ignored field in the sort key, changing array order and producing
-	// spurious diffs on other fields.
-	withIgnore := DiffJSON(obj1, obj2, &Options{IgnorePatterns: []*regexp.Regexp{re}})
+	// With ignore pattern and SortArrays: only error fields differ, so no diff expected.
+	// The sort key must exclude ignored fields so array order stays stable.
+	withIgnore := DiffJSON(obj1, obj2, &Options{SortArrays: true, IgnorePatterns: []*regexp.Regexp{re}})
 	if len(withIgnore) != 0 {
 		t.Errorf("expected no diff with ignore pattern, got: %v", withIgnore)
 	}
