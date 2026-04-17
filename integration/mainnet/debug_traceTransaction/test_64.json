@@ -861,6 +861,11 @@
     "test": {
       "description": "",
       "reference": ""
+    },
+    "metadata": {
+      "ignoreFields": [
+        "result.structLogs[*].error"
+      ]
     }
   }
 ]

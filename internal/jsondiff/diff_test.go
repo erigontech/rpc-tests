@@ -816,13 +816,13 @@ func TestCompileIgnorePattern(t *testing.T) {
 		noMatches []string
 	}{
 		{
-			pattern: "result.error",
-			matches: []string{"result.error"},
+			pattern:   "result.error",
+			matches:   []string{"result.error"},
 			noMatches: []string{"result.errorCode", "other.error"},
 		},
 		{
-			pattern: "result[*].error",
-			matches: []string{"result[0].error", "result[42].error"},
+			pattern:   "result[*].error",
+			matches:   []string{"result[0].error", "result[42].error"},
 			noMatches: []string{"result.error", "result[0].errorCode"},
 		},
 		{
