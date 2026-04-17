@@ -154,6 +154,97 @@ func TestCheckTestNameForNumber(t *testing.T) {
 	}
 }
 
+func TestMaxFailures_StopsAfterLimit(t *testing.T) {
+	const maxFail = 3
+	const totalTests = 10
+
+	cfg := config.NewConfig()
+	cfg.ExitOnFail = false
+	cfg.MaxFailures = maxFail
+
+	var buf bytes.Buffer
+	w := bufio.NewWriter(&buf)
+	stats := &Stats{}
+	var entries []reportEntry
+	var mu sync.Mutex
+
+	ctxCancelled := false
+	cancelWrapper := func() {
+		ctxCancelled = true
+	}
+
+	for i := range totalTests {
+		r := testdata.TestResult{
+			Outcome: testdata.TestOutcome{Success: false, Error: fmt.Errorf("connection refused")},
+			Test: &testdata.TestDescriptor{
+				Name:          "eth_call/test_01.json",
+				Number:        i + 1,
+				TransportType: "http",
+				Index:         i,
+			},
+		}
+		printResult(w, &r, stats, cfg, cancelWrapper, &entries, &mu)
+		if ctxCancelled {
+			break
+		}
+	}
+	w.Flush()
+
+	if stats.FailedTests != maxFail {
+		t.Errorf("FailedTests: got %d, want %d", stats.FailedTests, maxFail)
+	}
+	if !ctxCancelled {
+		t.Error("cancelCtx should have been called when MaxFailures reached")
+	}
+	output := buf.String()
+	if !strings.Contains(output, "ABORTED") {
+		t.Errorf("expected ABORTED message in output, got:\n%s", output)
+	}
+	if !strings.Contains(output, fmt.Sprintf("%d", maxFail)) {
+		t.Errorf("expected failure count %d in abort message, got:\n%s", maxFail, output)
+	}
+}
+
+func TestMaxFailures_ZeroMeansUnlimited(t *testing.T) {
+	const totalTests = 10
+
+	cfg := config.NewConfig()
+	cfg.ExitOnFail = false
+	cfg.MaxFailures = 0 // unlimited
+
+	var buf bytes.Buffer
+	w := bufio.NewWriter(&buf)
+	stats := &Stats{}
+	var entries []reportEntry
+	var mu sync.Mutex
+
+	ctxCancelled := false
+	cancelWrapper := func() {
+		ctxCancelled = true
+	}
+
+	for i := range totalTests {
+		r := testdata.TestResult{
+			Outcome: testdata.TestOutcome{Success: false, Error: fmt.Errorf("connection refused")},
+			Test: &testdata.TestDescriptor{
+				Name:          "eth_call/test_01.json",
+				Number:        i + 1,
+				TransportType: "http",
+				Index:         i,
+			},
+		}
+		printResult(w, &r, stats, cfg, cancelWrapper, &entries, &mu)
+	}
+	w.Flush()
+
+	if ctxCancelled {
+		t.Error("cancelCtx should NOT be called when MaxFailures=0 (unlimited)")
+	}
+	if stats.FailedTests != totalTests {
+		t.Errorf("FailedTests: got %d, want %d", stats.FailedTests, totalTests)
+	}
+}
+
 func TestPrintResult_OrderedOutput(t *testing.T) {
 	const numTests = 50
 

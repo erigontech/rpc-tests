@@ -40,8 +40,9 @@ func (s *Stats) AddFailure() {
 }
 
 // PrintSummary prints the v1-compatible summary output.
-func (s *Stats) PrintSummary(elapsed time.Duration, iterations, totalAPIs, totalTests int) {
+func (s *Stats) PrintSummary(startTime time.Time, elapsed time.Duration, iterations, totalAPIs, totalTests int) {
 	fmt.Println("\n                                                                                                                  ")
+	fmt.Printf("Test execution time:          %v\n", startTime.Format("2006-01-02 15:04:05"))
 	fmt.Printf("Total HTTP round-trip time:   %v\n", s.TotalRoundTripTime)
 	fmt.Printf("Total Marshalling time:       %v\n", s.TotalMarshallingTime)
 	fmt.Printf("Total Unmarshalling time:     %v\n", s.TotalUnmarshallingTime)

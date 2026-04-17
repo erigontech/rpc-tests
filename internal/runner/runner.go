@@ -160,6 +160,9 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 						if cfg.ExitOnFail && stats.FailedTests > 0 {
 							return
 						}
+						if maxFailuresReached(cfg, stats) {
+							return
+						}
 					}
 				case <-ctx.Done():
 					return
@@ -271,7 +274,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 
 	// Print summary
 	elapsed := time.Since(startTime)
-	stats.PrintSummary(elapsed, cfg.LoopNumber, availableTestedAPIs, globalTestNumber)
+	stats.PrintSummary(startTime, elapsed, cfg.LoopNumber, availableTestedAPIs, globalTestNumber)
 
 	reportMu.Lock()
 	entries := reportEntries
@@ -296,10 +299,18 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 		}
 	}
 
+	if maxFailuresReached(cfg, stats) {
+		fmt.Printf("\nABORTED: too many failures (%d), test sequence stopped early\n", cfg.MaxFailures)
+	}
+
 	if stats.FailedTests > 0 {
 		return 1, nil
 	}
 	return 0, nil
+}
+
+func maxFailuresReached(cfg *config.Config, stats *Stats) bool {
+	return cfg.MaxFailures > 0 && stats.FailedTests >= cfg.MaxFailures
 }
 
 func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg *config.Config, cancelCtx context.CancelFunc, reportEntries *[]reportEntry, reportMu *sync.Mutex) {
@@ -352,7 +363,11 @@ func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg
 			})
 			reportMu.Unlock()
 		}
-		if cfg.ExitOnFail {
+		if maxFailuresReached(cfg, stats) {
+			fmt.Fprintf(w, "\nABORTED: too many failures (%d), test sequence stopped early\n", cfg.MaxFailures)
+			w.Flush()
+			cancelCtx()
+		} else if cfg.ExitOnFail {
 			w.Flush()
 			cancelCtx()
 		}
