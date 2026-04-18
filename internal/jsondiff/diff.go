@@ -372,9 +372,15 @@ func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options
 	}
 }
 
+// maxObjectSortSize is the maximum number of elements for which object arrays
+// are sorted. Larger arrays (e.g. structLogs) are left in their original order
+// to avoid unbounded marshalling time.
+const maxObjectSortSize = 1000
+
 // sortArray sorts arrays for order-independent comparison.
-// Primitive arrays are sorted by value. Object/nested arrays are sorted by
-// pre-computed JSON keys with ignored fields stripped (O(n) marshals, not O(n log n)).
+// Primitive arrays are sorted by value. Object/nested arrays up to
+// maxObjectSortSize elements are sorted by pre-computed JSON keys with ignored
+// fields stripped; larger arrays are returned unsorted.
 func sortArray(arr any, path string, opts *Options) any {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
@@ -396,8 +402,12 @@ func sortArray(arr any, path string, opts *Options) any {
 		return slice
 	}
 
-	// Object/nested arrays: pre-compute one JSON key per element (with ignored
-	// fields stripped so they don't affect sort order) then sort by key.
+	if n > maxObjectSortSize {
+		return arr
+	}
+
+	// Pre-compute one JSON key per element (with ignored fields stripped so they
+	// don't affect sort order) then sort by key.
 	elemPath := fmt.Sprintf("%s[0]", path)
 	type entry struct {
 		key string
