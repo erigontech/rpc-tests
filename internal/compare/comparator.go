@@ -64,8 +64,8 @@ func ProcessResponse(
 
 	ignorePatterns := compileIgnorePatterns(ignoreFields)
 
-	// Fast path: structural equality check (skip when ignoreFields are set — diff handles them)
-	if len(ignorePatterns) == 0 && compareResponses(response, expectedResponse) {
+	// Fast path: structural equality check (if equal, ignoreFields don't matter)
+	if compareResponses(response, expectedResponse) {
 		outcome.Metrics.EqualCount++
 		err := dumpJSONs(cfg.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
 		if err != nil {
