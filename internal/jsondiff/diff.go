@@ -372,31 +372,49 @@ func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options
 	}
 }
 
-// sortArray sorts primitive arrays only; object and nested arrays are returned
-// unsorted to avoid expensive per-element serialisation during sorting.
+// sortArray sorts arrays for order-independent comparison.
+// Primitive arrays are sorted by value. Object/nested arrays are sorted by
+// pre-computed JSON keys (O(n) marshals, not O(n log n)).
 func sortArray(arr any) any {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
 		return arr
 	}
-	if v.Len() == 0 {
+	n := v.Len()
+	if n == 0 {
 		return arr
 	}
 
-	if !isPrimitive(v.Index(0).Interface()) {
-		return arr
+	if isPrimitive(v.Index(0).Interface()) {
+		slice := make([]any, n)
+		for i := range n {
+			slice[i] = v.Index(i).Interface()
+		}
+		sort.Slice(slice, func(i, j int) bool {
+			return comparePrimitives(slice[i], slice[j]) < 0
+		})
+		return slice
 	}
 
-	slice := make([]any, v.Len())
-	for i := range v.Len() {
-		slice[i] = v.Index(i).Interface()
+	// Object/nested arrays: pre-compute one JSON key per element then sort by key.
+	type entry struct {
+		key string
+		val any
 	}
-
-	sort.Slice(slice, func(i, j int) bool {
-		return comparePrimitives(slice[i], slice[j]) < 0
+	entries := make([]entry, n)
+	for i := range n {
+		elem := v.Index(i).Interface()
+		b, _ := json.Marshal(elem)
+		entries[i] = entry{string(b), elem}
+	}
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].key < entries[j].key
 	})
-
-	return slice
+	result := make([]any, n)
+	for i, e := range entries {
+		result[i] = e.val
+	}
+	return result
 }
 
 
