@@ -406,7 +406,7 @@ func TestSortArray(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := sortArray(tt.input)
+			result := sortArray(tt.input, "", nil)
 			if result == nil {
 				t.Error("expected non-nil result")
 			}
@@ -741,7 +741,7 @@ func TestCollectDiffs_Path(t *testing.T) {
 func TestSortArrayIfPrimitive_MixedPrimitives(t *testing.T) {
 	// Test sorting with mixed primitive types
 	input := []any{"b", "a", "c"}
-	result := sortArray(input)
+	result := sortArray(input, "", nil)
 
 	resultSlice, ok := result.([]any)
 	if !ok {

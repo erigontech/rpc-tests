@@ -234,8 +234,8 @@ func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Option
 
 	// Sort arrays if required
 	if opts.SortArrays {
-		v1 = reflect.ValueOf(sortArray(obj1))
-		v2 = reflect.ValueOf(sortArray(obj2))
+		v1 = reflect.ValueOf(sortArray(obj1, path, opts))
+		v2 = reflect.ValueOf(sortArray(obj2, path, opts))
 	}
 
 	len1 := v1.Len()
@@ -347,8 +347,8 @@ func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) 
 
 func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
 	if opts.SortArrays {
-		obj1 = sortArray(obj1)
-		obj2 = sortArray(obj2)
+		obj1 = sortArray(obj1, path, opts)
+		obj2 = sortArray(obj2, path, opts)
 	}
 
 	v1 := reflect.ValueOf(obj1)
@@ -374,8 +374,8 @@ func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options
 
 // sortArray sorts arrays for order-independent comparison.
 // Primitive arrays are sorted by value. Object/nested arrays are sorted by
-// pre-computed JSON keys (O(n) marshals, not O(n log n)).
-func sortArray(arr any) any {
+// pre-computed JSON keys with ignored fields stripped (O(n) marshals, not O(n log n)).
+func sortArray(arr any, path string, opts *Options) any {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
 		return arr
@@ -396,7 +396,9 @@ func sortArray(arr any) any {
 		return slice
 	}
 
-	// Object/nested arrays: pre-compute one JSON key per element then sort by key.
+	// Object/nested arrays: pre-compute one JSON key per element (with ignored
+	// fields stripped so they don't affect sort order) then sort by key.
+	elemPath := fmt.Sprintf("%s[0]", path)
 	type entry struct {
 		key string
 		val any
@@ -404,8 +406,7 @@ func sortArray(arr any) any {
 	entries := make([]entry, n)
 	for i := range n {
 		elem := v.Index(i).Interface()
-		b, _ := json.Marshal(elem)
-		entries[i] = entry{string(b), elem}
+		entries[i] = entry{objectSortKey(elem, elemPath, opts), elem}
 	}
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i].key < entries[j].key
@@ -417,6 +418,21 @@ func sortArray(arr any) any {
 	return result
 }
 
+// objectSortKey returns a JSON sort key for elem with top-level ignored fields stripped.
+func objectSortKey(elem any, elemPath string, opts *Options) string {
+	if m, ok := elem.(map[string]any); ok && opts != nil && len(opts.IgnorePatterns) > 0 {
+		filtered := make(map[string]any, len(m))
+		for k, v := range m {
+			if !shouldIgnore(elemPath+"."+k, opts) {
+				filtered[k] = v
+			}
+		}
+		b, _ := json.Marshal(filtered)
+		return string(b)
+	}
+	b, _ := json.Marshal(elem)
+	return string(b)
+}
 
 func isPrimitive(v any) bool {
 	if v == nil {
