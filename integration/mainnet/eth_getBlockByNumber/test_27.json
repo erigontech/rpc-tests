@@ -7,13 +7,18 @@
         "request": {
             "jsonrpc": "2.0",
             "method": "eth_getBlockByNumber",
-            "params": ["latest", true],
+            "params": [
+                "latest",
+                true
+            ],
             "id": 1
         },
         "response": {
             "jsonrpc": "2.0",
             "id": 1
+        },
+        "metadata": {
+            "latest": true
         }
     }
 ]
-

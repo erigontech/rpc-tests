@@ -45,6 +45,9 @@
         "test": {
             "description": "request contains stateOverrides see issue erigon#13705",
             "reference": ""
+        },
+        "metadata": {
+            "latest": true
         }
     }
 ]

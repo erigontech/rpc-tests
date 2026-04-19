@@ -1,22 +1,25 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "eth_getBalance",
-      "params": [
-        "0x0000000000000000000000000000000000000000",
-        "latest"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": null
-    },
-    "test": {
-      "description": "invoke getBalance on account 0x0...0 on latest block",
-      "reference": ""
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_getBalance",
+            "params": [
+                "0x0000000000000000000000000000000000000000",
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null
+        },
+        "test": {
+            "description": "invoke getBalance on account 0x0...0 on latest block",
+            "reference": ""
+        },
+        "metadata": {
+            "latest": true
+        }
     }
-  }
 ]

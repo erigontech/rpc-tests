@@ -7,14 +7,13 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/erigontech/rpc-tests/internal/compare"
 	"github.com/erigontech/rpc-tests/internal/config"
+	"github.com/erigontech/rpc-tests/internal/filter"
 	internalrpc "github.com/erigontech/rpc-tests/internal/rpc"
 	"github.com/erigontech/rpc-tests/internal/testdata"
 )
@@ -89,6 +88,11 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 
 	outputAPIFilename, outputDirName, diffFile, daemonFile, expRspFile := compare.OutputFilePaths(cfg.OutputDir, jsonFile)
 
+	var ignoreFields []string
+	if cmd.Metadata != nil {
+		ignoreFields = cmd.Metadata.IgnoreFields
+	}
+
 	if !cfg.VerifyWithDaemon {
 		var result any
 		metrics, err := client.Call(ctx, target, request, &result)
@@ -103,7 +107,7 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 			fmt.Printf("%s: [%v]\n", cfg.DaemonUnderTest, result)
 		}
 
-		compare.ProcessResponse(result, nil, cmd.Response, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome)
+		compare.ProcessResponse(result, nil, cmd.Response, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome, ignoreFields)
 		if !outcome.Success {
 			enrichErrorDetails(outcome, target, request)
 		}
@@ -140,23 +144,11 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 		daemonFile = outputAPIFilename + config.GetJSONFilenameExt(config.DaemonOnDefaultPort, target)
 		expRspFile = outputAPIFilename + config.GetJSONFilenameExt(cfg.DaemonAsReference, target1)
 
-		compare.ProcessResponse(result, result1, nil, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome)
+		compare.ProcessResponse(result, result1, nil, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome, ignoreFields)
 		if !outcome.Success {
 			enrichErrorDetails(outcome, target, request)
 		}
 	}
-}
-
-// mustAtoi converts a string to int, returning 0 on failure.
-func mustAtoi(s string) int {
-	if s == "" {
-		return 0
-	}
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		return 0
-	}
-	return n
 }
 
 // IsStartTestReached checks if we've reached the start-from-test threshold.
@@ -171,39 +163,11 @@ func ShouldRunTest(cfg *config.Config, testName string, testNumberInAnyLoop int)
 	if cfg.TestingAPIsWith == "" && cfg.TestingAPIs == "" && (cfg.ReqTestNum == -1 || cfg.ReqTestNum == testNumberInAnyLoop) {
 		return true
 	}
-	if cfg.TestingAPIsWith != "" && checkTestNameForNumber(testName, cfg.ReqTestNum) {
+	if cfg.TestingAPIsWith != "" && filter.CheckTestNameForNumber(testName, cfg.ReqTestNum) {
 		return true
 	}
-	if cfg.TestingAPIs != "" && checkTestNameForNumber(testName, cfg.ReqTestNum) {
+	if cfg.TestingAPIs != "" && filter.CheckTestNameForNumber(testName, cfg.ReqTestNum) {
 		return true
 	}
 	return false
-}
-
-// checkTestNameForNumber checks if a test filename like "test_01.json" matches a requested
-// test number. Zero-alloc: extracts the number after the last "_" without regex.
-func checkTestNameForNumber(testName string, reqTestNumber int) bool {
-	if reqTestNumber == -1 {
-		return true
-	}
-	// Find the last "_" to locate the number portion (e.g. "test_01.json" -> "01.json")
-	idx := strings.LastIndex(testName, "_")
-	if idx < 0 || idx+1 >= len(testName) {
-		return false
-	}
-	// Extract digits after "_", skip leading zeros
-	numStr := testName[idx+1:]
-	// Strip file extension and any non-digit suffix
-	end := 0
-	for end < len(numStr) && numStr[end] >= '0' && numStr[end] <= '9' {
-		end++
-	}
-	if end == 0 {
-		return false
-	}
-	n, err := strconv.Atoi(numStr[:end])
-	if err != nil {
-		return false
-	}
-	return n == reqTestNumber
 }

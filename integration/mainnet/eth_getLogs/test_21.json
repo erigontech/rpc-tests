@@ -11,11 +11,14 @@
         "response": {
             "id": 1,
             "jsonrpc": "2.0",
-            "result": null 
+            "result": null
         },
         "test": {
             "description": "logs in the last block",
             "reference": ""
+        },
+        "metadata": {
+            "latest": true
         }
     }
 ]

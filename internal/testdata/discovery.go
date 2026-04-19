@@ -30,6 +30,28 @@ var validTestExtensions = map[string]bool{
 	".gzip": true,
 }
 
+type fixturePeek []struct {
+	Metadata struct {
+		Latest bool `json:"latest"`
+	} `json:"metadata"`
+}
+
+func peekLatest(path string) bool {
+	f, err := os.Open(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "WARNING: cannot open fixture %s: %v\n", path, err)
+		return false
+	}
+	defer f.Close()
+
+	var peek fixturePeek
+	if err := json.NewDecoder(f).Decode(&peek); err != nil {
+		fmt.Fprintf(os.Stderr, "WARNING: malformed fixture %s: %v\n", path, err)
+		return false
+	}
+	return len(peek) > 0 && peek[0].Metadata.Latest
+}
+
 // DiscoverTests scans the test directory and returns all test cases with global numbering.
 // The global numbering matches v1 exactly: alphabetical API dirs, numeric sort within API,
 // global counter increments for every valid test file regardless of filtering.
@@ -86,11 +108,15 @@ func DiscoverTests(jsonDir, resultsDir string) (*DiscoveryResult, error) {
 
 			globalTestNumber++
 
-			result.Tests = append(result.Tests, TestCase{
+			tc := TestCase{
 				Name:    filepath.Join(apiName, testName),
 				Number:  globalTestNumber,
 				APIName: apiName,
-			})
+			}
+			if ext == ".json" {
+				tc.Latest = peekLatest(filepath.Join(testDir, testName))
+			}
+			result.Tests = append(result.Tests, tc)
 		}
 	}
 

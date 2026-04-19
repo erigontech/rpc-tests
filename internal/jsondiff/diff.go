@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -38,6 +39,29 @@ type Options struct {
 	Sort bool
 	// SortArrays sorts primitive values in arrays before comparing
 	SortArrays bool
+	// IgnorePatterns excludes volatile or don't-care fields from diff output.
+	IgnorePatterns []*regexp.Regexp
+}
+
+// CompileIgnorePattern converts a fixture ignoreFields pattern such as
+// "result[*].structLogs[*].error" into a compiled regexp. [*] matches any
+// array index; the pattern also matches any sub-paths beneath the given path.
+func CompileIgnorePattern(pattern string) (*regexp.Regexp, error) {
+	// QuoteMeta escapes dots and brackets; replace the escaped [*] with [\d+]
+	re := strings.ReplaceAll(regexp.QuoteMeta(pattern), `\[\*\]`, `\[\d+\]`)
+	return regexp.Compile(`^` + re + `([\.\[].*)?$`)
+}
+
+func shouldIgnore(path string, opts *Options) bool {
+	if len(opts.IgnorePatterns) == 0 {
+		return false
+	}
+	for _, re := range opts.IgnorePatterns {
+		if re.MatchString(path) {
+			return true
+		}
+	}
+	return false
 }
 
 // DiffJSON computes the difference between two JSON objects
@@ -114,6 +138,9 @@ func ColoredString(obj1, obj2 any, opts *Options) string {
 }
 
 func diff(obj1, obj2 any, path string, result map[string]any, opts *Options) {
+	if shouldIgnore(path, opts) {
+		return
+	}
 	// Handle nil cases
 	if obj1 == nil && obj2 == nil {
 		if opts.KeepUnchangedValues {
@@ -207,8 +234,8 @@ func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Option
 
 	// Sort arrays if required
 	if opts.SortArrays {
-		v1 = reflect.ValueOf(sortArray(obj1))
-		v2 = reflect.ValueOf(sortArray(obj2))
+		v1 = reflect.ValueOf(sortArray(obj1, path, opts))
+		v2 = reflect.ValueOf(sortArray(obj2, path, opts))
 	}
 
 	len1 := v1.Len()
@@ -236,6 +263,9 @@ func collectDiffs(obj1, obj2 any, path string, opts *Options) []Diff {
 }
 
 func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
+	if shouldIgnore(path, opts) {
+		return
+	}
 	if obj1 == nil && obj2 == nil {
 		*diffs = append(*diffs, Diff{Type: DiffEqual, Path: path, NewValue: obj2})
 		return
@@ -317,8 +347,8 @@ func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) 
 
 func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
 	if opts.SortArrays {
-		obj1 = sortArray(obj1)
-		obj2 = sortArray(obj2)
+		obj1 = sortArray(obj1, path, opts)
+		obj2 = sortArray(obj2, path, opts)
 	}
 
 	v1 := reflect.ValueOf(obj1)
@@ -342,58 +372,76 @@ func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options
 	}
 }
 
-func sortArray(arr any) any {
+// maxObjectSortSize is the maximum number of elements for which object arrays
+// are sorted. Larger arrays (e.g. structLogs) are left in their original order
+// to avoid unbounded marshalling time.
+const maxObjectSortSize = 1000
+
+// sortArray sorts arrays for order-independent comparison.
+// Primitive arrays are sorted by value. Object/nested arrays up to
+// maxObjectSortSize elements are sorted by pre-computed JSON keys with ignored
+// fields stripped; larger arrays are returned unsorted.
+func sortArray(arr any, path string, opts *Options) any {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
 		return arr
 	}
-	if v.Len() == 0 {
+	n := v.Len()
+	if n == 0 {
 		return arr
 	}
 
-	slice := make([]any, v.Len())
-	for i := range v.Len() {
-		slice[i] = v.Index(i).Interface()
-	}
-
-	if isPrimitive(slice[0]) {
+	if isPrimitive(v.Index(0).Interface()) {
+		slice := make([]any, n)
+		for i := range n {
+			slice[i] = v.Index(i).Interface()
+		}
 		sort.Slice(slice, func(i, j int) bool {
 			return comparePrimitives(slice[i], slice[j]) < 0
 		})
-	} else {
-		// Sort objects/nested arrays by their canonical JSON representation.
-		// normalizeForSort recursively sorts nested arrays first so that
-		// {"address":"0x1","storageKeys":["0xb","0xa"]} and
-		// {"address":"0x1","storageKeys":["0xa","0xb"]} produce the same key.
-		sort.Slice(slice, func(i, j int) bool {
-			return canonicalSortKey(slice[i]) < canonicalSortKey(slice[j])
-		})
+		return slice
 	}
 
-	return slice
+	if n > maxObjectSortSize {
+		return arr
+	}
+
+	// Pre-compute one JSON key per element (with ignored fields stripped so they
+	// don't affect sort order) then sort by key.
+	elemPath := fmt.Sprintf("%s[0]", path)
+	type entry struct {
+		key string
+		val any
+	}
+	entries := make([]entry, n)
+	for i := range n {
+		elem := v.Index(i).Interface()
+		entries[i] = entry{objectSortKey(elem, elemPath, opts), elem}
+	}
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].key < entries[j].key
+	})
+	result := make([]any, n)
+	for i, e := range entries {
+		result[i] = e.val
+	}
+	return result
 }
 
-// canonicalSortKey returns a stable JSON string for v with all nested arrays sorted.
-func canonicalSortKey(v any) string {
-	b, _ := json.Marshal(normalizeForSort(v))
-	return string(b)
-}
-
-// normalizeForSort recursively sorts all arrays inside v so the result is
-// order-independent and can be used as a canonical sort key.
-func normalizeForSort(v any) any {
-	switch val := v.(type) {
-	case []any:
-		return sortArray(val)
-	case map[string]any:
-		result := make(map[string]any, len(val))
-		for k, elem := range val {
-			result[k] = normalizeForSort(elem)
+// objectSortKey returns a JSON sort key for elem with top-level ignored fields stripped.
+func objectSortKey(elem any, elemPath string, opts *Options) string {
+	if m, ok := elem.(map[string]any); ok && opts != nil && len(opts.IgnorePatterns) > 0 {
+		filtered := make(map[string]any, len(m))
+		for k, v := range m {
+			if !shouldIgnore(elemPath+"."+k, opts) {
+				filtered[k] = v
+			}
 		}
-		return result
-	default:
-		return v
+		b, _ := json.Marshal(filtered)
+		return string(b)
 	}
+	b, _ := json.Marshal(elem)
+	return string(b)
 }
 
 func isPrimitive(v any) bool {

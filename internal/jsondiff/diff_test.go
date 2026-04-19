@@ -2,6 +2,7 @@ package jsondiff
 
 import (
 	"encoding/json"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -405,7 +406,7 @@ func TestSortArray(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := sortArray(tt.input)
+			result := sortArray(tt.input, "", nil)
 			if result == nil {
 				t.Error("expected non-nil result")
 			}
@@ -740,7 +741,7 @@ func TestCollectDiffs_Path(t *testing.T) {
 func TestSortArrayIfPrimitive_MixedPrimitives(t *testing.T) {
 	// Test sorting with mixed primitive types
 	input := []any{"b", "a", "c"}
-	result := sortArray(input)
+	result := sortArray(input, "", nil)
 
 	resultSlice, ok := result.([]any)
 	if !ok {
@@ -805,5 +806,123 @@ func TestColoredString_NilBoth(t *testing.T) {
 	// Both nil should show as equal
 	if result != "" {
 		t.Errorf("expected no diffs for both nil, got %v", result)
+	}
+}
+
+func TestCompileIgnorePattern(t *testing.T) {
+	tests := []struct {
+		pattern   string
+		matches   []string
+		noMatches []string
+	}{
+		{
+			pattern:   "result.error",
+			matches:   []string{"result.error"},
+			noMatches: []string{"result.errorCode", "other.error"},
+		},
+		{
+			pattern:   "result[*].error",
+			matches:   []string{"result[0].error", "result[42].error"},
+			noMatches: []string{"result.error", "result[0].errorCode"},
+		},
+		{
+			pattern: "result[*].structLogs[*].error",
+			matches: []string{
+				"result[0].structLogs[0].error",
+				"result[1].structLogs[99].error",
+			},
+			noMatches: []string{
+				"result[0].structLogs.error",
+				"result.structLogs[0].error",
+			},
+		},
+		{
+			// sub-paths beneath the pattern should also match
+			pattern: "result[*].structLogs",
+			matches: []string{
+				"result[0].structLogs",
+				"result[0].structLogs[1]",
+				"result[0].structLogs[1].pc",
+			},
+			noMatches: []string{"result.structLogs", "other"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.pattern, func(t *testing.T) {
+			re, err := CompileIgnorePattern(tt.pattern)
+			if err != nil {
+				t.Fatalf("CompileIgnorePattern(%q) error: %v", tt.pattern, err)
+			}
+			for _, path := range tt.matches {
+				if !re.MatchString(path) {
+					t.Errorf("pattern %q: expected match for %q", tt.pattern, path)
+				}
+			}
+			for _, path := range tt.noMatches {
+				if re.MatchString(path) {
+					t.Errorf("pattern %q: unexpected match for %q", tt.pattern, path)
+				}
+			}
+		})
+	}
+}
+
+func TestDiffJSON_IgnorePatterns(t *testing.T) {
+	re, err := CompileIgnorePattern("result[*].structLogs[*].error")
+	if err != nil {
+		t.Fatalf("CompileIgnorePattern error: %v", err)
+	}
+
+	obj1 := map[string]any{
+		"result": []any{
+			map[string]any{
+				"structLogs": []any{
+					map[string]any{"pc": float64(1), "error": ""},
+					map[string]any{"pc": float64(2), "error": ""},
+				},
+			},
+		},
+	}
+	obj2 := map[string]any{
+		"result": []any{
+			map[string]any{
+				"structLogs": []any{
+					map[string]any{"pc": float64(1), "error": "revert"},
+					map[string]any{"pc": float64(2), "error": "out of gas"},
+				},
+			},
+		},
+	}
+
+	// With ignore pattern and SortArrays: only error fields differ, so no diff expected.
+	// The sort key must exclude ignored fields so array order stays stable.
+	withIgnore := DiffJSON(obj1, obj2, &Options{SortArrays: true, IgnorePatterns: []*regexp.Regexp{re}})
+	if len(withIgnore) != 0 {
+		t.Errorf("expected no diff with ignore pattern, got: %v", withIgnore)
+	}
+
+	// Without ignore pattern: diffs must be found.
+	withoutIgnore := DiffJSON(obj1, obj2, &Options{})
+	if len(withoutIgnore) == 0 {
+		t.Error("expected diffs without ignore pattern")
+	}
+}
+
+func TestDiffJSON_IgnoreTopLevelField(t *testing.T) {
+	re, err := CompileIgnorePattern("result.gasUsed")
+	if err != nil {
+		t.Fatalf("CompileIgnorePattern error: %v", err)
+	}
+	opts := &Options{IgnorePatterns: []*regexp.Regexp{re}}
+
+	obj1 := map[string]any{"result": map[string]any{"gasUsed": "0x1", "status": "0x1"}}
+	obj2 := map[string]any{"result": map[string]any{"gasUsed": "0x2", "status": "0x1"}}
+
+	diffs := collectDiffs(obj1, obj2, "", opts)
+	for _, d := range diffs {
+		if d.Type == DiffUpdate {
+			t.Errorf("expected gasUsed diff to be ignored, got update at %q", d.Path)
+		}
 	}
 }

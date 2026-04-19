@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/erigontech/rpc-tests/internal/config"
+	"github.com/erigontech/rpc-tests/internal/filter"
 	"github.com/erigontech/rpc-tests/internal/testdata"
 )
 
@@ -43,7 +44,7 @@ func BenchmarkShouldRunTest_WithTestNumber(b *testing.B) {
 func BenchmarkCheckTestNameForNumber(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
-		checkTestNameForNumber("test_01.json", 1)
+		filter.CheckTestNameForNumber("test_01.json", 1)
 	}
 }
 
