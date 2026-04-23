@@ -16,7 +16,7 @@
                 "0x5279A7",
                 {
                     "tracer": "flatCallTracer",
-                    "disableMemory": true,
+                    "enableMemory": false,
                     "disableStack": true,
                     "disableStorage": true
                 }

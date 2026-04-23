@@ -16,7 +16,7 @@
         "0x5279A6",
         {
           "tracer": "callTracer",
-          "disableMemory": true,
+          "enableMemory": false,
           "disableStack": false,
           "disableStorage": false
         }

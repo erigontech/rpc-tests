@@ -7,7 +7,7 @@
       "params": [
         "0x4e827812e371c96e82c741a0344d4037dff57c38abf7c7501a99a042ebeb2c2a",
         {
-          "disableMemory": true,
+          "enableMemory": false,
           "disableStack": true,
           "disableStorage": true
         }

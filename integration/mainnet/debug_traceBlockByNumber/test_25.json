@@ -7,7 +7,7 @@
       "params": [
         "pending",
         {
-          "disableMemory": true,
+          "enableMemory": false,
           "disableStack": true,
           "disableStorage": true
         }

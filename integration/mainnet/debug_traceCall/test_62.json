@@ -16,7 +16,7 @@
         "latest",
         {
           "tracer": "flatCallTracer",
-          "disableMemory": true,
+          "enableMemory": false,
           "disableStack": false,
           "disableStorage": false
         }
