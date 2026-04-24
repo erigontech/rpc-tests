@@ -15,7 +15,7 @@
                 },
                 "0x4366AB",
                 {
-                    "disableMemory": true,
+                    "enableMemory": false,
                     "disableStack": false,
                     "disableStorage": false
                 }

@@ -7,7 +7,7 @@
       "params": [
         "0x0000000002970588a933c72e44f5a91c4e6d6c3e8f9e4f69b78c2e9c27d73a56",
         {
-          "disableMemory": true,
+          "enableMemory": false,
           "disableStack": true,
           "disableStorage": true,
           "tracer": "callTracer"

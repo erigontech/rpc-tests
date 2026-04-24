@@ -8,7 +8,7 @@
         "0x1c19a6e5089ff08b39144162f105f2d5519268f5360dab733d1b4f029503fdbe",
         {
           "disableStorage": true,
-          "disableMemory": true,
+          "enableMemory": false,
           "disableStack": true
         }
       ]

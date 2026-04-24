@@ -15,7 +15,7 @@
         },
         "0x1312D03",
         {
-          "disableMemory": true,
+          "enableMemory": false,
           "disableStack": false,
           "disableStorage": false
         }

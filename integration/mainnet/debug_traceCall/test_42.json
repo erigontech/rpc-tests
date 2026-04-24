@@ -12,7 +12,7 @@
                 },
                 "latest",
                 {
-                    "disableMemory": true,
+                    "enableMemory": false,
                     "tracer": "callTracer",
                     "stateOverrides": {
                         "0xdAC17F958D2ee523a2206206994597C13D831ec7": {

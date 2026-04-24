@@ -14,7 +14,7 @@
                 },
                 "0x1312CAA",
                 {
-                    "disableMemory": true,
+                    "enableMemory": false,
                     "disableStack": false,
                     "disableStorage": false
                 }

@@ -27,7 +27,7 @@
           "transactionIndex": -1
         },
         {
-          "disableMemory": false,
+          "enableMemory": true,
           "disableStack": false,
           "disableStorage": false
         }
