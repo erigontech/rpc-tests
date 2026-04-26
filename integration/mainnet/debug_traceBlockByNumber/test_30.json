@@ -23,7 +23,9 @@
         },
         "metadata": {
             "latest": true,
-            "ignoreFields": ["result[*].result.structLogs[*].error"]
+            "ignoreFields": [
+                "result[*].result.structLogs[*].error"
+            ]
         }
     }
 ]

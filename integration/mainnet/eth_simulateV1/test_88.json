@@ -1,0 +1,29 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-empty-with-block-num-set-plus1.io",
+            "description": "blockStateCall on a future block that does not exist \u2192 error -32000 header not found"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {}
+                    ]
+                },
+                "0x2000000"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    }
+]

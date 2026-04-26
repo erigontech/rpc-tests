@@ -1,0 +1,34 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-make-call-with-future-block.io",
+            "description": "simulate from a future block that doesn't exist yet (0x2000000): returns error -32000 header not found"
+        },
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc000000000000000000000000000000000000000"
+                                }
+                            ]
+                        }
+                    ],
+                    "validation": true
+                },
+                "0x2000000"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null
+        }
+    }
+]

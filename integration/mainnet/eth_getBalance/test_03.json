@@ -11,8 +11,7 @@
         },
         "response": {
             "id": 1,
-            "jsonrpc": "2.0",
-            "result": null
+            "jsonrpc": "2.0"
         },
         "test": {
             "description": "invoke getBalance on account 0x0...0 on latest block",

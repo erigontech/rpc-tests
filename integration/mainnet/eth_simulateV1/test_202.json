@@ -1,0 +1,32 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-no-fields-call.io",
+            "description": "call with no fields set (empty call object) \u2192 success - executed on historical block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "calls": [
+                                {}
+                            ]
+                        }
+                    ],
+                    "traceTransfers": true,
+                    "returnFullTransactions": true
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": "0x3"
+        }
+    }
+]

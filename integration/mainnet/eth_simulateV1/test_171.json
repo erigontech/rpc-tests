@@ -1,0 +1,42 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-overflow-nonce.io",
+            "description": "nonce overridden to max uint64 (0xffffffffffffffff) without validation: both calls succeed (nonce wraps or is ignored) - executed on historical block"
+        },
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "stateOverrides": {
+                                "0xc000000000000000000000000000000000000000": {
+                                    "nonce": "0xffffffffffffffff"
+                                }
+                            },
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc100000000000000000000000000000000000000"
+                                },
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc100000000000000000000000000000000000000"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": "0x3"
+        }
+    }
+]

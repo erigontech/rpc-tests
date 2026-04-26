@@ -1,0 +1,41 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-block-timestamp-auto-increment.io",
+            "description": "timestamps auto-increment by 1 per block when not set - executed on historical block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "time": "0x1cd"
+                            }
+                        },
+                        {
+                            "blockOverrides": {}
+                        },
+                        {
+                            "blockOverrides": {
+                                "time": "0x1ce"
+                            }
+                        },
+                        {
+                            "blockOverrides": {}
+                        }
+                    ]
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": "0x3"
+        }
+    }
+]

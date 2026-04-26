@@ -1,0 +1,45 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-override-identity.io",
+            "description": "identity precompile (0x4) moved to 0x123456 with empty code at original address: call new addr echoes input, call old addr returns empty - executed on historical block"
+        },
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "stateOverrides": {
+                                "0x0000000000000000000000000000000000000004": {
+                                    "code": "0x",
+                                    "MovePrecompileToAddress": "0x0000000000000000000000000000000000123456"
+                                }
+                            },
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0x0000000000000000000000000000000000123456",
+                                    "input": "0x1234"
+                                },
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0x0000000000000000000000000000000000000004",
+                                    "input": "0x1234"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": "0x3"
+        }
+    }
+]

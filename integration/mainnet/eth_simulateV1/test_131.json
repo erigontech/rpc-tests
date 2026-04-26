@@ -1,0 +1,42 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-simple-no-funds-with-validation.io",
+            "description": "ETH transfer from account with no balance, validation:true \u2192 error -38014 - executed on historical block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc100000000000000000000000000000000000000",
+                                    "value": "0x3e8",
+                                    "nonce": "0x0"
+                                },
+                                {
+                                    "from": "0xc100000000000000000000000000000000000000",
+                                    "to": "0xc200000000000000000000000000000000000000",
+                                    "value": "0x3e8",
+                                    "nonce": "0x1"
+                                }
+                            ]
+                        }
+                    ],
+                    "validation": true
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": "0x3"
+        }
+    }
+]

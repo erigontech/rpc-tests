@@ -1,0 +1,26 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-empty-with-block-num-set-firstblock.io",
+            "description": "empty blockStateCall on mainnet block 1 \u2192 returns simulated block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {}
+                    ]
+                },
+                "0x1"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null
+        }
+    }
+]

@@ -13,8 +13,7 @@
         },
         "response": {
             "id": 1,
-            "jsonrpc": "2.0",
-            "result": null
+            "jsonrpc": "2.0"
         },
         "test": {
             "description": "get storage keys for specific account on latest block",
