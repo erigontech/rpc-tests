@@ -34,9 +34,12 @@
             ]
         },
         "response": {
+            "error": {
+                "code": -32602,
+                "message": "err: max fee per gas less than block base fee: address 0xC000000000000000000000000000000000000000, maxFeePerGas: 0, baseFee: 18032732110 (supplied gas 30000000)"
+            },
             "id": 1,
-            "jsonrpc": "2.0",
-            "result": "0x3"
+            "jsonrpc": "2.0"
         }
     }
 ]

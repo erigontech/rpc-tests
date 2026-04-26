@@ -27,9 +27,12 @@
             ]
         },
         "response": {
+            "error": {
+                "code": -38021,
+                "message": "block timestamps must be in order: 462 <= 1729345547"
+            },
             "id": 1,
-            "jsonrpc": "2.0",
-            "result": "0x3"
+            "jsonrpc": "2.0"
         }
     }
 ]

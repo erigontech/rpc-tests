@@ -26,9 +26,12 @@
             ]
         },
         "response": {
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            },
             "id": 1,
-            "jsonrpc": "2.0",
-            "result": null
+            "jsonrpc": "2.0"
         }
     }
 ]

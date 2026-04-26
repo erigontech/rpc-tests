@@ -33,9 +33,12 @@
             ]
         },
         "response": {
+            "error": {
+                "code": -38010,
+                "message": "err: nonce too low: address 0xC000000000000000000000000000000000000000, tx: 0 state: 10 (supplied gas 30000000)"
+            },
             "id": 1,
-            "jsonrpc": "2.0",
-            "result": "0x3"
+            "jsonrpc": "2.0"
         }
     }
 ]

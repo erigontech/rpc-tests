@@ -26,9 +26,12 @@
             ]
         },
         "response": {
+            "error": {
+                "code": -38013,
+                "message": "err: intrinsic gas too low: have 0, want 21000 (supplied gas 0)"
+            },
             "id": 1,
-            "jsonrpc": "2.0",
-            "result": "0x3"
+            "jsonrpc": "2.0"
         }
     }
 ]

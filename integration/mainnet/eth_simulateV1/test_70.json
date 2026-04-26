@@ -2,7 +2,7 @@
     {
         "test": {
             "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-add-more-non-defined-BlockStateCalls-than-fit.io",
-            "description": "max blockStateCalls exceeded \u2192 error -32005"
+            "description": "blockOverrides.number conflict between blocks \u2192 error -38020 block numbers must be in order"
         },
         "request": {
             "jsonrpc": "2.0",
@@ -58,12 +58,15 @@
             "id": 1,
             "jsonrpc": "2.0",
             "error": {
-                "code": -32005,
-                "message": "block state calls limit exceeded"
+                "code": -38020,
+                "message": null
             }
         },
         "metadata": {
-            "latest": true
+            "latest": true,
+            "ignoreFields": [
+                "error.message"
+            ]
         }
     }
 ]

@@ -48,7 +48,70 @@
         "response": {
             "id": 1,
             "jsonrpc": "2.0",
-            "result": "0x3"
+            "result": [
+                {
+                    "baseFeePerGas": "0x0",
+                    "blobGasUsed": "0x0",
+                    "calls": [
+                        {
+                            "gasUsed": "0x6038",
+                            "logs": [],
+                            "maxUsedGas": "0x6038",
+                            "returnData": "0x",
+                            "status": "0x1"
+                        },
+                        {
+                            "gasUsed": "0x644c",
+                            "logs": [],
+                            "maxUsedGas": "0x644c",
+                            "returnData": "0x000000000000000000000000b11cad98ad3f8114e0b3a1f6e7228bc8424df48a",
+                            "status": "0x1"
+                        },
+                        {
+                            "gasUsed": "0x5480",
+                            "logs": [],
+                            "maxUsedGas": "0x5480",
+                            "returnData": "0x",
+                            "status": "0x1"
+                        },
+                        {
+                            "gasUsed": "0x5894",
+                            "logs": [],
+                            "maxUsedGas": "0x5894",
+                            "returnData": "0x",
+                            "status": "0x1"
+                        }
+                    ],
+                    "difficulty": "0x0",
+                    "excessBlobGas": "0x40000",
+                    "extraData": "0x",
+                    "gasLimit": "0x1c9c380",
+                    "gasUsed": "0x17198",
+                    "hash": "0x595724a1a5b3309d68c72ce09d10a5b05c6b74a59ec3c1f9c8111c050c985db9",
+                    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "miner": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
+                    "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "nonce": "0x0000000000000000",
+                    "number": "0x1406f41",
+                    "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "parentHash": "0xf5e1d15a3e380006bd271e73c8eeed75fafc3ae6942b16f63c21361079bba709",
+                    "receiptsRoot": "0xd2f21bfc3bb60dd1c7fd5017ef7794297930ec929c1273ab8cf35ee690849f2a",
+                    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                    "size": "0x4f7",
+                    "stateRoot": "0xd63a5392176247af2ff7258a4b7df538878b68d0193cb1efa99111970f023f0e",
+                    "timestamp": "0x6713b817",
+                    "transactions": [
+                        "0x0c1c395167a1e9ccd6ecfb66080cdff83439ede377463574b7a48dd3eac15629",
+                        "0x1bfba27c1120f18cfaa8721692b290d0b85b3365fe351d6d9500deab965596d9",
+                        "0x084fb255744021df7ea838dae46a40d2198e391dc78f45f1100a2d9d9bc8c826",
+                        "0x59327e2b18c3eafcabf7ae828644db89b4c0ca09806bb11daa6f2022f4327258"
+                    ],
+                    "transactionsRoot": "0x1a144312724ad1feb38ebba370371d0f51f42a5e571163c1cbb180a0cc97e0c4",
+                    "uncles": [],
+                    "withdrawals": [],
+                    "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                }
+            ]
         }
     }
 ]

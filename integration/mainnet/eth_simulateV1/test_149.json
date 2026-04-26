@@ -35,7 +35,63 @@
         "response": {
             "id": 1,
             "jsonrpc": "2.0",
-            "result": "0x3"
+            "result": [
+                {
+                    "baseFeePerGas": "0x0",
+                    "blobGasUsed": "0x0",
+                    "calls": [
+                        {
+                            "gasUsed": "0x7072",
+                            "logs": [
+                                {
+                                    "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                                    "blockHash": "0xcc6769cda71f7ba362b87f997adaff37c1ab44792b84455331566dcb5dd7b778",
+                                    "blockNumber": "0x1406f41",
+                                    "blockTimestamp": "0x6713b817",
+                                    "data": "0x00000000000000000000000000000000000000000000000000000000001e8480",
+                                    "logIndex": "0x0",
+                                    "removed": false,
+                                    "topics": [
+                                        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                                        "0x000000000000000000000000c200000000000000000000000000000000000000",
+                                        "0x0000000000000000000000000000000000000000000000000000000000000000"
+                                    ],
+                                    "transactionHash": "0x200fab0bcc81da4a444d4bd94c11132f7343c8ce9f2aa6c30d0844397d28f945",
+                                    "transactionIndex": "0x0"
+                                }
+                            ],
+                            "maxUsedGas": "0x7072",
+                            "returnData": "0x",
+                            "status": "0x1"
+                        }
+                    ],
+                    "difficulty": "0x0",
+                    "excessBlobGas": "0x40000",
+                    "extraData": "0x",
+                    "gasLimit": "0x1c9c380",
+                    "gasUsed": "0x7072",
+                    "hash": "0xcc6769cda71f7ba362b87f997adaff37c1ab44792b84455331566dcb5dd7b778",
+                    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "miner": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
+                    "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "nonce": "0x0000000000000000",
+                    "number": "0x1406f41",
+                    "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "parentHash": "0xf5e1d15a3e380006bd271e73c8eeed75fafc3ae6942b16f63c21361079bba709",
+                    "receiptsRoot": "0xe8246ead1770a79f7847cd058f7e490967d4b750336d2e8974f1254cbf6809a6",
+                    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                    "size": "0x277",
+                    "stateRoot": "0xc7c1807b831f9d4fd920916b3da7981d4d80df6fabd448023672050f3f933b52",
+                    "timestamp": "0x6713b817",
+                    "transactions": [
+                        "0x200fab0bcc81da4a444d4bd94c11132f7343c8ce9f2aa6c30d0844397d28f945"
+                    ],
+                    "transactionsRoot": "0x429d735ebf3982228c07cd04f90e65f6eb9c10ba062f80dfd057eb0daa49fe8f",
+                    "uncles": [],
+                    "withdrawals": [],
+                    "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                }
+            ]
         }
     }
 ]
