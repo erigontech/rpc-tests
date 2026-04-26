@@ -1,45 +1,45 @@
 [
-    {
-        "test": {
-            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-simple-no-funds-with-validation.io",
-            "description": "ETH transfer from account with no balance, validation:true \u2192 error -38014 - executed on historical block"
-        },
-        "request": {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "eth_simulateV1",
-            "params": [
+  {
+    "test": {
+      "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-simple-no-funds-with-validation.io",
+      "description": "ETH transfer from account with no balance, validation:true \u2192 error -38014 - executed on historical block"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
                 {
-                    "blockStateCalls": [
-                        {
-                            "calls": [
-                                {
-                                    "from": "0xc000000000000000000000000000000000000000",
-                                    "to": "0xc100000000000000000000000000000000000000",
-                                    "value": "0x3e8",
-                                    "nonce": "0x0"
-                                },
-                                {
-                                    "from": "0xc100000000000000000000000000000000000000",
-                                    "to": "0xc200000000000000000000000000000000000000",
-                                    "value": "0x3e8",
-                                    "nonce": "0x1"
-                                }
-                            ]
-                        }
-                    ],
-                    "validation": true
+                  "from": "0xc000000000000000000000000000000000000000",
+                  "to": "0xc100000000000000000000000000000000000000",
+                  "value": "0x3e8",
+                  "nonce": "0x0"
                 },
-                "0x1406f40"
-            ]
+                {
+                  "from": "0xc100000000000000000000000000000000000000",
+                  "to": "0xc200000000000000000000000000000000000000",
+                  "value": "0x3e8",
+                  "nonce": "0x1"
+                }
+              ]
+            }
+          ],
+          "validation": true
         },
-        "response": {
-            "error": {
-                "code": -32602,
-                "message": "err: max fee per gas less than block base fee: address 0xC000000000000000000000000000000000000000, maxFeePerGas: 0, baseFee: 18032732110 (supplied gas 30000000)"
-            },
-            "id": 1,
-            "jsonrpc": "2.0"
-        }
+        "0x1406f40"
+      ]
+    },
+    "response": {
+      "error": {
+        "code": -32602,
+        "message": "fee cap less than block base fee: address 0xC000000000000000000000000000000000000000, feeCap: 0 baseFee: 18032732110"
+      },
+      "id": 1,
+      "jsonrpc": "2.0"
     }
+  }
 ]
