@@ -22,16 +22,10 @@
     },
     "response": {
       "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "from": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
-        "gas": "0x2faf080",
-        "gasUsed": "0x52a8",
-        "input": "0xd0e30db0",
-        "to": "0x0000000000a39bb272e79075ade125fd351887ac",
-        "type": "CALL",
-        "value": "0x0"
-      }
+      "jsonrpc": "2.0"
+    },
+    "metadata": {
+      "latest": true
     }
   }
 ]

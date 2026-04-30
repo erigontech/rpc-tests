@@ -14,8 +14,12 @@
       "id": 1,
       "result": null
     },
-    "meta": {
-      "description": "eth_getUncleByBlockNumberAndIndex params=['latest', '0x0']"
+    "test": {
+      "description": "eth_getUncleByBlockNumberAndIndex params=['latest', '0x0']",
+      "reference": ""
+    },
+    "metadata": {
+      "latest": true
     }
   }
 ]
