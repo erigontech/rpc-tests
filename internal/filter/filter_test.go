@@ -59,7 +59,10 @@ func TestAPIUnderTest_NoFilters(t *testing.T) {
 	f := New(defaultCfg())
 
 	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false) {
-		t.Error("with no filters, all APIs should be under test")
+		t.Error("without -L, historical tests (tcLatest=false) should run")
+	}
+	if f.APIUnderTest("eth_call", "eth_call/test_02.json", true) {
+		t.Error("without -L, latest-block tests (tcLatest=true) should not run")
 	}
 }
 
@@ -69,7 +72,10 @@ func TestAPIUnderTest_ExactAPI(t *testing.T) {
 	f := New(cfg)
 
 	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false) {
-		t.Error("eth_call should match exact API filter")
+		t.Error("eth_call historical test should match exact API filter")
+	}
+	if f.APIUnderTest("eth_call", "eth_call/test_02.json", true) {
+		t.Error("eth_call latest test should not run without -L")
 	}
 	if f.APIUnderTest("eth_getBalance", "eth_getBalance/test_01.json", false) {
 		t.Error("eth_getBalance should not match exact API filter for eth_call")
@@ -98,7 +104,10 @@ func TestAPIUnderTest_PatternAPI(t *testing.T) {
 	f := New(cfg)
 
 	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false) {
-		t.Error("eth_call should match pattern eth_")
+		t.Error("eth_call historical should match pattern eth_")
+	}
+	if f.APIUnderTest("eth_call", "eth_call/test_02.json", true) {
+		t.Error("eth_call latest test should not run without -L")
 	}
 	if !f.APIUnderTest("eth_getBalance", "eth_getBalance/test_01.json", false) {
 		t.Error("eth_getBalance should match pattern eth_")
