@@ -1,23 +1,26 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "debug_traceBlockByNumber",
-      "params": [
-        "latest",
-        {
-          "tracer": "flatCallTracer"
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceBlockByNumber",
+            "params": [
+                "latest",
+                {
+                    "tracer": "flatCallTracer"
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "test": {
+            "description": "",
+            "reference": ""
+        },
+        "metadata": {
+            "latest": true
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0"
-    },
-    "test": {
-      "description": "",
-      "reference": ""
     }
-  }
 ]

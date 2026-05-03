@@ -1,0 +1,37 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-block-timestamps-incrementing.io",
+            "description": "successive blockOverrides timestamps increment correctly"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "time": "0x1cd"
+                            }
+                        },
+                        {
+                            "blockOverrides": {
+                                "time": "0x1ce"
+                            }
+                        }
+                    ]
+                },
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]

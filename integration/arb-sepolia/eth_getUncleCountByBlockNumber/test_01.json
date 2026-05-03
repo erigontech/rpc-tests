@@ -13,8 +13,12 @@
       "id": 1,
       "result": "0x0"
     },
-    "meta": {
-      "description": "eth_getUncleCountByBlockNumber params=['latest']"
+    "test": {
+      "description": "eth_getUncleCountByBlockNumber params=['latest']",
+      "reference": ""
+    },
+    "metadata": {
+      "latest": true
     }
   }
 ]

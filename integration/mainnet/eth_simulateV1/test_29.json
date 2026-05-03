@@ -1,0 +1,37 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-block-timestamp-order-38021.io",
+            "description": "block timestamps out of order: second block timestamp < first \u2192 error -38021"
+        },
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "time": "0x1ce"
+                            }
+                        },
+                        {
+                            "blockOverrides": {
+                                "time": "0x1cd"
+                            }
+                        }
+                    ]
+                },
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]

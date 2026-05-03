@@ -1,0 +1,37 @@
+[
+  {
+    "test": {
+      "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-gas-fees-and-value-error-38014.io",
+      "description": "ETH transfer with insufficient balance \u2192 error -38014 - executed on historical block"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
+                {
+                  "from": "0xc000000000000000000000000000000000000000",
+                  "to": "0xc100000000000000000000000000000000000000",
+                  "value": "0x3e8"
+                }
+              ]
+            }
+          ]
+        },
+        "0x1406f40"
+      ]
+    },
+    "response": {
+      "error": {
+        "code": -38014,
+        "message": "insufficient funds for gas * price + value: address 0xC000000000000000000000000000000000000000 have 0 want 1000"
+      },
+      "id": 1,
+      "jsonrpc": "2.0"
+    }
+  }
+]

@@ -1,0 +1,49 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-block-num-order-38020.io",
+            "description": "blockOverrides.number decreasing (0x91 then 0x87) \u2192 error -38020 block numbers must be in order"
+        },
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "number": "0x91"
+                            },
+                            "calls": [
+                                {
+                                    "from": "0xc100000000000000000000000000000000000000",
+                                    "input": "0x4360005260206000f3"
+                                }
+                            ]
+                        },
+                        {
+                            "blockOverrides": {
+                                "number": "0x87"
+                            },
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "input": "0x4360005260206000f3"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]

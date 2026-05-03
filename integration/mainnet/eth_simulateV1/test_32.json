@@ -1,0 +1,46 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-basefee-too-low-with-validation-38012.io",
+            "description": "baseFeePerGas overridden to 10, tx maxFeePerGas=0, validation:true \u2192 error (maxFeePerGas < baseFee)"
+        },
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "baseFeePerGas": "0xa"
+                            },
+                            "stateOverrides": {
+                                "0xc000000000000000000000000000000000000000": {
+                                    "balance": "0x7d0"
+                                }
+                            },
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc100000000000000000000000000000000000000",
+                                    "maxFeePerGas": "0x0",
+                                    "maxPriorityFeePerGas": "0x0"
+                                }
+                            ]
+                        }
+                    ],
+                    "validation": true
+                },
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]

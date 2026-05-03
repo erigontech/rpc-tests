@@ -1,0 +1,111 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-simple-more-params-validate.io",
+            "description": "simple call with traceTransfers, returnFullTransactions, validation \u2192 success - executed on historical block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "baseFeePerGas": "0x0"
+                            },
+                            "stateOverrides": {
+                                "0xc000000000000000000000000000000000000000": {
+                                    "balance": "0x334500"
+                                }
+                            },
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc100000000000000000000000000000000000000",
+                                    "gas": "0x52080",
+                                    "maxFeePerGas": "0x0",
+                                    "maxPriorityFeePerGas": "0x0",
+                                    "maxFeePerBlobGas": "0x0",
+                                    "value": "0x0",
+                                    "nonce": "0x0",
+                                    "input": "0x"
+                                }
+                            ]
+                        }
+                    ],
+                    "validation": true,
+                    "returnFullTransactions": true
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "baseFeePerGas": "0x0",
+                    "blobGasUsed": "0x0",
+                    "calls": [
+                        {
+                            "gasUsed": "0x5208",
+                            "logs": [],
+                            "maxUsedGas": "0x5208",
+                            "returnData": "0x",
+                            "status": "0x1"
+                        }
+                    ],
+                    "difficulty": "0x0",
+                    "excessBlobGas": "0x40000",
+                    "extraData": "0x",
+                    "gasLimit": "0x1c9c380",
+                    "gasUsed": "0x5208",
+                    "hash": "0x9a410d4c93704244ca0eb24615c7e4651ea0d7fa101133cd6b61926866eab5fd",
+                    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "miner": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
+                    "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "nonce": "0x0000000000000000",
+                    "number": "0x1406f41",
+                    "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "parentHash": "0xf5e1d15a3e380006bd271e73c8eeed75fafc3ae6942b16f63c21361079bba709",
+                    "receiptsRoot": "0xf78dfb743fbd92ade140711c8bbc542b5e307f0ab7984eff35d751969fe57efa",
+                    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                    "size": "0x272",
+                    "stateRoot": "0xa3aae93551b4d07d9a4dc79e5fc7105a51eea552b0fe0df737544892fc7116df",
+                    "timestamp": "0x6713b817",
+                    "transactions": [
+                        {
+                            "accessList": [],
+                            "blockHash": "0x9a410d4c93704244ca0eb24615c7e4651ea0d7fa101133cd6b61926866eab5fd",
+                            "blockNumber": "0x1406f41",
+                            "blockTimestamp": "0x6713b817",
+                            "chainId": "0x1",
+                            "from": "0xc000000000000000000000000000000000000000",
+                            "gas": "0x52080",
+                            "gasPrice": "0x0",
+                            "hash": "0x3d4a071be7e3948eea4e04dce267f1a8c9ce479bd37b82a88874cd63e87d9386",
+                            "input": "0x",
+                            "maxFeePerGas": "0x0",
+                            "maxPriorityFeePerGas": "0x0",
+                            "nonce": "0x0",
+                            "r": "0x0",
+                            "s": "0x0",
+                            "to": "0xc100000000000000000000000000000000000000",
+                            "transactionIndex": "0x0",
+                            "type": "0x2",
+                            "v": "0x0",
+                            "value": "0x0",
+                            "yParity": "0x0"
+                        }
+                    ],
+                    "transactionsRoot": "0x210f94f72090b57429c101c2d71428c4a199703f9b026c87b7d54d3d62da13dc",
+                    "uncles": [],
+                    "withdrawals": [],
+                    "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                }
+            ]
+        }
+    }
+]

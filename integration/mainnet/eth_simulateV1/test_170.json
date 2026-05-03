@@ -1,0 +1,46 @@
+[
+  {
+    "test": {
+      "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-overflow-nonce-validation.io",
+      "description": "nonce overridden to max uint64 (0xffffffffffffffff) with validation:true: second tx would overflow nonce \u2192 error -32603 - executed on historical block"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "stateOverrides": {
+                "0xc000000000000000000000000000000000000000": {
+                  "nonce": "0xffffffffffffffff"
+                }
+              },
+              "calls": [
+                {
+                  "from": "0xc000000000000000000000000000000000000000",
+                  "to": "0xc100000000000000000000000000000000000000"
+                },
+                {
+                  "from": "0xc000000000000000000000000000000000000000",
+                  "to": "0xc100000000000000000000000000000000000000"
+                }
+              ]
+            }
+          ],
+          "validation": true
+        },
+        "0x1406f40"
+      ]
+    },
+    "response": {
+      "error": {
+        "code": -32603,
+        "message": "nonce has max value: address 0xC000000000000000000000000000000000000000, nonce: 18446744073709551615"
+      },
+      "id": 1,
+      "jsonrpc": "2.0"
+    }
+  }
+]

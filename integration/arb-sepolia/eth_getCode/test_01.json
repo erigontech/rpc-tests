@@ -14,8 +14,12 @@
       "id": 1,
       "result": "0x"
     },
-    "meta": {
-      "description": "eth_getCode params=['0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'latest']"
+    "test": {
+      "description": "eth_getCode params=['0xef7bdeb92846ef2e86116ec451437fb4e71d76af', 'latest']",
+      "reference": ""
+    },
+    "metadata": {
+      "latest": true
     }
   }
 ]

@@ -1,0 +1,111 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-check-that-nonce-increases.io",
+            "description": "nonce increases across successive calls in blockStateCalls - executed on historical block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "baseFeePerGas": "0x9"
+                            },
+                            "stateOverrides": {
+                                "0xc000000000000000000000000000000000000000": {
+                                    "balance": "0x4a817c800"
+                                }
+                            },
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc000000000000000000000000000000000000000",
+                                    "maxFeePerGas": "0xf",
+                                    "nonce": "0x0"
+                                },
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc000000000000000000000000000000000000000",
+                                    "maxFeePerGas": "0xf",
+                                    "nonce": "0x1"
+                                },
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc000000000000000000000000000000000000000",
+                                    "maxFeePerGas": "0xf",
+                                    "nonce": "0x2"
+                                }
+                            ]
+                        }
+                    ],
+                    "validation": true
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "baseFeePerGas": "0x9",
+                    "blobGasUsed": "0x0",
+                    "calls": [
+                        {
+                            "gasUsed": "0x5208",
+                            "logs": [],
+                            "maxUsedGas": "0x5208",
+                            "returnData": "0x",
+                            "status": "0x1"
+                        },
+                        {
+                            "gasUsed": "0x5208",
+                            "logs": [],
+                            "maxUsedGas": "0x5208",
+                            "returnData": "0x",
+                            "status": "0x1"
+                        },
+                        {
+                            "gasUsed": "0x5208",
+                            "logs": [],
+                            "maxUsedGas": "0x5208",
+                            "returnData": "0x",
+                            "status": "0x1"
+                        }
+                    ],
+                    "difficulty": "0x0",
+                    "excessBlobGas": "0x40000",
+                    "extraData": "0x",
+                    "gasLimit": "0x1c9c380",
+                    "gasUsed": "0xf618",
+                    "hash": "0x79d442e3cb90f36230e4c3d2310ca97110114a297c6c5b1e25910e8a1b62b8fc",
+                    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "miner": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
+                    "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "nonce": "0x0000000000000000",
+                    "number": "0x1406f41",
+                    "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "parentHash": "0xf5e1d15a3e380006bd271e73c8eeed75fafc3ae6942b16f63c21361079bba709",
+                    "receiptsRoot": "0x25e6b7af647c519a27cc13276a1e6abc46154b51414d174b072698df1f6c19df",
+                    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                    "size": "0x2c2",
+                    "stateRoot": "0xab5402b3957ce8cedb987211cc94bf2ea3da5996a6503f30c211a9ba0050e48e",
+                    "timestamp": "0x6713b817",
+                    "transactions": [
+                        "0x98acbec47ea3c18463ac396b5930c1da96cd1a11a6e82b52489736f70671371e",
+                        "0xa982b44978680423141b4c2724a3c49b179c204828913c1c13e4d94fb14103e3",
+                        "0xc4506af58a6b9a61d0c97c2b9dbc1bd6abce8e481f1fe92021092e70aa14f275"
+                    ],
+                    "transactionsRoot": "0x7738b922ba3358f86a79f95c6697c46b90490a03d93f9144e1b305daaf944b67",
+                    "uncles": [],
+                    "withdrawals": [],
+                    "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                }
+            ]
+        }
+    }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "test": {
+      "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-transaction-too-low-nonce-38010.io",
+      "description": "nonce too low with validation:true: account nonce overridden to 10, tx submitted with nonce 0 \u2192 error -38010 - executed on historical block"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "stateOverrides": {
+                "0xc000000000000000000000000000000000000000": {
+                  "balance": "0x1e8480",
+                  "nonce": "0xa"
+                }
+              },
+              "calls": [
+                {
+                  "from": "0xc000000000000000000000000000000000000000",
+                  "to": "0xc100000000000000000000000000000000000000",
+                  "nonce": "0x0"
+                }
+              ]
+            }
+          ],
+          "validation": true
+        },
+        "0x1406f40"
+      ]
+    },
+    "response": {
+      "error": {
+        "code": -38010,
+        "message": "nonce too low: address 0xC000000000000000000000000000000000000000, tx: 0 state: 10"
+      },
+      "id": 1,
+      "jsonrpc": "2.0"
+    }
+  }
+]

@@ -1,0 +1,37 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-move-two-non-precompiles-accounts-to-same.io",
+            "description": "movePrecompileToAddress on two non-precompile accounts to same target \u2192 success"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "stateOverrides": {
+                                "0x0100000000000000000000000000000000000000": {
+                                    "MovePrecompileToAddress": "0xc200000000000000000000000000000000000000"
+                                },
+                                "0x0200000000000000000000000000000000000000": {
+                                    "MovePrecompileToAddress": "0xc200000000000000000000000000000000000000"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]

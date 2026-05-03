@@ -1,0 +1,57 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-check-invalid-nonce.io",
+            "description": "validation:true, baseFeePerGas=1, tx has maxFeePerGas=0 < baseFee \u2192 error -32602 (baseFee too low)"
+        },
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "baseFeePerGas": "0x1"
+                            },
+                            "stateOverrides": {
+                                "0xc000000000000000000000000000000000000000": {
+                                    "balance": "0x4e20"
+                                }
+                            }
+                        },
+                        {
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc000000000000000000000000000000000000000",
+                                    "nonce": "0x0"
+                                },
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc000000000000000000000000000000000000000",
+                                    "nonce": "0x1"
+                                },
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc000000000000000000000000000000000000000",
+                                    "nonce": "0x0"
+                                }
+                            ]
+                        }
+                    ],
+                    "validation": true
+                },
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]

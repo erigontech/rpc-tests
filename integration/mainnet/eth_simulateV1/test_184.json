@@ -1,0 +1,49 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-blocknumber-increment.io",
+            "description": "block numbers auto-increment across blockStateCalls - executed on historical block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "number": "0x37",
+                                "time": "0x3b6"
+                            }
+                        },
+                        {},
+                        {},
+                        {},
+                        {},
+                        {},
+                        {
+                            "blockOverrides": {
+                                "number": "0x4b"
+                            }
+                        },
+                        {},
+                        {},
+                        {}
+                    ],
+                    "traceTransfers": true,
+                    "returnFullTransactions": true
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "error": {
+                "code": -38020,
+                "message": "block numbers must be in order: 55 <= 21000000"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+        }
+    }
+]

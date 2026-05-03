@@ -1,0 +1,40 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-empty-calls-and-overrides-ethSimulate.io",
+            "description": "empty calls array with stateOverrides only \u2192 success"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "stateOverrides": {},
+                            "calls": [
+                                {}
+                            ]
+                        },
+                        {
+                            "stateOverrides": {},
+                            "calls": [
+                                {}
+                            ]
+                        }
+                    ],
+                    "traceTransfers": true
+                },
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]

@@ -1,0 +1,103 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-send-eth-and-delegate-call-to-payble-contract.io",
+            "description": "delegatecall to payable contract with ETH and traceTransfers:true: produces exactly one Transfer log (sender\u2192contract only, delegatecall does not create a second transfer) - executed on historical block"
+        },
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "stateOverrides": {
+                                "0xc000000000000000000000000000000000000000": {
+                                    "balance": "0x1e8480"
+                                },
+                                "0xc100000000000000000000000000000000000000": {
+                                    "code": "0x608060405273ffffffffffffffffffffffffffffffffffffffff73c200000000000000000000000000000000000000167fa619486e000000000000000000000000000000000000000000000000000000005f3503605e57805f5260205ff35b365f80375f80365f845af43d5f803e5f81036077573d5ffd5b3d5ff3fea26469706673582212206b787fe3e60b14a5c449d37005afac7b1803ee7c87e12d2740b96a158f34802a64736f6c63430008160033"
+                                },
+                                "0xc200000000000000000000000000000000000000": {
+                                    "code": "0x60806040525f366060915050805190602001f3fea2646970667358221220a6fbca1301e2861ff1227c7478f4351a0978cca210732aaf5d036123a0d2f68664736f6c63430008160033"
+                                }
+                            },
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc100000000000000000000000000000000000000",
+                                    "value": "0x3e8",
+                                    "input": "0x"
+                                }
+                            ]
+                        }
+                    ],
+                    "traceTransfers": true
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "baseFeePerGas": "0x0",
+                    "blobGasUsed": "0x0",
+                    "calls": [
+                        {
+                            "gasUsed": "0x5cd2",
+                            "logs": [
+                                {
+                                    "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                                    "blockHash": "0xadfb129a4c50e07710b6af8918e747eb3fb00d0876abc81b0de717d3e41feeed",
+                                    "blockNumber": "0x1406f41",
+                                    "blockTimestamp": "0x6713b817",
+                                    "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
+                                    "logIndex": "0x0",
+                                    "removed": false,
+                                    "topics": [
+                                        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                                        "0x000000000000000000000000c000000000000000000000000000000000000000",
+                                        "0x000000000000000000000000c100000000000000000000000000000000000000"
+                                    ],
+                                    "transactionHash": "0xb8aa369570aead3d5626dd81f6527e4552ab84666bdf83d1d27dea6b8d1a2af5",
+                                    "transactionIndex": "0x0"
+                                }
+                            ],
+                            "maxUsedGas": "0x5cd2",
+                            "returnData": "0x",
+                            "status": "0x1"
+                        }
+                    ],
+                    "difficulty": "0x0",
+                    "excessBlobGas": "0x40000",
+                    "extraData": "0x",
+                    "gasLimit": "0x1c9c380",
+                    "gasUsed": "0x5cd2",
+                    "hash": "0xadfb129a4c50e07710b6af8918e747eb3fb00d0876abc81b0de717d3e41feeed",
+                    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "miner": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
+                    "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "nonce": "0x0000000000000000",
+                    "number": "0x1406f41",
+                    "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "parentHash": "0xf5e1d15a3e380006bd271e73c8eeed75fafc3ae6942b16f63c21361079bba709",
+                    "receiptsRoot": "0xb58970d533a21cc92bd172f330ce93767aade1f6388829d569cc7c96cb3c0c01",
+                    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                    "size": "0x275",
+                    "stateRoot": "0xdad1e19f84486d744ddbed0c4c6d17fb022b93143c72d4b5c3263c17a92c8cb9",
+                    "timestamp": "0x6713b817",
+                    "transactions": [
+                        "0xb8aa369570aead3d5626dd81f6527e4552ab84666bdf83d1d27dea6b8d1a2af5"
+                    ],
+                    "transactionsRoot": "0x8e5b299a449e88db72627cf16e18a0cb03830164b711e10dee6faa56531eb8e4",
+                    "uncles": [],
+                    "withdrawals": [],
+                    "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                }
+            ]
+        }
+    }
+]

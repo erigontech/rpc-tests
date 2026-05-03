@@ -1,0 +1,73 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-only-from-to-transaction.io",
+            "description": "call with only from and to set \u2192 success - executed on historical block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "to": "0xc100000000000000000000000000000000000000"
+                                }
+                            ]
+                        }
+                    ],
+                    "traceTransfers": true
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "baseFeePerGas": "0x0",
+                    "blobGasUsed": "0x0",
+                    "calls": [
+                        {
+                            "gasUsed": "0x5208",
+                            "logs": [],
+                            "maxUsedGas": "0x5208",
+                            "returnData": "0x",
+                            "status": "0x1"
+                        }
+                    ],
+                    "difficulty": "0x0",
+                    "excessBlobGas": "0x40000",
+                    "extraData": "0x",
+                    "gasLimit": "0x1c9c380",
+                    "gasUsed": "0x5208",
+                    "hash": "0x86febbbe87e17ec75756d0f2c584d316a9a1cb0bacbe79d432ce412ca6800729",
+                    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "miner": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
+                    "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "nonce": "0x0000000000000000",
+                    "number": "0x1406f41",
+                    "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "parentHash": "0xf5e1d15a3e380006bd271e73c8eeed75fafc3ae6942b16f63c21361079bba709",
+                    "receiptsRoot": "0xf78dfb743fbd92ade140711c8bbc542b5e307f0ab7984eff35d751969fe57efa",
+                    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                    "size": "0x273",
+                    "stateRoot": "0x88d58c30e996202fbb8919dc7342503a1e358b4f9f8e11439fc8154278bdb3d5",
+                    "timestamp": "0x6713b817",
+                    "transactions": [
+                        "0x4b5236b868fe152e01ce492e93e6845212a8afdee418951e058e8123d33da1a0"
+                    ],
+                    "transactionsRoot": "0x93800a95ecfed669b9741f6369e2dd15edd21df442b070886f086b6bc0395645",
+                    "uncles": [],
+                    "withdrawals": [],
+                    "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                }
+            ]
+        }
+    }
+]

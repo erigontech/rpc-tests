@@ -1,0 +1,50 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-override-block-num.io",
+            "description": "blockOverrides.number set \u2192 call sees overridden block number - executed on historical block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "number": "0x2e"
+                            },
+                            "calls": [
+                                {
+                                    "from": "0xc000000000000000000000000000000000000000",
+                                    "input": "0x4360005260206000f3"
+                                }
+                            ]
+                        },
+                        {
+                            "blockOverrides": {
+                                "number": "0x2f"
+                            },
+                            "calls": [
+                                {
+                                    "from": "0xc100000000000000000000000000000000000000",
+                                    "input": "0x4360005260206000f3"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "error": {
+                "code": -38020,
+                "message": "block numbers must be in order: 46 <= 21000000"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+        }
+    }
+]

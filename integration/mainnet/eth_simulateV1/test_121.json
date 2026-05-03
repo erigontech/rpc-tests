@@ -1,0 +1,38 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-override-all-in-BlockStateCalls.io",
+            "description": "all override fields set (balance, nonce, code, state, stateDiff) \u2192 reflected in calls - executed on historical block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "number": "0x37",
+                                "time": "0x1cc",
+                                "gasLimit": "0x3ec",
+                                "feeRecipient": "0xc200000000000000000000000000000000000000",
+                                "prevRandao": "0xc300000000000000000000000000000000000000000000000000000000000000",
+                                "baseFeePerGas": "0x3ef"
+                            }
+                        }
+                    ]
+                },
+                "0x1406f40"
+            ]
+        },
+        "response": {
+            "error": {
+                "code": -38020,
+                "message": "block numbers must be in order: 55 <= 21000000"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+        }
+    }
+]

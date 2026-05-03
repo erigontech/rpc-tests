@@ -1,0 +1,45 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-block-override-reflected-in-contract-simple.io",
+            "description": "simple block override (number) visible inside contract via BLOCKNUMBER opcode"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "blockOverrides": {
+                                "number": "0x32",
+                                "time": "0x1cc"
+                            }
+                        },
+                        {
+                            "blockOverrides": {
+                                "number": "0x37",
+                                "time": "0x1d6"
+                            }
+                        },
+                        {
+                            "blockOverrides": {
+                                "number": "0x41",
+                                "time": "0x1e0"
+                            }
+                        }
+                    ]
+                },
+                "latest"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]
