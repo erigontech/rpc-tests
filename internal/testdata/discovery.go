@@ -32,24 +32,29 @@ var validTestExtensions = map[string]bool{
 
 type fixturePeek []struct {
 	Metadata struct {
-		Latest bool `json:"latest"`
+		Latest                  bool `json:"latest"`
+		RequestCommittedHistory bool `json:"requestCommittedHistory"`
 	} `json:"metadata"`
 }
 
-func peekLatest(path string) bool {
+// peekMetadataFlags reads only the metadata fields from a fixture file.
+func peekMetadataFlags(path string) (latest bool, committedHistory bool) {
 	f, err := os.Open(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "WARNING: cannot open fixture %s: %v\n", path, err)
-		return false
+		return false, false
 	}
 	defer f.Close()
 
 	var peek fixturePeek
 	if err := json.NewDecoder(f).Decode(&peek); err != nil {
 		fmt.Fprintf(os.Stderr, "WARNING: malformed fixture %s: %v\n", path, err)
-		return false
+		return false, false
 	}
-	return len(peek) > 0 && peek[0].Metadata.Latest
+	if len(peek) == 0 {
+		return false, false
+	}
+	return peek[0].Metadata.Latest, peek[0].Metadata.RequestCommittedHistory
 }
 
 // DiscoverTests scans the test directory and returns all test cases with global numbering.
@@ -114,7 +119,7 @@ func DiscoverTests(jsonDir, resultsDir string) (*DiscoveryResult, error) {
 				APIName: apiName,
 			}
 			if ext == ".json" {
-				tc.Latest = peekLatest(filepath.Join(testDir, testName))
+				tc.Latest, tc.CommittedHistory = peekMetadataFlags(filepath.Join(testDir, testName))
 			}
 			result.Tests = append(result.Tests, tc)
 		}

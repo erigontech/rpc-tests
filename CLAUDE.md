@@ -102,6 +102,7 @@ Test data lives in `integration/{network}/{api_name}/test_NN.json` across networ
 | `-X <nums>` | Exclude test numbers |
 | `-T <transport>` | Transport: http, http_comp, https, websocket, websocket_comp |
 | `-k <file>` | JWT secret file for engine API auth |
+| `-C` | Include tests requiring committed history (default: skip) |
 
 ## Dependencies
 

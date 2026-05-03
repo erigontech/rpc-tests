@@ -1,145 +1,147 @@
 [
-  {
-    "test": {
-      "reference": "",
-      "description": "HasStorage RAM-batch bug: block 1 deploys contract C via CREATE2 from factory (constructor sets storage[0]=42); block 2 clears C code+nonce via stateOverrides then calls factory again with same salt; EIP-7610 must detect storage collision and CREATE2 must return 0; bug: simulationIntraBlockStateReader.HasStorage only checks RangeAsOf(firstMinTxNum) and misses RAM-batch storage written by prior simulated blocks. Factory=0xf1f1..., C=0x3f66e869196db7f72c20dc13b8e3a1437035e786. With fix: block2 call returnData=0x000..000 (collision). With bug: returnData=0x000...[C address] (wrong CREATE2 success)."
-    },
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "eth_simulateV1",
-      "params": [
-        {
-          "blockStateCalls": [
-            {
-              "calls": [
-                {
-                  "from": "0x1111111111111111111111111111111111111111",
-                  "to": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1",
-                  "gas": "0x100000"
-                }
-              ],
-              "stateOverrides": {
-                "0x1111111111111111111111111111111111111111": {
-                  "balance": "0x8ac7230489e80000"
-                },
-                "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1": {
-                  "code": "0x7f0000000000000000000000000000000000602a600055604260005360016000f36000526000600f60116000f56000526020600cf3"
-                }
-              },
-              "blockOverrides": {
-                "number": "0x15c8b94",
-                "timestamp": "0x68D3B730"
-              }
-            },
-            {
-              "calls": [
-                {
-                  "from": "0x1111111111111111111111111111111111111111",
-                  "to": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1",
-                  "gas": "0x100000"
-                }
-              ],
-              "stateOverrides": {
-                "0x3f66e869196db7f72c20dc13b8e3a1437035e786": {
-                  "code": "0x",
-                  "nonce": "0x0"
-                }
-              },
-              "blockOverrides": {
-                "number": "0x15c8b95",
-                "timestamp": "0x68D3B73C"
-              }
-            }
-          ]
+    {
+        "test": {
+            "reference": "",
+            "description": "HasStorage RAM-batch bug: block 1 deploys contract C via CREATE2 from factory (constructor sets storage[0]=42); block 2 clears C code+nonce via stateOverrides then calls factory again with same salt; EIP-7610 must detect storage collision and CREATE2 must return 0; bug: simulationIntraBlockStateReader.HasStorage only checks RangeAsOf(firstMinTxNum) and misses RAM-batch storage written by prior simulated blocks. Factory=0xf1f1..., C=0x3f66e869196db7f72c20dc13b8e3a1437035e786. With fix: block2 call returnData=0x000..000 (collision). With bug: returnData=0x000...[C address] (wrong CREATE2 success)."
         },
-        "0x15c8b93"
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
- "result": [
-    {
-      "baseFeePerGas": "0x0",
-      "blobGasUsed": "0x0",
-      "calls": [
-        {
-          "gasUsed": "0x1266b",
-          "logs": [],
-          "maxUsedGas": "0x1266b",
-          "returnData": "0x3f66e869196db7f72c20dc13b8e3a1437035e786000000000000000000000000",
-          "status": "0x1"
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_simulateV1",
+            "params": [
+                {
+                    "blockStateCalls": [
+                        {
+                            "calls": [
+                                {
+                                    "from": "0x1111111111111111111111111111111111111111",
+                                    "to": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1",
+                                    "gas": "0x100000"
+                                }
+                            ],
+                            "stateOverrides": {
+                                "0x1111111111111111111111111111111111111111": {
+                                    "balance": "0x8ac7230489e80000"
+                                },
+                                "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1": {
+                                    "code": "0x7f0000000000000000000000000000000000602a600055604260005360016000f36000526000600f60116000f56000526020600cf3"
+                                }
+                            },
+                            "blockOverrides": {
+                                "number": "0x15c8b94",
+                                "timestamp": "0x68D3B730"
+                            }
+                        },
+                        {
+                            "calls": [
+                                {
+                                    "from": "0x1111111111111111111111111111111111111111",
+                                    "to": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1",
+                                    "gas": "0x100000"
+                                }
+                            ],
+                            "stateOverrides": {
+                                "0x3f66e869196db7f72c20dc13b8e3a1437035e786": {
+                                    "code": "0x",
+                                    "nonce": "0x0"
+                                }
+                            },
+                            "blockOverrides": {
+                                "number": "0x15c8b95",
+                                "timestamp": "0x68D3B73C"
+                            }
+                        }
+                    ]
+                },
+                "0x15c8b93"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "baseFeePerGas": "0x0",
+                    "blobGasUsed": "0x0",
+                    "calls": [
+                        {
+                            "gasUsed": "0x1266b",
+                            "logs": [],
+                            "maxUsedGas": "0x1266b",
+                            "returnData": "0x3f66e869196db7f72c20dc13b8e3a1437035e786000000000000000000000000",
+                            "status": "0x1"
+                        }
+                    ],
+                    "difficulty": "0x0",
+                    "excessBlobGas": "0x20000",
+                    "extraData": "0x",
+                    "gasLimit": "0x2255100",
+                    "gasUsed": "0x1266b",
+                    "hash": "0x3f66a08cbd79da8d5b0e5baa96a86163e0f2f518d0b805623cc1e51799818aa1",
+                    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "miner": "0xdadb0d80178819f2319190d340ce9a924f783711",
+                    "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "nonce": "0x0000000000000000",
+                    "number": "0x15c8b94",
+                    "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "parentHash": "0x6380e74828190e01bf273a3039974f5eca9ae193161f207d263f5c929e634430",
+                    "receiptsRoot": "0xe95fea64f1d722373c7e3d4153f8ca37b7c340d41ca99769335b8449c7db5e2e",
+                    "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                    "size": "0x294",
+                    "stateRoot": "0x87510dda01ea19ca55cd81f37f036bfec2a4106efdc68c927ad102ef2be812bf",
+                    "timestamp": "0x68671f8b",
+                    "transactions": [
+                        "0x9334d2c1fd32b686c7a670c8784dedeb892a862c98f87f0271e8f9a26310e222"
+                    ],
+                    "transactionsRoot": "0x5758ea18f81328c98a9dab26f30403c96bd8efc643c9e04cb27034c70c11bce7",
+                    "uncles": [],
+                    "withdrawals": [],
+                    "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                },
+                {
+                    "baseFeePerGas": "0x0",
+                    "blobGasUsed": "0x0",
+                    "calls": [
+                        {
+                            "gasUsed": "0xfc34c",
+                            "logs": [],
+                            "maxUsedGas": "0xfc34c",
+                            "returnData": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "status": "0x1"
+                        }
+                    ],
+                    "difficulty": "0x0",
+                    "excessBlobGas": "0x0",
+                    "extraData": "0x",
+                    "gasLimit": "0x2255100",
+                    "gasUsed": "0xfc34c",
+                    "hash": "0x77ab4619029109d62db9a79e8aee2d01edde41eaf945a78ab261b0ff83368502",
+                    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                    "miner": "0xdadb0d80178819f2319190d340ce9a924f783711",
+                    "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "nonce": "0x0000000000000000",
+                    "number": "0x15c8b95",
+                    "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "parentHash": "0x3f66a08cbd79da8d5b0e5baa96a86163e0f2f518d0b805623cc1e51799818aa1",
+                    "receiptsRoot": "0xb00ca8d6ddbe04b11a329ffa795096fc4f77c43f215bd2bd076ef3586b66ac23",
+                    "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                    "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                    "size": "0x291",
+                    "stateRoot": "0xbbb17450c458576db20b1653b895d6ad93744f56134d9ebcf2f6e81b906cab19",
+                    "timestamp": "0x68671f97",
+                    "transactions": [
+                        "0xd6ddff7d73d63a94b766f8f3bca0c61d4ed00d46c9870bd258b94bd7d8414a2e"
+                    ],
+                    "transactionsRoot": "0x5cbf5305b4715fd67bf0967f80306b59eaff027eeee49931e26e73946ffca164",
+                    "uncles": [],
+                    "withdrawals": [],
+                    "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                }
+            ]
+        },
+        "metadata": {
+            "requestCommittedHistory": true
         }
-      ],
-      "difficulty": "0x0",
-      "excessBlobGas": "0x20000",
-      "extraData": "0x",
-      "gasLimit": "0x2255100",
-      "gasUsed": "0x1266b",
-      "hash": "0x3f66a08cbd79da8d5b0e5baa96a86163e0f2f518d0b805623cc1e51799818aa1",
-      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "miner": "0xdadb0d80178819f2319190d340ce9a924f783711",
-      "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "nonce": "0x0000000000000000",
-      "number": "0x15c8b94",
-      "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "parentHash": "0x6380e74828190e01bf273a3039974f5eca9ae193161f207d263f5c929e634430",
-      "receiptsRoot": "0xe95fea64f1d722373c7e3d4153f8ca37b7c340d41ca99769335b8449c7db5e2e",
-      "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-      "size": "0x294",
-      "stateRoot": "0x87510dda01ea19ca55cd81f37f036bfec2a4106efdc68c927ad102ef2be812bf",
-      "timestamp": "0x68671f8b",
-      "transactions": [
-        "0x9334d2c1fd32b686c7a670c8784dedeb892a862c98f87f0271e8f9a26310e222"
-      ],
-      "transactionsRoot": "0x5758ea18f81328c98a9dab26f30403c96bd8efc643c9e04cb27034c70c11bce7",
-      "uncles": [],
-      "withdrawals": [],
-      "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
-    },
-    {
-      "baseFeePerGas": "0x0",
-      "blobGasUsed": "0x0",
-      "calls": [
-        {
-          "gasUsed": "0xfc34c",
-          "logs": [],
-          "maxUsedGas": "0xfc34c",
-          "returnData": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "status": "0x1"
-        }
-      ],
-      "difficulty": "0x0",
-      "excessBlobGas": "0x0",
-      "extraData": "0x",
-      "gasLimit": "0x2255100",
-      "gasUsed": "0xfc34c",
-      "hash": "0x77ab4619029109d62db9a79e8aee2d01edde41eaf945a78ab261b0ff83368502",
-      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "miner": "0xdadb0d80178819f2319190d340ce9a924f783711",
-      "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "nonce": "0x0000000000000000",
-      "number": "0x15c8b95",
-      "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "parentHash": "0x3f66a08cbd79da8d5b0e5baa96a86163e0f2f518d0b805623cc1e51799818aa1",
-      "receiptsRoot": "0xb00ca8d6ddbe04b11a329ffa795096fc4f77c43f215bd2bd076ef3586b66ac23",
-      "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-      "size": "0x291",
-      "stateRoot": "0xbbb17450c458576db20b1653b895d6ad93744f56134d9ebcf2f6e81b906cab19",
-      "timestamp": "0x68671f97",
-      "transactions": [
-        "0xd6ddff7d73d63a94b766f8f3bca0c61d4ed00d46c9870bd258b94bd7d8414a2e"
-      ],
-      "transactionsRoot": "0x5cbf5305b4715fd67bf0967f80306b59eaff027eeee49931e26e73946ffca164",
-      "uncles": [],
-      "withdrawals": [],
-      "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
     }
-  ]
-
-    }
-  }
 ]
