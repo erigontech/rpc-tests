@@ -83,9 +83,14 @@ func (f *TestFilter) IsSkipped(currAPI, testName string, globalTestNumber int) b
 
 // APIUnderTest determines if a test should run based on API/pattern/latest filters.
 // tcLatest reflects the metadata.latest field from the test fixture.
+// Without -L: only historical tests (tcLatest=false) run.
+// With -L: only latest-block tests (tcLatest=true) run.
 func (f *TestFilter) APIUnderTest(currAPI, testName string, tcLatest bool) bool {
-	if len(f.testingWithList) == 0 && len(f.testingAPIsList) == 0 && !f.cfg.TestsOnLatestBlock {
-		return true
+	if len(f.testingWithList) == 0 && len(f.testingAPIsList) == 0 {
+		if f.cfg.TestsOnLatestBlock {
+			return tcLatest
+		}
+		return !tcLatest
 	}
 
 	if len(f.testingWithList) > 0 {
@@ -94,7 +99,7 @@ func (f *TestFilter) APIUnderTest(currAPI, testName string, tcLatest bool) bool 
 				if f.cfg.TestsOnLatestBlock {
 					return tcLatest
 				}
-				return true
+				return !tcLatest
 			}
 		}
 		return false
@@ -106,14 +111,10 @@ func (f *TestFilter) APIUnderTest(currAPI, testName string, tcLatest bool) bool 
 				if f.cfg.TestsOnLatestBlock {
 					return tcLatest
 				}
-				return true
+				return !tcLatest
 			}
 		}
 		return false
-	}
-
-	if f.cfg.TestsOnLatestBlock {
-		return tcLatest
 	}
 
 	return false
