@@ -53,6 +53,7 @@ Options:
   -w, --waiting-time <ms>              wait time after test execution in milliseconds
   -S, --serial                         all tests run in serial way [default: parallel]
   -L, --tests-on-latest-block          runs only test on latest block
+  -C, --committed-history              include tests requiring committed history [default: skip]
   -M, --max-failures <n>               stop after n failures, 0 = unlimited [default: 100]
   -R, --report-file <file>             write summary report to file (.csv or .txt)
       --cpuprofile <file>              write cpu profile to file

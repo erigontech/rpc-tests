@@ -72,6 +72,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 		ExcludeTestList:    cfg.ExcludeTestList,
 		TestsOnLatestBlock: cfg.TestsOnLatestBlock,
 		DoNotCompareError:  cfg.DoNotCompareError,
+		CommittedHistory:   cfg.CommittedHistory,
 	})
 
 	// Discover tests
@@ -191,7 +192,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 					testName = jsonTestFullName[idx+1:]
 				}
 
-				if f.APIUnderTest(currAPI, jsonTestFullName, tc.Latest) {
+				if f.APIUnderTest(currAPI, jsonTestFullName, tc.Latest, tc.CommittedHistory) {
 					if f.IsSkipped(currAPI, jsonTestFullName, testNumberInAnyLoop) {
 						if IsStartTestReached(cfg, testNumberInAnyLoop) {
 							if !cfg.DisplayOnlyFail && cfg.ReqTestNum == -1 {

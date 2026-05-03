@@ -58,10 +58,10 @@ func TestIsSkipped_ExcludeAPIPattern(t *testing.T) {
 func TestAPIUnderTest_NoFilters(t *testing.T) {
 	f := New(defaultCfg())
 
-	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false) {
+	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false, false) {
 		t.Error("without -L, historical tests (tcLatest=false) should run")
 	}
-	if f.APIUnderTest("eth_call", "eth_call/test_02.json", true) {
+	if f.APIUnderTest("eth_call", "eth_call/test_02.json", true, false) {
 		t.Error("without -L, latest-block tests (tcLatest=true) should not run")
 	}
 }
@@ -71,13 +71,13 @@ func TestAPIUnderTest_ExactAPI(t *testing.T) {
 	cfg.TestingAPIs = "eth_call"
 	f := New(cfg)
 
-	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false) {
+	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false, false) {
 		t.Error("eth_call historical test should match exact API filter")
 	}
-	if f.APIUnderTest("eth_call", "eth_call/test_02.json", true) {
+	if f.APIUnderTest("eth_call", "eth_call/test_02.json", true, false) {
 		t.Error("eth_call latest test should not run without -L")
 	}
-	if f.APIUnderTest("eth_getBalance", "eth_getBalance/test_01.json", false) {
+	if f.APIUnderTest("eth_getBalance", "eth_getBalance/test_01.json", false, false) {
 		t.Error("eth_getBalance should not match exact API filter for eth_call")
 	}
 }
@@ -87,13 +87,13 @@ func TestAPIUnderTest_MultipleExactAPIs(t *testing.T) {
 	cfg.TestingAPIs = "eth_call,eth_getBalance"
 	f := New(cfg)
 
-	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false) {
+	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false, false) {
 		t.Error("eth_call should match")
 	}
-	if !f.APIUnderTest("eth_getBalance", "eth_getBalance/test_01.json", false) {
+	if !f.APIUnderTest("eth_getBalance", "eth_getBalance/test_01.json", false, false) {
 		t.Error("eth_getBalance should match")
 	}
-	if f.APIUnderTest("eth_getCode", "eth_getCode/test_01.json", false) {
+	if f.APIUnderTest("eth_getCode", "eth_getCode/test_01.json", false, false) {
 		t.Error("eth_getCode should not match")
 	}
 }
@@ -103,16 +103,16 @@ func TestAPIUnderTest_PatternAPI(t *testing.T) {
 	cfg.TestingAPIsWith = "eth_"
 	f := New(cfg)
 
-	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false) {
+	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false, false) {
 		t.Error("eth_call historical should match pattern eth_")
 	}
-	if f.APIUnderTest("eth_call", "eth_call/test_02.json", true) {
+	if f.APIUnderTest("eth_call", "eth_call/test_02.json", true, false) {
 		t.Error("eth_call latest test should not run without -L")
 	}
-	if !f.APIUnderTest("eth_getBalance", "eth_getBalance/test_01.json", false) {
+	if !f.APIUnderTest("eth_getBalance", "eth_getBalance/test_01.json", false, false) {
 		t.Error("eth_getBalance should match pattern eth_")
 	}
-	if f.APIUnderTest("trace_call", "trace_call/test_01.json", false) {
+	if f.APIUnderTest("trace_call", "trace_call/test_01.json", false, false) {
 		t.Error("trace_call should not match pattern eth_")
 	}
 }
@@ -122,13 +122,13 @@ func TestAPIUnderTest_LatestBlock(t *testing.T) {
 	cfg.TestsOnLatestBlock = true
 	f := New(cfg)
 
-	if !f.APIUnderTest("eth_blockNumber", "eth_blockNumber/test_01.json", true) {
+	if !f.APIUnderTest("eth_blockNumber", "eth_blockNumber/test_01.json", true, false) {
 		t.Error("tcLatest=true should be included when TestsOnLatestBlock is set")
 	}
-	if f.APIUnderTest("eth_call", "eth_call/test_01.json", false) {
+	if f.APIUnderTest("eth_call", "eth_call/test_01.json", false, false) {
 		t.Error("tcLatest=false should be excluded when TestsOnLatestBlock is set")
 	}
-	if !f.APIUnderTest("eth_call", "eth_call/test_20.json", true) {
+	if !f.APIUnderTest("eth_call", "eth_call/test_20.json", true, false) {
 		t.Error("tcLatest=true should be included")
 	}
 }
@@ -139,10 +139,10 @@ func TestAPIUnderTest_PatternWithLatest(t *testing.T) {
 	cfg.TestsOnLatestBlock = true
 	f := New(cfg)
 
-	if !f.APIUnderTest("eth_call", "eth_call/test_20.json", true) {
+	if !f.APIUnderTest("eth_call", "eth_call/test_20.json", true, false) {
 		t.Error("tcLatest=true matches pattern and is latest")
 	}
-	if f.APIUnderTest("eth_call", "eth_call/test_01.json", false) {
+	if f.APIUnderTest("eth_call", "eth_call/test_01.json", false, false) {
 		t.Error("tcLatest=false matches pattern but is not latest")
 	}
 }
@@ -167,6 +167,27 @@ func TestVerifyInLatestList_FlagOff(t *testing.T) {
 
 	if f.VerifyInLatestList(true) {
 		t.Error("should return false when flag is off")
+	}
+}
+
+func TestAPIUnderTest_CommittedHistorySkippedByDefault(t *testing.T) {
+	f := New(defaultCfg()) // CommittedHistory=false by default
+
+	if f.APIUnderTest("eth_getBlockReceipts", "eth_getBlockReceipts/test_01.json", false, true) {
+		t.Error("test with requestCommittedHistory=true should be skipped without -C")
+	}
+	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false, false) {
+		t.Error("test with requestCommittedHistory=false should run normally")
+	}
+}
+
+func TestAPIUnderTest_CommittedHistoryIncludedWithFlag(t *testing.T) {
+	cfg := defaultCfg()
+	cfg.CommittedHistory = true
+	f := New(cfg)
+
+	if !f.APIUnderTest("eth_getBlockReceipts", "eth_getBlockReceipts/test_01.json", false, true) {
+		t.Error("test with requestCommittedHistory=true should run when -C is set")
 	}
 }
 

@@ -103,6 +103,7 @@ type Config struct {
 	ExcludeAPIList     string
 	ExcludeTestList    string
 	TestsOnLatestBlock bool
+	CommittedHistory   bool // Include tests requiring committed history (-C)
 
 	// Authentication
 	JWTSecret string

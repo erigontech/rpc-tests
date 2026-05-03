@@ -16,6 +16,7 @@ type FilterConfig struct {
 	ExcludeTestList    string
 	TestsOnLatestBlock bool
 	DoNotCompareError  bool
+	CommittedHistory   bool
 }
 
 // TestFilter handles all test filtering logic, matching v1 behavior exactly.
@@ -81,11 +82,18 @@ func (f *TestFilter) IsSkipped(currAPI, testName string, globalTestNumber int) b
 	return false
 }
 
-// APIUnderTest determines if a test should run based on API/pattern/latest filters.
+// APIUnderTest determines if a test should run based on API/pattern/latest/committed-history filters.
 // tcLatest reflects the metadata.latest field from the test fixture.
+// tcCommittedHistory reflects the metadata.requestCommittedHistory field from the test fixture.
 // Without -L: only historical tests (tcLatest=false) run.
 // With -L: only latest-block tests (tcLatest=true) run.
-func (f *TestFilter) APIUnderTest(currAPI, testName string, tcLatest bool) bool {
+// Without -C: tests with requestCommittedHistory=true are skipped.
+// With -C: tests with requestCommittedHistory=true are included.
+func (f *TestFilter) APIUnderTest(currAPI, testName string, tcLatest bool, tcCommittedHistory bool) bool {
+	if tcCommittedHistory && !f.cfg.CommittedHistory {
+		return false
+	}
+
 	if len(f.testingWithList) == 0 && len(f.testingAPIsList) == 0 {
 		if f.cfg.TestsOnLatestBlock {
 			return tcLatest

@@ -1,18 +1,18 @@
 [
     {
         "test": {
-           "reference": "https://github.com/erigontech/erigon/issues/17454",
-           "description": "historical query for non-existent account"
+            "reference": "https://github.com/erigontech/erigon/issues/17454",
+            "description": "historical query for non-existent account"
         },
         "request": {
-            "jsonrpc":"2.0",
-            "method":"eth_getProof",
-            "params":[
-                   "0x1c89fbf5750ea4a2cdd8615de1e173836fe937b8",
-                   [],
-                   "0x186b3"
+            "jsonrpc": "2.0",
+            "method": "eth_getProof",
+            "params": [
+                "0x1c89fbf5750ea4a2cdd8615de1e173836fe937b8",
+                [],
+                "0x186b3"
             ],
-            "id":1
+            "id": 1
         },
         "response": {
             "jsonrpc": "2.0",
@@ -31,7 +31,9 @@
                 "storageHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
                 "storageProof": []
             }
+        },
+        "metadata": {
+            "requestCommittedHistory": true
         }
     }
 ]
-
