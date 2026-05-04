@@ -13,7 +13,7 @@ type TestCase struct {
 	APIName            string // API directory name
 	TransportType      string // Assigned at scheduling time
 	Latest             bool
-	CommittedHistory   bool
+	CommitmentHistory   bool
 }
 
 // TestDescriptor is a scheduled test sent to workers.
@@ -69,7 +69,7 @@ type JsonRpcTest struct {
 type TestMetadata struct {
 	Latest                   bool     `json:"latest"`
 	IgnoreFields             []string `json:"ignoreFields"`
-	RequestCommittedHistory  bool     `json:"requestCommittedHistory"`
+	RequestCommitmentHistory  bool     `json:"erigon.request-commitment-history"`
 }
 
 // JsonRpcCommand represents a single JSON-RPC command in a test fixture.

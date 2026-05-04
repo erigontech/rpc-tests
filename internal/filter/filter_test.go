@@ -170,24 +170,24 @@ func TestVerifyInLatestList_FlagOff(t *testing.T) {
 	}
 }
 
-func TestAPIUnderTest_CommittedHistorySkippedByDefault(t *testing.T) {
-	f := New(defaultCfg()) // CommittedHistory=false by default
+func TestAPIUnderTest_CommitmentHistorySkippedByDefault(t *testing.T) {
+	f := New(defaultCfg()) // CommitmentHistory=false by default
 
 	if f.APIUnderTest("eth_getBlockReceipts", "eth_getBlockReceipts/test_01.json", false, true) {
-		t.Error("test with requestCommittedHistory=true should be skipped without -C")
+		t.Error("test with erigon.request-commitment-history=true should be skipped without -C")
 	}
 	if !f.APIUnderTest("eth_call", "eth_call/test_01.json", false, false) {
-		t.Error("test with requestCommittedHistory=false should run normally")
+		t.Error("test with erigon.request-commitment-history=false should run normally")
 	}
 }
 
-func TestAPIUnderTest_CommittedHistoryIncludedWithFlag(t *testing.T) {
+func TestAPIUnderTest_CommitmentHistoryIncludedWithFlag(t *testing.T) {
 	cfg := defaultCfg()
-	cfg.CommittedHistory = true
+	cfg.CommitmentHistory = true
 	f := New(cfg)
 
 	if !f.APIUnderTest("eth_getBlockReceipts", "eth_getBlockReceipts/test_01.json", false, true) {
-		t.Error("test with requestCommittedHistory=true should run when -C is set")
+		t.Error("test with erigon.request-commitment-history=true should run when -C is set")
 	}
 }
 

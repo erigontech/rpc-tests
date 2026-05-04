@@ -16,7 +16,7 @@ type FilterConfig struct {
 	ExcludeTestList    string
 	TestsOnLatestBlock bool
 	DoNotCompareError  bool
-	CommittedHistory   bool
+	CommitmentHistory  bool
 }
 
 // TestFilter handles all test filtering logic, matching v1 behavior exactly.
@@ -82,15 +82,15 @@ func (f *TestFilter) IsSkipped(currAPI, testName string, globalTestNumber int) b
 	return false
 }
 
-// APIUnderTest determines if a test should run based on API/pattern/latest/committed-history filters.
+// APIUnderTest determines if a test should run based on API/pattern/latest/commitment-history filters.
 // tcLatest reflects the metadata.latest field from the test fixture.
-// tcCommittedHistory reflects the metadata.requestCommittedHistory field from the test fixture.
+// tcCommitmentHistory reflects the metadata.erigon.request-commitment-history field from the test fixture.
 // Without -L: only historical tests (tcLatest=false) run.
 // With -L: only latest-block tests (tcLatest=true) run.
-// Without -C: tests with requestCommittedHistory=true are skipped.
-// With -C: tests with requestCommittedHistory=true are included.
-func (f *TestFilter) APIUnderTest(currAPI, testName string, tcLatest bool, tcCommittedHistory bool) bool {
-	if tcCommittedHistory && !f.cfg.CommittedHistory {
+// Without -C: tests with erigon.request-commitment-history=true are skipped.
+// With -C: tests with erigon.request-commitment-history=true are included.
+func (f *TestFilter) APIUnderTest(currAPI, testName string, tcLatest bool, tcCommitmentHistory bool) bool {
+	if tcCommitmentHistory && !f.cfg.CommitmentHistory {
 		return false
 	}
 
