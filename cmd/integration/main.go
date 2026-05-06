@@ -39,6 +39,9 @@ func parseFlags(cfg *config.Config) error {
 	testOnLatest := flag.Bool("L", false, "run only tests on latest block")
 	flag.BoolVar(testOnLatest, "tests-on-latest-block", false, "run only tests on latest block")
 
+	commitmentHistory := flag.Bool("C", false, "include tests requiring commitment history (erigon.request-commitment-history=true)")
+	flag.BoolVar(commitmentHistory, "erigon.commitment-history", false, "include tests requiring commitment history (erigon.request-commitment-history=true)")
+
 	port := flag.Int("p", 0, "port where RpcDaemon is located")
 	flag.IntVar(port, "port", 0, "port where RpcDaemon is located")
 
@@ -140,6 +143,7 @@ func parseFlags(cfg *config.Config) error {
 	cfg.WithoutCompareResults = *withoutCompare
 	cfg.DoNotCompareError = *doNotCompareError
 	cfg.TestsOnLatestBlock = *testOnLatest
+	cfg.CommitmentHistory = *commitmentHistory
 	cfg.MaxFailures = *maxFailures
 	cfg.ReportFile = *reportFile
 	cfg.CpuProfile = *cpuProfile
@@ -227,6 +231,7 @@ func usage() {
 	fmt.Println("  -w, --waiting-time <ms>              wait time after test execution in milliseconds")
 	fmt.Println("  -S, --serial                         all tests run in serial way [default: parallel]")
 	fmt.Println("  -L, --tests-on-latest-block          runs only test on latest block")
+	fmt.Println("  -C, --erigon.commitment-history       include tests requiring commitment history [default: skip]")
 	fmt.Println("  -M, --max-failures <n>               stop after n failures, 0 = unlimited [default: 100]")
 	fmt.Println("  -R, --report-file <file>             write summary report to file (.csv or .txt)")
 	fmt.Println("      --cpuprofile <file>              write cpu profile to file")

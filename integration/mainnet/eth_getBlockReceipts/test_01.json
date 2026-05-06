@@ -5097,6 +5097,9 @@
           "type": "0x0"
         }
       ]
+    },
+    "metadata": {
+      "erigon.request-commitment-history": true
     }
   }
 ]

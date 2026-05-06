@@ -45,6 +45,9 @@
             },
             "id": 1,
             "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "erigon.request-commitment-history": true
         }
     }
 ]
