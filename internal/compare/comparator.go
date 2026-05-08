@@ -3,6 +3,7 @@ package compare
 import (
 	"bytes"
 	"context"
+	stdjson "encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -279,20 +280,26 @@ func arrayEqual(lhs, rhs []map[string]any) bool {
 }
 
 // marshalToFile marshals a value to JSON and writes it to a file using a pooled buffer.
+// jsoniter's SetIndent does not re-indent nested objects stored as lazy raw values, so
+// we re-indent the output with the standard library to guarantee correct formatting.
 func marshalToFile(value any, filename string, metrics *testdata.TestMetrics) error {
 	buf := bufPool.Get().(*bytes.Buffer)
 	buf.Reset()
 	defer bufPool.Put(buf)
 
 	start := time.Now()
-	enc := json.NewEncoder(buf)
-	enc.SetIndent("", "  ")
-	if err := enc.Encode(value); err != nil {
+	if err := json.NewEncoder(buf).Encode(value); err != nil {
 		return err
 	}
 	metrics.MarshallingTime += time.Since(start)
 
-	if err := os.WriteFile(filename, buf.Bytes(), 0644); err != nil {
+	var indented bytes.Buffer
+	if err := stdjson.Indent(&indented, bytes.TrimRight(buf.Bytes(), "\n"), "", "  "); err != nil {
+		return fmt.Errorf("indent error: %w", err)
+	}
+	indented.WriteByte('\n')
+
+	if err := os.WriteFile(filename, indented.Bytes(), 0644); err != nil {
 		return fmt.Errorf("exception on file write: %w", err)
 	}
 	return nil
