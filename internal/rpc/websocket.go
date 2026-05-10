@@ -44,6 +44,9 @@ func (c *Client) callWebSocket(target string, request []byte, response any) (Met
 		return metrics, err
 	}
 
+	if err = conn.SetReadDeadline(time.Now().Add(300 * time.Second)); err != nil {
+		return metrics, fmt.Errorf("websocket set read deadline: %w", err)
+	}
 	_, message, err := conn.NextReader()
 	if err != nil {
 		if c.verbose > 0 {
