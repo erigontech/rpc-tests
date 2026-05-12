@@ -94,8 +94,9 @@ type Config struct {
 	ServerPort          int
 	EnginePort          int
 	VerifyWithDaemon    bool
-	ExternalProviderURL string
-	LocalServer         string
+	ExternalProviderURL     string
+	ExternalProviderHeaders map[string]string
+	LocalServer             string
 
 	// Test filtering
 	TestingAPIs        string // Exact match (-A)

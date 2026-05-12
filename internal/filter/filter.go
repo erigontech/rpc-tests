@@ -81,6 +81,16 @@ func (f *TestFilter) IsSkipped(currAPI, testName string, globalTestNumber int) b
 		}
 	}
 
+	// Skip "latest"-block tests unless -L flag is explicitly set.
+	// These tests are non-deterministic across two nodes at different chain tips.
+	if !f.cfg.TestsOnLatestBlock {
+		for _, latestTest := range testsOnLatest {
+			if strings.Contains(apiFullTestName, latestTest) || strings.Contains(apiFullName, latestTest) {
+				return true
+			}
+		}
+	}
+
 	for _, excludeAPI := range f.excludeAPIs {
 		if strings.Contains(apiFullName, excludeAPI) || strings.Contains(apiFullTestName, excludeAPI) {
 			return true

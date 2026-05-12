@@ -16,9 +16,10 @@ type Metrics struct {
 
 // Client dispatches JSON-RPC requests over HTTP or WebSocket transports.
 type Client struct {
-	verbose   int
-	transport string
-	jwtAuth   string
+	verbose      int
+	transport    string
+	jwtAuth      string
+	extraHeaders map[string]string
 }
 
 // NewClient creates a new RPC client for the given transport type.
@@ -27,6 +28,16 @@ func NewClient(transport string, jwtAuth string, verbose int) *Client {
 		verbose:   verbose,
 		transport: transport,
 		jwtAuth:   jwtAuth,
+	}
+}
+
+// NewClientWithHeaders creates a new RPC client with additional HTTP headers.
+func NewClientWithHeaders(transport string, jwtAuth string, verbose int, extraHeaders map[string]string) *Client {
+	return &Client{
+		verbose:      verbose,
+		transport:    transport,
+		jwtAuth:      jwtAuth,
+		extraHeaders: extraHeaders,
 	}
 }
 

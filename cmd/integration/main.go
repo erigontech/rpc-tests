@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"runtime/trace"
+	"strings"
 	"syscall"
 
 	"github.com/erigontech/rpc-tests/internal/config"
@@ -29,6 +30,9 @@ func parseFlags(cfg *config.Config) error {
 
 	externalProvider := flag.String("e", "", "verify external provider URL")
 	flag.StringVar(externalProvider, "verify-external-provider", "", "verify external provider URL")
+
+	externalProviderHeaders := flag.String("eh", "", "extra headers for external provider, format: Key1:Value1,Key2:Value2")
+	flag.StringVar(externalProviderHeaders, "external-headers", "", "extra headers for external provider, format: Key1:Value1,Key2:Value2")
 
 	serial := flag.Bool("S", false, "run tests in serial")
 	flag.BoolVar(serial, "serial", false, "run tests in serial")
@@ -160,6 +164,16 @@ func parseFlags(cfg *config.Config) error {
 		cfg.DaemonAsReference = config.ExternalProvider
 		cfg.ExternalProviderURL = *externalProvider
 		cfg.VerifyWithDaemon = true
+	}
+
+	if *externalProviderHeaders != "" {
+		cfg.ExternalProviderHeaders = make(map[string]string)
+		for _, pair := range strings.Split(*externalProviderHeaders, ",") {
+			parts := strings.SplitN(pair, ":", 2)
+			if len(parts) == 2 {
+				cfg.ExternalProviderHeaders[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+			}
+		}
 	}
 
 	if *compareErigon {

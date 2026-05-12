@@ -64,6 +64,9 @@ func (c *Client) callHTTP(ctx context.Context, target string, request []byte, re
 	if c.jwtAuth != "" {
 		req.Header.Set("Authorization", c.jwtAuth)
 	}
+	for k, v := range c.extraHeaders {
+		req.Header.Set(k, v)
+	}
 
 	start := time.Now()
 	resp, err := sharedHTTPClient.Do(req)
