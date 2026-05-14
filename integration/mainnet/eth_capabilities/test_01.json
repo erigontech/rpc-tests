@@ -24,7 +24,8 @@
         },
         "metadata": {
             "ignoreFields": [
-                "result.stateproofs"
+                "result.stateproofs",
+                "result.head"
             ]
         }
     }

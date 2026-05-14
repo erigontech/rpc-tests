@@ -926,3 +926,51 @@ func TestDiffJSON_IgnoreTopLevelField(t *testing.T) {
 		}
 	}
 }
+
+func TestDiffJSON_IgnoreExtraFieldInActual(t *testing.T) {
+	re, err := CompileIgnorePattern("result.head")
+	if err != nil {
+		t.Fatalf("CompileIgnorePattern error: %v", err)
+	}
+	opts := &Options{IgnorePatterns: []*regexp.Regexp{re}}
+
+	// expected has no "head", actual has it — should be ignored (DiffAdd suppressed)
+	expected := map[string]any{"result": map[string]any{"state": map[string]any{"disabled": false}}}
+	actual := map[string]any{"result": map[string]any{"state": map[string]any{"disabled": false}, "head": map[string]any{"hash": "0xabc", "number": "0x1"}}}
+
+	diffs := collectDiffs(expected, actual, "", opts)
+	for _, d := range diffs {
+		if d.Type == DiffAdd {
+			t.Errorf("expected result.head add to be ignored, got add at %q", d.Path)
+		}
+	}
+
+	diffMap := DiffJSON(expected, actual, opts)
+	if len(diffMap) != 0 {
+		t.Errorf("expected empty diff map with ignore pattern, got: %v", diffMap)
+	}
+}
+
+func TestDiffJSON_IgnoreMissingFieldInActual(t *testing.T) {
+	re, err := CompileIgnorePattern("result.head")
+	if err != nil {
+		t.Fatalf("CompileIgnorePattern error: %v", err)
+	}
+	opts := &Options{IgnorePatterns: []*regexp.Regexp{re}}
+
+	// expected has "head", actual does not — should be ignored (DiffDelete suppressed)
+	expected := map[string]any{"result": map[string]any{"state": map[string]any{"disabled": false}, "head": map[string]any{"hash": "0xabc"}}}
+	actual := map[string]any{"result": map[string]any{"state": map[string]any{"disabled": false}}}
+
+	diffs := collectDiffs(expected, actual, "", opts)
+	for _, d := range diffs {
+		if d.Type == DiffDelete {
+			t.Errorf("expected result.head delete to be ignored, got delete at %q", d.Path)
+		}
+	}
+
+	diffMap := DiffJSON(expected, actual, opts)
+	if len(diffMap) != 0 {
+		t.Errorf("expected empty diff map with ignore pattern, got: %v", diffMap)
+	}
+}

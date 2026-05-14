@@ -219,9 +219,13 @@ func diffMaps(obj1, obj2 any, path string, result map[string]any, opts *Options)
 		}
 
 		if !exists1 {
-			result[newPath] = map[string]any{"__new": v2}
+			if !shouldIgnore(newPath, opts) {
+				result[newPath] = map[string]any{"__new": v2}
+			}
 		} else if !exists2 {
-			result[newPath] = map[string]any{"__old": v1}
+			if !shouldIgnore(newPath, opts) {
+				result[newPath] = map[string]any{"__old": v1}
+			}
 		} else {
 			diff(v1, v2, newPath, result, opts)
 		}
@@ -336,9 +340,13 @@ func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) 
 		}
 
 		if !exists1 {
-			*diffs = append(*diffs, Diff{Type: DiffAdd, Path: newPath, NewValue: v2})
+			if !shouldIgnore(newPath, opts) {
+				*diffs = append(*diffs, Diff{Type: DiffAdd, Path: newPath, NewValue: v2})
+			}
 		} else if !exists2 {
-			*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1})
+			if !shouldIgnore(newPath, opts) {
+				*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1})
+			}
 		} else {
 			collectDiffsRec(v1, v2, newPath, diffs, opts)
 		}
