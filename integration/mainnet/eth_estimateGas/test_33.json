@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "SetCodeTx (EIP-7702) with to==from triggers 0xef prefix code and returns invalid opcode error"
+      "description": "SetCodeTx without yParity"
     },
     "request": {
       "jsonrpc": "2.0",
