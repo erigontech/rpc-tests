@@ -1,0 +1,76 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "simulating against pre-Shanghai block: result block must not contain withdrawals field"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0x2222222222222222222222222222222222222222",
+                  "value": "0x1"
+                }
+              ],
+              "stateOverrides": {
+                "0x1111111111111111111111111111111111111111": {
+                  "balance": "0x1000000000"
+                }
+              }
+            }
+          ],
+          "returnFullTransactions": false
+        },
+        "0x1040CB5"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "calls": [
+            {
+              "status": "0x1",
+              "returnData": "0x",
+              "gasUsed": "0x5208",
+              "maxUsedGas": "0x5208",
+              "logs": []
+            }
+          ],
+          "difficulty": "0x0",
+          "extraData": "0x",
+          "gasLimit": "0x1c9c380",
+          "gasUsed": "0x5208",
+          "hash": "0xff9dec2f476fd498c9e458d5acff6c49ad01bf94b53eaf1d67691184ee015c47",
+          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "miner": "0xe94f1fa4f27d9d288ffea234bb62e1fbc086ca0c",
+          "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "nonce": "0x0000000000000000",
+          "number": "0x1040cb6",
+          "parentHash": "0x9271e617dda96db4d9ca663ba42e319b002fdb302fa231e4efdc67d1b04e10ff",
+          "receiptsRoot": "0xf78dfb743fbd92ade140711c8bbc542b5e307f0ab7984eff35d751969fe57efa",
+          "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+          "size": "0x24d",
+          "stateRoot": "0x66a54ab2de8214ecce2452908cd8e6e075f46b6bad77dd49f3f17c61f720bb6d",
+          "timestamp": "0x6438bff3",
+          "baseFeePerGas": "0x0",
+          "transactions": [
+            "0xc7bccd7dcd940ebb7d5224aa43cf061b5b115b37f9fefac32b8062747a4a0a1d"
+          ],
+          "transactionsRoot": "0xdfaed41c8b3aaca5942cda78c0a23dde64632c5640b768c2317d830ba6c7f3f9",
+          "uncles": [],
+          "withdrawals": [],
+          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,59 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "out-of-order block numbers (second < first) returns -38020"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0x2222222222222222222222222222222222222222",
+                  "value": "0x1"
+                }
+              ],
+              "stateOverrides": {
+                "0x1111111111111111111111111111111111111111": {
+                  "balance": "0x1000000000"
+                }
+              },
+              "blockOverrides": {
+                "number": "0x15c8b95",
+                "timestamp": "0x68671f90"
+              }
+            },
+            {
+              "calls": [
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0x2222222222222222222222222222222222222222",
+                  "value": "0x1"
+                }
+              ],
+              "blockOverrides": {
+                "number": "0x15c8b94",
+                "timestamp": "0x68671fa0"
+              }
+            }
+          ]
+        },
+        "0x15c8b93"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {
+        "code": -38020,
+        "message": "Block number out of order 22842260 is <= than previous block number of 22842259!"
+      }
+    }
+  }
+]

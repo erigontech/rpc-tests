@@ -1,0 +1,105 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "multi-tx validation mode: two txs in one block both succeed"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0x2222222222222222222222222222222222222222",
+                  "value": "0x1",
+                  "gas": "0x5208",
+                  "maxFeePerGas": "0x3b9aca00",
+                  "maxPriorityFeePerGas": "0x3b9aca00",
+                  "nonce": "0x0"
+                },
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0x3333333333333333333333333333333333333333",
+                  "value": "0x1",
+                  "gas": "0x5208",
+                  "maxFeePerGas": "0x3b9aca00",
+                  "maxPriorityFeePerGas": "0x3b9aca00",
+                  "nonce": "0x1"
+                }
+              ],
+              "stateOverrides": {
+                "0x1111111111111111111111111111111111111111": {
+                  "balance": "0x1000000000000000",
+                  "nonce": "0x0"
+                }
+              },
+              "blockOverrides": {
+                "baseFeePerGas": "0x0"
+              }
+            }
+          ],
+          "validation": true
+        },
+        "0x15c8b93"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "calls": [
+            {
+              "status": "0x1",
+              "returnData": "0x",
+              "gasUsed": "0x5208",
+              "maxUsedGas": "0x5208",
+              "logs": []
+            },
+            {
+              "status": "0x1",
+              "returnData": "0x",
+              "gasUsed": "0x5208",
+              "maxUsedGas": "0x5208",
+              "logs": []
+            }
+          ],
+          "difficulty": "0x0",
+          "extraData": "0x",
+          "gasLimit": "0x2255100",
+          "gasUsed": "0xa410",
+          "hash": "0x56eb436659fdea18537b8e057e82ac6f50ac61657d3aee615ca21559ce53a45f",
+          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "miner": "0xdadb0d80178819f2319190d340ce9a924f783711",
+          "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "nonce": "0x0000000000000000",
+          "number": "0x15c8b94",
+          "parentHash": "0x6380e74828190e01bf273a3039974f5eca9ae193161f207d263f5c929e634430",
+          "receiptsRoot": "0x75308898d571eafb5cd8cde8278bf5b3d13c5f6ec074926de3bb895b519264e1",
+          "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+          "size": "0x2c8",
+          "stateRoot": "0xbabbe0c5bf09ebab6cbdfbd53bdcead5df98ca108e37c971a0f42acd94ecb8e0",
+          "timestamp": "0x68671f8b",
+          "baseFeePerGas": "0x0",
+          "transactions": [
+            "0xfbf2015498d0db1ed074b64945feb6f74f1da274a591217f77b9eb1bdff7cd1d",
+            "0xc1ff1593527a17fe5300c8ec84c7fca587e1af378ac85e5006fc74fa6e575caf"
+          ],
+          "transactionsRoot": "0x55e617ceffa7713439cedead79e0cd964cf366d49544e9e747ccea8383ccc09c",
+          "uncles": [],
+          "withdrawals": [],
+          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+          "blobGasUsed": "0x0",
+          "excessBlobGas": "0x20000",
+          "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  }
+]
