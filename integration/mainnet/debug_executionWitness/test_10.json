@@ -1,0 +1,13 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "debug_executionWitness",
+      "params": [
+        "0xf5e1d15a3e380006bd271e73c8eeed75fafc3ae6942b16f63c21361079bba709"
+      ],
+      "id": 1
+    },
+    "response": null
+  }
+]
