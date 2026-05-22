@@ -39,7 +39,7 @@
         ],
         "headers": [
           {
-            "balHash": null,
+            "blockAccessListHash": null,
             "baseFeePerGas": "0xa1a4e5f06",
             "blobGasUsed": null,
             "difficulty": "0x27472e1db3626a",
