@@ -1,0 +1,26 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "Percentile greater than 100 rejected (rewardPercentiles must be in [0,100])"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_feeHistory",
+            "params": [
+                "0x2",
+                "0xF42400",
+                [50, 101]
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "error": {
+                "code": -32602,
+                "message": "rewardPercentiles: Some values are below 0 or greater than 100."
+            }
+        }
+    }
+]

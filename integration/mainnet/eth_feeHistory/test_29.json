@@ -1,0 +1,57 @@
+[
+    {
+        "test": {
+            "reference": "https://etherscan.io/block/12965000",
+            "description": "London-straddling: range crosses EIP-1559 activation block (12,965,000). baseFeePerGas is 0x0 pre-London and 0x3b9aca00 (1 Gwei initial) at activation."
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_feeHistory",
+            "params": [
+                "0x4",
+                "0xC5D48A",
+                [25, 75]
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+                "oldestBlock": "0xc5d487",
+                "baseFeePerGas": [
+                    "0x0",
+                    "0x3b9aca00",
+                    "0x430da58e",
+                    "0x4b6d419d",
+                    "0x54d7aa96"
+                ],
+                "baseFeePerBlobGas": [
+                    "0x0",
+                    "0x0",
+                    "0x0",
+                    "0x0",
+                    "0x0"
+                ],
+                "gasUsedRatio": [
+                    0.9998319941325032,
+                    0.9998712916081929,
+                    0.9995115300443023,
+                    0.9993273386169061
+                ],
+                "blobGasUsedRatio": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "reward": [
+                    ["0x649534e00", "0x737be7600"],
+                    ["0x51f4d5c00", "0x60db88400"],
+                    ["0x5e2826272", "0x7fdee6cf2"],
+                    ["0x4d3e01a63", "0x50f7ae463"]
+                ]
+            }
+        }
+    }
+]

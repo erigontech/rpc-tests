@@ -1,0 +1,26 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "rewardPercentiles must be strictly ascending — [20,10] is rejected"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_feeHistory",
+            "params": [
+                "0x2",
+                "0xF42400",
+                [20, 10]
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "error": {
+                "code": -32602,
+                "message": "rewardPercentiles: Value at index 1: 10 is less than or equal to the value at previous index 0: 20."
+            }
+        }
+    }
+]

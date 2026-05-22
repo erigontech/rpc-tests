@@ -15,9 +15,12 @@
       ]
     },
     "response": {
-      "error": null,
       "id": 1,
-      "jsonrpc": "2.0"
+      "jsonrpc": "2.0",
+      "error": {
+        "code": -32603,
+        "message": "upstream does not have the requested block yet"
+      }
     },
     "test": {
       "description": "Not existent block",
