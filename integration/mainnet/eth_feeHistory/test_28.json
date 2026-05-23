@@ -1,25 +1,44 @@
 [
     {
         "test": {
-            "reference": "",
-            "description": "Block hash is not a valid newestBlock value — must be a quantity or block tag"
+            "reference": "https://etherscan.io/block/5",
+            "description": "Range overshoots genesis: blockCount=10 starting from block 5 — oldestBlock clipped to 0x0; arrays length 6"
         },
         "request": {
             "jsonrpc": "2.0",
             "method": "eth_feeHistory",
             "params": [
-                "0x2",
-                "0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6",
-                [25, 75]
+                "0xa",
+                "0x5",
+                []
             ],
             "id": 1
         },
         "response": {
             "jsonrpc": "2.0",
             "id": 1,
-            "error": {
-                "code": -32602,
-                "message": "newestBlock: Is not correct block number"
+            "result": {
+                "oldestBlock": "0x0",
+                "baseFeePerGas": [
+                    "0x0",
+                    "0x0",
+                    "0x0",
+                    "0x0",
+                    "0x0",
+                    "0x0",
+                    "0x0"
+                ],
+                "baseFeePerBlobGas": [
+                    "0x0",
+                    "0x0",
+                    "0x0",
+                    "0x0",
+                    "0x0",
+                    "0x0",
+                    "0x0"
+                ],
+                "gasUsedRatio": [0, 0, 0, 0, 0, 0],
+                "blobGasUsedRatio": [0, 0, 0, 0, 0, 0]
             }
         }
     }

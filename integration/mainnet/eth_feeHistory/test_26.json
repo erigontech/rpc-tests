@@ -1,25 +1,34 @@
 [
     {
         "test": {
-            "reference": "",
-            "description": "Percentile greater than 100 rejected (rewardPercentiles must be in [0,100])"
+            "reference": "https://etherscan.io/block/0",
+            "description": "newestBlock=earliest with count>1 — range clipped to genesis only; arrays sized for 1 block"
         },
         "request": {
             "jsonrpc": "2.0",
             "method": "eth_feeHistory",
             "params": [
-                "0x2",
-                "0xF42400",
-                [50, 101]
+                "0x5",
+                "earliest",
+                []
             ],
             "id": 1
         },
         "response": {
             "jsonrpc": "2.0",
             "id": 1,
-            "error": {
-                "code": -32602,
-                "message": "rewardPercentiles: Some values are below 0 or greater than 100."
+            "result": {
+                "oldestBlock": "0x0",
+                "baseFeePerGas": [
+                    "0x0",
+                    "0x0"
+                ],
+                "baseFeePerBlobGas": [
+                    "0x0",
+                    "0x0"
+                ],
+                "gasUsedRatio": [0],
+                "blobGasUsedRatio": [0]
             }
         }
     }
