@@ -1,0 +1,27 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_feeHistory",
+      "params": [
+        "0x1",
+        "0xFFFFFFF0",
+        [
+          0,
+          50,
+          100
+        ]
+      ]
+    },
+    "response": {
+      "error": null,
+      "id": 1,
+      "jsonrpc": "2.0"
+    },
+    "test": {
+      "description": "Not existent block",
+      "reference": ""
+    }
+  }
+]
