@@ -1,0 +1,53 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getLogs",
+      "params": [
+        {
+          "fromBlock": "0x2b6fb06",
+          "toBlock": "0x2b6fb06"
+        }
+      ],
+      "id": 45546246
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "address": "0x7aa55b39ebb3dafa06548d2c8fdac3ba42ba77e2",
+          "blockHash": "0x5eb68439d8cebe45f3a3cdc60fb20700597d374b1c27c15bf5df1602a0755128",
+          "blockNumber": "0x2b6fb06",
+          "blockTimestamp": "0x69d48ec9",
+          "data": "0x0000000000000000000000000000f46dad1c0124004e1b6528e656ef3bbff8451303ff544a368ae34238d2c39957f05bf09e9085ddeb3d78fdf0d7f303938cc3",
+          "logIndex": "0x0",
+          "removed": false,
+          "topics": [
+            "0x25a4d6e8d11a9fdc20ffdd826473485ae4cdd453271726c072a16836c1882e7c",
+            "0x65b6810ec9e288581cb63807e3bb60ca7e7e0817f60f977300000000000000ac",
+            "0xf795d3e914368f896a925766be0e0b4345c3cc03b82f270bdd16e45ae084dcea"
+          ],
+          "transactionHash": "0x06352e8f54e24b27cc2cc9f8e57ad3c8ed1dfb73e0716aceb625fbcf66c09f38",
+          "transactionIndex": "0x0"
+        },
+        {
+          "address": "0x7aa55b39ebb3dafa06548d2c8fdac3ba42ba77e2",
+          "blockHash": "0x5eb68439d8cebe45f3a3cdc60fb20700597d374b1c27c15bf5df1602a0755128",
+          "blockNumber": "0x2b6fb06",
+          "blockTimestamp": "0x69d48ec9",
+          "data": "0x0000000000000000000000007719ab6e4233ec73c6854dd248cdfe02694a9400c0ec7e627de9a1ef38106455a58991ddd4c6a411578d86476344ea4067d1e474",
+          "logIndex": "0x1",
+          "removed": false,
+          "topics": [
+            "0x25a4d6e8d11a9fdc20ffdd826473485ae4cdd453271726c072a16836c1882e7c",
+            "0x65b6810ec9e288581cb63807e3bb60ca7e7e0817f60f977300000000000000ac",
+            "0xf795d3e914368f896a925766be0e0b4345c3cc03b82f270bdd16e45ae084dcea"
+          ],
+          "transactionHash": "0x0b3a5a1675e216d9646f9389af1d4df6c3ba7b2bca0d12c5a968450429033675",
+          "transactionIndex": "0x1"
+        }
+      ],
+      "id": 45546246
+    }
+  }
+]

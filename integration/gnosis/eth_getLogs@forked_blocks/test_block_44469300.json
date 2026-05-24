@@ -1,0 +1,20 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getLogs",
+      "params": [
+        {
+          "fromBlock": "0x2a68c34",
+          "toBlock": "0x2a68c34"
+        }
+      ],
+      "id": 44469300
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "result": [],
+      "id": 44469300
+    }
+  }
+]
