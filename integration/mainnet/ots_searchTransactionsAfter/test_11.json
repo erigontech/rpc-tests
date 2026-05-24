@@ -4,7 +4,11 @@
       "id": 1,
       "jsonrpc": "2.0",
       "method": "ots_searchTransactionsAfter",
-      "params": ["0x630ea66c8c5dc205d45a978573fa86df5af1fe7a", 49019, 1]
+      "params": [
+        "0x630ea66c8c5dc205d45a978573fa86df5af1fe7a",
+        49019,
+        1
+      ]
     },
     "response": {
       "id": 1,
@@ -59,7 +63,7 @@
       }
     },
     "test": {
-      "description": "search for transaction before provied block for a specific account",
+      "description": "pageSize=1: returns the single oldest tx for the address after blockNumber (stable regardless of TIP advances)",
       "reference": ""
     }
   }
