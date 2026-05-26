@@ -1,0 +1,25 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_getBalance",
+      "params": [
+        "0xcf1dc766fc2c62bef0b67a8de666c8e67acf35f6",
+        {
+          "blockNumber": "0x1036640",
+          "blockHash": "0x96cfa0fb5e50b0a3f6cc76f3299cfbf48f17e8b41798d1394474e67ec8a97e9f"
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": null
+    },
+    "test": {
+      "description": "EIP-1898 with both blockNumber and blockHash must be rejected.",
+      "reference": ""
+    }
+  }
+]

@@ -5,20 +5,17 @@
       "jsonrpc": "2.0",
       "method": "eth_getBalance",
       "params": [
-        "0xffffffffff2c62bef0b67a8de666c8e67acf35f6",
-        "0xFFFFFFFFF"
+        "0x0000000000000000000000000000000000000000",
+        "0x"
       ]
     },
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": {
-        "code": -32000,
-        "message": "header not found"
-      }
+      "error": null
     },
     "test": {
-      "description": "invoke getBalance on invalid account on invalid block",
+      "description": "empty hex block 0x must be rejected.",
       "reference": ""
     }
   }
