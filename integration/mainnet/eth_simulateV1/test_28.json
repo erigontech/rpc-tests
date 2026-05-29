@@ -2,7 +2,7 @@
     {
         "test": {
             "reference": "",
-            "description": "HasStorage RAM-batch bug: block 1 deploys contract C via CREATE2 from factory (constructor sets storage[0]=42); block 2 clears C code+nonce via stateOverrides then calls factory again with same salt; EIP-7610 must detect storage collision and CREATE2 must return 0; bug: simulationIntraBlockStateReader.HasStorage only checks RangeAsOf(firstMinTxNum) and misses RAM-batch storage written by prior simulated blocks. Factory=0xf1f1..., C=0x3f66e869196db7f72c20dc13b8e3a1437035e786. With fix: block2 call returnData=0x000..000 (collision). With bug: returnData=0x000...[C address] (wrong CREATE2 success)."
+            "description": "HasStorage RAM-batch bug: block 1 deploys contract C via CREATE2 from factory (constructor sets storage[0]=42); block 2 clears C code+nonce via stateOverrides then calls factory again with same salt; EIP-7610 must detect storage collision and CREATE2 must return 0; bug: simulationIntraBlockStateReader.HasStorage only checks RangeAsOf(firstMinTxNum) and misses RAM-batch storage written by prior simulated blocks. Factory=0xf1f1..., C=0x3f66e869196db7f72c20dc13b8e3a1437035e786. With fix: block2 call returnData=0x000..000 (collision). With bug: returnData=0x000...[C address] (wrong CREATE2 success). Note: Geth returns the C address in block2 (returnData=0x3f66e869...) which is wrong — Geth's eth_simulateV1 does not propagate storage written by prior simulated blocks when evaluating EIP-7610, so the collision is not detected and CREATE2 incorrectly succeeds."
         },
         "request": {
             "id": 1,
