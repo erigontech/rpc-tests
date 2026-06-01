@@ -1,0 +1,15 @@
+[
+  {
+    "test": {
+      "reference": "https://etherscan.io/block/18000000",
+      "description": "nonce via EIP-1898 {blockNumber} object form (value-pinned, archive)"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionCount",
+      "params": ["0x9E61cCD162172Ae8f209549E13660b1d6d9786fc", { "blockNumber": "0x112A880" }],
+      "id": 1
+    },
+    "response": { "id": 1, "jsonrpc": "2.0", "result": "0x28" }
+  }
+]

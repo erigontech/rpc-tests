@@ -1,0 +1,15 @@
+[
+  {
+    "test": {
+      "reference": "https://etherscan.io/block/18000000",
+      "description": "nonce via bare 32-byte block-hash string as block identifier (BlockNumberOrTagOrHash; value-pinned, archive)"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionCount",
+      "params": ["0x9E61cCD162172Ae8f209549E13660b1d6d9786fc", "0x95b198e154acbfc64109dfd22d8224fe927fd8dfdedfae01587674482ba4baf3"],
+      "id": 1
+    },
+    "response": { "id": 1, "jsonrpc": "2.0", "result": "0x28" }
+  }
+]
