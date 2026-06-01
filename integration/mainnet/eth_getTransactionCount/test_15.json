@@ -1,0 +1,15 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "must reject: non-existent / future block number. Both NM and Geth return -32000 'header not found'; error:null verifies rejection ignoring code/message"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionCount",
+      "params": ["0x9E61cCD162172Ae8f209549E13660b1d6d9786fc", "0x7fffffffff"],
+      "id": 1
+    },
+    "response": { "id": 1, "jsonrpc": "2.0", "error": null }
+  }
+]
