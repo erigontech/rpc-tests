@@ -1,0 +1,110 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "SELFDESTRUCT contract sends balance to beneficiary at block 22842259"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
+                {
+                  "from": "0x1111111111111111111111111111111111111111",
+                  "to": "0x5555555555555555555555555555555555555555",
+                  "gas": "0x10000"
+                }
+              ],
+              "stateOverrides": {
+                "0x5555555555555555555555555555555555555555": {
+                  "code": "0x73bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbff",
+                  "balance": "0xde0b6b3a7640000"
+                },
+                "0x1111111111111111111111111111111111111111": {
+                  "balance": "0x1000000000000000"
+                }
+              },
+              "blockOverrides": {
+                "number": "0x15c8b94",
+                "timestamp": "0x68671f8b"
+              }
+            }
+          ],
+          "returnFullTransactions": true
+        },
+        "0x15c8b93"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": [
+        {
+          "calls": [
+            {
+              "status": "0x1",
+              "returnData": "0x",
+              "gasUsed": "0xd163",
+              "maxUsedGas": "0xd163",
+              "logs": []
+            }
+          ],
+          "difficulty": "0x0",
+          "extraData": "0x",
+          "gasLimit": "0x2255100",
+          "gasUsed": "0xd163",
+          "hash": "0x3146a2a706a6e7f475edc4d7a03d21290fabd80e24b84f6bb01c9592caccf25d",
+          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "miner": "0xdadb0d80178819f2319190d340ce9a924f783711",
+          "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "nonce": "0x0000000000000000",
+          "number": "0x15c8b94",
+          "parentHash": "0x6380e74828190e01bf273a3039974f5eca9ae193161f207d263f5c929e634430",
+          "receiptsRoot": "0x377cd6f59c286c7896d94c12a35779a0eeaee10f8990d03e1149d3c3677833bd",
+          "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+          "size": "0x293",
+          "stateRoot": "0x0c445652178685872a4d272a54848ccb64b3e8ecd4024bd11e19e2219c138275",
+          "timestamp": "0x68671f8b",
+          "baseFeePerGas": "0x0",
+          "transactions": [
+            {
+              "type": "0x2",
+              "maxPriorityFeePerGas": "0x0",
+              "maxFeePerGas": "0x0",
+              "accessList": [],
+              "yParity": "0x0",
+              "chainId": "0x1",
+              "nonce": "0x0",
+              "to": "0x5555555555555555555555555555555555555555",
+              "from": "0x1111111111111111111111111111111111111111",
+              "value": "0x0",
+              "input": "0x",
+              "gasPrice": "0x0",
+              "v": "0x0",
+              "r": "0x0",
+              "s": "0x0",
+              "hash": "0x9e49e1fcc73f4a051e98d915986837fceb9a8d593d6b8eb0dea32a2cc10d155c",
+              "transactionIndex": "0x0",
+              "blockHash": "0x3146a2a706a6e7f475edc4d7a03d21290fabd80e24b84f6bb01c9592caccf25d",
+              "blockNumber": "0x15c8b94",
+              "blockTimestamp": "0x68671f8b",
+              "gas": "0x10000"
+            }
+          ],
+          "transactionsRoot": "0x7b92464673b902e8799c8ba0c3069e8befaf1c826fcbc75bc4ea260b1a64f90a",
+          "uncles": [],
+          "withdrawals": [],
+          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+          "blobGasUsed": "0x0",
+          "excessBlobGas": "0x20000",
+          "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  }
+]

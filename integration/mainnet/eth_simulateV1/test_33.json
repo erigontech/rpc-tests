@@ -1,0 +1,43 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "validation mode: sender is a contract address should return -38024"
+    },
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_simulateV1",
+      "params": [
+        {
+          "blockStateCalls": [
+            {
+              "calls": [
+                {
+                  "from": "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413",
+                  "to": "0x2222222222222222222222222222222222222222",
+                  "value": "0x1"
+                }
+              ],
+              "stateOverrides": {
+                "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413": {
+                  "balance": "0x1000000000000000"
+                }
+              }
+            }
+          ],
+          "validation": true
+        },
+        "latest"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {
+        "code": -38024,
+        "message": "sender has deployed code"
+      }
+    }
+  }
+]
