@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject: invalid block tag string. Both NM and Geth return -32602; error:null verifies rejection ignoring code/message"
+      "description": "must reject: invalid block tag string."
     },
     "request": {
       "jsonrpc": "2.0",

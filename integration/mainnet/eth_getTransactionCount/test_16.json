@@ -1,8 +1,8 @@
 [
   {
     "test": {
-      "reference": "bug C2 - see eth_getTransactionCount_report.md / issues/eth_getTransactionByHash_G1_odd_length_hash.md",
-      "description": "FAIL-BY-DESIGN regression guard for bug C2: odd-length address (39 hex) MUST be rejected. Geth returns -32602 'hex string of odd length'. Nethermind v1.38.0-rc silently left-pads via AddressConverter and returns a nonce, so it FAILS this guard until fixed. Expected: PASS on Geth, FAIL on NM."
+      "reference": "",
+      "description": "odd-length address (39 hex) MUST be rejected."
     },
     "request": {
       "jsonrpc": "2.0",

@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject: transaction hash without 0x prefix (both NM and Geth return -32602; error:null verifies rejection ignoring code/message)"
+      "description": "must reject: transaction hash without 0x prefix."
     },
     "request": {
       "jsonrpc": "2.0",

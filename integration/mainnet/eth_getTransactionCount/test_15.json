@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject: non-existent / future block number. Both NM and Geth return -32000 'header not found'; error:null verifies rejection ignoring code/message"
+      "description": "must reject: non-existent / future block number."
     },
     "request": {
       "jsonrpc": "2.0",

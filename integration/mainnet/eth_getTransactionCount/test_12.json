@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject: invalid address (too short, 4 hex). Both NM and Geth return -32602; error:null verifies rejection ignoring code/message"
+      "description": "must reject: invalid address (too short, 4 hex)."
     },
     "request": {
       "jsonrpc": "2.0",

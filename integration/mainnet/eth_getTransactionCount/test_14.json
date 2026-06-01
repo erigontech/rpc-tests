@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject: too many arguments (3 params). Both NM and Geth return -32602; error:null verifies rejection ignoring code/message"
+      "description": "must reject: too many arguments (3 params)."
     },
     "request": {
       "jsonrpc": "2.0",

@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject: even-length but wrong-length hash (62 hex = 31 bytes). Both NM and Geth return -32602; error:null verifies rejection ignoring code/message"
+      "description": "must reject: even-length but wrong-length hash (62 hex = 31 bytes)."
     },
     "request": {
       "jsonrpc": "2.0",
