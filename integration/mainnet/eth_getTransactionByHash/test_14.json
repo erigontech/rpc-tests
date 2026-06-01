@@ -1,0 +1,21 @@
+[
+  {
+    "test": {
+      "reference": "bug G1 - see eth_getTransactionByHash_report.md",
+      "description": "FAIL-BY-DESIGN regression guard for bug G1: odd-length-short hash (63 hex) MUST be rejected. Geth returns -32602 'hex string of odd length'. Nethermind v1.38.0-rc silently left-pads with a leading 0 nibble, parses a valid 32-byte hash and returns result:null (or a DIFFERENT real tx), so it FAILS this guard until fixed. Expected: PASS on Geth, FAIL on NM."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionByHash",
+      "params": [
+        "0x5102190bcfd53cc6a15761c9d2da43a628d0ca713bfad5a1e311b531c294b77"
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": null
+    }
+  }
+]

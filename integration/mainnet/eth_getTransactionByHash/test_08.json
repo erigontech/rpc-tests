@@ -1,0 +1,41 @@
+[
+  {
+    "test": {
+      "reference": "https://etherscan.io/tx/0x9a88bfb697247c28c75f1c57feaf7447070b92e7cd5dad9eabe10e88c6199aef",
+      "description": "transaction details on specific hash type=0x1 (EIP-2930 access list)"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionByHash",
+      "params": [
+        "0x9a88bfb697247c28c75f1c57feaf7447070b92e7cd5dad9eabe10e88c6199aef"
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "type": "0x1",
+        "accessList": [],
+        "yParity": "0x0",
+        "chainId": "0x1",
+        "nonce": "0x863",
+        "to": "0x42529ab7cfd1006b196b8846645c607d24c511a9",
+        "from": "0x58dbdc0afd379a33367f12620ffcc4377bb42294",
+        "value": "0x91a94863ca8000",
+        "input": "0x",
+        "gasPrice": "0x59485276",
+        "v": "0x0",
+        "r": "0xa1dec2e338f862786527651c40f603a36962b638ec5d2b2cc88fbdc6b3290753",
+        "s": "0x38279375bf6a1395587092dd9d06e35fd7a8b9b3338e2ef3adf79bb323d35d3",
+        "hash": "0x9a88bfb697247c28c75f1c57feaf7447070b92e7cd5dad9eabe10e88c6199aef",
+        "transactionIndex": "0x9a",
+        "blockHash": "0xce60290c487603e91971202fbce78616c7c25858c2476634ab2f91870f4b70c4",
+        "blockNumber": "0x180dfc0",
+        "blockTimestamp": "0x6a1d962f",
+        "gas": "0x5208"
+      }
+    }
+  }
+]
