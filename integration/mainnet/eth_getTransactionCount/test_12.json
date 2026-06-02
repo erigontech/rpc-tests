@@ -1,0 +1,15 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "must reject: invalid address (too short, 4 hex)."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionCount",
+      "params": ["0x1234", "latest"],
+      "id": 1
+    },
+    "response": { "id": 1, "jsonrpc": "2.0", "error": null }
+  }
+]

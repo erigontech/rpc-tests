@@ -1,0 +1,21 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "must reject: transaction hash with non-hex characters"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionByHash",
+      "params": [
+        "0xzz102190bcfd53cc6a15761c9d2da43a628d0ca713bfad5a1e311b531c294b77"
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": null
+    }
+  }
+]

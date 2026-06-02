@@ -1,0 +1,51 @@
+[
+  {
+    "test": {
+      "reference": "https://etherscan.io/tx/0x434e1a15c8929e2d366e35a4832b59e197caa3112a16b586e5cd3784b26d7d09",
+      "description": "transaction details on specific hash type=0x3 (EIP-4844 blob), pins blobVersionedHashes and maxFeePerBlobGas"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionByHash",
+      "params": [
+        "0x434e1a15c8929e2d366e35a4832b59e197caa3112a16b586e5cd3784b26d7d09"
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "type": "0x3",
+        "maxFeePerBlobGas": "0x3b9aca00",
+        "blobVersionedHashes": [
+          "0x01149e480c0355f8c8d29ac09ba4a9584c715f47a858090f31ded6d2bd17935f",
+          "0x0101119e1b76c210c5002ff6f4d50e2470d7c304cbf703b9982b09c22fa77284",
+          "0x01a624e979d2b907718a6fe89f7073350d6db4222ecb1868e45a4e7893cee93c",
+          "0x013e985efebd0257cc944f0e8f4a591a3977b36c358fd5ef06b0752f91ab92c0",
+          "0x01249a14314d43cfd876625c6343b54e28c14c0547f31a2859d39a3b8b8e6295"
+        ],
+        "maxPriorityFeePerGas": "0x959b8f80",
+        "maxFeePerGas": "0x1c0d2ae80",
+        "accessList": [],
+        "yParity": "0x0",
+        "chainId": "0x1",
+        "nonce": "0x22170a",
+        "to": "0xff00000000000000000000000000000000008453",
+        "from": "0x5050f69a9786f081509234f1a7f4684b5e5b76c9",
+        "value": "0x0",
+        "input": "0x",
+        "gasPrice": "0xe6f9dd4a",
+        "v": "0x0",
+        "r": "0x9760b3d4ec2b4950cff4a3aa6bdc0443fd95a3c8537d25849242123580967bdf",
+        "s": "0x69ede83c257143615692a98448a54d8c0348c4c0e53ef302237154e36d6b3119",
+        "hash": "0x434e1a15c8929e2d366e35a4832b59e197caa3112a16b586e5cd3784b26d7d09",
+        "transactionIndex": "0x10d",
+        "blockHash": "0xc853ce434608ec8cd146e4688833e9532da533adca9cfac29217ade31da07dae",
+        "blockNumber": "0x180dfb9",
+        "blockTimestamp": "0x6a1d95db",
+        "gas": "0x5208"
+      }
+    }
+  }
+]

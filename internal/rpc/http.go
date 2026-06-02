@@ -35,14 +35,20 @@ var bufPool = sync.Pool{
 	},
 }
 
+func buildURL(transport, target string) string {
+	if strings.HasPrefix(target, "http://") || strings.HasPrefix(target, "https://") {
+		return target
+	}
+	if transport == "https" {
+		return "https://" + target
+	}
+	return "http://" + target
+}
+
 func (c *Client) callHTTP(ctx context.Context, target string, request []byte, response any) (Metrics, error) {
 	var metrics Metrics
 
-	protocol := "http://"
-	if c.transport == "https" {
-		protocol = "https://"
-	}
-	url := protocol + target
+	url := buildURL(c.transport, target)
 
 	buf := bufPool.Get().(*bytes.Buffer)
 	buf.Reset()
@@ -122,11 +128,7 @@ func CallHTTPRaw(ctx context.Context, verbose int, transport, jwtAuth, target st
 		headers["Authorization"] = jwtAuth
 	}
 
-	protocol := "http://"
-	if transport == "https" {
-		protocol = "https://"
-	}
-	url := protocol + target
+	url := buildURL(transport, target)
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(request))
 	if err != nil {

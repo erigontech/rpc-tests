@@ -1,0 +1,21 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "must reject: even-length but wrong-length hash (62 hex = 31 bytes)."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionByHash",
+      "params": [
+        "0x45102190bcfd53cc6a15761c9d2da43a628d0ca713bfad5a1e311b531c294b"
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": null
+    }
+  }
+]

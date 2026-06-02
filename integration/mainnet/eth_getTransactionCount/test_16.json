@@ -1,0 +1,15 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "odd-length address (39 hex) MUST be rejected."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getTransactionCount",
+      "params": ["0xc94770007dda54cF92009BFF0dE90c06F603a09", "latest"],
+      "id": 1
+    },
+    "response": { "id": 1, "jsonrpc": "2.0", "error": null }
+  }
+]
