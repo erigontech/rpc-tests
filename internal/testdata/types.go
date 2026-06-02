@@ -58,9 +58,23 @@ type TestMetrics struct {
 
 // JsonRpcTest holds test-level information (identifier, description).
 type JsonRpcTest struct {
-	Identifier  string `json:"id"`
-	Reference   string `json:"reference"`
-	Description string `json:"description"`
+	Identifier  string   `json:"id"`
+	Reference   string   `json:"reference"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
+}
+
+// HasTag reports whether the test has the given tag (e.g. "@archive").
+func (t *JsonRpcTest) HasTag(tag string) bool {
+	if t == nil {
+		return false
+	}
+	for _, tt := range t.Tags {
+		if tt == tag {
+			return true
+		}
+	}
+	return false
 }
 
 // JsonRpcCommand represents a single JSON-RPC command in a test fixture.

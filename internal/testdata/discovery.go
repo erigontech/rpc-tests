@@ -1,6 +1,7 @@
 package testdata
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -96,4 +97,17 @@ func DiscoverTests(jsonDir, resultsDir string) (*DiscoveryResult, error) {
 
 	result.TotalTests = globalTestNumber
 	return result, nil
+}
+
+// TagArchive marks a test as requiring an archive node.
+const TagArchive = "@archive"
+
+// HasTag reports whether a test fixture file contains the given tag (e.g. TagArchive).
+// Uses a fast bytes search instead of full JSON parsing.
+func HasTag(path, tag string) bool {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return false
+	}
+	return bytes.Contains(data, []byte(`"`+tag+`"`))
 }
