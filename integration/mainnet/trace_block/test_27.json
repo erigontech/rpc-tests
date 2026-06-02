@@ -1,0 +1,21 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "trace_block",
+      "params": [
+        "0x1048428"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0x3"
+    },
+    "test": {
+      "description": "post-Shanghai block with beacon chain withdrawals (block 17073192)",
+      "reference": "https://etherscan.io/block/17073192"
+    }
+  }
+]
