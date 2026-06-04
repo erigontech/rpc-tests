@@ -111,3 +111,25 @@ func HasTag(path, tag string) bool {
 	}
 	return bytes.Contains(data, []byte(`"`+tag+`"`))
 }
+
+// TagCheckFields restricts response comparison to a whitelist of field names,
+// e.g. "@check-fields:returnData,status". Same byte-search style as HasTag.
+const TagCheckFields = "@check-fields:"
+
+// CheckFields returns the field whitelist from a TagCheckFields tag, or nil.
+func CheckFields(path string) []string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	i := bytes.Index(data, []byte(`"`+TagCheckFields))
+	if i < 0 {
+		return nil
+	}
+	i += len(TagCheckFields) + 1
+	j := bytes.IndexByte(data[i:], '"')
+	if j < 0 {
+		return nil
+	}
+	return strings.Split(string(data[i:i+j]), ",")
+}

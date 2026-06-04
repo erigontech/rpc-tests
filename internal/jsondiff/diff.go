@@ -38,6 +38,22 @@ type Options struct {
 	Sort bool
 	// SortArrays sorts primitive values in arrays before comparing
 	SortArrays bool
+	// CheckKeys, when non-empty, restricts comparison to scalar fields whose key
+	// is listed; other scalars are ignored, containers are still traversed.
+	CheckKeys map[string]bool
+}
+
+// ignoredScalar reports whether key/value is a non-whitelisted scalar to skip.
+func ignoredScalar(opts *Options, key string, v1, v2 any) bool {
+	if len(opts.CheckKeys) == 0 || opts.CheckKeys[key] {
+		return false
+	}
+	for _, v := range [2]any{v1, v2} {
+		if k := reflect.ValueOf(v).Kind(); v != nil && (k == reflect.Map || k == reflect.Slice || k == reflect.Array) {
+			return false
+		}
+	}
+	return true
 }
 
 // DiffJSON computes the difference between two JSON objects
@@ -186,6 +202,10 @@ func diffMaps(obj1, obj2 any, path string, result map[string]any, opts *Options)
 		v1, exists1 := m1[key]
 		v2, exists2 := m2[key]
 
+		if ignoredScalar(opts, key, v1, v2) {
+			continue
+		}
+
 		newPath := key
 		if path != "" {
 			newPath = path + "." + key
@@ -205,8 +225,8 @@ func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Option
 	v1 := reflect.ValueOf(obj1)
 	v2 := reflect.ValueOf(obj2)
 
-	// Sort arrays if required
-	if opts.SortArrays {
+	// Sort arrays if required (positional under a CheckKeys whitelist).
+	if opts.SortArrays && len(opts.CheckKeys) == 0 {
 		v1 = reflect.ValueOf(sortArray(obj1))
 		v2 = reflect.ValueOf(sortArray(obj2))
 	}
@@ -300,6 +320,10 @@ func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) 
 		v1, exists1 := m1[key]
 		v2, exists2 := m2[key]
 
+		if ignoredScalar(opts, key, v1, v2) {
+			continue
+		}
+
 		newPath := key
 		if path != "" {
 			newPath = path + "." + key
@@ -316,7 +340,7 @@ func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) 
 }
 
 func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
-	if opts.SortArrays {
+	if opts.SortArrays && len(opts.CheckKeys) == 0 {
 		obj1 = sortArray(obj1)
 		obj2 = sortArray(obj2)
 	}

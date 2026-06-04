@@ -1,8 +1,11 @@
 [
   {
     "test": {
-       "reference": "",
-       "description": "multi-block unordered at block 22842259"
+      "reference": "",
+      "description": "multi-block unordered at block 22842259",
+      "tags": [
+        "@archive"
+      ]
     },
     "request": {
       "id": 1,

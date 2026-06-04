@@ -1,8 +1,8 @@
 [
   {
     "test": {
-       "reference": "",
-       "description": "override difficulty at block 22842259"
+      "reference": "",
+      "description": "override difficulty at block 22842259"
     },
     "request": {
       "id": 1,
@@ -29,7 +29,7 @@
             }
           ]
         },
-        "0x15c8b93"
+        "latest"
       ]
     },
     "response": {

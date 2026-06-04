@@ -15,7 +15,10 @@
     },
     "test": {
       "description": "invoke eth_getBlockTransactionCountByNumber on block no. 15000107",
-      "reference": ""
+      "reference": "",
+      "tags": [
+        "@archive"
+      ]
     }
   }
 ]

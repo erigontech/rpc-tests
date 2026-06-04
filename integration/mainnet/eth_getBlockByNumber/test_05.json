@@ -2,12 +2,18 @@
   {
     "test": {
       "reference": "https://etherscan.io/block/16000003",
-      "description": "block with transaction type 2 with accessList field"
+      "description": "block with transaction type 2 with accessList field",
+      "tags": [
+        "@archive"
+      ]
     },
     "request": {
       "jsonrpc": "2.0",
       "method": "eth_getBlockByNumber",
-      "params": ["0xF42403", true],
+      "params": [
+        "0xF42403",
+        true
+      ],
       "id": 1
     },
     "response": {

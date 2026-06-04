@@ -42,6 +42,7 @@ func ProcessResponse(
 	cfg *config.Config,
 	outputDir, daemonFile, expRspFile, diffFile string,
 	outcome *testdata.TestOutcome,
+	checkFields ...string,
 ) {
 	var expectedResponse any
 	if referenceResponse != nil {
@@ -138,6 +139,12 @@ func ProcessResponse(
 	if cfg.DiffKind == config.JsonDiffGo {
 		outcome.Metrics.ComparisonCount++
 		opts := &jsondiff.Options{SortArrays: true}
+		if len(checkFields) > 0 {
+			opts.CheckKeys = make(map[string]bool, len(checkFields))
+			for _, f := range checkFields {
+				opts.CheckKeys[f] = true
+			}
+		}
 		var expected, actual any
 		if respIsMap && expIsMap {
 			expected, actual = expectedMap, responseMap

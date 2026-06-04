@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "https://etherscan.io/tx/0x67b7da808974bffe636e6c969cbdcb600f1196cdf06e2faba981414fc2511da2 on block https://etherscan.io/block/17999744",
-      "description": "tx post EIP-1559 on block post EIP-1559"
+      "description": "tx post EIP-1559 on block post EIP-1559",
+      "tags": [
+        "@archive"
+      ]
     },
     "request": {
       "jsonrpc": "2.0",

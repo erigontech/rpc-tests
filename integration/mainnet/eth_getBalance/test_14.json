@@ -16,7 +16,10 @@
     },
     "test": {
       "description": "invoke getBalance on account Binance14 on block no. 15000010",
-      "reference": ""
+      "reference": "",
+      "tags": [
+        "@archive"
+      ]
     }
   }
 ]

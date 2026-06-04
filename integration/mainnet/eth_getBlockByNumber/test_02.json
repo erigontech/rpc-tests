@@ -2,12 +2,18 @@
   {
     "test": {
       "reference": "https://etherscan.io/block/16000000",
-      "description": "block with transactions details"
+      "description": "block with transactions details",
+      "tags": [
+        "@archive"
+      ]
     },
     "request": {
       "jsonrpc": "2.0",
       "method": "eth_getBlockByNumber",
-      "params": ["0xF42400", true],
+      "params": [
+        "0xF42400",
+        true
+      ],
       "id": 1
     },
     "response": {

@@ -16,7 +16,10 @@
     },
     "test": {
       "description": "invoke getBalance on account DwarfPool on block no. 884166",
-      "reference": ""
+      "reference": "",
+      "tags": [
+        "@archive"
+      ]
     }
   }
 ]

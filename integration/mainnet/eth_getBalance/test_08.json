@@ -16,7 +16,10 @@
     },
     "test": {
       "description": "invoke getBalance on specific account on block no. 1604000",
-      "reference": ""
+      "reference": "",
+      "tags": [
+        "@archive"
+      ]
     }
   }
 ]

@@ -1,19 +1,25 @@
 [
-    {
-        "test": {
-            "reference": "https://etherscan.io/address/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-            "description": "getCode for a known EOA (Vitalik) returns empty bytecode"
-        },
-        "request": {
-            "jsonrpc": "2.0",
-            "method": "eth_getCode",
-            "params": ["0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", "0x1036640"],
-            "id": 1
-        },
-        "response": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "result": "0x"
-        }
+  {
+    "test": {
+      "reference": "https://etherscan.io/address/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+      "description": "getCode for a known EOA (Vitalik) returns empty bytecode",
+      "tags": [
+        "@archive"
+      ]
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_getCode",
+      "params": [
+        "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+        "0x1036640"
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0x"
     }
+  }
 ]

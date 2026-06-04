@@ -43,7 +43,10 @@
     },
     "test": {
       "description": "logs in the range with topic and address",
-      "reference": ""
+      "reference": "",
+      "tags": [
+        "@archive"
+      ]
     }
   }
 ]

@@ -3,7 +3,10 @@
     "request": {
       "jsonrpc": "2.0",
       "method": "eth_getTransactionByBlockNumberAndIndex",
-      "params": ["0x41b57c", "0x0"],
+      "params": [
+        "0x41b57c",
+        "0x0"
+      ],
       "id": 1
     },
     "response": {
@@ -28,6 +31,11 @@
         "v": "0x26",
         "value": "0x21c678c5e5d2800"
       }
+    },
+    "test": {
+      "tags": [
+        "@archive"
+      ]
     }
   }
 ]

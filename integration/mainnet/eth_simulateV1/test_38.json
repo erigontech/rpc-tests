@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "",
-      "description": "multi-tx validation mode: two txs in one block both succeed"
+      "description": "multi-tx validation mode: two txs in one block both succeed",
+      "tags": [
+        "@check-fields:returnData,status,gasUsed"
+      ]
     },
     "request": {
       "id": 1,
@@ -45,7 +48,7 @@
           ],
           "validation": true
         },
-        "0x15c8b93"
+        "latest"
       ]
     },
     "response": {
@@ -53,39 +56,41 @@
       "jsonrpc": "2.0",
       "result": [
         {
+          "baseFeePerGas": "0x0",
+          "blobGasUsed": "0x0",
           "calls": [
             {
-              "status": "0x1",
               "returnData": "0x",
+              "logs": [],
               "gasUsed": "0x5208",
-              "maxUsedGas": "0x5208",
-              "logs": []
+              "status": "0x1"
             },
             {
-              "status": "0x1",
               "returnData": "0x",
+              "logs": [],
               "gasUsed": "0x5208",
-              "maxUsedGas": "0x5208",
-              "logs": []
+              "status": "0x1"
             }
           ],
           "difficulty": "0x0",
+          "excessBlobGas": "0xba2f5bc",
           "extraData": "0x",
-          "gasLimit": "0x2255100",
+          "gasLimit": "0x3938700",
           "gasUsed": "0xa410",
-          "hash": "0x56eb436659fdea18537b8e057e82ac6f50ac61657d3aee615ca21559ce53a45f",
+          "hash": "0xae3bcaa1eb7b861f6fde26ba3ea43d09b78d027ecff109f9e252810a5eeaa43f",
           "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "miner": "0xdadb0d80178819f2319190d340ce9a924f783711",
+          "miner": "0x24d6c74d811cfde65995ed26fd08af445f8aab06",
           "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
           "nonce": "0x0000000000000000",
-          "number": "0x15c8b94",
-          "parentHash": "0x6380e74828190e01bf273a3039974f5eca9ae193161f207d263f5c929e634430",
+          "number": "0x1811cd6",
+          "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "parentHash": "0xe1132554fad894999f575edc72f04ad908490e54d86b792e2cbd10859bad4951",
           "receiptsRoot": "0x75308898d571eafb5cd8cde8278bf5b3d13c5f6ec074926de3bb895b519264e1",
+          "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-          "size": "0x2c8",
-          "stateRoot": "0xbabbe0c5bf09ebab6cbdfbd53bdcead5df98ca108e37c971a0f42acd94ecb8e0",
-          "timestamp": "0x68671f8b",
-          "baseFeePerGas": "0x0",
+          "size": "0x2c9",
+          "stateRoot": "0x9cc08f56dd35b449dfba0657a4580a670a6743e6ecba3966e413e347c371cde7",
+          "timestamp": "0x6a207673",
           "transactions": [
             "0xfbf2015498d0db1ed074b64945feb6f74f1da274a591217f77b9eb1bdff7cd1d",
             "0xc1ff1593527a17fe5300c8ec84c7fca587e1af378ac85e5006fc74fa6e575caf"
@@ -93,11 +98,7 @@
           "transactionsRoot": "0x55e617ceffa7713439cedead79e0cd964cf366d49544e9e747ccea8383ccc09c",
           "uncles": [],
           "withdrawals": [],
-          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-          "blobGasUsed": "0x0",
-          "excessBlobGas": "0x20000",
-          "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
         }
       ]
     }

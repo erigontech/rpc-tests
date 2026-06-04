@@ -16,7 +16,10 @@
     },
     "test": {
       "description": "invoke getBalance on account 0x0..0 on valid block no. 17000009",
-      "reference": ""
+      "reference": "",
+      "tags": [
+        "@archive"
+      ]
     }
   }
 ]
