@@ -1,19 +1,16 @@
 [
   {
     "test": {
-      "reference": "https://etherscan.io/block/16000006",
-      "description": "block with transaction with to null",
       "tags": [
-        "@archive"
-      ]
+        "@pruned"
+      ],
+      "reference": "https://etherscan.io/block/16000006",
+      "description": "block with transaction with to null"
     },
     "request": {
       "jsonrpc": "2.0",
       "method": "eth_getBlockByNumber",
-      "params": [
-        "0xF42405",
-        true
-      ],
+      "params": ["0xF42405", true],
       "id": 1
     },
     "response": {

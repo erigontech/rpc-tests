@@ -1,22 +1,21 @@
 [
-  {
-    "request": {
-      "jsonrpc": "2.0",
-      "method": "eth_getUncleCountByBlockNumber",
-      "params": [
-        "0xFFFFFF"
-      ],
-      "id": 1
-    },
-    "response": {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "result": null
-    },
-    "test": {
-      "tags": [
-        "@archive"
-      ]
-    }
-  }
+      {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getUncleCountByBlockNumber",
+            "params":["0xFFFFFF"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": null
+        },
+        "test": {
+          "tags": [
+            "@pruned"
+          ]
+        }
+      }
 ]
+

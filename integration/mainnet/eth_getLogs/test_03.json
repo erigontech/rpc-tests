@@ -42,11 +42,11 @@
       ]
     },
     "test": {
-      "description": "logs in the range with topic and address",
-      "reference": "",
       "tags": [
-        "@archive"
-      ]
+        "@pruned"
+      ],
+      "description": "logs in the range with topic and address",
+      "reference": ""
     }
   }
 ]

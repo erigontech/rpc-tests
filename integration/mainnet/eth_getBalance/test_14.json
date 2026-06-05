@@ -15,11 +15,11 @@
       "result": "0x37c81160f0c495451e16"
     },
     "test": {
-      "description": "invoke getBalance on account Binance14 on block no. 15000010",
-      "reference": "",
       "tags": [
-        "@archive"
-      ]
+        "@pruned"
+      ],
+      "description": "invoke getBalance on account Binance14 on block no. 15000010",
+      "reference": ""
     }
   }
 ]

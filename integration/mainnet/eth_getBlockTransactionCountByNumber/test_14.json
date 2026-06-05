@@ -14,11 +14,11 @@
       "result": "0x3f"
     },
     "test": {
-      "description": "invoke eth_getBlockTransactionCountByNumber on block no. 15000010",
-      "reference": "",
       "tags": [
-        "@archive"
-      ]
+        "@pruned"
+      ],
+      "description": "invoke eth_getBlockTransactionCountByNumber on block no. 15000010",
+      "reference": ""
     }
   }
 ]

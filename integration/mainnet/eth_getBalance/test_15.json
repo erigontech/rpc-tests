@@ -15,11 +15,11 @@
       "result": "0x1063c11459278a"
     },
     "test": {
-      "description": "invoke getBalance on specific account on block no. 15000107",
-      "reference": "",
       "tags": [
-        "@archive"
-      ]
+        "@pruned"
+      ],
+      "description": "invoke getBalance on specific account on block no. 15000107",
+      "reference": ""
     }
   }
 ]

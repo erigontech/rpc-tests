@@ -1,41 +1,42 @@
 [
-  {
-    "test": {
-      "reference": "https://etherscan.io/tx/0x1ae5f96a8b446ddd51e96019472f7a31fcad3d2e774373ecfbb2ba94ff72fc04",
-      "description": "with precompile contract",
-      "tags": [
-        "@archive"
-      ]
-    },
-    "request": {
-      "jsonrpc": "2.0",
-      "method": "eth_createAccessList",
-      "params": [
-        {
-          "from": "0xA1E4380A3B1f749673E270229993eE55F35663b4",
-          "to": "0xCde4DE4d3baa9f2CB0253DE1b86271152fBf7864",
-          "gas": "0x15F90",
-          "gasPrice": "0xDA9079780",
-          "data": "0xcfae3217"
+    {
+        "test": {
+           "tags": [
+              "@pruned"
+           ],
+           "reference": "https://etherscan.io/tx/0x1ae5f96a8b446ddd51e96019472f7a31fcad3d2e774373ecfbb2ba94ff72fc04",
+           "description": "with precompile contract"
         },
-        "0xC11F"
-      ],
-      "id": 1
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "accessList": [
-          {
-            "address": "0xcde4de4d3baa9f2cb0253de1b86271152fbf7864",
-            "storageKeys": [
-              "0x0000000000000000000000000000000000000000000000000000000000000001"
-            ]
-          }
-        ],
-        "gasUsed": "0x6687"
-      }
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_createAccessList",
+            "params":[
+                {
+                  "from": "0xA1E4380A3B1f749673E270229993eE55F35663b4",
+                  "to":  "0xCde4DE4d3baa9f2CB0253DE1b86271152fBf7864",
+                  "gas": "0x15F90",
+                  "gasPrice": "0xDA9079780",
+                  "data": "0xcfae3217"
+                },
+                "0xC11F" 
+            ],
+            "id":1
+        },
+        "response": {
+            "id":1,
+            "jsonrpc":"2.0",
+            "result": {
+                 "accessList": [
+                {
+                  "address": "0xcde4de4d3baa9f2cb0253de1b86271152fbf7864",
+                  "storageKeys": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000001"
+                  ]
+                }
+              ],
+              "gasUsed": "0x6687"
+            }
+        }
     }
-  }
 ]
+

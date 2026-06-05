@@ -39,8 +39,8 @@
       "jsonrpc": "2.0"
     },
     "test": {
-      "tags": [
-        "@archive"
+      "tags": [        
+        "@pruned"
       ]
     }
   }

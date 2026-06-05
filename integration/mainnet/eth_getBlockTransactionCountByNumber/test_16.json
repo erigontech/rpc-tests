@@ -14,11 +14,11 @@
       "result": "0xa"
     },
     "test": {
-      "description": "invoke eth_getBlockTransactionCountByNumber on block no. 1603000",
-      "reference": "",
       "tags": [
-        "@archive"
-      ]
+        "@pruned"
+      ],
+      "description": "invoke eth_getBlockTransactionCountByNumber on block no. 1603000",
+      "reference": ""
     }
   }
 ]

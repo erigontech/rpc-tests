@@ -1,19 +1,16 @@
 [
   {
     "test": {
-      "reference": "https://etherscan.io/block/18000000",
-      "description": "block with transaction with Withdrawals",
       "tags": [
-        "@archive"
-      ]
+        "@pruned"
+      ],
+      "reference": "https://etherscan.io/block/18000000",
+      "description": "block with transaction with Withdrawals"
     },
     "request": {
       "jsonrpc": "2.0",
       "method": "eth_getBlockByNumber",
-      "params": [
-        "0x112A880",
-        true
-      ],
+      "params": ["0x112A880", true],
       "id": 1
     },
     "response": {

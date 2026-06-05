@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Add "@archive" tag to eth_* test fixtures that require an archive node.
+# Add "@archive" tag to eth_* fixtures that read historical state (full nodes
+# serve historical blocks/txs/receipts/logs, so those methods are not tagged).
 # Usage: ./scripts/tag_archive.sh
 
 set -euo pipefail
@@ -20,8 +21,17 @@ is_historic() {
 
 tag_file() {
   local file="$1"
-  grep -q '"@archive"' "$file" && return 0
-  jq '.[0].test.tags += ["@archive"]' "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
+
+  jq '
+    .[0].test.tags |= (
+      if . == null then ["@archive"]
+      elif index("@archive") then .
+      else . + ["@archive"]
+      end
+    )
+  ' "$file" > "${file}.tmp" &&
+  mv "${file}.tmp" "$file"
+
   echo "  tagged  $file"
   (( TAGGED++ )) || true
 }
@@ -41,26 +51,15 @@ for method_dir in "$BASE"/eth_*/; do
 
     case "$method" in
       eth_call|eth_callBundle|eth_createAccessList|eth_estimateGas|\
-      eth_feeHistory|eth_simulateV1|\
+      eth_simulateV1|\
       eth_getBalance|eth_getCode|eth_getTransactionCount)
         process "$file" ".params[1]" ;;
 
       eth_callMany)
         process "$file" ".params[1].blockNumber" ;;
 
-      eth_getBlockByNumber|eth_getBlockReceipts|\
-      eth_getBlockTransactionCountByNumber|\
-      eth_getRawTransactionByBlockNumberAndIndex|\
-      eth_getTransactionByBlockNumberAndIndex|\
-      eth_getUncleByBlockNumberAndIndex|\
-      eth_getUncleCountByBlockNumber)
-        process "$file" ".params[0]" ;;
-
       eth_getProof|eth_getStorageAt)
         process "$file" ".params[2]" ;;
-
-      eth_getLogs)
-        tag_file "$file" ;;
     esac
   done
 done

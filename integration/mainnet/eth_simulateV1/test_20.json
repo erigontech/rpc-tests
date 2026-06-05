@@ -1,11 +1,11 @@
 [
   {
     "test": {
-      "reference": "",
-      "description": "multi-block unordered at block 22842259",
-      "tags": [
-        "@archive"
-      ]
+       "tags": [
+          "@pruned"
+       ],
+       "reference": "",
+       "description": "multi-block unordered at block 22842259"
     },
     "request": {
       "id": 1,

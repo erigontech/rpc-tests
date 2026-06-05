@@ -101,6 +101,7 @@ func DiscoverTests(jsonDir, resultsDir string) (*DiscoveryResult, error) {
 
 // TagArchive marks a test as requiring an archive node.
 const TagArchive = "@archive"
+const TagPruned = "@pruned"
 
 // HasTag reports whether a test fixture file contains the given tag (e.g. TagArchive).
 // Uses a fast bytes search instead of full JSON parsing.

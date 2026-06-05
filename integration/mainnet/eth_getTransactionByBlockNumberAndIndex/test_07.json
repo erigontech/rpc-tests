@@ -1,23 +1,21 @@
 [
-  {
-    "request": {
-      "jsonrpc": "2.0",
-      "method": "eth_getTransactionByBlockNumberAndIndex",
-      "params": [
-        "0x112A880",
-        "0x99"
-      ],
-      "id": 1
-    },
-    "response": {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "result": null
-    },
-    "test": {
-      "tags": [
-        "@archive"
-      ]
+   {
+        "request": {
+            "jsonrpc":"2.0",
+            "method":"eth_getTransactionByBlockNumberAndIndex",
+            "params":["0x112A880", "0x99"],
+            "id":1
+        },
+        "response": {
+            "jsonrpc":"2.0",
+            "id":1,
+            "result": null
+        },
+        "test": {
+             "tags": [
+                  "@pruned"
+             ]
+        }
     }
-  }
 ]
+

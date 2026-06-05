@@ -15,11 +15,11 @@
       "result": "0x0"
     },
     "test": {
-      "description": "invoke getBalance on not existent account on block no. 15000102",
-      "reference": "",
       "tags": [
-        "@archive"
-      ]
+        "@pruned"
+      ],
+      "description": "invoke getBalance on not existent account on block no. 15000102",
+      "reference": ""
     }
   }
 ]
