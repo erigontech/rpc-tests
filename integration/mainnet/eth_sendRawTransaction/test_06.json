@@ -2,12 +2,12 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject malformed RLP (truncated short-list header 0xd4)"
+      "description": "must reject input missing 0x prefix."
     },
     "request": {
       "jsonrpc": "2.0",
       "method": "eth_sendRawTransaction",
-      "params": ["0xd4"],
+      "params": ["d4"],
       "id": 1
     },
     "response": {
@@ -15,7 +15,7 @@
       "jsonrpc": "2.0",
       "error": {
         "code": -32602,
-        "message": "Invalid parameters: transaction could not be decoded: could not decode RLP components: insufficient remaining input for short list"
+        "message": "Invalid parameters: transaction could not be decoded: input must start with 0x"
       }
     }
   }

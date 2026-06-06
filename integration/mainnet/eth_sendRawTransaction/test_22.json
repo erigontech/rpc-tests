@@ -1,0 +1,19 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "must reject named-field params (object instead of array)."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_sendRawTransaction",
+      "params": {"data": "0xc0"},
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": null
+    }
+  }
+]

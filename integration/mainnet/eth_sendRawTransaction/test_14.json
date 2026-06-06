@@ -2,12 +2,12 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject malformed RLP (truncated short-list header 0xd4)"
+      "description": "must reject single null byte 0x00 (unsupported typed envelope)."
     },
     "request": {
       "jsonrpc": "2.0",
       "method": "eth_sendRawTransaction",
-      "params": ["0xd4"],
+      "params": ["0x00"],
       "id": 1
     },
     "response": {
@@ -15,7 +15,7 @@
       "jsonrpc": "2.0",
       "error": {
         "code": -32602,
-        "message": "Invalid parameters: transaction could not be decoded: could not decode RLP components: insufficient remaining input for short list"
+        "message": "Invalid parameters: transaction could not be decoded: unsupported transaction type"
       }
     }
   }

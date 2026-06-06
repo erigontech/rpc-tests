@@ -1,0 +1,19 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "must reject empty string literal."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_sendRawTransaction",
+      "params": [""],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": null
+    }
+  }
+]

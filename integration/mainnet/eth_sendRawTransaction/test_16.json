@@ -1,0 +1,22 @@
+[
+  {
+    "test": {
+      "reference": "https://eips.ethereum.org/EIPS/eip-7702",
+      "description": "must reject malformed EIP-7702 SetCode tx (type 0x04 with empty RLP list)."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_sendRawTransaction",
+      "params": ["0x04c0"],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {
+        "code": -32602,
+        "message": "Invalid parameters: transaction could not be decoded: could not decode RLP components: expected 13 items but only received 0"
+      }
+    }
+  }
+]
