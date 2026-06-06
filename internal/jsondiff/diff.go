@@ -353,6 +353,80 @@ func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) 
 	}
 }
 
+// lcsLimit is the maximum array length for which LCS-based alignment is used
+// for unsorted arrays. Arrays larger than this fall back to index-based comparison.
+// Sorted arrays always use merge-join alignment (O(m+n)) regardless of size.
+const lcsLimit = 200
+
+// arrayOp is one step in an LCS edit script.
+type arrayOp struct {
+	kind byte // 'k'=keep, 'i'=insert (in arr2), 'd'=delete (from arr1)
+	i1   int  // index in arr1 (-1 for insertions)
+	i2   int  // index in arr2 (-1 for deletions)
+}
+
+// mergeAlignment computes an alignment for two pre-sorted string slices in O(m+n).
+// Both slices must be in the same sorted order; results are undefined otherwise.
+func mergeAlignment(keys1, keys2 []string) []arrayOp {
+	var ops []arrayOp
+	i, j := 0, 0
+	for i < len(keys1) || j < len(keys2) {
+		switch {
+		case i < len(keys1) && j < len(keys2) && keys1[i] == keys2[j]:
+			ops = append(ops, arrayOp{'k', i, j})
+			i++
+			j++
+		case j >= len(keys2) || (i < len(keys1) && keys1[i] < keys2[j]):
+			ops = append(ops, arrayOp{'d', i, -1})
+			i++
+		default:
+			ops = append(ops, arrayOp{'i', -1, j})
+			j++
+		}
+	}
+	return ops
+}
+
+// lcsAlignment computes a minimum-edit-distance alignment of two string slices
+// using the LCS DP algorithm and returns the edit script in forward order.
+func lcsAlignment(keys1, keys2 []string) []arrayOp {
+	m, n := len(keys1), len(keys2)
+	dp := make([][]int, m+1)
+	for i := range dp {
+		dp[i] = make([]int, n+1)
+	}
+	for i := 1; i <= m; i++ {
+		for j := 1; j <= n; j++ {
+			if keys1[i-1] == keys2[j-1] {
+				dp[i][j] = dp[i-1][j-1] + 1
+			} else if dp[i-1][j] >= dp[i][j-1] {
+				dp[i][j] = dp[i-1][j]
+			} else {
+				dp[i][j] = dp[i][j-1]
+			}
+		}
+	}
+	var ops []arrayOp
+	i, j := m, n
+	for i > 0 || j > 0 {
+		if i > 0 && j > 0 && keys1[i-1] == keys2[j-1] {
+			ops = append(ops, arrayOp{'k', i - 1, j - 1})
+			i--
+			j--
+		} else if j > 0 && (i == 0 || dp[i][j-1] >= dp[i-1][j]) {
+			ops = append(ops, arrayOp{'i', -1, j - 1})
+			j--
+		} else {
+			ops = append(ops, arrayOp{'d', i - 1, -1})
+			i--
+		}
+	}
+	for k, l := 0, len(ops)-1; k < l; k, l = k+1, l-1 {
+		ops[k], ops[l] = ops[l], ops[k]
+	}
+	return ops
+}
+
 func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
 	if opts.SortArrays {
 		obj1 = sortArray(obj1, path, opts)
@@ -364,6 +438,43 @@ func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options
 
 	len1 := v1.Len()
 	len2 := v2.Len()
+
+	// Use alignment when arrays differ in length to detect insertions/deletions
+	// rather than producing cascading mismatches at every index.
+	// For sorted arrays use merge-join O(m+n); for unsorted arrays use LCS O(m*n)
+	// capped at lcsLimit to bound memory.
+	if len1 != len2 && (opts.SortArrays || (len1 <= lcsLimit && len2 <= lcsLimit)) {
+		elemPath := fmt.Sprintf("%s[0]", path)
+		keys1 := make([]string, len1)
+		keys2 := make([]string, len2)
+		for i := range len1 {
+			keys1[i] = objectSortKey(v1.Index(i).Interface(), elemPath, opts)
+		}
+		for i := range len2 {
+			keys2[i] = objectSortKey(v2.Index(i).Interface(), elemPath, opts)
+		}
+		var ops []arrayOp
+		if opts.SortArrays {
+			ops = mergeAlignment(keys1, keys2)
+		} else {
+			ops = lcsAlignment(keys1, keys2)
+		}
+		outIdx := 0
+		for _, op := range ops {
+			switch op.kind {
+			case 'k':
+				outIdx++
+			case 'i':
+				newPath := fmt.Sprintf("%s[%d]", path, outIdx)
+				*diffs = append(*diffs, Diff{Type: DiffAdd, Path: newPath, NewValue: v2.Index(op.i2).Interface()})
+				outIdx++
+			case 'd':
+				newPath := fmt.Sprintf("%s[%d]", path, op.i1)
+				*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1.Index(op.i1).Interface()})
+			}
+		}
+		return
+	}
 
 	maxLen := max(len1, len2)
 
