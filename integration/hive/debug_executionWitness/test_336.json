@@ -4,7 +4,8 @@
       "jsonrpc": "2.0",
       "method": "debug_executionWitness",
       "params": [
-        "0x25"
+        "0x25",
+        "canonical"
       ],
       "id": 1
     },
