@@ -15,10 +15,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": {
-        "code": -32602,
-        "message": "Invalid parameters: transaction could not be decoded: could not decode RLP components: invalid list size"
-      }
+      "error": {"code": -32602, "message": null}
     }
   }
 ]

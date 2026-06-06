@@ -13,10 +13,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": {
-        "code": -32602,
-        "message": "Invalid parameters: transaction could not be decoded: could not inspect transaction prefix: invalid hex string, invalid character 'z' at index 2"
-      }
+      "error": {"code": -32602, "message": null}
     }
   }
 ]

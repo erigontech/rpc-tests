@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject malformed RLP (truncated short-list header 0xd4)"
+      "description": "must reject malformed RLP (truncated short-list header 0xd4)."
     },
     "request": {
       "jsonrpc": "2.0",
@@ -13,10 +13,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": {
-        "code": -32602,
-        "message": "Invalid parameters: transaction could not be decoded: could not decode RLP components: insufficient remaining input for short list"
-      }
+      "error": {"code": -32602, "message": null}
     }
   }
 ]

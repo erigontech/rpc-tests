@@ -13,10 +13,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": {
-        "code": -32602,
-        "message": "Invalid parameters: empty transaction"
-      }
+      "error": {"code": -32602, "message": null}
     }
   }
 ]

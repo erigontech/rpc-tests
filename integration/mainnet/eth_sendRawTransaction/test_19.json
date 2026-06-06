@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject nested array param. error:null — Geth message has Go-stdlib leak."
+      "description": "must reject nested array positional param."
     },
     "request": {
       "jsonrpc": "2.0",
@@ -13,7 +13,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": null
+      "error": {"code": -32602, "message": null}
     }
   }
 ]

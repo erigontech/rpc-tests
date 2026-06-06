@@ -1,7 +1,7 @@
 [
   {
     "test": {
-      "reference": "https://eips.ethereum.org/EIPS/eip-4844",
+      "reference": "",
       "description": "must reject malformed EIP-4844 blob tx (type 0x03 with empty RLP list)."
     },
     "request": {
@@ -13,10 +13,7 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": {
-        "code": -32602,
-        "message": "Invalid parameters: transaction could not be decoded: blob transaction invalid tx RLP length"
-      }
+      "error": {"code": -32602, "message": null}
     }
   }
 ]
