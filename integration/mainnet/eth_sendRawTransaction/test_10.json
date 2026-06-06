@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject numeric param. error:null — Geth's message leaks Go stdlib type names."
+      "description": "must reject numeric param. error:null — Geth message has Go-stdlib leak."
     },
     "request": {
       "jsonrpc": "2.0",

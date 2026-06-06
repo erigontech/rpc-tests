@@ -13,7 +13,10 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": null
+      "error": {
+        "code": -32000,
+        "message": "invalid params: received object, expected array"
+      }
     }
   }
 ]

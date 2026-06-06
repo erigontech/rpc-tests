@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject boolean param. error:null — Geth message leaks Go stdlib."
+      "description": "must reject boolean param. error:null — Geth message has Go-stdlib leak."
     },
     "request": {
       "jsonrpc": "2.0",

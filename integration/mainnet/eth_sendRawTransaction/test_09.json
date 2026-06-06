@@ -2,7 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject null param. error:null sentinel — NM ('missing value for required argument 0') and Geth ('Invalid parameters: empty transaction') disagree on phrasing but both reject."
+      "description": "must reject null positional param."
     },
     "request": {
       "jsonrpc": "2.0",
@@ -13,7 +13,10 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": null
+      "error": {
+        "code": -32602,
+        "message": "Invalid parameters: empty transaction"
+      }
     }
   }
 ]

@@ -13,7 +13,10 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "error": null
+      "error": {
+        "code": -32602,
+        "message": "invalid params: invalid parameters: not enough params to decode"
+      }
     }
   }
 ]
