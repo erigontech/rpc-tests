@@ -219,12 +219,12 @@ def main():
     # 1. Gestione dell'argomento da riga di comando
     if len(sys.argv) < 2:
         print("Usage: python your_script_name.py <chain>")
-        print("Supported chains: mainnet, gnosis")
+        print("Supported chains: mainnet, gnosis, hive")
         sys.exit(1)
 
     chain = sys.argv[1]
-    if chain not in ['mainnet', 'gnosis']:
-        print(f"Error: Unsupported chain '{chain}'. Supported chains are 'mainnet' and 'gnosis'.")
+    if chain not in ['mainnet', 'gnosis', 'hive']:
+        print(f"Error: Unsupported chain '{chain}'. Supported chains are 'mainnet', 'gnosis' 'hive'.")
         sys.exit(1)
 
     # 2. Impostazione dinamica dei percorsi in base alla chain scelta
