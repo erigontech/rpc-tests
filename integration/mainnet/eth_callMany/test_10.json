@@ -38,6 +38,11 @@
       },
       "id": 1,
       "jsonrpc": "2.0"
+    },
+    "test": {
+      "tags": [ "@archive",
+        "@pruned"
+      ]
     }
   }
 ]

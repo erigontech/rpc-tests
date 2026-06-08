@@ -15,6 +15,9 @@
       "result": "0xb1ffc8db2d36a0"
     },
     "test": {
+      "tags": [ "@archive",
+        "@pruned"
+      ],
       "description": "invoke getBalance on specific account on block no. 6048501",
       "reference": ""
     }

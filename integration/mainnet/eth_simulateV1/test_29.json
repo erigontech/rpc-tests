@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "",
-      "description": "emit LOG1 from contract override at block 22842259"
+      "description": "emit LOG1 from contract override at block 22842259",
+      "tags": [
+        "@check-fields:returnData,status,data,topics,address"
+      ]
     },
     "request": {
       "id": 1,
@@ -22,16 +25,12 @@
                 "0x9999999999999999999999999999999999999999": {
                   "code": "0x7f000000000000000000000000000000000000000000000000000000000000cafe6000527f000000000000000000000000000000000000000000000000000000000000beef60206000a100"
                 }
-              },
-              "blockOverrides": {
-                "number": "0x15c8b94",
-                "timestamp": "0x68671f8b"
               }
             }
           ],
           "returnFullTransactions": true
         },
-        "0x15c8b93"
+        "latest"
       ]
     },
     "response": {

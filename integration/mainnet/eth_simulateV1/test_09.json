@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "",
-      "description": "override code to call a contract always reverting at block 22842259"
+      "description": "override code to call a contract always reverting at block 22842259",
+      "tags": [
+        "@check-fields:returnData,status,gasUsed,error"
+      ]
     },
     "request": {
       "id": 1,
@@ -26,7 +29,7 @@
             }
           ]
         },
-        "0x15c8b93"
+        "latest"
       ]
     },
     "response": {

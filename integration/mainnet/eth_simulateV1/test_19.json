@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "",
-      "description": "multi-call at block 22842259"
+      "description": "multi-call at block 22842259",
+      "tags": [
+        "@check-fields:returnData,gasUsed"
+      ]
     },
     "request": {
       "id": 1,
@@ -44,7 +47,7 @@
           "traceTransfers": true,
           "returnFullTransactions": true
         },
-        "0x15c8b93"
+        "latest"
       ]
     },
     "response": {

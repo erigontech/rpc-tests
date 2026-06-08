@@ -1,6 +1,9 @@
 [
     {
         "test": {
+           "tags": [ "@archive",
+              "@pruned"
+           ],
            "reference": "",
            "description": "with blockOverrides" 
         },

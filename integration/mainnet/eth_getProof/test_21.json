@@ -1,6 +1,9 @@
 [
     {
         "test": {
+           "tags": [ "@archive",
+              "@pruned"
+           ],
            "reference": "https://github.com/erigontech/erigon/issues/17454",
            "description": "historical query for non-existent account"
         },

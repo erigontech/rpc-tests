@@ -14,6 +14,9 @@
       "result": "0x13"
     },
     "test": {
+      "tags": [
+        "@pruned"
+      ],
       "description": "invoke eth_getBlockTransactionCountByNumber on block no. 6048501",
       "reference": ""
     }

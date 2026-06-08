@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "",
-      "description": "non-contiguous multi-block multi-call at block 22842259"
+      "description": "non-contiguous multi-block multi-call at block 22842259",
+      "tags": [ "@pruned",
+        "@archive"
+      ]
     },
     "request": {
       "id": 1,

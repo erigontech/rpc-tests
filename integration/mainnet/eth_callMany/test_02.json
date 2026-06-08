@@ -30,7 +30,7 @@
             "balance": "0x165AF8666"
           }
         },
-        5000 
+        5000
       ]
     },
     "response": {
@@ -40,6 +40,11 @@
       },
       "id": 1,
       "jsonrpc": "2.0"
+    },
+    "test": {
+      "tags": [ "@archive",
+        "@pruned"
+      ]
     }
   }
 ]

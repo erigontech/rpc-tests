@@ -36,6 +36,9 @@
             ]
         },
         "test": {
+            "tags": [
+                "@pruned"
+            ],
             "description": "logs in the range with address",
             "reference": ""
         }

@@ -92,6 +92,9 @@
             ]
         },
         "test": {
+            "tags": [
+                "@pruned"
+            ],
             "description": "logs in the range with address and no topics",
             "reference": ""
         }

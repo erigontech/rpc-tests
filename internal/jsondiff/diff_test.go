@@ -695,7 +695,7 @@ func TestOptions(t *testing.T) {
 func TestDiffMaps_NonStringKeyMap(t *testing.T) {
 	// Test diffMaps with invalid map types
 	result := make(map[string]any)
-	diffMaps("not a map", "also not a map", "", result, &Options{})
+	diffMaps("not a map", "also not a map", "", result, &Options{}, true)
 	if len(result) == 0 {
 		t.Error("expected result for non-map types")
 	}

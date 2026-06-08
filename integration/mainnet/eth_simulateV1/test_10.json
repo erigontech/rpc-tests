@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "",
-      "description": "1st call funds an empty account, 2nd call moves some of the new funds onward at block 22842259"
+      "description": "1st call funds an empty account, 2nd call moves some of the new funds onward at block 22842259",
+      "tags": [
+        "@check-fields:returnData,status,gasUsed"
+      ]
     },
     "request": {
       "id": 1,
@@ -32,7 +35,7 @@
             }
           ]
         },
-        "0x15c8b93"
+        "latest"
       ]
     },
     "response": {

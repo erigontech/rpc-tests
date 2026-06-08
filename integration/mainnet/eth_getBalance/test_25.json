@@ -15,6 +15,9 @@
       "result": "0x7261531f8d2f09826d"
     },
     "test": {
+      "tags": [ "@archive",
+        "@pruned"
+      ],
       "description": "invoke getBalance on account DwarfPool on block no. 884166",
       "reference": ""
     }

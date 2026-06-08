@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
-# Add "@archive" tag to eth_* fixtures that read historical state (full nodes
-# serve historical blocks/txs/receipts/logs, so those methods are not tagged).
-# Usage: ./scripts/tag_archive.sh
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BASE="$SCRIPT_DIR/../integration/mainnet"
-NON_ARCHIVE="latest|pending|earliest|safe|finalized"
+NON_PRUNED="latest|pending|earliest|safe|finalized"
 TAGGED=0
 
 is_historic() {
   local block="$1"
   [[ -z "$block" || "$block" == "null" ]] && return 1
-  echo "$block" | grep -qiE "^($NON_ARCHIVE)$" && return 1
+  echo "$block" | grep -qiE "^($NON_PRUNED)$" && return 1
   local dec
   dec=$(printf "%d" "$block" 2>/dev/null) || return 1
   (( dec < 0x2000000 )) && return 0 || return 1
@@ -22,13 +19,14 @@ is_historic() {
 tag_file() {
   local file="$1"
 
-  # Add "@archive" with a text edit 
-  if grep -q '"@archive"' "$file"; then
+  # Add "@pruned" with a text edit only (jq would re-print/reformat the whole
+  # file). Three cases, mirroring the old jq logic:
+  if grep -q '"@pruned"' "$file"; then
     return 0                                              # already tagged
   elif grep -q '"tags"' "$file"; then
-    perl -0777 -pi -e 's/("tags"[ \t]*:[ \t]*\[)/$1 "\@archive",/' "$file"   # append
+    perl -0777 -pi -e 's/("tags"[ \t]*:[ \t]*\[)/$1 "\@pruned",/' "$file"    # append
   else
-    perl -0777 -pi -e 's/^([ \t]*)("test"[ \t]*:[ \t]*\{)/$1$2\n$1    "tags": ["\@archive"],/m' "$file"  # create
+    perl -0777 -pi -e 's/^([ \t]*)("test"[ \t]*:[ \t]*\{)/$1$2\n$1    "tags": ["\@pruned"],/m' "$file"  # create
   fi
 
   echo "  tagged  $file"
@@ -50,15 +48,26 @@ for method_dir in "$BASE"/eth_*/; do
 
     case "$method" in
       eth_call|eth_callBundle|eth_createAccessList|eth_estimateGas|\
-      eth_simulateV1|\
+      eth_feeHistory|eth_simulateV1|\
       eth_getBalance|eth_getCode|eth_getTransactionCount)
         process "$file" ".params[1]" ;;
 
       eth_callMany)
         process "$file" ".params[1].blockNumber" ;;
 
+      eth_getBlockByNumber|eth_getBlockReceipts|\
+      eth_getBlockTransactionCountByNumber|\
+      eth_getRawTransactionByBlockNumberAndIndex|\
+      eth_getTransactionByBlockNumberAndIndex|\
+      eth_getUncleByBlockNumberAndIndex|\
+      eth_getUncleCountByBlockNumber)
+        process "$file" ".params[0]" ;;
+
       eth_getProof|eth_getStorageAt)
         process "$file" ".params[2]" ;;
+
+      eth_getLogs)
+        tag_file "$file" ;;
     esac
   done
 done

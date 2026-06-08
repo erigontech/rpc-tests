@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "",
-      "description": "precompile override: ecrecover at 0x1 replaced with code returning fixed value"
+      "description": "precompile override: ecrecover at 0x1 replaced with code returning fixed value",
+      "tags": [
+        "@check-fields:returnData,status,gasUsed"
+      ]      
     },
     "request": {
       "id": 1,
@@ -23,16 +26,12 @@
                 "0x0000000000000000000000000000000000000001": {
                   "code": "0x7f00000000000000000000000000000000000000000000000000000000deadbeef60005260206000f3"
                 }
-              },
-              "blockOverrides": {
-                "number": "0x15c8b94",
-                "timestamp": "0x68671f8b"
               }
             }
           ],
           "returnFullTransactions": false
         },
-        "0x15c8b93"
+        "latest"
       ]
     },
     "response": {
