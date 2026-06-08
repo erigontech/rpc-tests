@@ -22,15 +22,14 @@ is_historic() {
 tag_file() {
   local file="$1"
 
-  jq '
-    .[0].test.tags |= (
-      if . == null then ["@archive"]
-      elif index("@archive") then .
-      else . + ["@archive"]
-      end
-    )
-  ' "$file" > "${file}.tmp" &&
-  mv "${file}.tmp" "$file"
+  # Add "@archive" with a text edit 
+  if grep -q '"@archive"' "$file"; then
+    return 0                                              # already tagged
+  elif grep -q '"tags"' "$file"; then
+    perl -0777 -pi -e 's/("tags"[ \t]*:[ \t]*\[)/$1 "\@archive",/' "$file"   # append
+  else
+    perl -0777 -pi -e 's/^([ \t]*)("test"[ \t]*:[ \t]*\{)/$1$2\n$1    "tags": ["\@archive"],/m' "$file"  # create
+  fi
 
   echo "  tagged  $file"
   (( TAGGED++ )) || true

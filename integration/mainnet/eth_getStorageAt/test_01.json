@@ -12,7 +12,7 @@
             "result":"0x000000000000000000000000ab1fe06691b211d9ee29838dac578395bec960fe"
         },
         "test": {
-            "tags": [
+            "tags": [ "@archive",
                 "@pruned"
             ]
         }

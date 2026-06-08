@@ -1,7 +1,7 @@
 [
     {
         "test": {
-           "tags": [
+           "tags": [ "@archive",
               "@pruned"
            ],
            "reference": "https://etherscan.io/tx/0x1ae5f96a8b446ddd51e96019472f7a31fcad3d2e774373ecfbb2ba94ff72fc04",

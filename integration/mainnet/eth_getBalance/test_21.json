@@ -15,7 +15,7 @@
       "result": "0x5b63746eeae8103e80"
     },
     "test": {
-      "tags": [
+      "tags": [ "@archive",
         "@pruned"
       ],
       "description": "invoke getBalance on account Nanopool on block no. 1024165",

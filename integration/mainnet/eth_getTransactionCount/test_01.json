@@ -12,7 +12,7 @@
             "result":"0x28"
         },
         "test": {
-             "tags": [
+             "tags": [ "@archive",
                   "@pruned"
              ]
         }

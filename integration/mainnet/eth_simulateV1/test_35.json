@@ -3,7 +3,7 @@
     "test": {
       "reference": "",
       "description": "out-of-order block timestamps returns -38021",
-      "tags": [
+      "tags": [ "@pruned",
         "@archive"
       ]
     },

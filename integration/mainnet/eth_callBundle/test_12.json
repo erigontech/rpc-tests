@@ -1,7 +1,7 @@
 [
    {
         "test": {
-           "tags": [
+           "tags": [ "@archive",
               "@pruned"
            ],
            "reference": "invalid tx https://etherscan.io/block/10000000",

@@ -19,15 +19,15 @@ is_historic() {
 tag_file() {
   local file="$1"
 
-  jq '
-    .[0].test.tags |= (
-      if . == null then ["@pruned"]
-      elif index("@pruned") then .
-      else . + ["@pruned"]
-      end
-    )
-  ' "$file" > "${file}.tmp" &&
-  mv "${file}.tmp" "$file"
+  # Add "@pruned" with a text edit only (jq would re-print/reformat the whole
+  # file). Three cases, mirroring the old jq logic:
+  if grep -q '"@pruned"' "$file"; then
+    return 0                                              # already tagged
+  elif grep -q '"tags"' "$file"; then
+    perl -0777 -pi -e 's/("tags"[ \t]*:[ \t]*\[)/$1 "\@pruned",/' "$file"    # append
+  else
+    perl -0777 -pi -e 's/^([ \t]*)("test"[ \t]*:[ \t]*\{)/$1$2\n$1    "tags": ["\@pruned"],/m' "$file"  # create
+  fi
 
   echo "  tagged  $file"
   (( TAGGED++ )) || true

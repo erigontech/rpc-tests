@@ -3,7 +3,7 @@
     "test": {
       "reference": "",
       "description": "non-contiguous multi-block multi-call at block 22842259",
-      "tags": [
+      "tags": [ "@pruned",
         "@archive"
       ]
     },

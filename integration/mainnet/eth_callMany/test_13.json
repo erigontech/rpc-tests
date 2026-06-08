@@ -42,7 +42,7 @@
       ]
     },
     "test": {
-      "tags": [
+      "tags": [ "@archive",
         "@pruned"
       ]
     }

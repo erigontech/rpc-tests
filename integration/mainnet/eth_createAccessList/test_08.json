@@ -1,7 +1,7 @@
 [
   {
     "test": {
-      "tags": [
+      "tags": [ "@archive",
         "@pruned"
       ],
       "id": "eth_createAccessList_at_block_12000000_approve",
