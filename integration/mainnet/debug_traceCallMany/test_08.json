@@ -47,7 +47,6 @@
                 "depth": 1,
                 "gas": 155464,
                 "gasCost": 3,
-                "memory": [],
                 "op": "PUSH1",
                 "pc": 0,
                 "stack": []
@@ -56,7 +55,6 @@
                 "depth": 1,
                 "gas": 155461,
                 "gasCost": 3,
-                "memory": [],
                 "op": "PUSH1",
                 "pc": 2,
                 "stack": [
@@ -67,7 +65,6 @@
                 "depth": 1,
                 "gas": 155458,
                 "gasCost": 12,
-                "memory": [],
                 "op": "MSTORE",
                 "pc": 4,
                 "stack": [
@@ -3729,7 +3726,6 @@
                 "depth": 2,
                 "gas": 150567,
                 "gasCost": 3,
-                "memory": [],
                 "op": "PUSH1",
                 "pc": 0,
                 "stack": []
@@ -3738,7 +3734,6 @@
                 "depth": 2,
                 "gas": 150564,
                 "gasCost": 3,
-                "memory": [],
                 "op": "PUSH1",
                 "pc": 2,
                 "stack": [
@@ -3749,7 +3744,6 @@
                 "depth": 2,
                 "gas": 150561,
                 "gasCost": 12,
-                "memory": [],
                 "op": "MSTORE",
                 "pc": 4,
                 "stack": [
@@ -6976,7 +6970,6 @@
                 "depth": 3,
                 "gas": 138905,
                 "gasCost": 3,
-                "memory": [],
                 "op": "PUSH1",
                 "pc": 0,
                 "stack": []
@@ -6985,7 +6978,6 @@
                 "depth": 3,
                 "gas": 138902,
                 "gasCost": 3,
-                "memory": [],
                 "op": "PUSH1",
                 "pc": 2,
                 "stack": [
@@ -6996,7 +6988,6 @@
                 "depth": 3,
                 "gas": 138899,
                 "gasCost": 12,
-                "memory": [],
                 "op": "MSTORE",
                 "pc": 4,
                 "stack": [
@@ -13755,7 +13746,6 @@
                 "depth": 2,
                 "gas": 145214,
                 "gasCost": 3,
-                "memory": [],
                 "op": "PUSH1",
                 "pc": 0,
                 "stack": []
@@ -13764,7 +13754,6 @@
                 "depth": 2,
                 "gas": 145211,
                 "gasCost": 3,
-                "memory": [],
                 "op": "PUSH1",
                 "pc": 2,
                 "stack": [
@@ -13775,7 +13764,6 @@
                 "depth": 2,
                 "gas": 145208,
                 "gasCost": 12,
-                "memory": [],
                 "op": "MSTORE",
                 "pc": 4,
                 "stack": [
@@ -17055,7 +17043,6 @@
                 "depth": 3,
                 "gas": 133546,
                 "gasCost": 3,
-                "memory": [],
                 "op": "PUSH1",
                 "pc": 0,
                 "stack": []
@@ -17064,7 +17051,6 @@
                 "depth": 3,
                 "gas": 133543,
                 "gasCost": 3,
-                "memory": [],
                 "op": "PUSH1",
                 "pc": 2,
                 "stack": [
@@ -17075,7 +17061,6 @@
                 "depth": 3,
                 "gas": 133540,
                 "gasCost": 12,
-                "memory": [],
                 "op": "MSTORE",
                 "pc": 4,
                 "stack": [
