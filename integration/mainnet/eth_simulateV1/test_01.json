@@ -4,7 +4,7 @@
       "reference": "https://etherscan.io/tx/0x84eac3162e731088b7276cca885aa916fc5b8c11dfef13b9df2729806bbbaf57",
       "description": "historical ETH transfer at block 9000000",
       "tags": [
-        "@check-fields:returnData,status,gasUsed,error"
+        "@archive"
       ]
     },
     "request": {
@@ -23,17 +23,12 @@
                   "gasPrice": "0x2CB417800",
                   "value": "0x229322"
                 }
-              ],
-              "stateOverrides": {
-                "0xEF04bc7821433f080461BBAE815182E3d7bBb61A": {
-                  "balance": "0x8ac7230489e80000"
-                }
-              }
+              ]
             }
           ],
           "traceTransfers": true
         },
-        "latest"
+        "0x89543F"
       ]
     },
     "response": {
@@ -41,59 +36,53 @@
       "jsonrpc": "2.0",
       "result": [
         {
-          "baseFeePerGas": "0x0",
-          "blobGasUsed": "0x0",
           "calls": [
             {
-              "returnData": "0x",
+              "gasUsed": "0x5208",
               "logs": [
                 {
                   "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                  "blockHash": "0xbcf8d78e7b24f324838bc12feed23a586fac880c8ddf57f5cac51df87a4ba273",
+                  "blockNumber": "0x895440",
+                  "blockTimestamp": "0x5ddc1d07",
+                  "data": "0x0000000000000000000000000000000000000000000000000000000000229322",
+                  "logIndex": "0x0",
+                  "removed": false,
                   "topics": [
                     "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
                     "0x000000000000000000000000ef04bc7821433f080461bbae815182e3d7bbb61a",
                     "0x0000000000000000000000004debb0df4da8d1f51ef67b727c3f1c0ecc7ed009"
                   ],
-                  "data": "0x0000000000000000000000000000000000000000000000000000000000229322",
-                  "blockNumber": "0x1811cd6",
-                  "transactionHash": "0x29330f80d58557d0ad3f71c99cfbfb13bcde6a3efc2feac670e332ac016ecca7",
-                  "transactionIndex": "0x0",
-                  "blockHash": "0x22b988680c5e26fc054efc78f0285cba50928bae56c5cc4c10999f120805a248",
-                  "blockTimestamp": "0x6a207673",
-                  "logIndex": "0x0",
-                  "removed": false
+                  "transactionHash": "0x007076aa1d686fce5ad7e97f7ec0333961ff91652b7e5d43f5fc9bacdc25edd5",
+                  "transactionIndex": "0x0"
                 }
               ],
-              "gasUsed": "0x5208",
+              "maxUsedGas": "0x5208",
+              "returnData": "0x",
               "status": "0x1"
             }
           ],
-          "difficulty": "0x0",
-          "excessBlobGas": "0xba2f5bc",
+          "difficulty": "0x9247be434896a",
           "extraData": "0x",
-          "gasLimit": "0x3938700",
+          "gasLimit": "0x98592e",
           "gasUsed": "0x5208",
-          "hash": "0x22b988680c5e26fc054efc78f0285cba50928bae56c5cc4c10999f120805a248",
+          "hash": "0xbcf8d78e7b24f324838bc12feed23a586fac880c8ddf57f5cac51df87a4ba273",
           "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "miner": "0x24d6c74d811cfde65995ed26fd08af445f8aab06",
+          "miner": "0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5",
           "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
           "nonce": "0x0000000000000000",
-          "number": "0x1811cd6",
-          "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "parentHash": "0xe1132554fad894999f575edc72f04ad908490e54d86b792e2cbd10859bad4951",
+          "number": "0x895440",
+          "parentHash": "0xdbfa2da5922a4833994af5016b5ccfb2e5a4838fb44329062094912149bd5a72",
           "receiptsRoot": "0x056b23fbba480696b65fe5a59b8f2148a1299103c4f57df839233af2cf4ca2d2",
-          "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-          "size": "0x296",
-          "stateRoot": "0xbf10198be6fe92cae100858dc9341ea8ad9ab11407097851e85800c247add5ae",
-          "timestamp": "0x6a207673",
+          "size": "0x230",
+          "stateRoot": "0x44543702970042fc6d1d0427d49c2b4a51129b441582878e443a7d315a36bf6f",
+          "timestamp": "0x5ddc1d07",
           "transactions": [
-            "0x29330f80d58557d0ad3f71c99cfbfb13bcde6a3efc2feac670e332ac016ecca7"
+            "0x007076aa1d686fce5ad7e97f7ec0333961ff91652b7e5d43f5fc9bacdc25edd5"
           ],
-          "transactionsRoot": "0x2207e694814141be4b369030b0deb80aac91ccd3b4b78f18e66f8ba1dca8c950",
-          "uncles": [],
-          "withdrawals": [],
-          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+          "transactionsRoot": "0x4e29f44d63bb9f74285d607c7fba35bd079cfd72104c9fe79c80d7be2190f634",
+          "uncles": []
         }
       ]
     }

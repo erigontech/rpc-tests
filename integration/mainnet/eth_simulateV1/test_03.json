@@ -4,7 +4,8 @@
       "reference": "https://etherscan.io/tx/0xf7810b64e2030592428849a2d4c9006923224d3ac0225feaaa5c34272480b6da",
       "description": "historical 1inch order at block 21457054 with overridden timestamp + 12sec",
       "tags": [
-        "@check-fields:returnData,status,gasUsed,error"
+        "@archive",
+        "@pruned"
       ]
     },
     "request": {
@@ -15,6 +16,9 @@
         {
           "blockStateCalls": [
             {
+              "blockOverrides": {
+                "time": "0x6767d797"
+              },
               "calls": [
                 {
                   "from": "0x8e90675E889fcf027d47B04D859aA537f7052626",
@@ -27,7 +31,7 @@
           ],
           "traceTransfers": true
         },
-        "latest"
+        "0x147689E"
       ]
     },
     "response": {
@@ -39,40 +43,40 @@
           "blobGasUsed": "0x0",
           "calls": [
             {
-              "returnData": "0x",
-              "logs": [],
-              "gasUsed": "0xde94",
-              "status": "0x0",
               "error": {
-                "message": "execution reverted",
                 "code": 3,
-                "data": "0xf71fbda2"
-              }
+                "data": "0xfb8ae129",
+                "message": "execution reverted"
+              },
+              "gasUsed": "0xe89d",
+              "logs": [],
+              "maxUsedGas": "0xe89d",
+              "returnData": "0x",
+              "status": "0x0"
             }
           ],
           "difficulty": "0x0",
-          "excessBlobGas": "0xba6f5bc",
+          "excessBlobGas": "0x1f20000",
           "extraData": "0x",
-          "gasLimit": "0x3938700",
-          "gasUsed": "0xde94",
-          "hash": "0xc6d77aade6fb83a92e3da568f26548426922adeab519c6cf0817dfc10474c9f8",
+          "gasLimit": "0x1c9c380",
+          "gasUsed": "0xe89d",
+          "hash": "0x345ea8954a2b60ef46e742d9eb7ddc0359eae5df560d3602f89712ee55feb8ec",
           "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "miner": "0x4838b106fce9647bdf1e7877bf73ce8b0bad5f97",
           "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
           "nonce": "0x0000000000000000",
-          "number": "0x1811cd5",
+          "number": "0x147689f",
           "parentBeaconBlockRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "parentHash": "0x1b940b59bf233af3fe37bd14e27ed48a063d71bc835c81b03a198027d2cc8e37",
-          "receiptsRoot": "0x14c1eb2d5c6c917b3ba1ee1f2de3f974ce20c2b90445db7a9ee6c2187bdb8847",
-          "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "parentHash": "0xc8d4bcd2f1558f9c7a4648644969348f31aae36fc048be1b4d984e89ef51d9c5",
+          "receiptsRoot": "0x482f6b57b3028ec19a3effce63f4d43ee181ff999fd4a026a118dbd672b8e8e4",
           "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-          "size": "0x909",
-          "stateRoot": "0xa7a023a36b682b4161edea09e95f0fd3f05bd9547b95a58e67bb6e3829bb37a0",
-          "timestamp": "0x6a207667",
+          "size": "0x8e7",
+          "stateRoot": "0xaf194d21b5f43fcd5d8f1b1ee5634381c7ac58b11acbf9057897c4f8456d3c84",
+          "timestamp": "0x6767d797",
           "transactions": [
-            "0x71a14f450c09c94d6f5e1064c4c58eb90c4b6fa2b4ca45ea72dd07600949d716"
+            "0x088d44300844655bd29d3a212b8e64f55b2c8e811167293e5b55408eb5b9c62b"
           ],
-          "transactionsRoot": "0x550ec37c62ead45914fb3304548cbbf7048a8b4cd4a47dfbb5ef1b34db6bfd8c",
+          "transactionsRoot": "0x987bbe688127ac18731d2d08cd178b74bdd881ef18edea7c015ac92a23d7a266",
           "uncles": [],
           "withdrawals": [],
           "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
