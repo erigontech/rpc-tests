@@ -1,0 +1,24 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_getBalance",
+      "params": [
+        "0x525816fB59585B2DD4Adc27108C0dBFff4b9f06f",
+        {
+          "blockHash": "0x9bd94399952e621eb9ab6a142b4cd7b49fc78226d2de08405ca62a7ca4abe05b"
+        }
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0x232563388cf5a800"
+    },
+    "test": {
+      "description": "EIP-1898: invoke getBalance with {blockHash} canonical-hash object form on block no. 6302128",
+      "reference": ""
+    }
+  }
+]
