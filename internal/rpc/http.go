@@ -35,6 +35,15 @@ var bufPool = sync.Pool{
 	},
 }
 
+// targetURL prepends protocol unless target already carries an http(s) scheme
+// (e.g. an external provider URL like "https://ethereum.publicnode.com").
+func targetURL(protocol, target string) string {
+	if strings.HasPrefix(target, "http://") || strings.HasPrefix(target, "https://") {
+		return target
+	}
+	return protocol + target
+}
+
 func (c *Client) callHTTP(ctx context.Context, target string, request []byte, response any) (Metrics, error) {
 	var metrics Metrics
 
@@ -42,7 +51,7 @@ func (c *Client) callHTTP(ctx context.Context, target string, request []byte, re
 	if c.transport == "https" {
 		protocol = "https://"
 	}
-	url := protocol + target
+	url := targetURL(protocol, target)
 
 	buf := bufPool.Get().(*bytes.Buffer)
 	buf.Reset()
@@ -126,7 +135,7 @@ func CallHTTPRaw(ctx context.Context, verbose int, transport, jwtAuth, target st
 	if transport == "https" {
 		protocol = "https://"
 	}
-	url := protocol + target
+	url := targetURL(protocol, target)
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(request))
 	if err != nil {
