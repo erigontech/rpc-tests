@@ -2,12 +2,12 @@
   {
     "test": {
       "reference": "",
-      "description": "must reject malformed RLP (truncated short-list header 0xd4)."
+      "description": "must reject invalid hex chars 0xzz."
     },
     "request": {
       "jsonrpc": "2.0",
       "method": "eth_sendRawTransaction",
-      "params": ["0xd4"],
+      "params": ["0xzz"],
       "id": 1
     },
     "response": {
