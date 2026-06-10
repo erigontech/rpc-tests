@@ -161,9 +161,6 @@ func (c *Config) Validate() error {
 	if c.ReqTestNum != -1 && (c.ExcludeTestList != "" || c.ExcludeAPIList != "") {
 		return fmt.Errorf("run-test is not compatible with exclude-api-list or exclude-test-list")
 	}
-	if c.TestingAPIs != "" && c.ExcludeAPIList != "" {
-		return fmt.Errorf("api-list is not compatible with exclude-api-list")
-	}
 	if c.VerifyWithDaemon && c.WithoutCompareResults {
 		return fmt.Errorf("compare-erigon-rpcdaemon is not compatible with without-compare-results")
 	}
