@@ -1,6 +1,9 @@
 [
     {
         "test": {
+           "tags": [ "@archive",
+              "@pruned"
+           ],
            "reference": "https://github.com/erigontech/erigon/issues/17561",
            "description": "historical account proof"
         },

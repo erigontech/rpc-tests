@@ -40,6 +40,11 @@
           }
         ]
       ]
+    },
+    "test": {
+      "tags": [ "@archive",
+        "@pruned"
+      ]
     }
   }
 ]

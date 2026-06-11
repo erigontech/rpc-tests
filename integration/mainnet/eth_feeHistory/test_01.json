@@ -1,6 +1,9 @@
 [
     {
         "test": {
+           "tags": [
+              "@pruned"
+           ],
            "reference": "https://etherscan.io/block/8813184",
            "description": "only one block count"
         },

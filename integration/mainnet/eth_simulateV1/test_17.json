@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "",
-      "description": "override coinbase at block 22842259"
+      "description": "override coinbase at block 22842259",
+      "tags": [
+        "@check-fields:returnData,status,gasUsed"
+      ]
     },
     "request": {
       "id": 1,
@@ -29,7 +32,7 @@
             }
           ]
         },
-        "0x15c8b93"
+        "latest"
       ]
     },
     "response": {

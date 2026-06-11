@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "",
-      "description": "multi-block one-call at block 22930608"
+      "description": "multi-block one-call at block 22930608",
+      "tags": [ "@pruned",
+        "@archive"
+      ]
     },
     "request": {
       "id": 1,

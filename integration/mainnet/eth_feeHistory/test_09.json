@@ -1,6 +1,9 @@
 [
     {
         "test": {
+         "tags": [
+          "@pruned"
+         ],
          "reference": "https://etherscan.io/block/16000000",
          "description": "with newest block without percentile"
         },

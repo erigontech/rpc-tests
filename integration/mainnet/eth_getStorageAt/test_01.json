@@ -10,6 +10,11 @@
             "id":1,
             "jsonrpc":"2.0",
             "result":"0x000000000000000000000000ab1fe06691b211d9ee29838dac578395bec960fe"
+        },
+        "test": {
+            "tags": [ "@archive",
+                "@pruned"
+            ]
         }
     }
 ]

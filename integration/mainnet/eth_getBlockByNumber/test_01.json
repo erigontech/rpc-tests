@@ -1,6 +1,9 @@
 [
     {
       "test": {
+           "tags": [
+                "@pruned"
+           ],
            "reference": "https://etherscan.io/block/4306300",
            "description": "block without transactions details"
         },

@@ -1,6 +1,9 @@
 [
   {
     "test": {
+      "tags": [
+        "@pruned"
+      ],
       "reference": "https://etherscan.io/block/16000001",
       "description": "block with transaction type 2 with baseFeePerGas fields"
     },

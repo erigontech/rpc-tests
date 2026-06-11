@@ -2,7 +2,10 @@
   {
     "test": {
       "reference": "",
-      "description": "multi-block multi-call at block 22842259"
+      "description": "multi-block multi-call at block 22842259",
+      "tags": [
+        "@check-fields:returnData,status,data,topics,address"
+      ]      
     },
     "request": {
       "id": 1,
@@ -23,10 +26,6 @@
                 "0x1111111111111111111111111111111111111111": {
                   "balance": "0x8ac7230489e80000"
                 }
-              },
-              "blockOverrides": {
-                "number": "0x15c8b94",
-                "timestamp": "0x68D3B730"
               }
             },
             {
@@ -36,17 +35,13 @@
                   "to": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
                   "value": "0x6f05b59d3b20000"
                 }
-              ],
-              "blockOverrides": {
-                "number": "0x15c8b95",
-                "timestamp": "0x68D3B73C"
-              }
+              ]
             }
           ],
           "traceTransfers": true,
           "returnFullTransactions": true
         },
-        "0x15c8b93"
+        "latest"
       ]
     },
     "response": {

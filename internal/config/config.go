@@ -88,12 +88,12 @@ type Config struct {
 	OutputDir  string
 
 	// Daemon configuration
-	DaemonUnderTest     string
-	DaemonAsReference   string
-	DaemonOnHost        string
-	ServerPort          int
-	EnginePort          int
-	VerifyWithDaemon    bool
+	DaemonUnderTest         string
+	DaemonAsReference       string
+	DaemonOnHost            string
+	ServerPort              int
+	EnginePort              int
+	VerifyWithDaemon        bool
 	ExternalProviderURL     string
 	ExternalProviderHeaders map[string]string
 	LocalServer             string
@@ -104,6 +104,8 @@ type Config struct {
 	ExcludeAPIList     string
 	ExcludeTestList    string
 	TestsOnLatestBlock bool
+	ArchiveNode        bool // run tests tagged @archive (skipped by default)
+	PrunedNode         bool // run tests tagged @pruned (skipped by default)
 
 	// Authentication
 	JWTSecret string

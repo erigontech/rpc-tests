@@ -14,6 +14,9 @@
       "result": "0xa"
     },
     "test": {
+      "tags": [
+        "@pruned"
+      ],
       "description": "invoke eth_getBlockTransactionCountByNumber on block no. 1603000",
       "reference": ""
     }

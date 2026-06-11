@@ -6,4 +6,5 @@ integration/goerli/results
 integration/mainnet/results
 output
 build/
+.DS_Store
 */**/.DS_Store

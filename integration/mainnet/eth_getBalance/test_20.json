@@ -15,6 +15,9 @@
       "result": "0x126c35599ecc3c00"
     },
     "test": {
+      "tags": [ "@archive",
+        "@pruned"
+      ],
       "description": "invoke getBalance on account HTX10 on block no. 5415091",
       "reference": ""
     }

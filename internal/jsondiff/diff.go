@@ -38,6 +38,23 @@ type Options struct {
 	Sort bool
 	// SortArrays sorts primitive values in arrays before comparing
 	SortArrays bool
+	// CheckKeys, when non-empty, restricts comparison to scalar fields whose key
+	// is listed; other scalars are ignored, containers are still traversed.
+	CheckKeys map[string]bool
+}
+
+// bothScalar reports whether neither value is a container (map/slice/array),
+// i.e. there is nothing deeper to traverse to reach a whitelisted key.
+func bothScalar(v1, v2 any) bool {
+	for _, v := range [2]any{v1, v2} {
+		if v == nil {
+			continue
+		}
+		if k := reflect.ValueOf(v).Kind(); k == reflect.Map || k == reflect.Slice || k == reflect.Array {
+			return false
+		}
+	}
+	return true
 }
 
 // DiffJSON computes the difference between two JSON objects
@@ -47,7 +64,7 @@ func DiffJSON(obj1, obj2 any, opts *Options) map[string]any {
 	}
 
 	result := make(map[string]any)
-	diff(obj1, obj2, "", result, opts)
+	diff(obj1, obj2, "", result, opts, len(opts.CheckKeys) == 0)
 
 	return result
 }
@@ -113,22 +130,29 @@ func ColoredString(obj1, obj2 any, opts *Options) string {
 	return sb.String()
 }
 
-func diff(obj1, obj2 any, path string, result map[string]any, opts *Options) {
+// diff walks obj1/obj2. When keep is false we are outside any whitelisted
+// subtree: containers are still traversed (to reach whitelisted keys deeper),
+// but scalar leaves and nil/type/length mismatches are not recorded.
+func diff(obj1, obj2 any, path string, result map[string]any, opts *Options, keep bool) {
 	// Handle nil cases
 	if obj1 == nil && obj2 == nil {
-		if opts.KeepUnchangedValues {
+		if keep && opts.KeepUnchangedValues {
 			result[path] = map[string]any{"__old": obj1, "__new": obj2}
 		}
 		return
 	}
 
 	if obj1 == nil {
-		result[path] = map[string]any{"__old": obj1, "__new": obj2}
+		if keep {
+			result[path] = map[string]any{"__old": obj1, "__new": obj2}
+		}
 		return
 	}
 
 	if obj2 == nil {
-		result[path] = map[string]any{"__old": obj1, "__new": obj2}
+		if keep {
+			result[path] = map[string]any{"__old": obj1, "__new": obj2}
+		}
 		return
 	}
 
@@ -137,16 +161,21 @@ func diff(obj1, obj2 any, path string, result map[string]any, opts *Options) {
 
 	// If types are different, mark as changed
 	if v1.Kind() != v2.Kind() {
-		result[path] = map[string]any{"__old": obj1, "__new": obj2}
+		if keep {
+			result[path] = map[string]any{"__old": obj1, "__new": obj2}
+		}
 		return
 	}
 
 	switch v1.Kind() {
 	case reflect.Map:
-		diffMaps(obj1, obj2, path, result, opts)
+		diffMaps(obj1, obj2, path, result, opts, keep)
 	case reflect.Slice, reflect.Array:
-		diffArrays(obj1, obj2, path, result, opts)
+		diffArrays(obj1, obj2, path, result, opts, keep)
 	default:
+		if !keep {
+			return
+		}
 		if !reflect.DeepEqual(obj1, obj2) {
 			result[path] = map[string]any{"__old": obj1, "__new": obj2}
 		} else if opts.KeepUnchangedValues {
@@ -155,12 +184,14 @@ func diff(obj1, obj2 any, path string, result map[string]any, opts *Options) {
 	}
 }
 
-func diffMaps(obj1, obj2 any, path string, result map[string]any, opts *Options) {
+func diffMaps(obj1, obj2 any, path string, result map[string]any, opts *Options, keep bool) {
 	m1, ok1 := obj1.(map[string]any)
 	m2, ok2 := obj2.(map[string]any)
 
 	if !ok1 || !ok2 {
-		result[path] = map[string]any{"__old": obj1, "__new": obj2}
+		if keep {
+			result[path] = map[string]any{"__old": obj1, "__new": obj2}
+		}
 		return
 	}
 
@@ -186,27 +217,38 @@ func diffMaps(obj1, obj2 any, path string, result map[string]any, opts *Options)
 		v1, exists1 := m1[key]
 		v2, exists2 := m2[key]
 
+		// A whitelisted key turns "keep" on for its whole subtree. Outside a
+		// kept subtree, skip non-whitelisted scalar leaves entirely.
+		childKeep := keep || opts.CheckKeys[key]
+		if !childKeep && bothScalar(v1, v2) {
+			continue
+		}
+
 		newPath := key
 		if path != "" {
 			newPath = path + "." + key
 		}
 
 		if !exists1 {
-			result[newPath] = map[string]any{"__new": v2}
+			if childKeep {
+				result[newPath] = map[string]any{"__new": v2}
+			}
 		} else if !exists2 {
-			result[newPath] = map[string]any{"__old": v1}
+			if childKeep {
+				result[newPath] = map[string]any{"__old": v1}
+			}
 		} else {
-			diff(v1, v2, newPath, result, opts)
+			diff(v1, v2, newPath, result, opts, childKeep)
 		}
 	}
 }
 
-func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Options) {
+func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Options, keep bool) {
 	v1 := reflect.ValueOf(obj1)
 	v2 := reflect.ValueOf(obj2)
 
-	// Sort arrays if required
-	if opts.SortArrays {
+	// Sort arrays if required (positional under a CheckKeys whitelist).
+	if opts.SortArrays && len(opts.CheckKeys) == 0 {
 		v1 = reflect.ValueOf(sortArray(obj1))
 		v2 = reflect.ValueOf(sortArray(obj2))
 	}
@@ -220,34 +262,44 @@ func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Option
 		newPath := fmt.Sprintf("%s[%d]", path, i)
 
 		if i >= len1 {
-			result[newPath] = map[string]any{"__new": v2.Index(i).Interface()}
+			if keep {
+				result[newPath] = map[string]any{"__new": v2.Index(i).Interface()}
+			}
 		} else if i >= len2 {
-			result[newPath] = map[string]any{"__old": v1.Index(i).Interface()}
+			if keep {
+				result[newPath] = map[string]any{"__old": v1.Index(i).Interface()}
+			}
 		} else {
-			diff(v1.Index(i).Interface(), v2.Index(i).Interface(), newPath, result, opts)
+			diff(v1.Index(i).Interface(), v2.Index(i).Interface(), newPath, result, opts, keep)
 		}
 	}
 }
 
 func collectDiffs(obj1, obj2 any, path string, opts *Options) []Diff {
 	var diffs []Diff
-	collectDiffsRec(obj1, obj2, path, &diffs, opts)
+	collectDiffsRec(obj1, obj2, path, &diffs, opts, len(opts.CheckKeys) == 0)
 	return diffs
 }
 
-func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
+func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff, opts *Options, keep bool) {
 	if obj1 == nil && obj2 == nil {
-		*diffs = append(*diffs, Diff{Type: DiffEqual, Path: path, NewValue: obj2})
+		if keep {
+			*diffs = append(*diffs, Diff{Type: DiffEqual, Path: path, NewValue: obj2})
+		}
 		return
 	}
 
 	if obj1 == nil {
-		*diffs = append(*diffs, Diff{Type: DiffAdd, Path: path, NewValue: obj2})
+		if keep {
+			*diffs = append(*diffs, Diff{Type: DiffAdd, Path: path, NewValue: obj2})
+		}
 		return
 	}
 
 	if obj2 == nil {
-		*diffs = append(*diffs, Diff{Type: DiffDelete, Path: path, OldValue: obj1})
+		if keep {
+			*diffs = append(*diffs, Diff{Type: DiffDelete, Path: path, OldValue: obj1})
+		}
 		return
 	}
 
@@ -255,16 +307,21 @@ func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) 
 	v2 := reflect.ValueOf(obj2)
 
 	if v1.Kind() != v2.Kind() {
-		*diffs = append(*diffs, Diff{Type: DiffUpdate, Path: path, OldValue: obj1, NewValue: obj2})
+		if keep {
+			*diffs = append(*diffs, Diff{Type: DiffUpdate, Path: path, OldValue: obj1, NewValue: obj2})
+		}
 		return
 	}
 
 	switch v1.Kind() {
 	case reflect.Map:
-		collectMapDiffs(obj1, obj2, path, diffs, opts)
+		collectMapDiffs(obj1, obj2, path, diffs, opts, keep)
 	case reflect.Slice, reflect.Array:
-		collectArrayDiffs(obj1, obj2, path, diffs, opts)
+		collectArrayDiffs(obj1, obj2, path, diffs, opts, keep)
 	default:
+		if !keep {
+			return
+		}
 		if !reflect.DeepEqual(obj1, obj2) {
 			*diffs = append(*diffs, Diff{Type: DiffUpdate, Path: path, OldValue: obj1, NewValue: obj2})
 		} else {
@@ -273,12 +330,14 @@ func collectDiffsRec(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) 
 	}
 }
 
-func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
+func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options, keep bool) {
 	m1, ok1 := obj1.(map[string]any)
 	m2, ok2 := obj2.(map[string]any)
 
 	if !ok1 || !ok2 {
-		*diffs = append(*diffs, Diff{Type: DiffUpdate, Path: path, OldValue: obj1, NewValue: obj2})
+		if keep {
+			*diffs = append(*diffs, Diff{Type: DiffUpdate, Path: path, OldValue: obj1, NewValue: obj2})
+		}
 		return
 	}
 
@@ -300,23 +359,32 @@ func collectMapDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) 
 		v1, exists1 := m1[key]
 		v2, exists2 := m2[key]
 
+		childKeep := keep || opts.CheckKeys[key]
+		if !childKeep && bothScalar(v1, v2) {
+			continue
+		}
+
 		newPath := key
 		if path != "" {
 			newPath = path + "." + key
 		}
 
 		if !exists1 {
-			*diffs = append(*diffs, Diff{Type: DiffAdd, Path: newPath, NewValue: v2})
+			if childKeep {
+				*diffs = append(*diffs, Diff{Type: DiffAdd, Path: newPath, NewValue: v2})
+			}
 		} else if !exists2 {
-			*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1})
+			if childKeep {
+				*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1})
+			}
 		} else {
-			collectDiffsRec(v1, v2, newPath, diffs, opts)
+			collectDiffsRec(v1, v2, newPath, diffs, opts, childKeep)
 		}
 	}
 }
 
-func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
-	if opts.SortArrays {
+func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options, keep bool) {
+	if opts.SortArrays && len(opts.CheckKeys) == 0 {
 		obj1 = sortArray(obj1)
 		obj2 = sortArray(obj2)
 	}
@@ -333,11 +401,15 @@ func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options
 		newPath := fmt.Sprintf("%s[%d]", path, i)
 
 		if i >= len1 {
-			*diffs = append(*diffs, Diff{Type: DiffAdd, Path: newPath, NewValue: v2.Index(i).Interface()})
+			if keep {
+				*diffs = append(*diffs, Diff{Type: DiffAdd, Path: newPath, NewValue: v2.Index(i).Interface()})
+			}
 		} else if i >= len2 {
-			*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1.Index(i).Interface()})
+			if keep {
+				*diffs = append(*diffs, Diff{Type: DiffDelete, Path: newPath, OldValue: v1.Index(i).Interface()})
+			}
 		} else {
-			collectDiffsRec(v1.Index(i).Interface(), v2.Index(i).Interface(), newPath, diffs, opts)
+			collectDiffsRec(v1.Index(i).Interface(), v2.Index(i).Interface(), newPath, diffs, opts, keep)
 		}
 	}
 }

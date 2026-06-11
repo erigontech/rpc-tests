@@ -1,6 +1,9 @@
 [
     {
         "test": {
+            "tags": [ "@archive",
+                "@pruned"
+            ],
             "reference": "https://etherscan.io/tx/0x5b520840fef569738e1b54589ff90fe6858076e8a582732a98fa7d0bd4c2b9a6 on new block https://etherscan.io/block/10000000",
             "description": "transaction post EIP-1559 on block post EIP1559"
         },

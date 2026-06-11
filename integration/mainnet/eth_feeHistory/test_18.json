@@ -1,6 +1,9 @@
 [
     {
         "test": {
+         "tags": [
+          "@pruned"
+         ],
          "reference": "",
          "description": "with newest block and without percentiles"
         },

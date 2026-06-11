@@ -1,0 +1,31 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "SetCodeTx (EIP-7702) with empty authorizationList should fail"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_estimateGas",
+      "params": [
+        {
+          "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+          "to": "0x0000000000000000000000000000000000000000",
+          "value": "0x0",
+          "type": "0x4",
+          "authorizationList": []
+        },
+        "latest"
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {
+        "code": -32000,
+        "message": "EIP-7702 transaction with empty authorization list"
+      }
+    }
+  }
+]
