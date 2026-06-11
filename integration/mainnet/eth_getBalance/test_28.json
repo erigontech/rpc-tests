@@ -14,7 +14,7 @@
       "jsonrpc": "2.0",
       "error": {
         "code": -32000,
-        "message": "block not found: 43234556422756761"
+        "message": "header not found"
       }
     },
     "test": {

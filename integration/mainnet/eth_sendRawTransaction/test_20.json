@@ -1,0 +1,19 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "must reject uppercase hex 0xC0 with same error as 0xc0 (hex case-insensitivity must not change semantics)."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_sendRawTransaction",
+      "params": ["0xC0"],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {"code": -32602, "message": null}
+    }
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "must reject single null byte 0x00 (unsupported typed envelope)."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_sendRawTransaction",
+      "params": ["0x00"],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {"code": -32602, "message": null}
+    }
+  }
+]

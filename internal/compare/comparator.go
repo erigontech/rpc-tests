@@ -126,6 +126,24 @@ func ProcessResponse(
 				return
 			}
 		}
+		// Per-fixture "message": null sentinel -> compare only error code, ignore message.
+		if responseHasError && expectedHasError && expectedError != nil {
+			expErrMap, expErrIsMap := expectedError.(map[string]any)
+			if expErrIsMap {
+				if msg, hasMsg := expErrMap["message"]; hasMsg && msg == nil {
+					respErrMap, respErrIsMap := responseMap["error"].(map[string]any)
+					if respErrIsMap && jsonValuesEqual(respErrMap["code"], expErrMap["code"]) {
+						err := dumpJSONs(cfg.ForceDumpJSONs, daemonFile, expRspFile, outputDir, response, expectedResponse, &outcome.Metrics)
+						if err != nil {
+							outcome.Error = err
+							return
+						}
+						outcome.Success = true
+						return
+					}
+				}
+			}
+		}
 	}
 
 	// Detailed comparison: dump files and run diff

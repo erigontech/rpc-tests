@@ -1,0 +1,22 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_getBalance",
+      "params": [
+        "0x525816FB59585B2DD4ADC27108C0DBFFF4B9F06F",
+        "0x6029B0"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0x232563388cf5a800"
+    },
+    "test": {
+      "description": "invoke getBalance with uppercase-hex (case-insensitive) address on block no. 6302128",
+      "reference": ""
+    }
+  }
+]

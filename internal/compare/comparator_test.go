@@ -157,6 +157,41 @@ func TestProcessResponse_DoNotCompareError_DifferentCode(t *testing.T) {
 	}
 }
 
+func TestProcessResponse_NullMessageSentinel_SameCode(t *testing.T) {
+	dir := t.TempDir()
+	cfg := config.NewConfig()
+
+	outcome := &testdata.TestOutcome{}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32602), "message": "some informative implementation-specific message"}}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32602), "message": nil}}
+
+	ProcessResponse(response, nil, expected, cfg, dir, "", "", "", outcome)
+
+	if !outcome.Success {
+		t.Errorf("\"message\": null sentinel should accept matching code regardless of message, error: %v", outcome.Error)
+	}
+}
+
+func TestProcessResponse_NullMessageSentinel_DifferentCode(t *testing.T) {
+	dir := t.TempDir()
+	cfg := config.NewConfig()
+	cfg.DiffKind = config.JsonDiffGo
+
+	daemonFile := filepath.Join(dir, "response.json")
+	expRspFile := filepath.Join(dir, "expected.json")
+	diffFile := filepath.Join(dir, "diff.json")
+
+	outcome := &testdata.TestOutcome{}
+	response := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32000), "message": "any"}}
+	expected := map[string]any{"jsonrpc": "2.0", "id": float64(1), "error": map[string]any{"code": float64(-32602), "message": nil}}
+
+	ProcessResponse(response, nil, expected, cfg, dir, daemonFile, expRspFile, diffFile, outcome)
+
+	if outcome.Success {
+		t.Error("\"message\": null sentinel should reject mismatched code")
+	}
+}
+
 func TestProcessResponse_DiffMismatch_JsonDiffGo(t *testing.T) {
 	dir := t.TempDir()
 	cfg := config.NewConfig()

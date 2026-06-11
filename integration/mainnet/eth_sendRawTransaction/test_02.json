@@ -1,21 +1,19 @@
 [
-    {
-        "request": {
-            "jsonrpc":"2.0",
-            "method":"eth_sendRawTransaction",
-            "params":[
-               "0xd4"
-            ],
-            "id":1
-        },
-        "response": {
-            "id":1,
-            "jsonrpc":"2.0",
-            "error":{
-                "code":-32000,
-                "message":"rlp: value size exceeds available input length"
-            }
-        }
+  {
+    "test": {
+      "reference": "",
+      "description": "must reject malformed RLP (truncated short-list header 0xd4)."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_sendRawTransaction",
+      "params": ["0xd4"],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {"code": -32602, "message": null}
     }
+  }
 ]
-

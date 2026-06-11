@@ -1,0 +1,19 @@
+[
+  {
+    "test": {
+      "reference": "",
+      "description": "must reject unknown typed-envelope leading byte 0x09."
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_sendRawTransaction",
+      "params": ["0x09c0"],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": {"code": -32602, "message": null}
+    }
+  }
+]

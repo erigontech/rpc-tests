@@ -1,0 +1,57 @@
+[
+    {
+        "test": {
+            "reference": "https://etherscan.io/block/19426587",
+            "description": "Cancun-straddling: range crosses EIP-4844 activation (block 19,426,587). baseFeePerBlobGas is 0x0 pre-Cancun and at least 0x1 from activation onward."
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_feeHistory",
+            "params": [
+                "0x4",
+                "0x1286D1D",
+                [25, 75]
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+                "oldestBlock": "0x1286d1a",
+                "baseFeePerGas": [
+                    "0xe557a89f8",
+                    "0xe6ca77a30",
+                    "0xcf01fc701",
+                    "0xcfab14a38",
+                    "0xc217f710c"
+                ],
+                "baseFeePerBlobGas": [
+                    "0x0",
+                    "0x1",
+                    "0x1",
+                    "0x1",
+                    "0x1"
+                ],
+                "gasUsedRatio": [
+                    0.5252630333333334,
+                    0.08779776666666667,
+                    0.5127633,
+                    0.23853166666666667
+                ],
+                "blobGasUsedRatio": [
+                    0,
+                    0,
+                    0,
+                    0.16666666666666666
+                ],
+                "reward": [
+                    ["0x2a61611", "0x7b6845ea"],
+                    ["0x59682f00", "0xbb9bb0d0"],
+                    ["0x3b9aca00", "0x17f5d24ff"],
+                    ["0x3b9aca00", "0x2279bffc8"]
+                ]
+            }
+        }
+    }
+]

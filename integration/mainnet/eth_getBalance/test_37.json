@@ -1,0 +1,22 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_getBalance",
+      "params": [
+        "0x0000000000000000000000000000000000000000",
+        "0x"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "error": null
+    },
+    "test": {
+      "description": "empty hex block 0x must be rejected.",
+      "reference": ""
+    }
+  }
+]

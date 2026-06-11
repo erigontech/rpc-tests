@@ -1,0 +1,35 @@
+[
+    {
+        "test": {
+            "reference": "https://etherscan.io/block/0",
+            "description": "newestBlock=earliest with count>1 — range clipped to genesis only; arrays sized for 1 block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_feeHistory",
+            "params": [
+                "0x5",
+                "earliest",
+                []
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+                "oldestBlock": "0x0",
+                "baseFeePerGas": [
+                    "0x0",
+                    "0x0"
+                ],
+                "baseFeePerBlobGas": [
+                    "0x0",
+                    "0x0"
+                ],
+                "gasUsedRatio": [0],
+                "blobGasUsedRatio": [0]
+            }
+        }
+    }
+]

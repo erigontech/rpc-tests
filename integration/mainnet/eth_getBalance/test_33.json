@@ -1,0 +1,22 @@
+[
+  {
+    "request": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "eth_getBalance",
+      "params": [
+        "0xdeadbeef00000000000000000000000000000001",
+        "0x6029B0"
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0x0"
+    },
+    "test": {
+      "description": "invoke getBalance on never-used account at historical block no. 6302128 (expect zero)",
+      "reference": ""
+    }
+  }
+]
