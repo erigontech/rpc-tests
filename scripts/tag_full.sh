@@ -23,6 +23,17 @@ is_historic() {
 tag_file() {
   local file="$1"
 
+  # Compressed .tar fixtures can't embed the tag where the runner's byte search
+  # can see it, so record it in a "<file>.tags" sidecar (one tag per line).
+  if [[ "$file" == *.tar ]]; then
+    local sc="$file.tags"
+    grep -qs '@full' "$sc" && return 0
+    echo '@full' >> "$sc"
+    echo "  tagged  $file (sidecar)"
+    (( TAGGED++ )) || true
+    return 0
+  fi
+
   if grep -q '"@full"' "$file"; then
     return 0
   elif grep -q '"tags"' "$file"; then
@@ -47,14 +58,18 @@ tag_file() {
 process() {
   local file="$1" expr="$2"
   local block
-  block=$(jq -r ".[0].request | $expr // empty" "$file" 2>/dev/null)
+  if [[ "$file" == *.tar ]]; then
+    block=$(tar -xOf "$file" 2>/dev/null | jq -r ".[0].request | $expr // empty" 2>/dev/null || true)
+  else
+    block=$(jq -r ".[0].request | $expr // empty" "$file" 2>/dev/null || true)
+  fi
   ! is_historic "$block" && tag_file "$file" || true
 }
 
 for method_dir in "$BASE"/eth_*/; do
   method=$(basename "$method_dir")
 
-  for file in "$method_dir"test_*.json; do
+  for file in "$method_dir"test_*.json "$method_dir"test_*.tar; do
     [[ -f "$file" ]] || continue
 
     case "$method" in
