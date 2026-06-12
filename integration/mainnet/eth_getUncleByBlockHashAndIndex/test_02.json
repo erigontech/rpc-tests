@@ -1,6 +1,7 @@
 [
     {
         "test": {
+            "tags": ["@pruned"],
            "reference": "",
            "description": "with invalid hash" 
         },

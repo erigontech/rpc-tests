@@ -66,7 +66,12 @@ for method_dir in "$BASE"/eth_*/; do
       eth_getProof|eth_getStorageAt)
         process "$file" ".params[2]" ;;
 
-      eth_getLogs)
+      eth_getLogs|eth_getLogs@forked_block|\
+      eth_getUncleCountByBlockHash|eth_getUncleByBlockHashAndIndex|\
+      eth_getTransactionCount|eth_getTransactionByBlockNumberAndIndex|\
+      eth_getTransactionByBlockHashAndIndex|eth_getRawTransactionByHash|\
+      eth_getRawTransactionByBlockHashAndIndex|eth_getRawTransactionByBlockNumberAndIndex|\
+      eth_getBlockTransactionCountByHash|eth_getBlockTransactionCountByNumber)
         tag_file "$file" ;;
     esac
   done

@@ -1,6 +1,7 @@
 [
       {
        "test": {
+           "tags": ["@pruned"],
            "reference": "https://etherscan.io/tx/0x827d30e914a3adeefabb9d53f70da87e6e0ed3d02a72e7d9ae9bfd1bf123c7a3",
            "description": "with uncle not zero"
         },

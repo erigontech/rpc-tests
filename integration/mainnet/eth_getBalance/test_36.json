@@ -15,6 +15,7 @@
       "error": null
     },
     "test": {
+        "tags": [ "@pruned","@archive"],
       "description": "block hex with leading zeros must be rejected.",
       "reference": ""
     }

@@ -81,7 +81,8 @@ func DiscoverTests(jsonDir, resultsDir string) (*DiscoveryResult, error) {
 			}
 
 			ext := filepath.Ext(testName)
-			if !validTestExtensions[ext] {
+			// ignore tar in eth_getLogs for pruned tests 
+			if !validTestExtensions[ext] || (HasTag(filepath.Join(testDir, testName), TagPruned) && ext == ".tar") {
 				continue
 			}
 

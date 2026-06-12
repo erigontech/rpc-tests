@@ -15,6 +15,7 @@
       "result": "0x0"
     },
     "test": {
+        "tags": [ "@pruned","@archive"],
       "description": "invoke getBalance on never-used account at historical block no. 6302128 (expect zero)",
       "reference": ""
     }
