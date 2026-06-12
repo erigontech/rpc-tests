@@ -194,7 +194,8 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 				if f.APIUnderTest(currAPI, jsonTestFullName) {
 					if f.IsSkipped(currAPI, jsonTestFullName, testNumberInAnyLoop) ||
 						(!cfg.ArchiveNode && testdata.HasTag(filepath.Join(cfg.JSONDir, jsonTestFullName), testdata.TagArchive)) ||
-						(cfg.PrunedNode && testdata.HasTag(filepath.Join(cfg.JSONDir, jsonTestFullName), testdata.TagPruned)) {
+						(cfg.PrunedNode && testdata.HasTag(filepath.Join(cfg.JSONDir, jsonTestFullName), testdata.TagPruned)) ||
+						(cfg.PrunedNode && filepath.Ext(jsonTestFullName) == ".tar") {
 						if IsStartTestReached(cfg, testNumberInAnyLoop) {
 							if !cfg.DisplayOnlyFail && cfg.ReqTestNum == -1 {
 								file := fmt.Sprintf("%-60s", jsonTestFullName)
