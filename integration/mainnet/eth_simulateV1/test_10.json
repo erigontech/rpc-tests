@@ -1,7 +1,7 @@
 [
   {
     "test": {
-        "tags": [ "@pruned","@full"],
+        "tags": [ "@check-fields:returnData,status,gasUsed", "@pruned","@full"],
       "reference": "",
       "description": "1st call funds an empty account, 2nd call moves some of the new funds onward at block 22842259"
     },

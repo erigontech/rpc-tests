@@ -1,7 +1,7 @@
 [
   {
     "test": {
-        "tags": [ "@pruned","@full"],
+        "tags": [ "@check-fields:returnData,status,data,topics,address", "@pruned","@full"],
       "reference": "",
       "description": "SELFDESTRUCT contract sends balance to beneficiary at block 22842259"      
     },

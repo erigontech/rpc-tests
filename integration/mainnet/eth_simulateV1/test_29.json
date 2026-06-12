@@ -1,7 +1,7 @@
 [
   {
     "test": {
-        "tags": [ "@pruned","@full"],
+        "tags": [ "@check-fields:returnData,status,data,topics,address", "@pruned","@full"],
       "reference": "",
       "description": "emit LOG1 from contract override at block 22842259"
     },

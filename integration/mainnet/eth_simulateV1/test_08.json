@@ -1,7 +1,7 @@
 [
   {
     "test": {
-        "tags": [ "@pruned","@full"],
+        "tags": [ "@check-fields:returnData,status,gasUsed", "@pruned","@full"],
       "reference": "",
       "description": "override code and state to call a contract reading slot 0 at block 22842259"
     },

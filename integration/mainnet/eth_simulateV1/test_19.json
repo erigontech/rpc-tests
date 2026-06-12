@@ -1,7 +1,7 @@
 [
   {
     "test": {
-        "tags": [ "@pruned","@full"],
+        "tags": [ "@check-fields:returnData,gasUsed", "@pruned","@full"],
       "reference": "",
       "description": "multi-call at block 22842259"
     },

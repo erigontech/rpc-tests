@@ -1,7 +1,7 @@
 [
   {
     "test": {
-        "tags": [ "@pruned","@full"],
+        "tags": [ "@check-fields:returnData,status,gasUsed", "@pruned","@full"],
       "reference": "",
       "description": "override coinbase at block 22842259"
     },
