@@ -81,7 +81,6 @@ func DiscoverTests(jsonDir, resultsDir string) (*DiscoveryResult, error) {
 			}
 
 			ext := filepath.Ext(testName)
-
 			if !validTestExtensions[ext] {
 				continue
 			}
