@@ -1,6 +1,9 @@
 [
-      {
-        "request": {
+    {
+        "test": {
+            "tags": [ "@full","@pruned"]
+        },
+"request": {
             "jsonrpc":"2.0",
             "method":"eth_getUncleCountByBlockNumber",
             "params":["latest"],

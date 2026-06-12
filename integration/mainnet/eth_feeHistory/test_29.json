@@ -1,6 +1,7 @@
 [
     {
         "test": {
+            "tags": ["@full"],
             "reference": "https://etherscan.io/block/9",
             "description": "Empty block with single percentile=100 — reward is array of zeros (no txs to extract a tip from)"
         },

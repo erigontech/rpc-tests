@@ -1,6 +1,7 @@
 [
    {
          "test": {
+             "tags": ["@full"],
            "reference": "https://etherscan.io/tx/0x5e8969e7aca00054bcc9c46ac6c692282ddd60839bfddb134b66a23adea62f76",
            "description": "failed tx on block 19M"
         },

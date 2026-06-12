@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "https://etherscan.io/block/18000000",
       "description": "nonce via EIP-1898 {blockNumber} object form (value-pinned, archive)"
     },

@@ -1,11 +1,9 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
       "reference": "",
-      "description": "SELFDESTRUCT contract sends balance to beneficiary at block 22842259",
-      "tags": [
-        "@check-fields:returnData,status,data,topics,address"
-      ]      
+      "description": "SELFDESTRUCT contract sends balance to beneficiary at block 22842259"      
     },
     "request": {
       "id": 1,

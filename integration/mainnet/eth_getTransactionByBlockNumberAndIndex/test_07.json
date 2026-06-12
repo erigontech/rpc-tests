@@ -12,9 +12,7 @@
             "result": null
         },
         "test": {
-             "tags": [
-                  "@pruned"
-             ]
+            "tags": ["@full"]
         }
     }
 ]

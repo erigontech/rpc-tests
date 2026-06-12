@@ -14,9 +14,7 @@
       "result": "0x2"
     },
     "test": {
-      "tags": [
-        "@pruned"
-      ],
+        "tags": ["@full"],
       "description": "invoke eth_getBlockTransactionCountByNumber on block no. 4417199",
       "reference": ""
     }

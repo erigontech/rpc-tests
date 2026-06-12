@@ -1,6 +1,9 @@
 [
-   {
-        "request": {
+    {
+        "test": {
+            "tags": ["@full"]
+        },
+"request": {
             "jsonrpc":"2.0",
             "method":"eth_getBlockTransactionCountByHash",
             "params":["0x96cfa0fb5e50b0a3f6cc76f3299cfbf48f17e8b41798d1394474e67ec8a97e9f"],

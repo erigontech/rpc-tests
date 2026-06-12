@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "https://etherscan.io/tx/0x2f89ebd51377291f39b315a5feac7cbef0c8377f512bba32b128d59b086f6abe",
       "description": "invoke contract method"
     },

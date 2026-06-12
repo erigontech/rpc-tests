@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
        "reference": "",
        "description": "use code override to replace contract logic at latest block"
     },

@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "",
       "description": "must reject single null byte 0x00 (unsupported typed envelope)."
     },

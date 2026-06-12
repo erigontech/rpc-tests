@@ -1,9 +1,6 @@
 [
   {
     "test":{
-      "tags": [ "@archive",
-        "@pruned"
-      ],
       "reference":"https://github.com/erigontech/erigon/issues/17488",
       "description":"historical account proof, account doesn't exist yet as of that block, but gets created later"
     },

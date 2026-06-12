@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": ["@full"],
       "reference": "https://etherscan.io/block/18000000",
       "description": "block with transactions details"
     },

@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": ["@full"],
       "reference": "https://etherscan.io/tx/0x570f05aa967fa55a8927379ee6be5137e6368d4504ad334d4c5f6af772ec83e1",
       "description": "transactions details on specific hash type=0x0"
     },

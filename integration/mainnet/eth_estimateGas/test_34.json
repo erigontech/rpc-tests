@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "",
       "description": "SetCodeTx (EIP-7702) with empty authorizationList should fail"
     },

@@ -13,20 +13,27 @@ is_historic() {
   echo "$block" | grep -qiE "^($NON_PRUNED)$" && return 1
   local dec
   dec=$(printf "%d" "$block" 2>/dev/null) || return 1
-  (( dec < 0x2000000 )) && return 0 || return 1
+  (( dec < 0xFFFFFFFF )) && return 0 || return 1
 }
 
 tag_file() {
   local file="$1"
 
-  # Add "@pruned" with a text edit only (jq would re-print/reformat the whole
-  # file). Three cases, mirroring the old jq logic:
   if grep -q '"@pruned"' "$file"; then
-    return 0                                              # already tagged
+    return 0
   elif grep -q '"tags"' "$file"; then
-    perl -0777 -pi -e 's/("tags"[ \t]*:[ \t]*\[)/$1 "\@pruned",/' "$file"    # append
+    perl -0777 -pi -e 's/("tags"[ \t]*:[ \t]*\[)/$1 "\@pruned",/' "$file"
+  elif grep -q '"test"' "$file"; then
+    perl -0777 -pi -e 's/^([ \t]*)("test"[ \t]*:[ \t]*\{)/$1$2\n$1    "tags": ["\@pruned"],/m' "$file"
   else
-    perl -0777 -pi -e 's/^([ \t]*)("test"[ \t]*:[ \t]*\{)/$1$2\n$1    "tags": ["\@pruned"],/m' "$file"  # create
+    perl -0777 -pi -e '
+      s/\[\s*\{\s*/[
+    {
+        "test": {
+            "tags": ["\@pruned"]
+        },
+/s
+    ' "$file"
   fi
 
   echo "  tagged  $file"
@@ -37,7 +44,10 @@ process() {
   local file="$1" expr="$2"
   local block
   block=$(jq -r ".[0].request | $expr // empty" "$file" 2>/dev/null)
-  is_historic "$block" && tag_file "$file" || true
+
+  if ! is_historic "$block"; then
+    tag_file "$file"
+  fi
 }
 
 for method_dir in "$BASE"/eth_*/; do
@@ -66,7 +76,9 @@ for method_dir in "$BASE"/eth_*/; do
       eth_getProof|eth_getStorageAt)
         process "$file" ".params[2]" ;;
 
-      eth_getLogs)
+      eth_baseFee|eth_chainId|eth_getFilterChanges|\
+      eth_getWork|eth_mining|eth_protocolVersion|eth_syncing|\
+      eth_sendRawTransaction|eth_submitHashrate|eth_submitWork)
         tag_file "$file" ;;
     esac
   done

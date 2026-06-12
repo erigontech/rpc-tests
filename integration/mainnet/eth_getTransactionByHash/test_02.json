@@ -1,6 +1,7 @@
 [
    {
         "test": {
+            "tags": ["@full"],
            "reference": "",
            "description": "transactions details on invalid hash"
         },

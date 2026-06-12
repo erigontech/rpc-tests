@@ -14,6 +14,7 @@
       "error": null
     },
     "test": {
+        "tags": [ "@full","@pruned"],
       "description": "missing block parameter must be rejected.",
       "reference": ""
     }

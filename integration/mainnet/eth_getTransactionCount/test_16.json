@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "",
       "description": "odd-length address (39 hex) MUST be rejected."
     },

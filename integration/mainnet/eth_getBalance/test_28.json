@@ -18,6 +18,7 @@
       }
     },
     "test": {
+        "tags": [ "@full","@pruned"],
       "description": "balance for account zero on invalid block",
       "reference": ""
     }

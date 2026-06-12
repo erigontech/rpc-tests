@@ -17,6 +17,7 @@
       "result": "0x232563388cf5a800"
     },
     "test": {
+        "tags": [ "@full","@pruned"],
       "description": "EIP-1898: invoke getBalance with {blockNumber} object form on block no. 6302128",
       "reference": ""
     }

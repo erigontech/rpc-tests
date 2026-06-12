@@ -1,11 +1,9 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
       "reference": "",
-      "description": "override code to call a contract always reverting at block 22842259",
-      "tags": [
-        "@check-fields:returnData,status,gasUsed,error"
-      ]
+      "description": "override code to call a contract always reverting at block 22842259"
     },
     "request": {
       "id": 1,

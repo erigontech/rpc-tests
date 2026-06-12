@@ -99,18 +99,24 @@ func DiscoverTests(jsonDir, resultsDir string) (*DiscoveryResult, error) {
 	return result, nil
 }
 
-// TagArchive marks a test as requiring an archive node.
-const TagArchive = "@archive"
+// TagFull marks a test that a full node can serve. Tests WITHOUT this tag need
+// an archive node and run only when --archive is passed.
+const TagFull = "@full"
 const TagPruned = "@pruned"
 
-// HasTag reports whether a test fixture file contains the given tag (e.g. TagArchive).
-// Uses a fast bytes search instead of full JSON parsing.
+// HasTag reports whether a test fixture file carries the given tag (e.g. TagFull).
+// It first does a fast byte search of the fixture itself, then falls back to a
+// sibling "<path>.tags" sidecar (one tag per line). The sidecar is how compressed
+// fixtures (e.g. bzip2 .tar archives) carry tags, since the byte search can't see
+// inside the compressed content.
 func HasTag(path, tag string) bool {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return false
+	if data, err := os.ReadFile(path); err == nil && bytes.Contains(data, []byte(`"`+tag+`"`)) {
+		return true
 	}
-	return bytes.Contains(data, []byte(`"`+tag+`"`))
+	if side, err := os.ReadFile(path + ".tags"); err == nil {
+		return bytes.Contains(side, []byte(tag))
+	}
+	return false
 }
 
 // TagCheckFields restricts response comparison to a whitelist of field names,

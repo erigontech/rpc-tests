@@ -6150,9 +6150,7 @@
             ]
         },
         "test": {
-            "tags": [
-                "@pruned"
-            ]
+            "tags": ["@full"]
         }
     }
 ]

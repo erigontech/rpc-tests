@@ -1,6 +1,7 @@
 [
     {
         "test": {
+            "tags": ["@full"],
             "reference": "https://etherscan.io/block/22431084",
             "description": "Prague-straddling: range crosses Pectra/Prague activation (block 22,431,084). Verifies fee-history works across the fork; baseFeePerBlobGas semantics unchanged from Cancun."
         },

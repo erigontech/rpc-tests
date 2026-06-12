@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
        "reference": "https://etherscan.io/address/0xc3d688B66703497DAA19211EEdff47f25384cdc3",
        "description": "borrowing using Compound V3 USDC at latest block"
     },

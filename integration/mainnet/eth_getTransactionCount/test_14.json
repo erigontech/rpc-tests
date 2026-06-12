@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "",
       "description": "must reject: too many arguments (3 params)."
     },

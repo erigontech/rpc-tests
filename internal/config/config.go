@@ -104,7 +104,7 @@ type Config struct {
 	ExcludeAPIList     string
 	ExcludeTestList    string
 	TestsOnLatestBlock bool
-	ArchiveNode        bool // run tests tagged @archive (skipped by default)
+	ArchiveNode        bool // --archive: run ALL tests (disable the default @full-only filter)
 	PrunedNode         bool // run tests tagged @pruned (skipped by default)
 
 	// Authentication

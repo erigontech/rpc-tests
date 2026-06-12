@@ -15,6 +15,7 @@
       "result": null
     },
     "test": {
+        "tags": [ "@full","@pruned"],
       "description": "invoke getBalance on account 0x0...0 on earliest block",
       "reference": ""
     }

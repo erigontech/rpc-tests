@@ -1,9 +1,7 @@
 [
     {
         "test": {
-         "tags": [
-          "@pruned"
-         ],
+            "tags": ["@full"],
          "reference": "",
          "description": "with newest block and single percentile"
         },

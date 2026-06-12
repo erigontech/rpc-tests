@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": ["@full"],
       "reference": "https://etherscan.io/tx/0x9a88bfb697247c28c75f1c57feaf7447070b92e7cd5dad9eabe10e88c6199aef",
       "description": "transaction details on specific hash type=0x1 (EIP-2930 access list)"
     },

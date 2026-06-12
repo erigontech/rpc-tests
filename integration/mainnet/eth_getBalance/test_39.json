@@ -17,6 +17,7 @@
       "error": null
     },
     "test": {
+        "tags": [ "@full","@pruned"],
       "description": "EIP-1898 with non-existent block hash must produce an error.",
       "reference": ""
     }

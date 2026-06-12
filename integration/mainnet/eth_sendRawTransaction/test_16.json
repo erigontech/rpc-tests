@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "",
       "description": "must reject malformed EIP-7702 SetCode tx (type 0x04 with empty RLP list)."
     },

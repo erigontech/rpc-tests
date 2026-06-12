@@ -1,6 +1,9 @@
 [
-  {
-        "request": {
+    {
+        "test": {
+            "tags": ["@full"]
+        },
+"request": {
             "jsonrpc": "2.0",
             "method": "eth_getRawTransactionByBlockHashAndIndex",
             "params": ["0x9a71a95be3fe957457b11817587e5af4c7e24836d5b383c430ff25b9286a457f", "0x12"],

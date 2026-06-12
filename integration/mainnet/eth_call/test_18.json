@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "https://etherscan.io/block/19553473",
       "description": "parameters tx param post 1551 on block pre 1551"
     },

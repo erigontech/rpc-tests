@@ -1,9 +1,6 @@
 [
   {
     "test": {
-      "tags": [ "@archive",
-        "@pruned"
-      ],
       "reference": "https://github.com/erigontech/erigon/issues/17454#issuecomment-3406870926",
       "description": "historical storage proof, non-existent storage"
     },

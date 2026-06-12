@@ -14,9 +14,7 @@
             "result": null 
         },
         "test": {
-            "tags": [
-                "@pruned"
-            ],
+            "tags": ["@full"],
             "description": "logs in the last block",
             "reference": ""
         }

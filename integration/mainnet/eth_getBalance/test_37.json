@@ -15,6 +15,7 @@
       "error": null
     },
     "test": {
+        "tags": [ "@full","@pruned"],
       "description": "empty hex block 0x must be rejected.",
       "reference": ""
     }

@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": ["@full"],
       "reference": "https://etherscan.io/tx/0x434e1a15c8929e2d366e35a4832b59e197caa3112a16b586e5cd3784b26d7d09",
       "description": "transaction details on specific hash type=0x3 (EIP-4844 blob), pins blobVersionedHashes and maxFeePerBlobGas"
     },

@@ -1,6 +1,7 @@
 [
    {
          "test": {
+             "tags": ["@full"],
            "reference": "https://etherscan.io/tx/0xffff7f11b454bfbc5a5471646282ab4bd561400a19a278e8ff0c8a83ee818690",
            "description": "invalid tx"
         },

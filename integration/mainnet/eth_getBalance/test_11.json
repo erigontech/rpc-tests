@@ -15,9 +15,6 @@
       "result": "0x4acd2073879ef920"
     },
     "test": {
-      "tags": [ "@archive",
-        "@pruned"
-      ],
       "description": "invoke getBalance on specific account on block no. 3000007",
       "reference": ""
     }

@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
       "reference": "",
       "description": "validation mode: maxFeePerGas below baseFee returns -38012"
     },

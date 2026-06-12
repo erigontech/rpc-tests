@@ -1,11 +1,9 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
       "reference": "",
-      "description": "override coinbase at block 22842259",
-      "tags": [
-        "@check-fields:returnData,status,gasUsed"
-      ]
+      "description": "override coinbase at block 22842259"
     },
     "request": {
       "id": 1,

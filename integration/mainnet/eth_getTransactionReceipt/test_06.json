@@ -1,6 +1,7 @@
 [
     {
         "test": {
+            "tags": ["@full"],
             "reference": "https://etherscan.io/tx/0xc9ab90a1796613b0fbccb33827de583901d4c0775e89c0f25d604b7c3a71771e",
             "description": "first tx on block 19M"
         },

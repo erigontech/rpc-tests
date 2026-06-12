@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
       "reference": "",
       "description": "validation mode: sender is a contract address should return -38024"
     },

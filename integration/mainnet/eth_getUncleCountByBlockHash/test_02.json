@@ -1,6 +1,7 @@
 [
       {
        "test": {
+           "tags": ["@full"],
            "reference": "https://etherscan.io/tx/0x96cfa0fb5e50b0a3f6cc76f3299cfbf48f17e8b41798d1394474e67ec8a97e9f",
            "description": "with zero uncle"
         },

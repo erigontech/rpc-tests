@@ -1,9 +1,6 @@
 [
    {
 	"test": {
-           "tags": [ "@archive",
-               "@pruned"
-           ],
            "reference": "https://etherscan.io/tx/0xe9ebfecc2fa10100db51a4408d18193b3ac504584b51a4e55bdef1318f0a30f9",
            "description": "getCode in the block where contract is deployed"
         },

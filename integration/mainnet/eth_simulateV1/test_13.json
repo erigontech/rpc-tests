@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
        "reference": "",
        "description": "no validation at latest block"
     },
