@@ -15,7 +15,6 @@
       "result": "0x232563388cf5a800"
     },
     "test": {
-        "tags": [ "@pruned","@archive"],
       "description": "invoke getBalance with uppercase-hex (case-insensitive) address on block no. 6302128",
       "reference": ""
     }

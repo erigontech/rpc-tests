@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": ["@full"],
       "reference": "https://etherscan.io/block/16000005",
       "description": "block with transaction type 2 with maxPriorityFeePerGas, maxFeePerGas field"
     },

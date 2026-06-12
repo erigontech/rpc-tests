@@ -14,6 +14,7 @@
       "result": "0x0"
     },
     "test": {
+        "tags": [ "@full","@pruned"],
       "description": "invoke eth_getBlockTransactionCountByNumber on earliest block",
       "reference": ""
     }

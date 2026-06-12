@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": ["@full"],
       "reference": "",
       "description": "must reject: even-length but wrong-length hash (62 hex = 31 bytes)."
     },

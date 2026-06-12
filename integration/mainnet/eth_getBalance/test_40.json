@@ -15,6 +15,7 @@
       "error": null
     },
     "test": {
+        "tags": [ "@full","@pruned"],
       "description": "EIP-1898 empty object must be rejected (neither blockNumber nor blockHash specified).",
       "reference": ""
     }

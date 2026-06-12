@@ -1,6 +1,7 @@
 [
     {
         "test": {
+            "tags": [ "@full","@pruned"],
             "reference": "https://etherscan.io/block/0",
             "description": "newestBlock=earliest with count>1 — range clipped to genesis only; arrays sized for 1 block"
         },

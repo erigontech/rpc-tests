@@ -2,11 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "simulating against pre-Shanghai block: result block must not contain withdrawals field",
-      "tags": [
-        "@pruned",
-        "@archive"
-      ]
+      "description": "simulating against pre-Shanghai block: result block must not contain withdrawals field"
     },
     "request": {
       "id": 1,

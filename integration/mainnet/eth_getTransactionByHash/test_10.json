@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": ["@full"],
       "reference": "https://etherscan.io/tx/0xeb431944814bda928ead4667733bc3ff7ab7a1d8d84da4141e7787bcfd319665",
       "description": "transaction details on specific hash type=0x4 (EIP-7702 setcode), pins authorizationList shape"
     },

@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "",
       "description": "must reject reserved typed-envelope byte 0x7f (EIP-2718 upper bound for typed envelopes)."
     },

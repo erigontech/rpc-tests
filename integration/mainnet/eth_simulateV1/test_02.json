@@ -1,11 +1,6 @@
 [
   {
     "test": {
-      "tags": [
-        "@check-fields:returnData,status,gasUsed,error",
-        "@pruned",
-        "@archive"
-      ],
       "reference": "https://etherscan.io/tx/0xf7810b64e2030592428849a2d4c9006923224d3ac0225feaaa5c34272480b6da",
       "description": "historical 1inch order at block 21457054"
     },

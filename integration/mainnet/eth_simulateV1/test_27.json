@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
       "reference": "",
       "description": "USDT transfer with state overrides on latest state w/ traceTransfers"
     },

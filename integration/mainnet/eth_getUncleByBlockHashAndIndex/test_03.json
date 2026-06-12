@@ -1,7 +1,7 @@
 [
     {
         "test": {
-            "tags": ["@pruned"],
+            "tags": ["@full"],
            "reference": "https://etherscan.io/txs?block=18000000",
            "description": "with valid hash" 
         },

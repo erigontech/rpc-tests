@@ -14,9 +14,7 @@
       "result": "0x5d"
     },
     "test": {
-      "tags": [
-        "@pruned"
-      ],
+        "tags": ["@full"],
       "description": "invoke eth_getBlockTransactionCountByNumber block no. 17000009",
       "reference": ""
     }

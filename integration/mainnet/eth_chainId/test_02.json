@@ -1,6 +1,7 @@
 [
    {
        "test": {
+           "tags": [ "@full","@pruned"],
            "reference": "",
            "description": "request two eth_chainId"
         },

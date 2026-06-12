@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "id": "eth_chainId/at_batch_limit",
       "reference": "",
       "description": "batch with 100 requests: first bad (no method), the rest good"

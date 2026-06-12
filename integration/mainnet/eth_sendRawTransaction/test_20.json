@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "",
       "description": "must reject uppercase hex 0xC0 with same error as 0xc0 (hex case-insensitivity must not change semantics)."
     },

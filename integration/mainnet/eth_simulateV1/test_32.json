@@ -1,11 +1,9 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
       "reference": "",
-      "description": "precompile override: ecrecover at 0x1 replaced with code returning fixed value",
-      "tags": [
-        "@check-fields:returnData,status,gasUsed"
-      ]      
+      "description": "precompile override: ecrecover at 0x1 replaced with code returning fixed value"      
     },
     "request": {
       "id": 1,

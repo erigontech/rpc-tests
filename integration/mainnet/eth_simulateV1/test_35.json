@@ -2,10 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "out-of-order block timestamps returns -38021",
-      "tags": [ "@pruned",
-        "@archive"
-      ]
+      "description": "out-of-order block timestamps returns -38021"
     },
     "request": {
       "id": 1,

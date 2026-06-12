@@ -43,8 +43,8 @@ func parseFlags(cfg *config.Config) error {
 	testOnLatest := flag.Bool("L", false, "run only tests on latest block")
 	flag.BoolVar(testOnLatest, "tests-on-latest-block", false, "run only tests on latest block")
 
-	archiveNode := flag.Bool("r", false, "include tests tagged @archive (requires an archive node)")
-	flag.BoolVar(archiveNode, "archive", false, "include tests tagged @archive (requires an archive node)")
+	archiveNode := flag.Bool("r", false, "run ALL tests, including non-@full archive tests (requires an archive node); default runs only @full tests")
+	flag.BoolVar(archiveNode, "archive", false, "run ALL tests, including non-@full archive tests (requires an archive node); default runs only @full tests")
 
 	prunedNode := flag.Bool("Z", false, "include tests tagged @pruned (requires a pruned node)")
 	flag.BoolVar(prunedNode, "pruned", false, "include tests tagged @pruned (requires a pruned node)")
@@ -249,7 +249,7 @@ func usage() {
 	fmt.Println("  -w, --waiting-time <ms>              wait time after test execution in milliseconds")
 	fmt.Println("  -S, --serial                         all tests run in serial way [default: parallel]")
 	fmt.Println("  -L, --tests-on-latest-block          runs only test on latest block")
-	fmt.Println("  -r, --archive                        include tests tagged @archive (requires an archive node)")
+	fmt.Println("  -r, --archive                        run all tests [default: only @full]")
 	fmt.Println("  -Z, --pruned                         include tests tagged @pruned (requires a pruned node)")
 	fmt.Println("  -M, --max-failures <n>               stop after n failures, 0 = unlimited [default: 100]")
 	fmt.Println("  -R, --report-file <file>             write summary report to file (.csv or .txt)")

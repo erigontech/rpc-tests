@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "",
       "description": "must reject empty RLP list 0xc0 (legacy tx with 0 components)."
     },

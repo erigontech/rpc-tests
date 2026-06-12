@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "https://etherscan.io/tx/0x3d63e943b1d979968db3da08a9a0d355f71af46ec3481ce313afbad733f77776",
       "description": "1 access list entry"
     },

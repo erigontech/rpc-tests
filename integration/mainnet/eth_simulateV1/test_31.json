@@ -2,10 +2,7 @@
   {
     "test": {
       "reference": "",
-      "description": "BLOCKHASH opcode returns previous simulated block hash in multi-block simulation",
-      "tags": [ "@pruned",
-        "@archive"
-      ]
+      "description": "BLOCKHASH opcode returns previous simulated block hash in multi-block simulation"
     },
     "request": {
       "id": 1,

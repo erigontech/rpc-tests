@@ -18,6 +18,7 @@
       }
     },
     "test": {
+        "tags": [ "@full","@pruned"],
       "description": "invoke getBalance on invalid account on invalid block",
       "reference": ""
     }

@@ -1,6 +1,7 @@
 [
     {
         "test": {
+            "tags": [ "@full","@pruned"],
             "reference": "https://etherscan.io/block/0",
             "description": "newestBlock=earliest with rewardPercentiles — empty-block reward is array of zeros"
         },

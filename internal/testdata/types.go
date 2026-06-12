@@ -64,7 +64,7 @@ type JsonRpcTest struct {
 	Tags        []string `json:"tags"`
 }
 
-// HasTag reports whether the test has the given tag (e.g. "@archive").
+// HasTag reports whether the test has the given tag (e.g. "@full").
 func (t *JsonRpcTest) HasTag(tag string) bool {
 	if t == nil {
 		return false

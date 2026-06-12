@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "",
       "description": "type-3 blob tx gas estimate with blobVersionedHashes"
     },

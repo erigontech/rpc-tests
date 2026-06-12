@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": ["@full"],
       "reference": "",
       "description": "must reject: transaction hash with non-hex characters"
     },

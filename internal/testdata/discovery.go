@@ -99,11 +99,12 @@ func DiscoverTests(jsonDir, resultsDir string) (*DiscoveryResult, error) {
 	return result, nil
 }
 
-// TagArchive marks a test as requiring an archive node.
-const TagArchive = "@archive"
+// TagFull marks a test that a full node can serve. Tests WITHOUT this tag need
+// an archive node and run only when --archive is passed.
+const TagFull = "@full"
 const TagPruned = "@pruned"
 
-// HasTag reports whether a test fixture file contains the given tag (e.g. TagArchive).
+// HasTag reports whether a test fixture file contains the given tag (e.g. TagFull).
 // Uses a fast bytes search instead of full JSON parsing.
 func HasTag(path, tag string) bool {
 	data, err := os.ReadFile(path)

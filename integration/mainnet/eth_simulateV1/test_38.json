@@ -1,11 +1,9 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
       "reference": "",
-      "description": "multi-tx validation mode: two txs in one block both succeed",
-      "tags": [
-        "@check-fields:returnData,status,gasUsed"
-      ]      
+      "description": "multi-tx validation mode: two txs in one block both succeed"      
     },
     "request": {
       "id": 1,

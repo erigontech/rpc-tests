@@ -14,9 +14,7 @@
       "result": "0x3f"
     },
     "test": {
-      "tags": [
-        "@pruned"
-      ],
+        "tags": ["@full"],
       "description": "invoke eth_getBlockTransactionCountByNumber on block no. 15000010",
       "reference": ""
     }

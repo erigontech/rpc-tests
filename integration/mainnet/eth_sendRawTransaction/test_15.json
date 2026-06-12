@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": [ "@full","@pruned"],
       "reference": "",
       "description": "must reject malformed EIP-4844 blob tx (type 0x03 with empty RLP list)."
     },

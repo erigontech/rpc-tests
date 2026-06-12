@@ -1,6 +1,9 @@
 [
-   {
-        "request": {
+    {
+        "test": {
+            "tags": ["@full"]
+        },
+"request": {
             "jsonrpc":"2.0",
             "method":"eth_coinbase",
             "params":[],

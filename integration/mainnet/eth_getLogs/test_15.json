@@ -1357,9 +1357,7 @@
             ]
         },
         "test": {
-            "tags": [
-                "@pruned"
-            ],
+            "tags": ["@full"],
             "description": "logs in the range with no topic and 3 address",
             "reference": ""
         }

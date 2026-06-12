@@ -1,9 +1,6 @@
 [
   {
     "test": {
-      "tags": [ "@archive",
-        "@pruned"
-      ],
       "reference": "https://github.com/erigontech/erigon/issues/17755",
       "description": "historical account proof, non-existent account, last node in proof is extension node"
     },

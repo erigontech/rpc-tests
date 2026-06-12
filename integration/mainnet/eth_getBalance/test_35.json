@@ -15,7 +15,6 @@
       "error": null
     },
     "test": {
-        "tags": [ "@pruned","@archive"],
       "description": "address without 0x prefix must be rejected.",
       "reference": ""
     }

@@ -1,11 +1,9 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
       "reference": "",
-      "description": "multi-call at block 22842259",
-      "tags": [
-        "@check-fields:returnData,gasUsed"
-      ]
+      "description": "multi-call at block 22842259"
     },
     "request": {
       "id": 1,

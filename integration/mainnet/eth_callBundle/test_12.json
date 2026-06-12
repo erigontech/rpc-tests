@@ -1,9 +1,6 @@
 [
    {
         "test": {
-           "tags": [ "@archive",
-              "@pruned"
-           ],
            "reference": "invalid tx https://etherscan.io/block/10000000",
            "description": "invalid transaction on block post EIP-1559"
         },

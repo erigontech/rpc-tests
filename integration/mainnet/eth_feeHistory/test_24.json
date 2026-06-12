@@ -1,7 +1,7 @@
 [
     {
         "test": {
-            "tags": ["@pruned"],
+            "tags": ["@full"],
             "reference": "https://etherscan.io/block/19426587",
             "description": "Cancun-straddling: range crosses EIP-4844 activation (block 19,426,587). baseFeePerBlobGas is 0x0 pre-Cancun and at least 0x1 from activation onward."
         },

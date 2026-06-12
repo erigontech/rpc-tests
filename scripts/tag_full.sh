@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Add "@archive" tag to eth_* fixtures that read historical state (full nodes
-# serve historical blocks/txs/receipts/logs, so those methods are not tagged).
+# Add "@full" tag to every eth_* fixture that a full node can serve — i.e. all
+# eth_* methods EXCEPT state-reading queries pinned to a specific historical
+# block (those need an archive node and are left untagged).
 # Usage: ./scripts/tag_archive.sh
 
 set -euo pipefail
@@ -16,19 +17,27 @@ is_historic() {
   echo "$block" | grep -qiE "^($NON_ARCHIVE)$" && return 1
   local dec
   dec=$(printf "%d" "$block" 2>/dev/null) || return 1
-  (( dec < 0x2000000 )) && return 0 || return 1
+  (( dec < 0xFFFFFFFF )) && return 0 || return 1
 }
 
 tag_file() {
   local file="$1"
 
-  # Add "@archive" with a text edit 
-  if grep -q '"@archive"' "$file"; then
-    return 0                                              # already tagged
+  if grep -q '"@full"' "$file"; then
+    return 0
   elif grep -q '"tags"' "$file"; then
-    perl -0777 -pi -e 's/("tags"[ \t]*:[ \t]*\[)/$1 "\@archive",/' "$file"   # append
+    perl -0777 -pi -e 's/("tags"[ \t]*:[ \t]*\[)/$1 "\@full",/' "$file"
+  elif grep -q '"test"' "$file"; then
+    perl -0777 -pi -e 's/^([ \t]*)("test"[ \t]*:[ \t]*\{)/$1$2\n$1    "tags": ["\@full"],/m' "$file"
   else
-    perl -0777 -pi -e 's/^([ \t]*)("test"[ \t]*:[ \t]*\{)/$1$2\n$1    "tags": ["\@archive"],/m' "$file"  # create
+    perl -0777 -pi -e '
+      s/\[\s*\{\s*/[
+    {
+        "test": {
+            "tags": ["\@full"]
+        },
+/s
+    ' "$file"
   fi
 
   echo "  tagged  $file"
@@ -39,7 +48,7 @@ process() {
   local file="$1" expr="$2"
   local block
   block=$(jq -r ".[0].request | $expr // empty" "$file" 2>/dev/null)
-  is_historic "$block" && tag_file "$file" || true
+  ! is_historic "$block" && tag_file "$file" || true
 }
 
 for method_dir in "$BASE"/eth_*/; do
@@ -59,6 +68,10 @@ for method_dir in "$BASE"/eth_*/; do
 
       eth_getProof|eth_getStorageAt)
         process "$file" ".params[2]" ;;
+
+      # Every other eth_* method runs on a full node -> blanket @full.
+      *)
+        tag_file "$file" ;;
     esac
   done
 done

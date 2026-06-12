@@ -1,11 +1,9 @@
 [
   {
     "test": {
+        "tags": [ "@pruned","@full"],
       "reference": "",
-      "description": "1st call funds an empty account, 2nd call moves some of the new funds onward at block 22842259",
-      "tags": [
-        "@check-fields:returnData,status,gasUsed"
-      ]
+      "description": "1st call funds an empty account, 2nd call moves some of the new funds onward at block 22842259"
     },
     "request": {
       "id": 1,

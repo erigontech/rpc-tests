@@ -1,9 +1,7 @@
 [
     {
         "test": {
-         "tags": [
-          "@pruned"
-         ],
+            "tags": ["@full"],
          "reference": "https://etherscan.io/block/1202816",
          "description": "with zero value as percentile"
         },

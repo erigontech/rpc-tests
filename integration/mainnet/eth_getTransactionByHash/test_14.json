@@ -1,6 +1,7 @@
 [
   {
     "test": {
+        "tags": ["@full"],
       "reference": "",
       "description": "odd-length-short hash (63 hex) MUST be rejected."
     },

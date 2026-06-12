@@ -1,6 +1,7 @@
 [
     {
         "test": {
+            "tags": [ "@full","@pruned"],
             "reference": "",
             "description": "with EXTCOPY op-code"
         },

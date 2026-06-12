@@ -1,10 +1,6 @@
 [
   {
     "test": {
-      "tags": [
-        "@pruned",
-        "@archive"
-      ],
       "reference": "",
       "description": "USDT transfer with state overrides on historical state w/o traceTransfers"
     },

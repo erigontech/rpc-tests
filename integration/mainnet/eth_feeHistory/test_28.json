@@ -1,7 +1,7 @@
 [
     {
         "test": {
-            "tags": ["@pruned"],
+            "tags": ["@full"],
             "reference": "https://etherscan.io/block/5",
             "description": "Range overshoots genesis: blockCount=10 starting from block 5 — oldestBlock clipped to 0x0; arrays length 6"
         },

@@ -12,9 +12,7 @@
             "result":"0x0"
         },
         "test": {
-          "tags": [
-            "@pruned"
-          ]
+            "tags": ["@full"]
         }
       }
 ]

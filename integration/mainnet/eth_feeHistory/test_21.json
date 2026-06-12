@@ -20,6 +20,7 @@
       "jsonrpc": "2.0"
     },
     "test": {
+        "tags": ["@full"],
       "description": "Not existent block",
       "reference": ""
     }

@@ -66,9 +66,7 @@
             ]
         },
         "test": {
-            "tags": [
-                "@pruned"
-            ],
+            "tags": ["@full"],
             "description": "logs in the range with topic and no address",
             "reference": ""
         }

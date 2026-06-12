@@ -18,6 +18,7 @@
       "error": null
     },
     "test": {
+        "tags": [ "@full","@pruned"],
       "description": "EIP-1898 with both blockNumber and blockHash must be rejected.",
       "reference": ""
     }

@@ -1,6 +1,7 @@
 [
     {
         "test": {
+            "tags": [ "@full","@pruned"],
            "reference": "https://etherscan.io/block/19553436",
            "description": "block with blob"
         },
