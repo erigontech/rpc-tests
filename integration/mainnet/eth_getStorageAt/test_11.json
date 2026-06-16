@@ -1,0 +1,24 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_getStorageAt",
+            "params": [
+                "0xc1cadaffffffffffffffffffffffffffffffffff",
+                "0x0100000000000000000000000000000000000000000000000000000000000000"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "test": {
+            "description": "invoke getStorageAt with omitted block parameter (should default to latest)",
+            "reference": "https://github.com/erigontech/erigon/pull/21586"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]
