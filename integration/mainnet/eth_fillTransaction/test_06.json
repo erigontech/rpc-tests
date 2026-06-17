@@ -1,24 +1,49 @@
 [
-    {
-        "test": {
-            "reference": "",
-            "description": "contract creation: from + bytecode, no to"
-        },
-        "request": {
-            "jsonrpc": "2.0",
-            "method": "eth_fillTransaction",
-            "params": [
-                {
-                    "from":  "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-                    "input": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220"
-                }
-            ],
-            "id": 1
-        },
-        "response": {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "result": "0x3"
+  {
+    "test": {
+      "reference": "",
+      "description": "contract creation: from + bytecode, no to"
+    },
+    "request": {
+      "jsonrpc": "2.0",
+      "method": "eth_fillTransaction",
+      "params": [
+        {
+          "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+          "input": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220"
         }
+      ],
+      "id": 1
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "raw": "0x02f84901820670830372f48419a39950830106b48080b16080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220c0808080",
+        "tx": {
+          "accessList": [],
+          "blockHash": null,
+          "blockNumber": null,
+          "blockTimestamp": null,
+          "chainId": "0x1",
+          "from": "0x0000000000000000000000000000000000000000",
+          "gas": "0x106b4",
+          "gasPrice": "0xcd38622",
+          "hash": "0x5e020b77257615be6f2c03e884ae5195e894ff6cd3f39256f0eb18b8b451c17f",
+          "input": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220",
+          "maxFeePerGas": "0x19a39950",
+          "maxPriorityFeePerGas": "0x372f4",
+          "nonce": "0x670",
+          "r": "0x0",
+          "s": "0x0",
+          "to": null,
+          "transactionIndex": null,
+          "type": "0x2",
+          "v": "0x0",
+          "value": "0x0",
+          "yParity": "0x0"
+        }
+      }
     }
+  }
 ]
