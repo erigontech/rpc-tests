@@ -1,0 +1,26 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "contract call with data, gas estimated automatically"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_fillTransaction",
+            "params": [
+                {
+                    "from":  "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+                    "to":    "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                    "data":  "0xd0e30db0",
+                    "value": "0xDE0B6B3A7640000"
+                }
+            ],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": "0x3"
+        }
+    }
+]

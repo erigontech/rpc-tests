@@ -1,0 +1,26 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "error: contract creation without data"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_fillTransaction",
+            "params": [
+                {
+                    "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+                }
+            ],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32000,
+                "message": "contract creation without any data provided"
+            }
+        }
+    }
+]
