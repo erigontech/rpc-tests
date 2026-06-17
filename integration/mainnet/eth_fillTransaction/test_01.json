@@ -1,50 +1,27 @@
 [
-  {
-    "test": {
-      "reference": "",
-      "description": "simple ETH transfer, all defaults filled (nonce, gas, gasPrice)"
-    },
-    "request": {
-      "jsonrpc": "2.0",
-      "method": "eth_fillTransaction",
-      "params": [
-        {
-          "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-          "to": "0x388C818CA8B9251b393131C08a736A67ccB19297",
-          "value": "0x0"
+    {
+        "test": {
+            "reference": "",
+            "description": "simple ETH transfer, all defaults filled (nonce, gas, gasPrice)"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_fillTransaction",
+            "params": [
+                {
+                    "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+                    "to": "0x388C818CA8B9251b393131C08a736A67ccB19297",
+                    "value": "0x0"
+                }
+            ],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
         }
-      ],
-      "id": 1
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "raw": "0x02eb01820670830372f48419a399508257ae94388c818ca8b9251b393131c08a736a67ccb192978080c0808080",
-        "tx": {
-          "accessList": [],
-          "blockHash": null,
-          "blockNumber": null,
-          "blockTimestamp": null,
-          "chainId": "0x1",
-          "from": "0x0000000000000000000000000000000000000000",
-          "gas": "0x57ae",
-          "gasPrice": "0xcd38622",
-          "hash": "0x9ae8912a478fc5c811c283f9e9dad200c29957409b690cc3c17536029dd8565d",
-          "input": "0x",
-          "maxFeePerGas": "0x19a39950",
-          "maxPriorityFeePerGas": "0x372f4",
-          "nonce": "0x670",
-          "r": "0x0",
-          "s": "0x0",
-          "to": "0x388c818ca8b9251b393131c08a736a67ccb19297",
-          "transactionIndex": null,
-          "type": "0x2",
-          "v": "0x0",
-          "value": "0x0",
-          "yParity": "0x0"
-        }
-      }
     }
-  }
 ]

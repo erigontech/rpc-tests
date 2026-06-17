@@ -1,51 +1,28 @@
 [
-  {
-    "test": {
-      "reference": "",
-      "description": "contract call with data, gas estimated automatically"
-    },
-    "request": {
-      "jsonrpc": "2.0",
-      "method": "eth_fillTransaction",
-      "params": [
-        {
-          "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-          "to": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-          "data": "0xd0e30db0",
-          "value": "0xDE0B6B3A7640000"
+    {
+        "test": {
+            "reference": "",
+            "description": "contract call with data, gas estimated automatically"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_fillTransaction",
+            "params": [
+                {
+                    "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+                    "to": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                    "data": "0xd0e30db0",
+                    "value": "0xDE0B6B3A7640000"
+                }
+            ],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
         }
-      ],
-      "id": 1
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "raw": "0x02f701820670830372f48419a39950826e7c94c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2880de0b6b3a764000084d0e30db0c0808080",
-        "tx": {
-          "accessList": [],
-          "blockHash": null,
-          "blockNumber": null,
-          "blockTimestamp": null,
-          "chainId": "0x1",
-          "from": "0x0000000000000000000000000000000000000000",
-          "gas": "0x6e7c",
-          "gasPrice": "0xcd38622",
-          "hash": "0xf6f50aa4bb21b5ea2892c3d6ca4a9bf56335e5b9e32b881a30d09324e51b7b2a",
-          "input": "0xd0e30db0",
-          "maxFeePerGas": "0x19a39950",
-          "maxPriorityFeePerGas": "0x372f4",
-          "nonce": "0x670",
-          "r": "0x0",
-          "s": "0x0",
-          "to": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-          "transactionIndex": null,
-          "type": "0x2",
-          "v": "0x0",
-          "value": "0xde0b6b3a7640000",
-          "yParity": "0x0"
-        }
-      }
     }
-  }
 ]

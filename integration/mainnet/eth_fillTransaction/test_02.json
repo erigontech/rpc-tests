@@ -1,46 +1,28 @@
 [
-  {
-    "test": {
-      "reference": "",
-      "description": "ETH transfer with explicit gasPrice (legacy tx)"
-    },
-    "request": {
-      "jsonrpc": "2.0",
-      "method": "eth_fillTransaction",
-      "params": [
-        {
-          "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-          "to": "0x388C818CA8B9251b393131C08a736A67ccB19297",
-          "value": "0xDE0B6B3A7640000",
-          "gasPrice": "0x4A817C800"
+    {
+        "test": {
+            "reference": "",
+            "description": "ETH transfer with explicit gasPrice (legacy tx)"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_fillTransaction",
+            "params": [
+                {
+                    "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+                    "to": "0x388C818CA8B9251b393131C08a736A67ccB19297",
+                    "value": "0xDE0B6B3A7640000",
+                    "gasPrice": "0x4A817C800"
+                }
+            ],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
         }
-      ],
-      "id": 1
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {
-        "raw": "0xee8206708504a817c8008257ae94388c818ca8b9251b393131c08a736a67ccb19297880de0b6b3a764000080808080",
-        "tx": {
-          "blockHash": null,
-          "blockNumber": null,
-          "blockTimestamp": null,
-          "from": "0x0000000000000000000000000000000000000000",
-          "gas": "0x57ae",
-          "gasPrice": "0x4a817c800",
-          "hash": "0xe7caf03f548115988cc371280c52865cc9016dd9f49a8b038631d07fa5f13431",
-          "input": "0x",
-          "nonce": "0x670",
-          "r": null,
-          "s": null,
-          "to": "0x388c818ca8b9251b393131c08a736a67ccb19297",
-          "transactionIndex": null,
-          "type": "0x0",
-          "v": null,
-          "value": "0xde0b6b3a7640000"
-        }
-      }
     }
-  }
 ]
