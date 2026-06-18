@@ -108,6 +108,12 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 			total := len(allTests)
 			numBatches := (total + batchSize - 1) / batchSize
 			attempt := 1
+			// Snapshot taken after collection (ScheduledTests/SkippedTests already set).
+			// Restored on restart so the final summary reflects only the last attempt.
+			statsSnapshot := *stats
+			reportMu.Lock()
+			reportLenSnapshot := len(reportEntries)
+			reportMu.Unlock()
 			for i := 0; i < numBatches; {
 				if ctx.Err() != nil || maxFailuresReached(cfg, stats) {
 					break
@@ -126,6 +132,10 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 				if stats.FailedTests > failuresBefore {
 					fmt.Fprintf(w, "Batch %d/%d had failures, restarting from batch 1\n", i+1, numBatches)
 					w.Flush()
+					*stats = statsSnapshot
+					reportMu.Lock()
+					reportEntries = reportEntries[:reportLenSnapshot]
+					reportMu.Unlock()
 					i = 0
 					attempt++
 				} else {
