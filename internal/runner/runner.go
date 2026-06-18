@@ -107,20 +107,13 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 			batchSize := cfg.LatestBatchSize
 			total := len(allTests)
 			numBatches := (total + batchSize - 1) / batchSize
-			attempt := 1
-			// Snapshot taken after collection (ScheduledTests/SkippedTests already set).
-			// Restored on restart so the final summary reflects only the last attempt.
-			statsSnapshot := *stats
-			reportMu.Lock()
-			reportLenSnapshot := len(reportEntries)
-			reportMu.Unlock()
-			for i := 0; i < numBatches; {
+			for i := range numBatches {
 				if ctx.Err() != nil || maxFailuresReached(cfg, stats) {
 					break
 				}
 				start := i * batchSize
 				batch := allTests[start:min(start+batchSize, total)]
-				fmt.Fprintf(w, "Attempt %d — Latest batch %d/%d (%d tests)\n", attempt, i+1, numBatches, len(batch))
+				fmt.Fprintf(w, "Latest batch %d/%d (%d tests)\n", i+1, numBatches, len(batch))
 				w.Flush()
 				if cfg.VerifyWithDaemon {
 					if err := syncLatestBlock(cfg); err != nil {
@@ -130,16 +123,9 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 				failuresBefore := stats.FailedTests
 				runTestSlice(ctx, cancelCtx, batch, cfg, clients, numWorkers, stats, w, &reportEntries, &reportMu)
 				if stats.FailedTests > failuresBefore {
-					fmt.Fprintf(w, "Batch %d/%d had failures, restarting from batch 1\n", i+1, numBatches)
+					fmt.Fprintf(w, "Latest batch %d/%d had failures, stopping\n", i+1, numBatches)
 					w.Flush()
-					*stats = statsSnapshot
-					reportMu.Lock()
-					reportEntries = reportEntries[:reportLenSnapshot]
-					reportMu.Unlock()
-					i = 0
-					attempt++
-				} else {
-					i++
+					break
 				}
 			}
 		} else {
