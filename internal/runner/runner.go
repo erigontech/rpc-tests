@@ -109,6 +109,9 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 			numBatches := (total + batchSize - 1) / batchSize
 			attempt := 1
 			for i := 0; i < numBatches; {
+				if ctx.Err() != nil || maxFailuresReached(cfg, stats) {
+					break
+				}
 				start := i * batchSize
 				batch := allTests[start:min(start+batchSize, total)]
 				fmt.Fprintf(w, "Attempt %d — Latest batch %d/%d (%d tests)\n", attempt, i+1, numBatches, len(batch))
@@ -120,7 +123,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 				}
 				failuresBefore := stats.FailedTests
 				runTestSlice(ctx, cancelCtx, batch, cfg, clients, numWorkers, stats, w, &reportEntries, &reportMu)
-				if stats.FailedTests > failuresBefore && ctx.Err() == nil && !maxFailuresReached(cfg, stats) {
+				if stats.FailedTests > failuresBefore {
 					fmt.Fprintf(w, "Batch %d/%d had failures, restarting from batch 1\n", i+1, numBatches)
 					w.Flush()
 					i = 0
