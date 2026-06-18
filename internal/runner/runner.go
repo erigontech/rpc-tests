@@ -107,10 +107,11 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 			batchSize := cfg.LatestBatchSize
 			total := len(allTests)
 			numBatches := (total + batchSize - 1) / batchSize
+			attempt := 1
 			for i := 0; i < numBatches; {
 				start := i * batchSize
 				batch := allTests[start:min(start+batchSize, total)]
-				fmt.Fprintf(w, "Latest batch %d/%d (%d tests)\n", i+1, numBatches, len(batch))
+				fmt.Fprintf(w, "Attempt %d — Latest batch %d/%d (%d tests)\n", attempt, i+1, numBatches, len(batch))
 				w.Flush()
 				if cfg.VerifyWithDaemon {
 					if err := syncLatestBlock(cfg); err != nil {
@@ -123,6 +124,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 					fmt.Fprintf(w, "Batch %d/%d had failures, restarting from batch 1\n", i+1, numBatches)
 					w.Flush()
 					i = 0
+					attempt++
 				} else {
 					i++
 				}
