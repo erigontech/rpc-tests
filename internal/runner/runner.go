@@ -213,7 +213,7 @@ func maxFailuresReached(cfg *config.Config, stats *Stats) bool {
 func syncLatestBlock(cfg *config.Config) error {
 	server1 := fmt.Sprintf("%s:%d", cfg.DaemonOnHost, cfg.ServerPort)
 	latestBlock, err := internalrpc.GetConsistentLatestBlock(
-		cfg.VerboseLevel, server1, cfg.ExternalProviderURL, 10, 1*time.Second)
+		cfg.VerboseLevel, server1, cfg.ExternalProviderURL, 20, 1*time.Second)
 	if err != nil {
 		fmt.Println("sync on latest block number failed ", err)
 		return err
