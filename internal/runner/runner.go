@@ -38,20 +38,6 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 		fmt.Println("Run tests using compression")
 	}
 
-	// Handle latest block sync for verify mode
-	if cfg.VerifyWithDaemon && cfg.TestsOnLatestBlock {
-		server1 := fmt.Sprintf("%s:%d", cfg.DaemonOnHost, cfg.ServerPort)
-		latestBlock, err := internalrpc.GetConsistentLatestBlock(
-			cfg.VerboseLevel, server1, cfg.ExternalProviderURL, 10, 1*time.Second)
-		if err != nil {
-			fmt.Println("sync on latest block number failed ", err)
-			return -1, err
-		}
-		if cfg.VerboseLevel > 0 {
-			fmt.Printf("Latest block number for %s, %s: %d\n", server1, cfg.ExternalProviderURL, latestBlock)
-		}
-	}
-
 	if err := cfg.CleanOutputDir(); err != nil {
 		return -1, err
 	}
@@ -94,11 +80,12 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 	}
 
 	availableTestedAPIs := discovery.TotalAPIs
-	globalTestNumber := 0
 	stats := &Stats{}
 
 	var reportEntries []reportEntry
 	var reportMu sync.Mutex
+
+	transportTypes := cfg.TransportTypes()
 
 	// Each loop iteration runs as a complete batch: all tests are scheduled,
 	// workers drain the channel, results are collected, then the next iteration starts.
@@ -111,142 +98,37 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 			fmt.Printf("\nTest iteration: %d\n", loopNum+1)
 		}
 
-		testsChan := make(chan *testdata.TestDescriptor, 2000)
-		resultsChan := make(chan testdata.TestResult, 2000)
+		// Phase 1: collect all tests for this iteration (handles skip reporting as side-effect).
+		allTests := collectTestDescriptors(ctx, discovery, f, cfg, transportTypes, stats, &reportEntries, &reportMu)
 
-		var wg sync.WaitGroup
-		for range numWorkers {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				for {
-					select {
-					case test := <-testsChan:
-						if test == nil {
-							return
-						}
-						testOutcome := RunTest(ctx, test, cfg, clients[test.TransportType])
-						resultsChan <- testdata.TestResult{Outcome: testOutcome, Test: test}
-					case <-ctx.Done():
-						return
+		// Phase 2: execute — batched with per-batch sync, or all at once.
+		w := bufio.NewWriterSize(os.Stdout, 64*1024)
+		if cfg.TestsOnLatestBlock && cfg.LatestBatchSize > 0 {
+			batchSize := cfg.LatestBatchSize
+			total := len(allTests)
+			numBatches := (total + batchSize - 1) / batchSize
+			for i := 0; i*batchSize < total; i++ {
+				start := i * batchSize
+				batch := allTests[start:min(start+batchSize, total)]
+				fmt.Fprintf(w, "Latest batch %d/%d (%d tests)\n", i+1, numBatches, len(batch))
+				w.Flush()
+				if cfg.VerifyWithDaemon {
+					if err := syncLatestBlock(cfg); err != nil {
+						return -1, err
 					}
 				}
-			}()
-		}
-
-		var resultsWg sync.WaitGroup
-		resultsWg.Add(1)
-		go func() {
-			defer resultsWg.Done()
-			w := bufio.NewWriterSize(os.Stdout, 64*1024)
-			defer w.Flush()
-			pending := make(map[int]testdata.TestResult)
-			nextIndex := 0
-			for {
-				select {
-				case result, ok := <-resultsChan:
-					if !ok {
-						return
-					}
-					pending[result.Test.Index] = result
-					// Flush all consecutive results starting from nextIndex
-					for {
-						r, exists := pending[nextIndex]
-						if !exists {
-							break
-						}
-						delete(pending, nextIndex)
-						nextIndex++
-						printResult(w, &r, stats, cfg, cancelCtx, &reportEntries, &reportMu)
-						if cfg.ExitOnFail && stats.FailedTests > 0 {
-							return
-						}
-						if maxFailuresReached(cfg, stats) {
-							return
-						}
-					}
-				case <-ctx.Done():
-					return
+				runTestSlice(ctx, cancelCtx, batch, cfg, clients, numWorkers, stats, w, &reportEntries, &reportMu)
+			}
+		} else {
+			// N=0: optional single sync then run all.
+			if cfg.VerifyWithDaemon && cfg.TestsOnLatestBlock {
+				if err := syncLatestBlock(cfg); err != nil {
+					return -1, err
 				}
 			}
-		}()
-
-		// Schedule all tests for this iteration
-		scheduledIndex := 0
-		transportTypes := cfg.TransportTypes()
-	transportLoop:
-		for _, transportType := range transportTypes {
-			testNumberInAnyLoop := 1
-			globalTestNumber = 0
-
-			for _, tc := range discovery.Tests {
-				if ctx.Err() != nil {
-					break transportLoop
-				}
-
-				globalTestNumber = tc.Number
-				currAPI := tc.APIName
-				jsonTestFullName := tc.Name
-				testName := strings.TrimPrefix(jsonTestFullName, currAPI+"/")
-				if idx := strings.LastIndex(jsonTestFullName, "/"); idx >= 0 {
-					testName = jsonTestFullName[idx+1:]
-				}
-
-				if f.APIUnderTest(currAPI, jsonTestFullName, tc.Latest, tc.CommitmentHistory) {
-					if f.IsSkipped(currAPI, jsonTestFullName, testNumberInAnyLoop) {
-						if IsStartTestReached(cfg, testNumberInAnyLoop) {
-							if !cfg.DisplayOnlyFail && cfg.ReqTestNum == -1 {
-								file := fmt.Sprintf("%-60s", jsonTestFullName)
-								tt := fmt.Sprintf("%-15s", transportType)
-								fmt.Printf("%04d. %s::%s   skipped\n", testNumberInAnyLoop, tt, file)
-							}
-							stats.SkippedTests++
-							if cfg.VerboseLevel == 1 || cfg.ReportFile != "" {
-								reportMu.Lock()
-								reportEntries = append(reportEntries, reportEntry{
-									TestNumber:    testNumberInAnyLoop,
-									TransportType: transportType,
-									TestName:      jsonTestFullName,
-									Result:        "SKIPPED",
-									ErrorMessage:  "",
-								})
-								reportMu.Unlock()
-							}
-						}
-					} else {
-						shouldRun := ShouldRunTest(cfg, testName, testNumberInAnyLoop)
-
-						if shouldRun && IsStartTestReached(cfg, testNumberInAnyLoop) {
-							testDesc := &testdata.TestDescriptor{
-								Name:          jsonTestFullName,
-								Number:        testNumberInAnyLoop,
-								TransportType: transportType,
-								Index:         scheduledIndex,
-							}
-							scheduledIndex++
-							select {
-							case <-ctx.Done():
-								break transportLoop
-							case testsChan <- testDesc:
-							}
-							stats.ScheduledTests++
-
-							if cfg.WaitingTime > 0 {
-								time.Sleep(time.Duration(cfg.WaitingTime) * time.Millisecond)
-							}
-						}
-					}
-				}
-
-				testNumberInAnyLoop++
-			}
+			runTestSlice(ctx, cancelCtx, allTests, cfg, clients, numWorkers, stats, w, &reportEntries, &reportMu)
 		}
-
-		// Wait for this iteration to fully complete before starting the next
-		close(testsChan)
-		wg.Wait()
-		close(resultsChan)
-		resultsWg.Wait()
+		w.Flush()
 	}
 
 	if stats.ScheduledTests == 0 && cfg.TestingAPIsWith != "" {
@@ -275,7 +157,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 
 	// Print summary
 	elapsed := time.Since(startTime)
-	stats.PrintSummary(startTime, elapsed, cfg.LoopNumber, availableTestedAPIs, globalTestNumber)
+	stats.PrintSummary(startTime, elapsed, cfg.LoopNumber, availableTestedAPIs, discovery.TotalTests)
 
 	reportMu.Lock()
 	entries := reportEntries
@@ -284,7 +166,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 	// Generate JSON report when verbose == 1 (mirrors Python behaviour)
 	if cfg.VerboseLevel == 1 {
 		reportFile := filepath.Join(cfg.OutputDir, "test_report.json")
-		if err := generateReport(reportFile, startTime, elapsed, stats, globalTestNumber, availableTestedAPIs, cfg.LoopNumber, entries); err != nil {
+		if err := generateReport(reportFile, startTime, elapsed, stats, discovery.TotalTests, availableTestedAPIs, cfg.LoopNumber, entries); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to generate report: %v\n", err)
 		} else {
 			fmt.Printf("\nJSON report generated: %s\n", reportFile)
@@ -312,6 +194,183 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 
 func maxFailuresReached(cfg *config.Config, stats *Stats) bool {
 	return cfg.MaxFailures > 0 && stats.FailedTests >= cfg.MaxFailures
+}
+
+// syncLatestBlock waits until both nodes agree on the latest block number.
+func syncLatestBlock(cfg *config.Config) error {
+	server1 := fmt.Sprintf("%s:%d", cfg.DaemonOnHost, cfg.ServerPort)
+	latestBlock, err := internalrpc.GetConsistentLatestBlock(
+		cfg.VerboseLevel, server1, cfg.ExternalProviderURL, 10, 1*time.Second)
+	if err != nil {
+		fmt.Println("sync on latest block number failed ", err)
+		return err
+	}
+	if cfg.VerboseLevel > 0 {
+		fmt.Printf("Latest block number for %s, %s: %d\n", server1, cfg.ExternalProviderURL, latestBlock)
+	}
+	return nil
+}
+
+// collectTestDescriptors runs the filter/skip logic over the discovered tests and returns
+// descriptors ready for execution. Skip reporting and stats are handled as side-effects.
+func collectTestDescriptors(
+	ctx context.Context,
+	discovery *testdata.DiscoveryResult,
+	f *filter.TestFilter,
+	cfg *config.Config,
+	transportTypes []string,
+	stats *Stats,
+	reportEntries *[]reportEntry,
+	reportMu *sync.Mutex,
+) []*testdata.TestDescriptor {
+	var all []*testdata.TestDescriptor
+
+outer:
+	for _, transportType := range transportTypes {
+		testNumberInAnyLoop := 1
+		for _, tc := range discovery.Tests {
+			if ctx.Err() != nil {
+				break outer
+			}
+			currAPI := tc.APIName
+			jsonTestFullName := tc.Name
+			testName := jsonTestFullName
+			if idx := strings.LastIndex(jsonTestFullName, "/"); idx >= 0 {
+				testName = jsonTestFullName[idx+1:]
+			}
+
+			if f.APIUnderTest(currAPI, jsonTestFullName, tc.Latest, tc.CommitmentHistory) {
+				if f.IsSkipped(currAPI, jsonTestFullName, testNumberInAnyLoop) {
+					if IsStartTestReached(cfg, testNumberInAnyLoop) {
+						if !cfg.DisplayOnlyFail && cfg.ReqTestNum == -1 {
+							file := fmt.Sprintf("%-60s", jsonTestFullName)
+							tt := fmt.Sprintf("%-15s", transportType)
+							fmt.Printf("%04d. %s::%s   skipped\n", testNumberInAnyLoop, tt, file)
+						}
+						stats.SkippedTests++
+						if cfg.VerboseLevel == 1 || cfg.ReportFile != "" {
+							reportMu.Lock()
+							*reportEntries = append(*reportEntries, reportEntry{
+								TestNumber:    testNumberInAnyLoop,
+								TransportType: transportType,
+								TestName:      jsonTestFullName,
+								Result:        "SKIPPED",
+								ErrorMessage:  "",
+							})
+							reportMu.Unlock()
+						}
+					}
+				} else if ShouldRunTest(cfg, testName, testNumberInAnyLoop) && IsStartTestReached(cfg, testNumberInAnyLoop) {
+					all = append(all, &testdata.TestDescriptor{
+						Name:          jsonTestFullName,
+						Number:        testNumberInAnyLoop,
+						TransportType: transportType,
+					})
+					stats.ScheduledTests++
+				}
+			}
+			testNumberInAnyLoop++
+		}
+	}
+	return all
+}
+
+// runTestSlice executes a slice of tests through the worker pool and blocks until all complete.
+// It re-indexes tests from 0 for ordered output within the slice.
+func runTestSlice(
+	ctx context.Context,
+	cancelCtx context.CancelFunc,
+	tests []*testdata.TestDescriptor,
+	cfg *config.Config,
+	clients map[string]*internalrpc.Client,
+	numWorkers int,
+	stats *Stats,
+	w *bufio.Writer,
+	reportEntries *[]reportEntry,
+	reportMu *sync.Mutex,
+) {
+	if len(tests) == 0 {
+		return
+	}
+	for i, td := range tests {
+		td.Index = i
+	}
+
+	bufSize := min(len(tests), 2000)
+	testsChan := make(chan *testdata.TestDescriptor, bufSize)
+	resultsChan := make(chan testdata.TestResult, bufSize)
+
+	var wg sync.WaitGroup
+	for range numWorkers {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for {
+				select {
+				case test := <-testsChan:
+					if test == nil {
+						return
+					}
+					testOutcome := RunTest(ctx, test, cfg, clients[test.TransportType])
+					resultsChan <- testdata.TestResult{Outcome: testOutcome, Test: test}
+				case <-ctx.Done():
+					return
+				}
+			}
+		}()
+	}
+
+	var resultsWg sync.WaitGroup
+	resultsWg.Add(1)
+	go func() {
+		defer resultsWg.Done()
+		pending := make(map[int]testdata.TestResult)
+		nextIndex := 0
+		for {
+			select {
+			case result, ok := <-resultsChan:
+				if !ok {
+					return
+				}
+				pending[result.Test.Index] = result
+				for {
+					r, exists := pending[nextIndex]
+					if !exists {
+						break
+					}
+					delete(pending, nextIndex)
+					nextIndex++
+					printResult(w, &r, stats, cfg, cancelCtx, reportEntries, reportMu)
+					if cfg.ExitOnFail && stats.FailedTests > 0 {
+						return
+					}
+					if maxFailuresReached(cfg, stats) {
+						return
+					}
+				}
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+schedLoop:
+	for _, td := range tests {
+		select {
+		case <-ctx.Done():
+			break schedLoop
+		case testsChan <- td:
+		}
+		if cfg.WaitingTime > 0 {
+			time.Sleep(time.Duration(cfg.WaitingTime) * time.Millisecond)
+		}
+	}
+
+	close(testsChan)
+	wg.Wait()
+	close(resultsChan)
+	resultsWg.Wait()
+	fmt.Fprintln(w)
 }
 
 func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg *config.Config, cancelCtx context.CancelFunc, reportEntries *[]reportEntry, reportMu *sync.Mutex) {

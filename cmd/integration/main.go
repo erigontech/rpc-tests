@@ -39,6 +39,9 @@ func parseFlags(cfg *config.Config) error {
 	testOnLatest := flag.Bool("L", false, "run only tests on latest block")
 	flag.BoolVar(testOnLatest, "tests-on-latest-block", false, "run only tests on latest block")
 
+	latestBatchSize := flag.Int("N", cfg.LatestBatchSize, "tests per sync check for -L (0=all at once)")
+	flag.IntVar(latestBatchSize, "latest-batch-size", cfg.LatestBatchSize, "tests per sync check for -L (0=all at once)")
+
 	commitmentHistory := flag.Bool("C", false, "include tests requiring commitment history (erigon.request-commitment-history=true)")
 	flag.BoolVar(commitmentHistory, "erigon.commitment-history", false, "include tests requiring commitment history (erigon.request-commitment-history=true)")
 
@@ -143,6 +146,7 @@ func parseFlags(cfg *config.Config) error {
 	cfg.WithoutCompareResults = *withoutCompare
 	cfg.DoNotCompareError = *doNotCompareError
 	cfg.TestsOnLatestBlock = *testOnLatest
+	cfg.LatestBatchSize = *latestBatchSize
 	cfg.CommitmentHistory = *commitmentHistory
 	cfg.MaxFailures = *maxFailures
 	cfg.ReportFile = *reportFile
@@ -231,6 +235,7 @@ func usage() {
 	fmt.Println("  -w, --waiting-time <ms>              wait time after test execution in milliseconds")
 	fmt.Println("  -S, --serial                         all tests run in serial way [default: parallel]")
 	fmt.Println("  -L, --tests-on-latest-block          runs only test on latest block")
+	fmt.Println("  -N, --latest-batch-size <n>          tests per sync check for -L (0=all at once) [default: 50]")
 	fmt.Println("  -C, --erigon.commitment-history       include tests requiring commitment history [default: skip]")
 	fmt.Println("  -M, --max-failures <n>               stop after n failures, 0 = unlimited [default: 100]")
 	fmt.Println("  -R, --report-file <file>             write summary report to file (.csv or .txt)")
