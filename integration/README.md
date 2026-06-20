@@ -53,6 +53,7 @@ Options:
   -w, --waiting-time <ms>              wait time after test execution in milliseconds
   -S, --serial                         all tests run in serial way [default: parallel]
   -L, --tests-on-latest-block          runs only test on latest block
+  -N, --latest-batch-size <n>          tests per sync check for -L (0=all at once) [default: 50]
   -C, --erigon.commitment-history       include tests requiring commitment history [default: skip]
   -M, --max-failures <n>               stop after n failures, 0 = unlimited [default: 100]
   -R, --report-file <file>             write summary report to file (.csv or .txt)
@@ -244,6 +245,34 @@ When the limit is reached the runner prints:
 ```
 ABORTED: too many failures (100), test sequence stopped early
 ```
+
+### Run latest-block tests with sync gating
+
+Tests marked `"latest": true` in their fixture query the chain's current head rather than a
+fixed historical block. When comparing two live nodes with `-e` or `-d`, the nodes must agree
+on the same head block before results are comparable. Use `-L` together with `-e` or `-d` to
+run only these tests; `-N` controls how many tests are dispatched between sync checks:
+
+```bash
+# Default: 50 tests per batch, sync check before each batch
+./build/bin/rpc_int -L -e https://mainnet.infura.io/v3/<key>
+
+# Stricter: one test at a time, sync check before every single test
+./build/bin/rpc_int -L -e https://mainnet.infura.io/v3/<key> -N 1
+
+# No batching: single sync at startup then all tests at once
+./build/bin/rpc_int -L -e https://mainnet.infura.io/v3/<key> -N 0
+```
+
+The runner prints a progress header before each batch:
+```
+Latest batch 1/5 (50 tests)
+...
+Latest batch 2/5 (50 tests)
+...
+```
+
+If the two nodes fail to agree on the same block number within 10 retries the run is aborted.
 
 ### Run CI tests with Erigon
 

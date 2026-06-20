@@ -117,6 +117,9 @@ type Config struct {
 	// Failure cap
 	MaxFailures int // stop after this many failures (0 = unlimited)
 
+	// Latest-block batching
+	LatestBatchSize int // tests per sync-gated batch when -L + -e/-d (0 = all at once)
+
 	// Report
 	ReportFile string
 
@@ -147,6 +150,7 @@ func NewConfig() *Config {
 		TransportType:     TransportHTTP,
 		ResultsDir:        ResultsDir,
 		MaxFailures:       100,
+		LatestBatchSize:   50,
 	}
 }
 
