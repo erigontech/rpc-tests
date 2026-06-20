@@ -1,0 +1,23 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_getTransactionCount",
+            "params": [
+                "0x2Fc617E933a52713247CE25730f6695920B3befe"
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "test": {
+            "description": "invoke getTransactionCount with omitted block parameter (should default to latest)",
+            "reference": "https://github.com/erigontech/erigon/pull/21586"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]
