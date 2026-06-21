@@ -1,0 +1,33 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "error: maxFeePerGas set to zero"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_fillTransaction",
+            "params": [
+                {
+                    "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+                    "to": "0x388C818CA8B9251b393131C08a736A67ccB19297",
+                    "value": "0x0",
+                    "maxFeePerGas": "0x0",
+                    "maxPriorityFeePerGas": "0x0"
+                }
+            ],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32000,
+                "message": "maxFeePerGas must be non-zero"
+            }
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]
