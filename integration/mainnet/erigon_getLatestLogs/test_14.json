@@ -1,28 +1,28 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "erigon_getLatestLogs",
-      "params": [
-        {
-          "address": [],
-          "fromBlock": "18270770",
-          "topics": []
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "erigon_getLatestLogs",
+            "params": [
+                {
+                    "address": [],
+                    "fromBlock": "0x116ca32",
+                    "topics": []
+                },
+                {
+                    "logCount": 3
+                }
+            ]
         },
-        {
-          "logCount": 3
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": null
+        },
+        "test": {
+            "description": "Latest logs  with 3 blocks(limit = blockCount) set null beacuse depend to TIP chain",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": null 
-    },
-    "test": {
-      "description": "Latest logs  with 3 blocks(limit = blockCount) set null beacuse depend to TIP chain",
-      "reference": ""
     }
-  }
 ]

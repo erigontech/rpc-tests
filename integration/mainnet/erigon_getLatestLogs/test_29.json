@@ -1,75 +1,75 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "erigon_getLatestLogs",
-      "params": [
-        {
-          "address": [],
-          "fromBlock": "16000001",
-          "toBlock": "16000001",
-          "topics": []
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "erigon_getLatestLogs",
+            "params": [
+                {
+                    "address": [],
+                    "fromBlock": "0xf42401",
+                    "toBlock": "0xf42401",
+                    "topics": []
+                },
+                {
+                    "logCount": 3
+                }
+            ]
         },
-        {
-          "logCount": 3
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "address": "0xc30141b657f4216252dc59af2e7cdb9d8792e1b0",
+                    "blockHash": "0xc2beedf91127b83563d2b1a44b9f8a5510febb028440599b3f16cf436637930e",
+                    "blockNumber": "0xf42401",
+                    "data": "0x00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000002f4dc65b6db034",
+                    "logIndex": "0x0",
+                    "removed": false,
+                    "timestamp": "0x63780c8f",
+                    "topics": [
+                        "0x28fd8a5dda29b4035905e0657f97244a0e0bef97951e248ed0f2c6878d6590c2"
+                    ],
+                    "transactionHash": "0x06b970cde94ac6a03598c2ec23335723236e18c1d845edec9d566ca8d8f8e489",
+                    "transactionIndex": "0x79"
+                },
+                {
+                    "address": "0xb584d4be1a5470ca1a8778e9b86c81e165204599",
+                    "blockHash": "0xc2beedf91127b83563d2b1a44b9f8a5510febb028440599b3f16cf436637930e",
+                    "blockNumber": "0xf42401",
+                    "data": "0x000000000000000000000000000000000000000000000000000fb0765935fe00",
+                    "logIndex": "0x1",
+                    "removed": false,
+                    "timestamp": "0x63780c8f",
+                    "topics": [
+                        "0x90890809c654f11d6e72a28fa60149770a0d11ec6c92319d6ceb2bb0a4ea1a15",
+                        "0x000000000000000000000000310d81dbee32a69a633fd6134df8078e4cc9055f",
+                        "0x000000000000000000000000000000000000000000000000000000000000a4b1"
+                    ],
+                    "transactionHash": "0x06b970cde94ac6a03598c2ec23335723236e18c1d845edec9d566ca8d8f8e489",
+                    "transactionIndex": "0x79"
+                },
+                {
+                    "address": "0x4c9fad010d8be90aba505c85eacc483dff9b8fa9",
+                    "blockHash": "0xc2beedf91127b83563d2b1a44b9f8a5510febb028440599b3f16cf436637930e",
+                    "blockNumber": "0xf42401",
+                    "data": "0x",
+                    "logIndex": "0x2",
+                    "removed": false,
+                    "timestamp": "0x63780c8f",
+                    "topics": [
+                        "0xac775f5ed372a54aad9d77103ce0a40ec1ad6c121b6fe361723806fcf157dae9",
+                        "0x0000000000000000000000000000000000000000000000000000000000000001"
+                    ],
+                    "transactionHash": "0x06b970cde94ac6a03598c2ec23335723236e18c1d845edec9d566ca8d8f8e489",
+                    "transactionIndex": "0x79"
+                }
+            ]
+        },
+        "test": {
+            "description": "Latest logs for blocks [from  to] and log count limit",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-  "result": [
-    {
-      "address": "0xc30141b657f4216252dc59af2e7cdb9d8792e1b0",
-      "blockHash": "0xc2beedf91127b83563d2b1a44b9f8a5510febb028440599b3f16cf436637930e",
-      "blockNumber": "0xf42401",
-      "data": "0x00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000002f4dc65b6db034",
-      "logIndex": "0x0",
-      "removed": false,
-      "timestamp": "0x63780c8f",
-      "topics": [
-        "0x28fd8a5dda29b4035905e0657f97244a0e0bef97951e248ed0f2c6878d6590c2"
-      ],
-      "transactionHash": "0x06b970cde94ac6a03598c2ec23335723236e18c1d845edec9d566ca8d8f8e489",
-      "transactionIndex": "0x79"
-    },
-    {
-      "address": "0xb584d4be1a5470ca1a8778e9b86c81e165204599",
-      "blockHash": "0xc2beedf91127b83563d2b1a44b9f8a5510febb028440599b3f16cf436637930e",
-      "blockNumber": "0xf42401",
-      "data": "0x000000000000000000000000000000000000000000000000000fb0765935fe00",
-      "logIndex": "0x1",
-      "removed": false,
-      "timestamp": "0x63780c8f",
-      "topics": [
-        "0x90890809c654f11d6e72a28fa60149770a0d11ec6c92319d6ceb2bb0a4ea1a15",
-        "0x000000000000000000000000310d81dbee32a69a633fd6134df8078e4cc9055f",
-        "0x000000000000000000000000000000000000000000000000000000000000a4b1"
-      ],
-      "transactionHash": "0x06b970cde94ac6a03598c2ec23335723236e18c1d845edec9d566ca8d8f8e489",
-      "transactionIndex": "0x79"
-    },
-    {
-      "address": "0x4c9fad010d8be90aba505c85eacc483dff9b8fa9",
-      "blockHash": "0xc2beedf91127b83563d2b1a44b9f8a5510febb028440599b3f16cf436637930e",
-      "blockNumber": "0xf42401",
-      "data": "0x",
-      "logIndex": "0x2",
-      "removed": false,
-      "timestamp": "0x63780c8f",
-      "topics": [
-        "0xac775f5ed372a54aad9d77103ce0a40ec1ad6c121b6fe361723806fcf157dae9",
-        "0x0000000000000000000000000000000000000000000000000000000000000001"
-      ],
-      "transactionHash": "0x06b970cde94ac6a03598c2ec23335723236e18c1d845edec9d566ca8d8f8e489",
-      "transactionIndex": "0x79"
     }
-  ]
-    },
-    "test": {
-      "description": "Latest logs for blocks [from  to] and log count limit",
-      "reference": ""
-    }
-  }
 ]
