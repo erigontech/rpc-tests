@@ -1,0 +1,29 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "ETH transfer with explicit gas and nonce"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_fillTransaction",
+            "params": [
+                {
+                    "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+                    "to": "0x388C818CA8B9251b393131C08a736A67ccB19297",
+                    "value": "0x0",
+                    "gas": "0x5208",
+                    "nonce": "0x1"
+                }
+            ],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0"
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]

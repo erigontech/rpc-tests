@@ -1,0 +1,32 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "error: conflicting fee fields (gasPrice + maxFeePerGas)"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_fillTransaction",
+            "params": [
+                {
+                    "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+                    "to": "0x388C818CA8B9251b393131C08a736A67ccB19297",
+                    "gasPrice": "0x4A817C800",
+                    "maxFeePerGas": "0x2540BE400"
+                }
+            ],
+            "id": 1
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32000,
+                "message": "both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) specified"
+            }
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]
