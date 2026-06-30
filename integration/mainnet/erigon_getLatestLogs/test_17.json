@@ -1,30 +1,29 @@
 [
-  {
-    "request": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "method": "erigon_getLatestLogs",
-      "params": [
-        {
-          "address": [
-            "0x89a284bd0f69a20778f9beba68a9b480957d7305"
-          ],
-          "fromBlock": "5415091",
-          "toBlock": "5415092",
-          "topics": []
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "erigon_getLatestLogs",
+            "params": [
+                {
+                    "address": [
+                        "0x89a284bd0f69a20778f9beba68a9b480957d7305"
+                    ],
+                    "fromBlock": "0x52a0b3",
+                    "toBlock": "0x52a0b4",
+                    "topics": []
+                },
+                {}
+            ]
         },
-        {
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": []
+        },
+        "test": {
+            "description": "Latest logs for blocks [from  to] and address and default blockCount = 1",
+            "reference": ""
         }
-      ]
-    },
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": []
-    },
-    "test": {
-      "description": "Latest logs for blocks [from  to] and address and default blockCount = 1",
-      "reference": ""
     }
-  }
 ]
