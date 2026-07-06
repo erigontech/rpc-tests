@@ -120,6 +120,9 @@ type Config struct {
 	// Latest-block batching
 	LatestBatchSize int // tests per sync-gated batch when -L + -e/-d (0 = all at once)
 
+	// Node sync convergence
+	SyncRetries int // max attempts waiting for testing/reference node block alignment
+
 	// Report
 	ReportFile string
 
@@ -151,6 +154,7 @@ func NewConfig() *Config {
 		ResultsDir:        ResultsDir,
 		MaxFailures:       100,
 		LatestBatchSize:   50,
+		SyncRetries:       300,
 	}
 }
 

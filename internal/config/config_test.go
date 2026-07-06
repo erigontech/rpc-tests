@@ -39,6 +39,9 @@ func TestNewConfig_Defaults(t *testing.T) {
 	if c.DaemonAsReference != None {
 		t.Errorf("DaemonAsReference: got %q, want %q", c.DaemonAsReference, None)
 	}
+	if c.SyncRetries != 300 {
+		t.Errorf("SyncRetries: got %d, want 300", c.SyncRetries)
+	}
 }
 
 func TestValidate_WaitingTimeParallel(t *testing.T) {
