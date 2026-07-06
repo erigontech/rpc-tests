@@ -42,7 +42,7 @@ func Run(ctx context.Context, cancelCtx context.CancelFunc, cfg *config.Config) 
 	if cfg.VerifyWithDaemon && cfg.TestsOnLatestBlock {
 		server1 := fmt.Sprintf("%s:%d", cfg.DaemonOnHost, cfg.ServerPort)
 		latestBlock, err := internalrpc.GetConsistentLatestBlock(
-			cfg.VerboseLevel, server1, cfg.ExternalProviderURL, 10, 1*time.Second)
+			cfg.VerboseLevel, server1, cfg.ExternalProviderURL, 300, 1*time.Second)
 		if err != nil {
 			fmt.Println("sync on latest block number failed ", err)
 			return -1, err
