@@ -56,6 +56,7 @@ Options:
   -N, --latest-batch-size <n>          tests per sync check for -L (0=all at once) [default: 50]
   -C, --erigon.commitment-history       include tests requiring commitment history [default: skip]
   -M, --max-failures <n>               stop after n failures, 0 = unlimited [default: 100]
+      --sync-retries <n>               max attempts waiting for node block alignment, 1s apart [default: 300]
   -R, --report-file <file>             write summary report to file (.csv or .txt)
       --cpuprofile <file>              write cpu profile to file
       --memprofile <file>              write memory profile to file
