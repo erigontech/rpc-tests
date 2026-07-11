@@ -1,0 +1,29 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "testing_commitBlockV1",
+      "params": [
+        {
+          "parentBeaconBlockRoot": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884365149a42212e8822",
+          "prevRandao": "0x1111111111111111111111111111111111111111111111111111111111111111",
+          "suggestedFeeRecipient": "0x0000000000000000000000000000000000000000",
+          "timestamp": "0x1ce",
+          "withdrawals": []
+        },
+        [],
+        "0x"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0xf716541a4f889e10bf75f9796cc8212f6868f138c6a1c589008d33197edb19b7"
+    },
+    "test": {
+      "reference": "https://github.com/ethereum/execution-apis/pull/801",
+      "description": "commit-block-empty-transactions 2/3: commit an empty block (transactions=[]) and return its hash"
+    }
+  }
+]

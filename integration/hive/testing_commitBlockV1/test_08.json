@@ -1,0 +1,31 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "testing_commitBlockV1",
+      "params": [
+        {
+          "parentBeaconBlockRoot": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884365149a42212e8822",
+          "prevRandao": "0x1111111111111111111111111111111111111111111111111111111111111111",
+          "suggestedFeeRecipient": "0x0000000000000000000000000000000000000000",
+          "timestamp": "0x1e6",
+          "withdrawals": []
+        },
+        [
+          "0x02f871870c72dd9d5e883e808201f484042ff115825208947dcd17433742f4c0ca53122ab541d0ba67fc27df8203e880c001a08c217df89f8b7041a374bf747dfb3ee0a09542c5794941bc154f498a0533ae29a0099a2ce7c3fa81b418bdb0e0ebb643f2ee5d6ec791e379d957cfaf2037727b33"
+        ],
+        "0x746573745f6e616d65"
+      ]
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0xff580b04a9b17f9a9271b88c6eab3139f4a965de24a08c9c4eea222a9d0ae6fe"
+    },
+    "test": {
+      "reference": "https://github.com/ethereum/execution-apis/pull/801",
+      "description": "commit-block-with-transactions 1/2: commit a block with an explicit raw tx list"
+    }
+  }
+]

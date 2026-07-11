@@ -1,0 +1,73 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_getBlockByNumber",
+      "params": [
+        "latest",
+        true
+      ]
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "baseFeePerGas": "0x334c3db",
+        "blobGasUsed": "0x0",
+        "difficulty": "0x0",
+        "excessBlobGas": "0x0",
+        "extraData": "0x",
+        "gasLimit": "0x479ff78",
+        "gasUsed": "0x5208",
+        "hash": "0xdf6762549dc8a08a0337c161f5a270de3bb0c9178a7d0f0bd2e1274383ce9e59",
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "miner": "0x0000000000000000000000000000000000000000",
+        "mixHash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+        "nonce": "0x0000000000000000",
+        "number": "0x31",
+        "parentBeaconBlockRoot": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884365149a42212e8822",
+        "parentHash": "0xff580b04a9b17f9a9271b88c6eab3139f4a965de24a08c9c4eea222a9d0ae6fe",
+        "receiptsRoot": "0x005fb2a0d0c8a6f3490f9594e6458703eea515262f1b69a1103492b61e8d0ee2",
+        "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+        "size": "0x2df",
+        "stateRoot": "0xd92af8faaa6a293494a9cc6cfb69915f3751afd7ff49c2adc91de34bc23faca3",
+        "timestamp": "0x1f2",
+        "transactions": [
+          {
+            "accessList": [],
+            "blockHash": "0xdf6762549dc8a08a0337c161f5a270de3bb0c9178a7d0f0bd2e1274383ce9e59",
+            "blockNumber": "0x31",
+            "blockTimestamp": "0x1f2",
+            "chainId": "0xc72dd9d5e883e",
+            "from": "0x1f5bde34b4afc686f136c7a3cb6ec376f7357759",
+            "gas": "0x5208",
+            "gasPrice": "0x334c5cf",
+            "hash": "0x5970edd3114a7fe94251cfe4853e54c320bf72c54f876fbd6bc062b2e053525a",
+            "input": "0x",
+            "maxFeePerGas": "0x3a9f331",
+            "maxPriorityFeePerGas": "0x1f4",
+            "nonce": "0x0",
+            "r": "0xb07a6d14f7fa9e35e11f88078ff65d86b25843106fd098334b4c37de9e7c89b",
+            "s": "0x48faa649364600bacc4c5a58bc8e263bf34f4fd041e2dde0c35f51e3b4e220f7",
+            "to": "0x7dcd17433742f4c0ca53122ab541d0ba67fc27df",
+            "transactionIndex": "0x0",
+            "type": "0x2",
+            "v": "0x0",
+            "value": "0x3e8",
+            "yParity": "0x0"
+          }
+        ],
+        "transactionsRoot": "0x7389ea63b47334ed21311142e6a100775f6fb943351b6a7111fc40dbd4eb82e9",
+        "uncles": [],
+        "withdrawals": [],
+        "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+      }
+    },
+    "test": {
+      "reference": "https://github.com/ethereum/execution-apis/pull/801",
+      "description": "commit-block-z-from-mempool 3/3: latest block includes the mempool tx (speconly in hive)"
+    }
+  }
+]
