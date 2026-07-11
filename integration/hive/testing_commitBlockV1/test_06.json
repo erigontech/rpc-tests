@@ -4,26 +4,19 @@
       "jsonrpc": "2.0",
       "id": 1,
       "method": "testing_commitBlockV1",
-      "params": [
-        {
-          "parentBeaconBlockRoot": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884365149a42212e8822",
-          "prevRandao": "0x1111111111111111111111111111111111111111111111111111111111111111",
-          "suggestedFeeRecipient": "0x0000000000000000000000000000000000000000",
-          "timestamp": "0x1da",
-          "withdrawals": []
-        },
-        [],
-        "0x657865637574696f6e2d61706973"
-      ]
+      "params": []
     },
     "response": {
       "jsonrpc": "2.0",
       "id": 1,
-      "result": "0x2676f95f2fbac4fbee8ef8c43db1d60271d4e62fb248977231a1238af9913b83"
+      "error": {
+        "code": -32602,
+        "message": "missing value for required argument 0"
+      }
     },
     "test": {
       "reference": "https://github.com/ethereum/execution-apis/pull/801",
-      "description": "commit-block-with-extra-data 1/2: commit a block with non-empty extraData"
+      "description": "invalid params: empty params array MUST return -32602 without moving the head"
     }
   }
 ]
