@@ -1,0 +1,22 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "testing_commitBlockV1",
+      "params": []
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "error": {
+        "code": -32602,
+        "message": "missing value for required argument 0"
+      }
+    },
+    "test": {
+      "reference": "https://github.com/ethereum/execution-apis/pull/801",
+      "description": "invalid params: empty params array MUST return -32602 without moving the head"
+    }
+  }
+]

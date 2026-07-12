@@ -73,11 +73,12 @@ func TestValidate_RunTestWithExclude(t *testing.T) {
 }
 
 func TestValidate_ApiListWithExcludeApi(t *testing.T) {
+	// -A combined with -x is allowed since "permit -A -x" (#574).
 	c := NewConfig()
 	c.TestingAPIs = "eth_call"
 	c.ExcludeAPIList = "eth_getBalance"
-	if err := c.Validate(); err == nil {
-		t.Error("expected error for api-list with exclude-api-list")
+	if err := c.Validate(); err != nil {
+		t.Errorf("api-list with exclude-api-list should be allowed: %v", err)
 	}
 }
 
