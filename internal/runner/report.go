@@ -15,11 +15,12 @@ import (
 
 // reportEntry mirrors the Python test_results list entry.
 type reportEntry struct {
-	TestNumber    int    `json:"test_number"`
-	TransportType string `json:"transport_type"`
-	TestName      string `json:"test_name"`
-	Result        string `json:"result"`
-	ErrorMessage  any    `json:"error_message"`
+	TestNumber    int      `json:"test_number"`
+	TransportType string   `json:"transport_type"`
+	TestName      string   `json:"test_name"`
+	Result        string   `json:"result"`
+	ErrorMessage  any      `json:"error_message"`
+	Notes         []string `json:"notes,omitempty"`
 }
 
 type reportSummary struct {

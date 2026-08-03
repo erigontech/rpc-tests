@@ -225,6 +225,61 @@ func GetLatestBlockNumber(ctx context.Context, client *Client, url string) (uint
 	return 0, metrics, fmt.Errorf("no result or error found in response")
 }
 
+// Head identifies a chain head by block number and block hash.
+type Head struct {
+	Number uint64
+	Hash   string
+}
+
+// GetLatestHead queries eth_getBlockByNumber("latest", false) and returns the head
+// number and hash. The hash is what distinguishes a plain head advance from a tip reorg.
+func GetLatestHead(ctx context.Context, client *Client, url string) (Head, Metrics, error) {
+	type rpcReq struct {
+		Jsonrpc string `json:"jsonrpc"`
+		Method  string `json:"method"`
+		Params  []any  `json:"params"`
+		Id      int    `json:"id"`
+	}
+
+	reqBytes, _ := jsonAPI.Marshal(rpcReq{
+		Jsonrpc: "2.0",
+		Method:  "eth_getBlockByNumber",
+		Params:  []any{"latest", false},
+		Id:      1,
+	})
+
+	var response any
+	metrics, err := client.Call(ctx, url, reqBytes, &response)
+	if err != nil {
+		return Head{}, metrics, err
+	}
+
+	responseMap, ok := response.(map[string]any)
+	if !ok {
+		return Head{}, metrics, fmt.Errorf("response is not a map: %v", response)
+	}
+	if errorVal, hasError := responseMap["error"]; hasError {
+		return Head{}, metrics, fmt.Errorf("RPC error: %v", errorVal)
+	}
+	block, ok := responseMap["result"].(map[string]any)
+	if !ok {
+		return Head{}, metrics, fmt.Errorf("no block in response: %v", responseMap["result"])
+	}
+	numberStr, ok := block["number"].(string)
+	if !ok {
+		return Head{}, metrics, fmt.Errorf("block number is not a string: %v", block["number"])
+	}
+	number, err := parseHexUint64(strings.TrimPrefix(numberStr, "0x"))
+	if err != nil {
+		return Head{}, metrics, err
+	}
+	hash, ok := block["hash"].(string)
+	if !ok {
+		return Head{}, metrics, fmt.Errorf("block hash is not a string: %v", block["hash"])
+	}
+	return Head{Number: number, Hash: hash}, metrics, nil
+}
+
 func parseHexUint64(s string) (uint64, error) {
 	var result uint64
 	for _, c := range s {

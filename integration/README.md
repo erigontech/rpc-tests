@@ -57,6 +57,7 @@ Options:
   -C, --erigon.commitment-history       include tests requiring commitment history [default: skip]
   -M, --max-failures <n>               stop after n failures, 0 = unlimited [default: 100]
       --sync-retries <n>               max attempts waiting for node block alignment, 1s apart [default: 300]
+      --latest-retries <n>             max attempts for a failed latest test whose nodes changed head, 1 = classify only, 0 = off [default: 3]
   -R, --report-file <file>             write summary report to file (.csv or .txt)
       --cpuprofile <file>              write cpu profile to file
       --memprofile <file>              write memory profile to file
@@ -274,6 +275,31 @@ Latest batch 2/5 (50 tests)
 ```
 
 If the two nodes fail to agree on the same block number within 10 retries the run is aborted.
+
+#### Inconclusive latest-block failures
+
+The batch sync check only tells that the nodes agreed *before* the batch: it cannot pin the
+block, because each node resolves the `latest` tag on its own when the request arrives. Two
+mitigations keep this from turning into a spurious failure:
+
+- In `-e`/`-d` mode both requests are dispatched **concurrently**, so the gap between the two
+  resolutions is no longer the duration of the first response (seconds, for a big tracing
+  response) but only the sub-second skew between the nodes' own head updates.
+- When a `latest` test fails anyway, the runner re-reads the head number and hash on both
+  nodes and compares them with the values read just before the test. If a head moved, the two
+  sides did not trace the same block: the attempt is **inconclusive** and the test is retried
+  in process, without keeping the (potentially huge) response and diff files. Only the head
+  values are logged:
+
+```
+0246. http           ::debug_traceBlockByNumber/test_24.json   failed: json diff mismatch
+      inconclusive attempt 1/3: head moved during test (before: ... after: ...), retrying
+```
+
+  If the heads were stable on both sides, the mismatch is real and reported immediately. After
+  `--latest-retries` attempts (default 3) a persistent skew is reported as a failure with both
+  head values attached as evidence, in the console and in the JSON report. Use
+  `--latest-retries 1` to classify without retrying, or `0` to disable the head check.
 
 ### Run CI tests with Erigon
 

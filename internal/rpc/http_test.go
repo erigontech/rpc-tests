@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -13,9 +14,9 @@ import (
 // blockNumberServer returns an httptest.Server that answers eth_blockNumber
 // with hexBlocks[call], clamping to the last entry once exhausted.
 func blockNumberServer(hexBlocks ...string) *httptest.Server {
-	var calls int64
+	var calls atomic.Int64
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		idx := int(atomic.AddInt64(&calls, 1) - 1)
+		idx := int(calls.Add(1) - 1)
 		if idx >= len(hexBlocks) {
 			idx = len(hexBlocks) - 1
 		}
@@ -30,6 +31,61 @@ func blockNumberServer(hexBlocks ...string) *httptest.Server {
 
 func targetOf(server *httptest.Server) string {
 	return strings.TrimPrefix(server.URL, "http://")
+}
+
+// jsonRPCServer returns an httptest.Server answering every request with result.
+func jsonRPCServer(result any) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]any{
+			"jsonrpc": "2.0",
+			"id":      1,
+			"result":  result,
+		})
+	}))
+}
+
+func TestGetLatestHead(t *testing.T) {
+	server := jsonRPCServer(map[string]any{
+		"number": "0x1e8481",
+		"hash":   "0xabc",
+		// A real header carries many more fields: they must not disturb the read.
+		"parentHash": "0xdef",
+	})
+	defer server.Close()
+
+	head, _, err := GetLatestHead(context.Background(), NewClient("http", "", 0), targetOf(server))
+	if err != nil {
+		t.Fatalf("GetLatestHead: %v", err)
+	}
+	if head.Number != 0x1e8481 {
+		t.Errorf("head number: got %d, want %d", head.Number, uint64(0x1e8481))
+	}
+	if head.Hash != "0xabc" {
+		t.Errorf("head hash: got %q, want %q", head.Hash, "0xabc")
+	}
+}
+
+func TestGetLatestHead_Errors(t *testing.T) {
+	tests := []struct {
+		name   string
+		result any
+	}{
+		{"null result", nil},
+		{"missing number", map[string]any{"hash": "0xabc"}},
+		{"missing hash", map[string]any{"number": "0x1"}},
+		{"number not hex", map[string]any{"number": "0xzz", "hash": "0xabc"}},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			server := jsonRPCServer(tc.result)
+			defer server.Close()
+
+			if _, _, err := GetLatestHead(context.Background(), NewClient("http", "", 0), targetOf(server)); err == nil {
+				t.Error("expected an error")
+			}
+		})
+	}
 }
 
 func TestGetConsistentLatestBlock_ImmediateMatch(t *testing.T) {
