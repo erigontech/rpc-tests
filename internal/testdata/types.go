@@ -76,9 +76,9 @@ type TestOutcome struct {
 	// Notes carries short diagnostic lines printed next to the test result,
 	// e.g. inconclusive attempts discarded because the nodes' heads moved.
 	Notes []string
-	// Artifacts lists the response/diff files the last attempt may have written,
-	// so a discarded attempt can clean up after itself.
-	Artifacts []string
+	// Inconclusive reports that the two responses turned out not to be comparable, so the
+	// attempt says nothing about the node under test and can be retried.
+	Inconclusive bool
 }
 
 // TestMetrics tracks timing and comparison statistics for a single test.

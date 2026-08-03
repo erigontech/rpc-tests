@@ -11,42 +11,36 @@ import (
 	"time"
 )
 
-// blockNumberServer returns an httptest.Server that answers eth_blockNumber
-// with hexBlocks[call], clamping to the last entry once exhausted.
-func blockNumberServer(hexBlocks ...string) *httptest.Server {
+// sequenceServer returns an httptest.Server that answers with results[call], clamping to
+// the last entry once exhausted.
+func sequenceServer(results ...any) *httptest.Server {
 	var calls atomic.Int64
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		idx := int(calls.Add(1) - 1)
-		if idx >= len(hexBlocks) {
-			idx = len(hexBlocks) - 1
-		}
+		idx := min(int(calls.Add(1)-1), len(results)-1)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]any{
 			"jsonrpc": "2.0",
 			"id":      1,
-			"result":  hexBlocks[idx],
+			"result":  results[idx],
 		})
 	}))
+}
+
+// blockNumberServer answers eth_blockNumber with the given block numbers, in order.
+func blockNumberServer(hexBlocks ...string) *httptest.Server {
+	results := make([]any, 0, len(hexBlocks))
+	for _, block := range hexBlocks {
+		results = append(results, block)
+	}
+	return sequenceServer(results...)
 }
 
 func targetOf(server *httptest.Server) string {
 	return strings.TrimPrefix(server.URL, "http://")
 }
 
-// jsonRPCServer returns an httptest.Server answering every request with result.
-func jsonRPCServer(result any) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]any{
-			"jsonrpc": "2.0",
-			"id":      1,
-			"result":  result,
-		})
-	}))
-}
-
 func TestGetLatestHead(t *testing.T) {
-	server := jsonRPCServer(map[string]any{
+	server := sequenceServer(map[string]any{
 		"number": "0x1e8481",
 		"hash":   "0xabc",
 		// A real header carries many more fields: they must not disturb the read.
@@ -78,7 +72,7 @@ func TestGetLatestHead_Errors(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			server := jsonRPCServer(tc.result)
+			server := sequenceServer(tc.result)
 			defer server.Close()
 
 			if _, _, err := GetLatestHead(context.Background(), NewClient("http", "", 0), targetOf(server)); err == nil {

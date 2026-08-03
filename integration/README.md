@@ -285,21 +285,22 @@ mitigations keep this from turning into a spurious failure:
 - In `-e`/`-d` mode both requests are dispatched **concurrently**, so the gap between the two
   resolutions is no longer the duration of the first response (seconds, for a big tracing
   response) but only the sub-second skew between the nodes' own head updates.
-- When a `latest` test fails anyway, the runner re-reads the head number and hash on both
-  nodes and compares them with the values read just before the test. If a head moved, the two
-  sides did not trace the same block: the attempt is **inconclusive** and the test is retried
-  in process, without keeping the (potentially huge) response and diff files. Only the head
-  values are logged:
+- When the two responses of a `latest` test differ, the runner re-reads the head number and
+  hash on both nodes and compares them with the values read just before the test. If a head
+  moved, the two sides did not trace the same block: the attempt is **inconclusive** and the
+  test is retried in process. The diff is not even computed and no response file is written,
+  so a discarded attempt costs nothing but the head reads; only the head values are logged:
 
 ```
 0246. http           ::debug_traceBlockByNumber/test_24.json   failed: json diff mismatch
       inconclusive attempt 1/3: head moved during test (before: ... after: ...), retrying
 ```
 
-  If the heads were stable on both sides, the mismatch is real and reported immediately. After
-  `--latest-retries` attempts (default 3) a persistent skew is reported as a failure with both
-  head values attached as evidence, in the console and in the JSON report. Use
-  `--latest-retries 1` to classify without retrying, or `0` to disable the head check.
+  If the heads were stable on both sides, the mismatch is real and reported immediately. The
+  last of the `--latest-retries` attempts (default 3) always runs ungated, so a genuine failure
+  still gets its full diff, with both head values attached as evidence in the console and in
+  the JSON report. Use `--latest-retries 1` to classify without retrying, or `0` to disable the
+  head check.
 
 ### Run CI tests with Erigon
 

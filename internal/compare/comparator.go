@@ -39,12 +39,17 @@ const (
 
 // ProcessResponse compares actual response against expected, handling all "don't care" cases.
 // This is the v2 equivalent of v1's processResponse method.
+// notComparable, when set, is consulted once the two responses are known to differ and
+// before any file is written: if it reports true the responses cannot be compared at all
+// (e.g. the two nodes resolved a block tag to different blocks) and the outcome is marked
+// inconclusive, skipping the dump and the diff.
 func ProcessResponse(
 	response, referenceResponse, responseInFile any,
 	cfg *config.Config,
 	outputDir, daemonFile, expRspFile, diffFile string,
 	outcome *testdata.TestOutcome,
 	ignoreFields []string,
+	notComparable func() bool,
 ) {
 	var expectedResponse any
 	if referenceResponse != nil {
@@ -130,6 +135,13 @@ func ProcessResponse(
 				return
 			}
 		}
+	}
+
+	// The responses differ: before paying for the dump and the diff, let the caller veto the
+	// comparison. Two responses that answer different questions produce a diff of pure noise.
+	if notComparable != nil && notComparable() {
+		outcome.Inconclusive = true
+		return
 	}
 
 	// Detailed comparison: dump files and run diff

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"sync"
 	"time"
@@ -49,87 +48,79 @@ func RunTest(ctx context.Context, descriptor *testdata.TestDescriptor, cfg *conf
 	// resolves the tag on its own, so a head moving under the test makes the two responses
 	// incomparable. Only relevant when there is a second node to compare against.
 	classifyHeads := descriptor.Latest && cfg.VerifyWithDaemon && !cfg.WithoutCompareResults && cfg.LatestRetries > 0
-	attempts := 1
-	if classifyHeads && cfg.LatestRetries > 1 {
-		attempts = cfg.LatestRetries
-	}
 
 	for attempt := 1; ; attempt++ {
-		var before headPair
+		var before, after headPair
+		var haveAfter bool
+		var notComparable func() bool
+
 		if classifyHeads {
-			before = readHeads(ctx, cfg, descriptor, client)
+			before = readHeads(ctx, cfg, client)
+			// The last attempt runs ungated, so a genuine failure still gets its full diff;
+			// the earlier ones are dropped as soon as the heads say they cannot be compared.
+			if attempt < cfg.LatestRetries {
+				notComparable = func() bool {
+					after, haveAfter = readHeads(ctx, cfg, client), true
+					return before.known() && after.known() && before != after
+				}
+			}
 		}
 
-		runCommands(ctx, cfg, commands, descriptor, &outcome, client)
+		runCommands(ctx, cfg, commands, descriptor, &outcome, client, notComparable)
 
-		if outcome.Success && outcome.Error == nil {
-			return outcome
-		}
-		if !classifyHeads || ctx.Err() != nil {
-			return outcome
-		}
-
-		after := readHeads(ctx, cfg, descriptor, client)
-		// Heads unreadable: nothing to classify with, take the failure at face value.
-		if !before.known() || !after.known() {
+		switch {
+		case outcome.Inconclusive:
+			// The nodes did not resolve "latest" to the same block: nothing was compared or
+			// written, only the two heads are logged, and the test is retried.
 			outcome.Notes = append(outcome.Notes, fmt.Sprintf(
-				"head unreadable, failure not classified (before: %s, after: %s)", before, after))
-			attachHeadEvidence(&outcome, before, after)
+				"inconclusive attempt %d/%d: head moved during test (%s -> %s), retrying",
+				attempt, cfg.LatestRetries, before, after))
+			continue
+		case outcome.Success && outcome.Error == nil:
 			return outcome
-		}
-		if before.equal(after) {
-			// Both nodes stayed on the same head for the whole test: the mismatch is real.
-			attachHeadEvidence(&outcome, before, after)
-			return outcome
-		}
-		if attempt >= attempts {
-			outcome.Notes = append(outcome.Notes, fmt.Sprintf(
-				"head moved on %d consecutive attempts, reported as failure (before: %s, after: %s)",
-				attempts, before, after))
-			attachHeadEvidence(&outcome, before, after)
+		case !classifyHeads || ctx.Err() != nil:
 			return outcome
 		}
 
-		// Inconclusive: the nodes did not resolve "latest" to the same block. Log only the
-		// head values (not the diff, which can be hundreds of MB) and retry.
-		outcome.Notes = append(outcome.Notes, fmt.Sprintf(
-			"inconclusive attempt %d/%d: head moved during test (before: %s, after: %s), retrying",
-			attempt, attempts, before, after))
-		discardAttempt(&outcome)
+		// The failure is final: judge it against the heads and attach them as evidence.
+		if !haveAfter {
+			after = readHeads(ctx, cfg, client)
+		}
+		switch {
+		case !before.known() || !after.known():
+			outcome.Notes = append(outcome.Notes, "head unreadable, failure not classified")
+		case before != after:
+			outcome.Notes = append(outcome.Notes, fmt.Sprintf(
+				"head moved during test on all %d attempts, reported as failure", attempt))
+		}
+		ensureErrorDetails(&outcome).Heads = &testdata.HeadEvidence{
+			Before: []testdata.HeadSnapshot{before.underTest, before.reference},
+			After:  []testdata.HeadSnapshot{after.underTest, after.reference},
+		}
+		return outcome
 	}
 }
 
 // runCommands executes the fixture's commands into outcome, resetting any verdict left by
 // a previous attempt. Multi-command fixtures run sequentially and stop at the first failing
 // command, so stateful sequences (e.g. commit then verify) stay ordered.
-func runCommands(ctx context.Context, cfg *config.Config, commands []testdata.JsonRpcCommand, descriptor *testdata.TestDescriptor, outcome *testdata.TestOutcome, client *internalrpc.Client) {
+func runCommands(ctx context.Context, cfg *config.Config, commands []testdata.JsonRpcCommand, descriptor *testdata.TestDescriptor, outcome *testdata.TestOutcome, client *internalrpc.Client, notComparable func() bool) {
 	outcome.Error = nil
 	outcome.ColoredDiff = ""
 	outcome.ErrorDetails = nil
-	outcome.Artifacts = nil
+	outcome.Inconclusive = false
 
 	for i := range commands {
 		outcome.Success = false
-		runCommand(ctx, cfg, &commands[i], descriptor, outcome, client)
+		runCommand(ctx, cfg, &commands[i], descriptor, outcome, client, notComparable)
 		if !outcome.Success || outcome.Error != nil {
 			return
 		}
 	}
 }
 
-// discardAttempt throws away the verdict and the artifacts of an inconclusive attempt.
-func discardAttempt(outcome *testdata.TestOutcome) {
-	for _, f := range outcome.Artifacts {
-		_ = os.Remove(f)
-	}
-	outcome.Artifacts = nil
-	outcome.Success = false
-	outcome.Error = nil
-	outcome.ColoredDiff = ""
-	outcome.ErrorDetails = nil
-}
-
-// headPair holds the head of the node under test and of the reference node.
+// headPair holds the head of the node under test and of the reference node. It is comparable,
+// so two pairs are compared with ==: on number and hash, which catches a tip reorg too.
 type headPair struct {
 	underTest testdata.HeadSnapshot
 	reference testdata.HeadSnapshot
@@ -139,20 +130,13 @@ func (p headPair) known() bool {
 	return p.underTest.Error == "" && p.reference.Error == ""
 }
 
-// equal reports whether both nodes are on the same head they were on in q.
-// The hash is compared as well as the number, so a tip reorg is caught too.
-func (p headPair) equal(q headPair) bool {
-	return p.underTest.Number == q.underTest.Number && p.underTest.Hash == q.underTest.Hash &&
-		p.reference.Number == q.reference.Number && p.reference.Hash == q.reference.Hash
-}
-
 func (p headPair) String() string {
-	return p.underTest.String() + " " + p.reference.String()
+	return formatHeads([]testdata.HeadSnapshot{p.underTest, p.reference})
 }
 
 // readHeads reads the current head of both nodes concurrently, so the two values refer to
 // as close to the same instant as possible.
-func readHeads(ctx context.Context, cfg *config.Config, descriptor *testdata.TestDescriptor, client *internalrpc.Client) headPair {
+func readHeads(ctx context.Context, cfg *config.Config, client *internalrpc.Client) headPair {
 	// Heads always come from the eth endpoint, even for engine_ tests.
 	underTest := cfg.GetTarget(config.DaemonOnDefaultPort, "eth_getBlockByNumber")
 	reference := cfg.GetTarget(cfg.DaemonAsReference, "eth_getBlockByNumber")
@@ -166,10 +150,6 @@ func readHeads(ctx context.Context, cfg *config.Config, descriptor *testdata.Tes
 	}()
 	pair.underTest = readHead(ctx, client, underTest)
 	wg.Wait()
-
-	if cfg.VerboseLevel > 1 {
-		fmt.Printf("%s: head %s\n", descriptor.Name, pair)
-	}
 	return pair
 }
 
@@ -184,33 +164,27 @@ func readHead(ctx context.Context, client *internalrpc.Client, target string) te
 	return snapshot
 }
 
-// attachHeadEvidence records the two heads on the failure details, as the evidence that
-// tells a real mismatch from one caused by the nodes tracing different blocks.
-func attachHeadEvidence(outcome *testdata.TestOutcome, before, after headPair) {
+// ensureErrorDetails returns the failure details of the outcome, creating them if the failure
+// carried none yet.
+func ensureErrorDetails(outcome *testdata.TestOutcome) *testdata.ErrorDetails {
 	if outcome.ErrorDetails == nil {
-		msg := ""
+		message := ""
 		if outcome.Error != nil {
-			msg = outcome.Error.Error()
+			message = outcome.Error.Error()
 		}
-		outcome.ErrorDetails = &testdata.ErrorDetails{Message: msg}
+		outcome.ErrorDetails = &testdata.ErrorDetails{Message: message}
 	}
-	outcome.ErrorDetails.Heads = &testdata.HeadEvidence{
-		Before: []testdata.HeadSnapshot{before.underTest, before.reference},
-		After:  []testdata.HeadSnapshot{after.underTest, after.reference},
-	}
+	return outcome.ErrorDetails
 }
 
 // enrichErrorDetails fills in Target and Request on an existing or newly created ErrorDetails.
 func enrichErrorDetails(outcome *testdata.TestOutcome, target string, request []byte) {
-	if outcome.ErrorDetails == nil {
-		if outcome.Error != nil {
-			outcome.ErrorDetails = &testdata.ErrorDetails{Message: outcome.Error.Error()}
-		} else {
-			return
-		}
+	if outcome.ErrorDetails == nil && outcome.Error == nil {
+		return
 	}
-	if outcome.ErrorDetails.Target == "" {
-		outcome.ErrorDetails.Target = target
+	details := ensureErrorDetails(outcome)
+	if details.Target == "" {
+		details.Target = target
 	}
 	if outcome.ErrorDetails.Request == nil && len(request) > 0 {
 		var req any
@@ -221,7 +195,7 @@ func enrichErrorDetails(outcome *testdata.TestOutcome, target string, request []
 }
 
 // runCommand executes a single JSON-RPC command against the target.
-func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCommand, descriptor *testdata.TestDescriptor, outcome *testdata.TestOutcome, baseClient *internalrpc.Client) {
+func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCommand, descriptor *testdata.TestDescriptor, outcome *testdata.TestOutcome, baseClient *internalrpc.Client, notComparable func() bool) {
 	transportType := descriptor.TransportType
 	jsonFile := descriptor.Name
 	request := cmd.Request
@@ -260,7 +234,7 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 			fmt.Printf("%s: [%v]\n", cfg.DaemonUnderTest, result)
 		}
 
-		compare.ProcessResponse(result, nil, cmd.Response, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome, ignoreFields)
+		compare.ProcessResponse(result, nil, cmd.Response, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome, ignoreFields, nil)
 		if !outcome.Success {
 			enrichErrorDetails(outcome, target, request)
 		}
@@ -304,8 +278,7 @@ func runCommand(ctx context.Context, cfg *config.Config, cmd *testdata.JsonRpcCo
 		daemonFile = outputAPIFilename + config.GetJSONFilenameExt(config.DaemonOnDefaultPort, target)
 		expRspFile = outputAPIFilename + config.GetJSONFilenameExt(cfg.DaemonAsReference, target1)
 
-		outcome.Artifacts = append(outcome.Artifacts, daemonFile, expRspFile, diffFile)
-		compare.ProcessResponse(result, result1, nil, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome, ignoreFields)
+		compare.ProcessResponse(result, result1, nil, cfg, outputDirName, daemonFile, expRspFile, diffFile, outcome, ignoreFields, notComparable)
 		if !outcome.Success {
 			enrichErrorDetails(outcome, target, request)
 		}

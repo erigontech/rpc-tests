@@ -237,8 +237,12 @@ func TestRunTest_LatestHeadMovedRetriesThenFails(t *testing.T) {
 			t.Errorf("note %q should report an inconclusive attempt", note)
 		}
 	}
-	if !strings.Contains(outcome.Notes[2], "head moved on 3 consecutive attempts") {
+	if !strings.Contains(outcome.Notes[2], "head moved during test on all 3 attempts") {
 		t.Errorf("last note %q should report the exhausted retries", outcome.Notes[2])
+	}
+	// Only the last attempt is compared in full, so only its diff is on disk.
+	if files := resultFiles(t, cfg); len(files) != 3 {
+		t.Errorf("expected only the last attempt to leave response/diff files, found %v", files)
 	}
 	if outcome.ErrorDetails == nil || outcome.ErrorDetails.Heads == nil {
 		t.Errorf("the heads should be attached as evidence, got %+v", outcome.ErrorDetails)
