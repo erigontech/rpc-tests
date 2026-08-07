@@ -184,21 +184,23 @@ func validateJsonRpcResponseObject(obj map[string]any) error {
 	return nil
 }
 
-// GetLatestBlockNumber queries eth_blockNumber and returns the result as uint64.
-func GetLatestBlockNumber(ctx context.Context, client *Client, url string) (uint64, Metrics, error) {
-	type rpcReq struct {
+// marshalRequest builds the JSON-RPC 2.0 envelope for a single call.
+func marshalRequest(method string, params ...any) []byte {
+	if params == nil {
+		params = []any{}
+	}
+	request, _ := jsonAPI.Marshal(struct {
 		Jsonrpc string `json:"jsonrpc"`
 		Method  string `json:"method"`
 		Params  []any  `json:"params"`
 		Id      int    `json:"id"`
-	}
+	}{Jsonrpc: "2.0", Method: method, Params: params, Id: 1})
+	return request
+}
 
-	reqBytes, _ := jsonAPI.Marshal(rpcReq{
-		Jsonrpc: "2.0",
-		Method:  "eth_blockNumber",
-		Params:  []any{},
-		Id:      1,
-	})
+// GetLatestBlockNumber queries eth_blockNumber and returns the result as uint64.
+func GetLatestBlockNumber(ctx context.Context, client *Client, url string) (uint64, Metrics, error) {
+	reqBytes := marshalRequest("eth_blockNumber")
 
 	var response any
 	metrics, err := client.Call(ctx, url, reqBytes, &response)
@@ -223,6 +225,44 @@ func GetLatestBlockNumber(ctx context.Context, client *Client, url string) (uint
 		return 0, metrics, fmt.Errorf("RPC error: %v", errorVal)
 	}
 	return 0, metrics, fmt.Errorf("no result or error found in response")
+}
+
+// Head identifies a chain head by block number and block hash.
+type Head struct {
+	Number uint64
+	Hash   string
+}
+
+// GetLatestHead queries eth_getBlockByNumber("latest", false) and returns the head
+// number and hash. The hash is what distinguishes a plain head advance from a tip reorg.
+func GetLatestHead(ctx context.Context, client *Client, url string) (Head, Metrics, error) {
+	// Only two fields of the header are decoded: the rest of it (logsBloom alone is 514 bytes)
+	// is skipped instead of being boxed into a map.
+	var response struct {
+		Result *struct {
+			Number string `json:"number"`
+			Hash   string `json:"hash"`
+		} `json:"result"`
+		Error jsoniter.RawMessage `json:"error"`
+	}
+	metrics, err := client.Call(ctx, url, marshalRequest("eth_getBlockByNumber", "latest", false), &response)
+	if err != nil {
+		return Head{}, metrics, err
+	}
+	if len(response.Error) > 0 {
+		return Head{}, metrics, fmt.Errorf("RPC error: %s", response.Error)
+	}
+	if response.Result == nil {
+		return Head{}, metrics, fmt.Errorf("no block in response from %s", url)
+	}
+	if response.Result.Number == "" || response.Result.Hash == "" {
+		return Head{}, metrics, fmt.Errorf("block without number or hash: %+v", *response.Result)
+	}
+	number, err := parseHexUint64(strings.TrimPrefix(response.Result.Number, "0x"))
+	if err != nil {
+		return Head{}, metrics, err
+	}
+	return Head{Number: number, Hash: response.Result.Hash}, metrics, nil
 }
 
 func parseHexUint64(s string) (uint64, error) {

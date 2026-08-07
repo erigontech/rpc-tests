@@ -274,6 +274,7 @@ outer:
 						Name:          jsonTestFullName,
 						Number:        testNumberInAnyLoop,
 						TransportType: transportType,
+						Latest:        tc.Latest,
 					})
 					stats.ScheduledTests++
 				}
@@ -382,6 +383,21 @@ schedLoop:
 	fmt.Fprintln(w)
 }
 
+// printNotes prints the diagnostic lines a test attached to its outcome, indented under it.
+func printNotes(w *bufio.Writer, notes []string) {
+	for _, note := range notes {
+		fmt.Fprintf(w, "      %s\n", note)
+	}
+}
+
+func formatHeads(heads []testdata.HeadSnapshot) string {
+	parts := make([]string, 0, len(heads))
+	for _, h := range heads {
+		parts = append(parts, h.String())
+	}
+	return strings.Join(parts, " ")
+}
+
 func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg *config.Config, cancelCtx context.CancelFunc, reportEntries *[]reportEntry, reportMu *sync.Mutex) {
 	file := fmt.Sprintf("%-60s", result.Test.Name)
 	tt := fmt.Sprintf("%-15s", result.Test.TransportType)
@@ -389,11 +405,12 @@ func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg
 
 	if result.Outcome.Success {
 		stats.AddSuccess(result.Outcome.Metrics)
-		if cfg.VerboseLevel > 0 {
+		if cfg.VerboseLevel > 0 || len(result.Outcome.Notes) > 0 {
 			fmt.Fprintln(w, "OK")
 		} else {
 			fmt.Fprint(w, "OK\r")
 		}
+		printNotes(w, result.Outcome.Notes)
 		if cfg.VerboseLevel == 1 || cfg.ReportFile != "" {
 			reportMu.Lock()
 			*reportEntries = append(*reportEntries, reportEntry{
@@ -402,6 +419,7 @@ func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg
 				TestName:      result.Test.Name,
 				Result:        "OK",
 				ErrorMessage:  "",
+				Notes:         result.Outcome.Notes,
 			})
 			reportMu.Unlock()
 		}
@@ -410,12 +428,16 @@ func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg
 		errMsg := "no error"
 		if result.Outcome.Error != nil {
 			errMsg = result.Outcome.Error.Error()
-			fmt.Fprintf(w, "failed: %s\n", errMsg)
-			if errors.Is(result.Outcome.Error, compare.ErrDiffMismatch) && result.Outcome.ColoredDiff != "" {
-				fmt.Fprint(w, result.Outcome.ColoredDiff)
-			}
-		} else {
-			fmt.Fprintf(w, "failed: %s\n", errMsg)
+		}
+		fmt.Fprintf(w, "failed: %s\n", errMsg)
+		printNotes(w, result.Outcome.Notes)
+		if result.Outcome.ErrorDetails != nil && result.Outcome.ErrorDetails.Heads != nil {
+			heads := result.Outcome.ErrorDetails.Heads
+			fmt.Fprintf(w, "      heads before: %s\n", formatHeads(heads.Before))
+			fmt.Fprintf(w, "      heads after:  %s\n", formatHeads(heads.After))
+		}
+		if result.Outcome.Error != nil && errors.Is(result.Outcome.Error, compare.ErrDiffMismatch) && result.Outcome.ColoredDiff != "" {
+			fmt.Fprint(w, result.Outcome.ColoredDiff)
 		}
 		if cfg.VerboseLevel == 1 || cfg.ReportFile != "" {
 			var errField any = errMsg
@@ -429,6 +451,7 @@ func printResult(w *bufio.Writer, result *testdata.TestResult, stats *Stats, cfg
 				TestName:      result.Test.Name,
 				Result:        "FAILED",
 				ErrorMessage:  errField,
+				Notes:         result.Outcome.Notes,
 			})
 			reportMu.Unlock()
 		}

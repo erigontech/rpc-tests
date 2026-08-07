@@ -113,6 +113,8 @@ func parseFlags(cfg *config.Config) error {
 
 	syncRetries := flag.Int("sync-retries", cfg.SyncRetries, "max attempts waiting for testing/reference node block alignment (1s between attempts)")
 
+	latestRetries := flag.Int("latest-retries", cfg.LatestRetries, "max attempts for a failed latest-block test whose nodes changed head during the test (1 = classify only, 0 = off)")
+
 	reportFile := flag.String("R", "", "write CSV summary report to file")
 	flag.StringVar(reportFile, "report-file", "", "write CSV summary report to file")
 
@@ -152,6 +154,7 @@ func parseFlags(cfg *config.Config) error {
 	cfg.CommitmentHistory = *commitmentHistory
 	cfg.MaxFailures = *maxFailures
 	cfg.SyncRetries = *syncRetries
+	cfg.LatestRetries = *latestRetries
 	cfg.ReportFile = *reportFile
 	cfg.CpuProfile = *cpuProfile
 	cfg.MemProfile = *memProfile
@@ -242,6 +245,7 @@ func usage() {
 	fmt.Println("  -C, --erigon.commitment-history       include tests requiring commitment history [default: skip]")
 	fmt.Println("  -M, --max-failures <n>               stop after n failures, 0 = unlimited [default: 100]")
 	fmt.Println("      --sync-retries <n>               max attempts waiting for node block alignment, 1s apart [default: 300]")
+	fmt.Println("      --latest-retries <n>             max attempts for a failed latest test whose nodes changed head, 1 = classify only, 0 = off [default: 3]")
 	fmt.Println("  -R, --report-file <file>             write summary report to file (.csv or .txt)")
 	fmt.Println("      --cpuprofile <file>              write cpu profile to file")
 	fmt.Println("      --memprofile <file>              write memory profile to file")

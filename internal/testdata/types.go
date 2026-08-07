@@ -1,6 +1,7 @@
 package testdata
 
 import (
+	"fmt"
 	"time"
 
 	jsoniter "github.com/json-iterator/go"
@@ -21,7 +22,8 @@ type TestDescriptor struct {
 	Name          string
 	Number        int
 	TransportType string
-	Index         int // Position in scheduled order (for ordered output)
+	Index         int  // Position in scheduled order (for ordered output)
+	Latest        bool // metadata.latest: the request resolves the "latest" tag on the node
 }
 
 // TestResult holds a test outcome and its descriptor.
@@ -30,14 +32,38 @@ type TestResult struct {
 	Test    *TestDescriptor
 }
 
+// HeadSnapshot records the head a node was on, as read from that node.
+type HeadSnapshot struct {
+	Target string `json:"target"`
+	Number uint64 `json:"number,omitempty"`
+	Hash   string `json:"hash,omitempty"`
+	Error  string `json:"error,omitempty"`
+}
+
+// String renders the snapshot compactly for log lines.
+func (h HeadSnapshot) String() string {
+	if h.Error != "" {
+		return h.Target + "=<" + h.Error + ">"
+	}
+	return fmt.Sprintf("%s=%d/%s", h.Target, h.Number, h.Hash)
+}
+
+// HeadEvidence holds the heads of both nodes read before and after a latest-block test,
+// so a failure can be judged against the head each node actually resolved "latest" to.
+type HeadEvidence struct {
+	Before []HeadSnapshot `json:"before,omitempty"`
+	After  []HeadSnapshot `json:"after,omitempty"`
+}
+
 // ErrorDetails holds structured failure information for the JSON report.
 type ErrorDetails struct {
-	Message          string `json:"message,omitempty"`
-	Target           string `json:"target,omitempty"`
-	ActualResponse   any    `json:"actual_response,omitempty"`
-	ExpectedResponse any    `json:"expected_response,omitempty"`
-	Diff             string `json:"diff,omitempty"`
-	Request          any    `json:"request,omitempty"`
+	Message          string        `json:"message,omitempty"`
+	Target           string        `json:"target,omitempty"`
+	ActualResponse   any           `json:"actual_response,omitempty"`
+	ExpectedResponse any           `json:"expected_response,omitempty"`
+	Diff             string        `json:"diff,omitempty"`
+	Request          any           `json:"request,omitempty"`
+	Heads            *HeadEvidence `json:"heads,omitempty"`
 }
 
 // TestOutcome holds the result of executing a single test.
@@ -47,6 +73,12 @@ type TestOutcome struct {
 	ColoredDiff  string
 	Metrics      TestMetrics
 	ErrorDetails *ErrorDetails
+	// Notes carries short diagnostic lines printed next to the test result,
+	// e.g. inconclusive attempts discarded because the nodes' heads moved.
+	Notes []string
+	// Inconclusive reports that the two responses turned out not to be comparable, so the
+	// attempt says nothing about the node under test and can be retried.
+	Inconclusive bool
 }
 
 // TestMetrics tracks timing and comparison statistics for a single test.

@@ -226,6 +226,70 @@ func TestMaxFailures_ZeroMeansUnlimited(t *testing.T) {
 	}
 }
 
+// A latest-block failure prints the notes of the discarded attempts and the two heads, and
+// carries both into the report entry.
+func TestPrintResult_LatestHeadEvidence(t *testing.T) {
+	cfg := config.NewConfig()
+	cfg.ExitOnFail = false
+	cfg.VerboseLevel = 1
+
+	var buf bytes.Buffer
+	w := bufio.NewWriter(&buf)
+	stats := &Stats{}
+	var entries []reportEntry
+	var mu sync.Mutex
+
+	r := testdata.TestResult{
+		Outcome: testdata.TestOutcome{
+			Success: false,
+			Error:   fmt.Errorf("json diff mismatch"),
+			Notes:   []string{"inconclusive attempt 1/3: head moved during test, retrying"},
+			ErrorDetails: &testdata.ErrorDetails{
+				Message: "json diff mismatch",
+				Heads: &testdata.HeadEvidence{
+					Before: []testdata.HeadSnapshot{
+						{Target: "localhost:8545", Number: 100, Hash: "0xaa"},
+						{Target: "localhost:8546", Number: 100, Hash: "0xaa"},
+					},
+					After: []testdata.HeadSnapshot{
+						{Target: "localhost:8545", Number: 101, Hash: "0xbb"},
+						{Target: "localhost:8546", Number: 100, Hash: "0xaa"},
+					},
+				},
+			},
+		},
+		Test: &testdata.TestDescriptor{
+			Name:          "debug_traceBlockByNumber/test_24.json",
+			Number:        246,
+			TransportType: "http",
+			Latest:        true,
+		},
+	}
+	printResult(w, &r, stats, cfg, func() {}, &entries, &mu)
+	w.Flush()
+
+	output := buf.String()
+	for _, want := range []string{
+		"inconclusive attempt 1/3",
+		"heads before: localhost:8545=100/0xaa localhost:8546=100/0xaa",
+		"heads after:  localhost:8545=101/0xbb localhost:8546=100/0xaa",
+	} {
+		if !strings.Contains(output, want) {
+			t.Errorf("expected %q in output, got:\n%s", want, output)
+		}
+	}
+	if len(entries) != 1 {
+		t.Fatalf("report entries: got %d, want 1", len(entries))
+	}
+	if len(entries[0].Notes) != 1 {
+		t.Errorf("the report entry should carry the notes, got %+v", entries[0].Notes)
+	}
+	details, ok := entries[0].ErrorMessage.(*testdata.ErrorDetails)
+	if !ok || details.Heads == nil {
+		t.Errorf("the report entry should carry the head evidence, got %+v", entries[0].ErrorMessage)
+	}
+}
+
 func TestPrintResult_OrderedOutput(t *testing.T) {
 	const numTests = 50
 

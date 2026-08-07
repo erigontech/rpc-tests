@@ -123,6 +123,9 @@ type Config struct {
 	// Node sync convergence
 	SyncRetries int // max attempts waiting for testing/reference node block alignment
 
+	// In-process retries for a failed latest-block test whose nodes moved head under it
+	LatestRetries int
+
 	// Report
 	ReportFile string
 
@@ -155,6 +158,7 @@ func NewConfig() *Config {
 		MaxFailures:       100,
 		LatestBatchSize:   50,
 		SyncRetries:       300,
+		LatestRetries:     3,
 	}
 }
 
