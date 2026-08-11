@@ -16,10 +16,14 @@
     "response": {
       "id": 1,
       "jsonrpc": "2.0",
-      "result": null
+      "result": null,
+      "error": {
+        "code": -32000,
+        "message": "tracing on top of pending is not supported"
+      }
     },
     "test": {
-      "description": "trace the pending block",
+      "description": "trace the pending block: rejected, tracing replays committed state",
       "reference": ""
     }
   }
