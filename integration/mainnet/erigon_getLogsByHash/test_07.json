@@ -10,7 +10,7 @@
            "id": 1,
            "jsonrpc": "2.0",
   "result": [
-    null,
+    [],
     [
       {
         "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
@@ -2388,7 +2388,7 @@
         "transactionIndex": "0x17"
       }
     ],
-    null,
+    [],
     [
       {
         "address": "0x923a20ca8193c8634b8901c20df9e00afc99291a",
@@ -2676,7 +2676,7 @@
         "transactionIndex": "0x1c"
       }
     ],
-    null,
+    [],
     [
       {
         "address": "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
@@ -2709,7 +2709,7 @@
         "transactionIndex": "0x1e"
       }
     ],
-    null,
+    [],
     [
       {
         "address": "0x3aada3e213abf8529606924d8d1c55cbdc70bf74",
@@ -2900,7 +2900,7 @@
         "transactionIndex": "0x24"
       }
     ],
-    null,
+    [],
     [
       {
         "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
@@ -2918,7 +2918,7 @@
         "transactionIndex": "0x26"
       }
     ],
-    null,
+    [],
     [
       {
         "address": "0x967da4048cd07ab37855c090aaf366e4ce1b9f48",
@@ -3000,8 +3000,8 @@
         "transactionIndex": "0x2c"
       }
     ],
-    null,
-    null,
+    [],
+    [],
     [
       {
         "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
@@ -3019,18 +3019,18 @@
         "transactionIndex": "0x2f"
       }
     ],
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [
       {
         "address": "0x2b7e3ca44ba205763e1dbfb41bed10ff847d3228",
@@ -3164,7 +3164,7 @@
         "transactionIndex": "0x42"
       }
     ],
-    null,
+    [],
     [
       {
         "address": "0x43af0944b34ad466dcea7fc8f77aafc6a4ec70fa",
@@ -3267,7 +3267,7 @@
         "transactionIndex": "0x49"
       }
     ],
-    null,
+    [],
     [
       {
         "address": "0x49048044d57e1c92a77f79988d21fa8faf74e97e",
@@ -3303,8 +3303,8 @@
         "transactionIndex": "0x4c"
       }
     ],
-    null,
-    null,
+    [],
+    [],
     [
       {
         "address": "0x8d0802559775c70fb505f22988a4fd4a4f6d3b62",
@@ -3463,7 +3463,7 @@
         "transactionIndex": "0x53"
       }
     ],
-    null,
+    [],
     [
       {
         "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
@@ -4504,7 +4504,7 @@
         "transactionIndex": "0x63"
       }
     ],
-    null,
+    [],
     [
       {
         "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
@@ -4941,9 +4941,9 @@
         "transactionIndex": "0x69"
       }
     ],
-    null,
-    null,
-    null,
+    [],
+    [],
+    [],
     [
       {
         "address": "0xe6b738da243e8fa2a0ed5915645789add5de5152",
@@ -5044,11 +5044,11 @@
         "transactionIndex": "0x6d"
       }
     ],
-    null,
-    null,
-    null,
-    null,
-    null,
+    [],
+    [],
+    [],
+    [],
+    [],
     [
       {
         "address": "0x1142866f451d9d5281c5c8349a332bd338e552a1",
@@ -5124,15 +5124,15 @@
         "transactionIndex": "0x73"
       }
     ],
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [
       {
         "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -5150,8 +5150,8 @@
         "transactionIndex": "0x7d"
       }
     ],
-    null,
-    null,
+    [],
+    [],
     [
       {
         "address": "0x8d0802559775c70fb505f22988a4fd4a4f6d3b62",
@@ -5333,7 +5333,7 @@
         "transactionIndex": "0x82"
       }
     ],
-    null
+    []
   ]
         }
     }
