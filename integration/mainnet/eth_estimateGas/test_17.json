@@ -26,7 +26,7 @@
     "response": {
       "error": {
         "code": -32000,
-        "message": "insufficient funds for gas * price + value: address 0xa9Ac1233699BDae25abeBae4f9Fb54DbB1b44700 have 0 want 335488250000000000"
+        "message": "insufficient funds for transfer"
       },
       "id": 1,
       "jsonrpc": "2.0"
