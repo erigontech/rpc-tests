@@ -238,8 +238,9 @@ func diffArrays(obj1, obj2 any, path string, result map[string]any, opts *Option
 
 	// Sort arrays if required
 	if opts.SortArrays {
-		v1 = reflect.ValueOf(sortArray(obj1, path, opts))
-		v2 = reflect.ValueOf(sortArray(obj2, path, opts))
+		s1, s2 := sortForCompare(obj1, obj2, path, opts)
+		v1 = reflect.ValueOf(s1)
+		v2 = reflect.ValueOf(s2)
 	}
 
 	len1 := v1.Len()
@@ -429,8 +430,13 @@ func lcsAlignment(keys1, keys2 []string) []arrayOp {
 
 func collectArrayDiffs(obj1, obj2 any, path string, diffs *[]Diff, opts *Options) {
 	if opts.SortArrays {
-		obj1 = sortArray(obj1, path, opts)
-		obj2 = sortArray(obj2, path, opts)
+		s1, s2 := sortArray(obj1, path, opts), sortArray(obj2, path, opts)
+		// Arrays of different lengths are aligned by mergeAlignment below, which
+		// needs its input sorted; equal lengths are compared by index, so keep the
+		// sorted order only when it is a pure permutation.
+		if reflect.ValueOf(s1).Len() != reflect.ValueOf(s2).Len() || samePermutation(s1, s2, path, opts) {
+			obj1, obj2 = s1, s2
+		}
 	}
 
 	v1 := reflect.ValueOf(obj1)
@@ -500,6 +506,76 @@ const maxObjectSortSize = 1000
 // Primitive arrays are sorted by value. Object/nested arrays up to
 // maxObjectSortSize elements are sorted by pre-computed JSON keys with ignored
 // fields stripped; larger arrays are returned unsorted.
+
+// sortForCompare returns the two arrays sorted only when one is a permutation of
+// the other. sortArray keys on element content, so each side is permuted by its
+// own values: on arrays that genuinely differ this pairs unrelated elements and
+// every following index mismatches. Falling back to the original order keeps the
+// comparison positional, which is what the caller can act on.
+func sortForCompare(obj1, obj2 any, path string, opts *Options) (any, any) {
+	s1, s2 := sortArray(obj1, path, opts), sortArray(obj2, path, opts)
+	if samePermutation(s1, s2, path, opts) {
+		return s1, s2
+	}
+	return obj1, obj2
+}
+
+// samePermutation reports whether two already-sorted arrays hold the same elements.
+// Elements are compared on a key that ignores the ordering of nested arrays, so an
+// access list whose entries and storage keys are both shuffled still matches.
+func samePermutation(arr1, arr2 any, path string, opts *Options) bool {
+	v1, v2 := reflect.ValueOf(arr1), reflect.ValueOf(arr2)
+	if !isArrayKind(v1.Kind()) || !isArrayKind(v2.Kind()) || v1.Len() != v2.Len() {
+		return false
+	}
+	elemPath := fmt.Sprintf("%s[0]", path)
+	for i := range v1.Len() {
+		if orderInsensitiveKey(v1.Index(i).Interface(), elemPath, opts) != orderInsensitiveKey(v2.Index(i).Interface(), elemPath, opts) {
+			return false
+		}
+	}
+	return true
+}
+
+func isArrayKind(k reflect.Kind) bool {
+	return k == reflect.Slice || k == reflect.Array
+}
+
+// orderInsensitiveKey is objectSortKey with every nested array sorted first.
+func orderInsensitiveKey(elem any, elemPath string, opts *Options) string {
+	b, _ := json.Marshal(deepSorted(elem, elemPath, opts))
+	return string(b)
+}
+
+func deepSorted(v any, path string, opts *Options) any {
+	switch t := v.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(t))
+		for k, val := range t {
+			fieldPath := path + "." + k
+			if shouldIgnore(fieldPath, opts) {
+				continue
+			}
+			out[k] = deepSorted(val, fieldPath, opts)
+		}
+		return out
+	case []any:
+		elemPath := fmt.Sprintf("%s[0]", path)
+		out := make([]any, len(t))
+		for i, val := range t {
+			out[i] = deepSorted(val, elemPath, opts)
+		}
+		sort.Slice(out, func(i, j int) bool {
+			bi, _ := json.Marshal(out[i])
+			bj, _ := json.Marshal(out[j])
+			return string(bi) < string(bj)
+		})
+		return out
+	default:
+		return v
+	}
+}
+
 func sortArray(arr any, path string, opts *Options) any {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
