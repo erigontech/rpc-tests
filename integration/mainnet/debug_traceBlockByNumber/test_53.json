@@ -1,0 +1,47 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceBlockByNumber",
+            "params": [
+                "0x19F414",
+                {
+                    "tracer": "flatCallTracer"
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "txHash": "0x52a137e296280c98509b65d3d606e0f488a9d31eccbd481fe3f1a19cf644c1b8",
+                    "result": [
+                        {
+                            "action": {
+                                "creationMethod": "create",
+                                "from": "0x815fe5aa6affe42ca4c45ad20297b7730ebf06ff",
+                                "gas": "0x1d8a8",
+                                "init": "0x50d02751151cd3834ef967db57c7925d1fe4d90c",
+                                "value": "0x83e0717e10000"
+                            },
+                            "blockHash": "0xbc87d6ea453822f2ff3625cd892d17394fa35d5ab6de0b78b041252b5c5c572b",
+                            "blockNumber": 1700884,
+                            "error": "stack underflow (0 <=> 1)",
+                            "subtraces": 0,
+                            "traceAddress": [],
+                            "transactionHash": "0x52a137e296280c98509b65d3d606e0f488a9d31eccbd481fe3f1a19cf644c1b8",
+                            "transactionPosition": 0,
+                            "type": "create"
+                        }
+                    ]
+                }
+            ]
+        },
+        "test": {
+            "description": "Block 1700884: same failed CREATE through the parity flat tracer; on a non-revert error the whole 'result' is dropped, so no zero address leaks (guard for the nil To path in call_flat.go)",
+            "reference": "https://github.com/erigontech/erigon/pull/23765"
+        }
+    }
+]

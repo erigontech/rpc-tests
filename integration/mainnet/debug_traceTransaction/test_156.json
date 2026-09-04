@@ -1,0 +1,32 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceTransaction",
+            "params": [
+                "0x52a137e296280c98509b65d3d606e0f488a9d31eccbd481fe3f1a19cf644c1b8",
+                {
+                    "tracer": "callTracer"
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "from": "0x815fe5aa6affe42ca4c45ad20297b7730ebf06ff",
+                "gas": "0x1d8a8",
+                "gasUsed": "0x1d8a8",
+                "input": "0x50d02751151cd3834ef967db57c7925d1fe4d90c",
+                "error": "stack underflow (0 <=> 1)",
+                "value": "0x83e0717e10000",
+                "type": "CREATE"
+            }
+        },
+        "test": {
+            "description": "Top-level CREATE failing with stack underflow: callTracer must omit 'to'",
+            "reference": "https://github.com/erigontech/erigon/pull/23765"
+        }
+    }
+]

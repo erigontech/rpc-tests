@@ -1,0 +1,74 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceCall",
+            "params": [
+                {
+                    "from": "0x7e57ed0000000000000000000000000000000001",
+                    "data": "0x6460006000fd6000526005601b6000f000",
+                    "gas": "0x100000"
+                },
+                "0x15EF3C0",
+                {
+                    "tracer": "flatCallTracer"
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "action": {
+                        "creationMethod": "create",
+                        "from": "0x7e57ed0000000000000000000000000000000001",
+                        "gas": "0x100000",
+                        "init": "0x6460006000fd6000526005601b6000f000",
+                        "value": "0x0"
+                    },
+                    "blockHash": null,
+                    "blockNumber": 0,
+                    "result": {
+                        "address": "0x16087872485ddcf35699551b316c55f9d8ce3a1f",
+                        "code": "0x",
+                        "gasUsed": "0x14cfb"
+                    },
+                    "subtraces": 1,
+                    "traceAddress": [],
+                    "transactionHash": null,
+                    "transactionPosition": 0,
+                    "type": "create"
+                },
+                {
+                    "action": {
+                        "creationMethod": "create",
+                        "from": "0x16087872485ddcf35699551b316c55f9d8ce3a1f",
+                        "gas": "0xe783f",
+                        "init": "0x60006000fd",
+                        "value": "0x0"
+                    },
+                    "blockHash": null,
+                    "blockNumber": 0,
+                    "error": "execution reverted",
+                    "result": {
+                        "code": "0x",
+                        "gasUsed": "0x6"
+                    },
+                    "subtraces": 0,
+                    "traceAddress": [
+                        0
+                    ],
+                    "transactionHash": null,
+                    "transactionPosition": 0,
+                    "type": "create"
+                }
+            ]
+        },
+        "test": {
+            "description": "Inner CREATE that reverts, parity flat tracer: result.address must be omitted on the failed create",
+            "reference": "https://github.com/erigontech/erigon/pull/23765"
+        }
+    }
+]
