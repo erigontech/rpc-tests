@@ -974,3 +974,52 @@ func TestDiffJSON_IgnoreMissingFieldInActual(t *testing.T) {
 		t.Errorf("expected empty diff map with ignore pattern, got: %v", diffMap)
 	}
 }
+
+// Two arrays of objects that differ in content must stay paired by position.
+// Sorting each side independently by its own content permutes them differently
+// and makes the diff compare unrelated elements.
+func TestDiffArrays_SortArraysKeepsAlignmentWhenContentDiffers(t *testing.T) {
+	block := func(number, gasUsed string) map[string]any {
+		return map[string]any{
+			"number": number,
+			"calls":  []any{map[string]any{"gasUsed": gasUsed}},
+		}
+	}
+	// Sorting by full JSON puts "0x136b9" before "0x184df" on the left, while the
+	// right keeps its order because "0x184df" < "0xdfcf".
+	expected := []any{block("0x1851961", "0x184df"), block("0x1851962", "0x136b9")}
+	actual := []any{block("0x1851961", "0x184df"), block("0x1851962", "0xdfcf")}
+
+	opts := &Options{SortArrays: true}
+
+	for _, d := range collectDiffs(expected, actual, "result", opts) {
+		if d.Type == DiffUpdate && strings.HasSuffix(d.Path, "].number") {
+			t.Errorf("blocks compared out of order at %s: %v -> %v", d.Path, d.OldValue, d.NewValue)
+		}
+	}
+
+	diffMap := DiffJSON(expected, actual, opts)
+	if _, ok := diffMap["[1].calls[0].gasUsed"]; !ok {
+		t.Errorf("expected the gasUsed difference on the second block, got: %v", diffMap)
+	}
+	for path := range diffMap {
+		if strings.HasSuffix(path, ".number") {
+			t.Errorf("blocks compared out of order: unexpected diff at %s", path)
+		}
+	}
+}
+
+// An array whose elements are the same set in a different order must still
+// compare equal: this is what SortArrays exists for.
+func TestDiffArrays_SortArraysStillMatchesPermutations(t *testing.T) {
+	log := func(index, data string) map[string]any {
+		return map[string]any{"logIndex": index, "data": data}
+	}
+	expected := []any{log("0x0", "0xaa"), log("0x1", "0xbb")}
+	actual := []any{log("0x1", "0xbb"), log("0x0", "0xaa")}
+
+	diffMap := DiffJSON(expected, actual, &Options{SortArrays: true})
+	if len(diffMap) != 0 {
+		t.Errorf("permuted but equal arrays must compare equal, got: %v", diffMap)
+	}
+}
