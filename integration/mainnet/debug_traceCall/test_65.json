@@ -1,0 +1,48 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "debug_traceCall",
+            "params": [
+                {
+                    "from": "0x7e57ed0000000000000000000000000000000001",
+                    "data": "0x6460006000fd6000526005601b6000f000",
+                    "gas": "0x100000"
+                },
+                "0x15EF3C0",
+                {
+                    "tracer": "callTracer"
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": {
+                "from": "0x7e57ed0000000000000000000000000000000001",
+                "gas": "0x100000",
+                "gasUsed": "0x14cfb",
+                "to": "0x16087872485ddcf35699551b316c55f9d8ce3a1f",
+                "input": "0x6460006000fd6000526005601b6000f000",
+                "calls": [
+                    {
+                        "from": "0x16087872485ddcf35699551b316c55f9d8ce3a1f",
+                        "gas": "0xe783f",
+                        "gasUsed": "0x6",
+                        "input": "0x60006000fd",
+                        "error": "execution reverted",
+                        "value": "0x0",
+                        "type": "CREATE"
+                    }
+                ],
+                "value": "0x0",
+                "type": "CREATE"
+            }
+        },
+        "test": {
+            "description": "Inner CREATE that reverts inside a successful CREATE: only the failed inner frame omits 'to'",
+            "reference": "https://github.com/erigontech/erigon/pull/23765"
+        }
+    }
+]
