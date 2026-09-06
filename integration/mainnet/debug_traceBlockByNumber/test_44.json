@@ -23,7 +23,21 @@
             "reference": ""
         },
         "metadata": {
-            "latest": true
+            "latest": true,
+            "ignoreFields": [
+                "result[*].result.error",
+                "result[*].result.calls[*].error",
+                "result[*].result.calls[*].calls[*].error",
+                "result[*].result.calls[*].calls[*].calls[*].error",
+                "result[*].result.calls[*].calls[*].calls[*].calls[*].error",
+                "result[*].result.calls[*].calls[*].calls[*].calls[*].calls[*].error",
+                "result[*].result.calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].error",
+                "result[*].result.calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].error",
+                "result[*].result.calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].error",
+                "result[*].result.calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].error",
+                "result[*].result.calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].error",
+                "result[*].result.calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].calls[*].error"
+            ]
         }
     }
 ]

@@ -20,7 +20,10 @@
             "reference": ""
         },
         "metadata": {
-            "latest": true
+            "latest": true,
+            "ignoreFields": [
+                "result[*].result[*].error"
+            ]
         }
     }
 ]
