@@ -38,12 +38,20 @@ func RunTest(ctx context.Context, descriptor *testdata.TestDescriptor, cfg *conf
 		return outcome
 	}
 
-	if len(commands) != 1 {
-		outcome.Error = errors.New("expected exactly one JSON RPC command in " + jsonFilename)
+	if len(commands) == 0 {
+		outcome.Error = errors.New("expected at least one JSON RPC command in " + jsonFilename)
 		return outcome
 	}
 
-	runCommand(ctx, cfg, &commands[0], descriptor, &outcome, client)
+	// Multi-command fixtures run sequentially and stop at the first failing
+	// command, so stateful sequences (e.g. commit then verify) stay ordered.
+	for i := range commands {
+		outcome.Success = false
+		runCommand(ctx, cfg, &commands[i], descriptor, &outcome, client)
+		if !outcome.Success || outcome.Error != nil {
+			return outcome
+		}
+	}
 	return outcome
 }
 
