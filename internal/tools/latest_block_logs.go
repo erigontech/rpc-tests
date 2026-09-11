@@ -52,6 +52,16 @@ func runLatestBlockLogs(c *cli.Context) error {
 		cancel()
 	}()
 
+	return watchLatestBlockLogs(ctx, client, target, interval, blockSettleDelay)
+}
+
+// blockSettleDelay is how long to wait before re-reading a block that reported
+// no logs but a non-empty receipts root, to let the node finish executing it.
+const blockSettleDelay = 6 * time.Second
+
+// watchLatestBlockLogs polls the latest block and cross-checks eth_getLogs
+// against the block receipts until ctx is cancelled.
+func watchLatestBlockLogs(ctx context.Context, client *rpc.Client, target string, interval, settleDelay time.Duration) error {
 	log.Printf("Query latest block logs started... Press Ctrl+C to stop.")
 
 	var currentBlockNumber string
@@ -104,8 +114,7 @@ func runLatestBlockLogs(c *cli.Context) error {
 			// Wait half block time to be sure latest block got executed
 			select {
 			case <-ctx.Done():
-				break
-			case <-time.After(6 * time.Second):
+			case <-time.After(settleDelay):
 			}
 
 			// Fetch receipts and count logs
@@ -124,7 +133,7 @@ func runLatestBlockLogs(c *cli.Context) error {
 	}
 
 	log.Printf("Query latest block logs terminated.")
-	return nil
+	return nil //nolint:nilerr // per-iteration errors are logged and retried; the loop ends on shutdown
 }
 
 func getBlock(ctx context.Context, client *rpc.Client, target, tag string) (map[string]any, error) {

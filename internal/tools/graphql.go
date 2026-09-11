@@ -110,10 +110,15 @@ func executeGraphQLTests(client *http.Client, httpURL, testsURL string, stopAtEr
 		_ = os.RemoveAll(tempDir)
 	}()
 
-	log.Printf("Starting test execution using files from %s", tempDir)
+	return runGraphQLTestsInDir(client, httpURL, tempDir, stopAtError, testNumber)
+}
+
+// runGraphQLTestsInDir runs every *.json fixture in testDir against httpURL.
+func runGraphQLTestsInDir(client *http.Client, httpURL, testDir string, stopAtError bool, testNumber int) error {
+	log.Printf("Starting test execution using files from %s", testDir)
 
 	// Discover and sort test files
-	entries, err := os.ReadDir(tempDir)
+	entries, err := os.ReadDir(testDir)
 	if err != nil {
 		return fmt.Errorf("read test dir: %w", err)
 	}
@@ -127,7 +132,7 @@ func executeGraphQLTests(client *http.Client, httpURL, testsURL string, stopAtEr
 	sort.Strings(testFiles)
 
 	if len(testFiles) == 0 {
-		log.Printf("Warning: no *.json files found in %s. Aborting tests.", tempDir)
+		log.Printf("Warning: no *.json files found in %s. Aborting tests.", testDir)
 		return fmt.Errorf("no test files found")
 	}
 
@@ -137,14 +142,12 @@ func executeGraphQLTests(client *http.Client, httpURL, testsURL string, stopAtEr
 	}
 	passedTests := 0
 
-	graphqlClient := &http.Client{}
-
 	for i, testFile := range testFiles {
 		if testNumber >= 0 && testNumber != i {
 			continue
 		}
 
-		testPath := filepath.Join(tempDir, testFile)
+		testPath := filepath.Join(testDir, testFile)
 		data, err := os.ReadFile(testPath)
 		if err != nil {
 			log.Printf("Test %d FAILED: cannot read %s: %v", i+1, testFile, err)
@@ -167,7 +170,7 @@ func executeGraphQLTests(client *http.Client, httpURL, testsURL string, stopAtEr
 		}
 
 		// Execute query
-		actualResult, err := executeGraphQLQuery(graphqlClient, httpURL, strings.TrimSpace(tc.Request))
+		actualResult, err := executeGraphQLQuery(client, httpURL, strings.TrimSpace(tc.Request))
 		if err != nil {
 			log.Printf("Test %d FAILED: query execution error: %v", i+1, err)
 			if stopAtError {
@@ -266,7 +269,12 @@ func downloadGitHubDirectory(client *http.Client, treeURL string) (string, error
 	}
 
 	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s?ref=%s", owner, repo, folderPath, branch)
+	return downloadContents(client, apiURL)
+}
 
+// downloadContents fetches every *.json file listed by a GitHub contents API
+// endpoint into a fresh temporary directory and returns its path.
+func downloadContents(client *http.Client, apiURL string) (string, error) {
 	tempDir, err := os.MkdirTemp("", "graphql-tests-*")
 	if err != nil {
 		return "", fmt.Errorf("create temp dir: %w", err)

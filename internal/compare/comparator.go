@@ -345,11 +345,17 @@ func dumpJSONs(dump bool, daemonFile, expRspFile, outputDir string, response, ex
 func compareJSON(cfg *config.Config, daemonFile, expRspFile, diffFile string, metrics *testdata.TestMetrics) (bool, error) {
 	metrics.ComparisonCount++
 
+	// Both diff and json-diff exit 1 for "files differ", so the exit code alone
+	// cannot tell a real tool failure apart from a mismatch. Capturing stderr to
+	// a file is what makes the difference observable.
+	errorFile := diffFile + ".err"
+	defer func() { _ = os.Remove(errorFile) }()
+
 	switch cfg.DiffKind {
 	case config.JsonDiffTool:
-		return runExternalCompare(true, "/dev/null", expRspFile, daemonFile, diffFile)
+		return runExternalCompare(true, errorFile, expRspFile, daemonFile, diffFile)
 	case config.DiffTool:
-		return runExternalCompare(false, "/dev/null", expRspFile, daemonFile, diffFile)
+		return runExternalCompare(false, errorFile, expRspFile, daemonFile, diffFile)
 	default:
 		return false, fmt.Errorf("unknown JSON diff kind: %d", cfg.DiffKind)
 	}
@@ -376,9 +382,10 @@ func runExternalCompare(useJsonDiff bool, errorFile, file1, file2, diffFile stri
 
 	cmd := exec.CommandContext(ctx, "sh", "-c", cmdStr)
 	if err := cmd.Run(); err != nil {
-		// diff returns 1 when files differ, which is not an error for us
+		// Both tools return 1 when the files differ, which is not an error for us.
+		// A genuine failure is recognised from the stderr file checked below.
 		var exitErr *exec.ExitError
-		if !(errors.As(err, &exitErr) && exitErr.ExitCode() == 1 && !useJsonDiff) {
+		if !(errors.As(err, &exitErr) && exitErr.ExitCode() == 1) {
 			return false, fmt.Errorf("external compare command failed: %w", err)
 		}
 	}
