@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/erigontech/rpc-tests/internal/rpc"
 	"github.com/urfave/cli/v2"
@@ -49,6 +51,22 @@ var replayTxCommand = &cli.Command{
 	Action: runReplayTx,
 }
 
+// defaultEndBlock bounds the scan. It is the historical upper limit the tool
+// has always used; blocks at or beyond it are not visited.
+const defaultEndBlock = 18000000
+
+// replayOptions carries the parameters of one replay scan.
+type replayOptions struct {
+	silkTarget      string
+	rpcdaemonTarget string
+	makeRequest     requestBuilder
+	startBlock      int64
+	startTx         int64
+	endBlock        int64
+	continueOnDiff  bool
+	maxFailed       int
+}
+
 func runReplayTx(c *cli.Context) error {
 	startStr := c.String("start")
 	continueOnDiff := c.Bool("continue")
@@ -86,10 +104,43 @@ func runReplayTx(c *cli.Context) error {
 	}
 
 	client := rpc.NewClient("http", "", 0)
-	ctx := context.Background()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		log.Printf("Received interrupt signal. Shutting down...")
+		cancel()
+	}()
+
+	return scanTransactions(ctx, client, replayOptions{
+		silkTarget:      silkTarget,
+		rpcdaemonTarget: rpcdaemonTarget,
+		makeRequest:     makeRequest,
+		startBlock:      startBlock,
+		startTx:         startTx,
+		endBlock:        defaultEndBlock,
+		continueOnDiff:  continueOnDiff,
+		maxFailed:       maxFailed,
+	})
+}
+
+// scanTransactions walks the blocks in [startBlock, endBlock), replaying every
+// transaction against both servers, until the range is exhausted, a diff stops
+// the scan, or ctx is cancelled.
+func scanTransactions(ctx context.Context, client *rpc.Client, opts replayOptions) error {
 	failedRequest := 0
-	for block := startBlock; block < 18000000; block++ {
+	txStart := opts.startTx
+
+	for block := opts.startBlock; block < opts.endBlock; block++ {
+		if ctx.Err() != nil {
+			log.Printf("Scan terminated by user at block %d.", block)
+			return nil //nolint:nilerr // graceful shutdown on signal
+		}
+
 		fmt.Printf("%09d\r", block)
 
 		// Get block with full transactions
@@ -97,7 +148,7 @@ func runReplayTx(c *cli.Context) error {
 		blockReq := fmt.Sprintf(`{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["%s",true],"id":1}`, hexBlock)
 
 		var blockResp map[string]any
-		_, err := client.Call(ctx, silkTarget, []byte(blockReq), &blockResp)
+		_, err := client.Call(ctx, opts.silkTarget, []byte(blockReq), &blockResp)
 		if err != nil {
 			continue
 		}
@@ -113,7 +164,7 @@ func runReplayTx(c *cli.Context) error {
 			continue
 		}
 
-		for txn := int(startTx); txn < len(transactions); txn++ {
+		for txn := int(txStart); txn < len(transactions); txn++ {
 			tx, ok := transactions[txn].(map[string]any)
 			if !ok {
 				continue
@@ -124,22 +175,22 @@ func runReplayTx(c *cli.Context) error {
 			}
 			txHash, _ := tx["hash"].(string)
 
-			res := compareTxResponses(ctx, client, makeRequest, block, txn, txHash)
+			res := compareTxResponses(ctx, client, opts.makeRequest, opts.silkTarget, opts.rpcdaemonTarget, block, txn, txHash)
 			if res == 1 {
 				log.Printf("Diff on block: %d tx-index: %d Hash: %s", block, txn, txHash)
-				if !continueOnDiff {
+				if !opts.continueOnDiff {
 					return fmt.Errorf("diff found")
 				}
-				if maxFailed > 0 {
+				if opts.maxFailed > 0 {
 					failedRequest++
-					if failedRequest >= maxFailed {
-						return fmt.Errorf("max failed requests reached: %d", maxFailed)
+					if failedRequest >= opts.maxFailed {
+						return fmt.Errorf("max failed requests reached: %d", opts.maxFailed)
 					}
 				}
 			}
 		}
 		// Reset start tx after first block
-		startTx = 0
+		txStart = 0
 	}
 
 	return nil
@@ -155,7 +206,7 @@ func makeDebugTraceTransaction(txHash string) string {
 	return fmt.Sprintf(`{"jsonrpc":"2.0","method":"debug_traceTransaction","params":["%s",{"disableMemory":false,"disableStack":false,"disableStorage":false}],"id":1}`, txHash)
 }
 
-func compareTxResponses(ctx context.Context, client *rpc.Client, makeRequest requestBuilder, block int64, txIndex int, txHash string) int {
+func compareTxResponses(ctx context.Context, client *rpc.Client, makeRequest requestBuilder, silkTarget, rpcdaemonTarget string, block int64, txIndex int, txHash string) int {
 	filename := fmt.Sprintf("bn_%d_txn_%d_hash_%s", block, txIndex, txHash)
 	silkFilename := outputDir + filename + ".silk"
 	rpcdaemonFilename := outputDir + filename + ".rpcdaemon"

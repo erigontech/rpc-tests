@@ -375,7 +375,7 @@ const (
 )
 
 func decodeNode(data []byte) (int, [][]byte) {
-	items := rlpDecodeList(data)
+	items := rlpDecodeListRaw(data)
 	if len(items) == 17 {
 		return nodeTypeBranch, items
 	}
@@ -516,26 +516,6 @@ func commonPrefixLen(a, b []byte) int {
 
 // --- RLP decoding ---
 
-func rlpDecodeList(data []byte) [][]byte {
-	if len(data) == 0 {
-		return nil
-	}
-
-	_, payload := rlpDecodeListPayload(data)
-	if payload == nil {
-		return nil
-	}
-
-	var items [][]byte
-	offset := 0
-	for offset < len(payload) {
-		item, consumed := rlpDecodeItem(payload[offset:])
-		items = append(items, item)
-		offset += consumed
-	}
-	return items
-}
-
 func rlpDecodeListRaw(data []byte) [][]byte {
 	if len(data) == 0 {
 		return nil
@@ -581,55 +561,6 @@ func rlpDecodeListPayload(data []byte) (headerLen int, payload []byte) {
 		return headerLen, data[headerLen : headerLen+length]
 	}
 	return 0, nil
-}
-
-func rlpDecodeItem(data []byte) (value []byte, consumed int) {
-	if len(data) == 0 {
-		return nil, 0
-	}
-	prefix := data[0]
-
-	// Single byte
-	if prefix < 0x80 {
-		return data[:1], 1
-	}
-
-	// Short string (0-55 bytes)
-	if prefix <= 0xb7 {
-		length := int(prefix - 0x80)
-		consumed = 1 + length
-		if consumed > len(data) {
-			return nil, consumed
-		}
-		return data[1:consumed], consumed
-	}
-
-	// Long string
-	if prefix <= 0xbf {
-		lenOfLen := int(prefix - 0xb7)
-		length := decodeUintBE(data[1 : 1+lenOfLen])
-		consumed = 1 + lenOfLen + length
-		if consumed > len(data) {
-			return nil, consumed
-		}
-		return data[1+lenOfLen : consumed], consumed
-	}
-
-	// Short list (0-55 bytes)
-	if prefix <= 0xf7 {
-		length := int(prefix - 0xc0)
-		consumed = 1 + length
-		return data[1:consumed], consumed
-	}
-
-	// Long list
-	lenOfLen := int(prefix - 0xf7)
-	length := decodeUintBE(data[1 : 1+lenOfLen])
-	consumed = 1 + lenOfLen + length
-	if consumed > len(data) {
-		return nil, consumed
-	}
-	return data[1+lenOfLen : consumed], consumed
 }
 
 func rlpDecodeItemRaw(data []byte) (raw []byte, consumed int) {

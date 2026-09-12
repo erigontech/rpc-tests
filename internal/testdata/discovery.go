@@ -32,7 +32,7 @@ var validTestExtensions = map[string]bool{
 
 type fixturePeek []struct {
 	Metadata struct {
-		Latest                  bool `json:"latest"`
+		Latest                   bool `json:"latest"`
 		RequestCommitmentHistory bool `json:"erigon.request-commitment-history"`
 	} `json:"metadata"`
 }

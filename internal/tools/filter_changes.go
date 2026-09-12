@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -58,17 +59,33 @@ func runFilterChanges(c *cli.Context) error {
 	}
 	log.Printf("State change filter registered: %s", filterID)
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		log.Printf("Received interrupt signal")
+		cancel()
+	}()
 
-	delay := 2 * time.Second
-	ticker := time.NewTicker(delay)
+	return pollFilterChanges(ctx, conn, filterID, filterPollInterval)
+}
+
+// filterPollInterval is how often the registered filter is polled.
+const filterPollInterval = 2 * time.Second
+
+// pollFilterChanges polls eth_getFilterChanges and eth_getFilterLogs until ctx
+// is cancelled, then uninstalls the filter.
+func pollFilterChanges(ctx context.Context, conn *rpc.WSConn, filterID string, interval time.Duration) error {
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	for {
 		// Get filter changes
 		var changesResp jsonRPCResponse
-		err = conn.CallJSON(jsonRPCRequest{
+		err := conn.CallJSON(jsonRPCRequest{
 			Jsonrpc: "2.0",
 			Method:  "eth_getFilterChanges",
 			Params:  []any{filterID},
@@ -99,8 +116,7 @@ func runFilterChanges(c *cli.Context) error {
 		}
 
 		select {
-		case <-sigs:
-			log.Printf("Received interrupt signal")
+		case <-ctx.Done():
 			// Uninstall filter
 			var uninstallResp jsonRPCResponse
 			_ = conn.CallJSON(jsonRPCRequest{
@@ -110,7 +126,7 @@ func runFilterChanges(c *cli.Context) error {
 				ID:      4,
 			}, &uninstallResp)
 			log.Printf("State change filter unregistered")
-			return nil
+			return nil //nolint:nilerr // graceful shutdown on signal
 		case <-ticker.C:
 		}
 	}

@@ -9,12 +9,12 @@ import (
 
 // TestCase represents a discovered test file with its global numbering.
 type TestCase struct {
-	Name               string // Relative path: "api_name/test_NN.json"
-	Number             int    // Global test number (1-based, across all APIs)
-	APIName            string // API directory name
-	TransportType      string // Assigned at scheduling time
-	Latest             bool
-	CommitmentHistory   bool
+	Name              string // Relative path: "api_name/test_NN.json"
+	Number            int    // Global test number (1-based, across all APIs)
+	APIName           string // API directory name
+	TransportType     string // Assigned at scheduling time
+	Latest            bool
+	CommitmentHistory bool
 }
 
 // TestDescriptor is a scheduled test sent to workers.
@@ -101,7 +101,7 @@ type JsonRpcTest struct {
 type TestMetadata struct {
 	Latest                   bool     `json:"latest"`
 	IgnoreFields             []string `json:"ignoreFields"`
-	RequestCommitmentHistory  bool     `json:"erigon.request-commitment-history"`
+	RequestCommitmentHistory bool     `json:"erigon.request-commitment-history"`
 }
 
 // JsonRpcCommand represents a single JSON-RPC command in a test fixture.

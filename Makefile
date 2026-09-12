@@ -29,13 +29,20 @@ fmt:
 	gofmt -w .
 
 lint: $(GOLANGCI_LINT)
-	$(GOLANGCI_LINT) run
+	$(GOLANGCI_LINT) run $(PACKAGES)
 
 $(GOBIN)/golangci-lint:
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
 
+# ./... skips directories named "testdata", so internal/testdata is listed
+# explicitly or its tests never run.
+PACKAGES := ./... ./internal/testdata/
+
 test:
-	go test ./...
+	go test $(PACKAGES)
+
+cover:
+	go test -cover $(PACKAGES)
 
 clean:
 	rm -rf $(BUILD_DIR)
