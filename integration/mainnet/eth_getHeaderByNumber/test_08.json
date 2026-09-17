@@ -1,0 +1,23 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "latest tag: header of the current head block"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_getHeaderByNumber",
+            "params": [
+                "latest"
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1
+        },
+        "metadata": {
+            "latest": true
+        }
+    }
+]

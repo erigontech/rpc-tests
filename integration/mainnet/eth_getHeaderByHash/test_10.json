@@ -1,0 +1,24 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "invalid block hash: not a string"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_getHeaderByHash",
+            "params": [
+                5
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: json: cannot unmarshal non-string into Go value of type common.Hash"
+            }
+        }
+    }
+]

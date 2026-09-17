@@ -1,0 +1,24 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "invalid block hash: wrong length"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_getHeaderByHash",
+            "params": [
+                "0x1234"
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex string has length 4, want 64 for common.Hash"
+            }
+        }
+    }
+]
