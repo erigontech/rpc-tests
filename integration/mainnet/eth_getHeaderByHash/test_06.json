@@ -1,0 +1,44 @@
+[
+    {
+        "test": {
+            "reference": "https://etherscan.io/block/23068672",
+            "description": "Prague header: requestsHash present"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_getHeaderByHash",
+            "params": [
+                "0xb70015517848ec72b5bb9721b1625eb11441c92b1871042f4e74eab3f4271970"
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+                "number": "0x1600000",
+                "hash": "0xb70015517848ec72b5bb9721b1625eb11441c92b1871042f4e74eab3f4271970",
+                "parentHash": "0x4e1122fe105dbf7a3b986bc11e55371fbb3aa13d2f9715bd5c6a5ee86b177e96",
+                "nonce": "0x0000000000000000",
+                "mixHash": "0xd90bcb30926ceaca2bffa538e449a920954ddc5bf2bea5a9794b35e646ae67df",
+                "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+                "logsBloom": "0x79292ee2edb55b97b91123fbe6a05779fb4ab4e1dd563695b62967b84409b6bfd47d15baa3383aa1abb77bfb038e1d9dd6afac20dd97af752cd3be4f9b6c0facb4fbdd4acb033fa9fe336fee966eb8ea6cfc14dbd57f4973d5ddbc2e93a4f4f35b6130b3d77eddf6629efb14587c7d9b2463e0f5912cdef143e818bf571db2e1a275fbedbccac14f6d76656025fee6639507a5b1fb372b5cb6bfec7ea19caedfdb4f17969fffeb06f3dbf3c2bfc08f3b27e3a31d0014d646fdfd67de1c6ab9f9f7f25c4a11018d50e77f8b38726eb88feb75b64376afa6dff67de5ea67b6ea4f99f03dbecbc266b1a6fd929ca96d83a53d6eb513eb7a96feb64bcc32323776e9",
+                "stateRoot": "0xdef0bdee847c80b66aaa5b8957fe158df8b8d83d4af6001be2c2deb1c9837600",
+                "miner": "0x4838b106fce9647bdf1e7877bf73ce8b0bad5f97",
+                "difficulty": "0x0",
+                "extraData": "0x546974616e2028746974616e6275696c6465722e78797a29",
+                "gasLimit": "0x2ad4df0",
+                "gasUsed": "0x10cdbb6",
+                "timestamp": "0x6890d527",
+                "transactionsRoot": "0x5929af33a997cf3ccfd7f6f7b145b93dfaed1989bbe9f6c7e051e3b292aa427f",
+                "receiptsRoot": "0x35d5982a95179c3c8f146375b52d1b2129945f847a5cd77a5d9799eff5445dbe",
+                "baseFeePerGas": "0x2e5edcce",
+                "withdrawalsRoot": "0x1a12f4063a53a08b62338ffd6ff250ebd81f3a741559c70869305ef49432da91",
+                "blobGasUsed": "0x0",
+                "excessBlobGas": "0x0",
+                "parentBeaconBlockRoot": "0x6ffbfcd11a4987772fb2adcfa5433505dac2b1c5380d56fc6bb51bc91841048f",
+                "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+        }
+    }
+]

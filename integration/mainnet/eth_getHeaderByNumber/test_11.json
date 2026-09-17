@@ -1,0 +1,24 @@
+[
+    {
+        "test": {
+            "reference": "",
+            "description": "invalid block number: hex string without 0x prefix"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_getHeaderByNumber",
+            "params": [
+                "abc"
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex string without 0x prefix"
+            }
+        }
+    }
+]

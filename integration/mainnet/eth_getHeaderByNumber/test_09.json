@@ -1,0 +1,21 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/pull/877",
+            "description": "pending tag: null result, the pending block is not exposed"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_getHeaderByNumber",
+            "params": [
+                "pending"
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": null
+        }
+    }
+]

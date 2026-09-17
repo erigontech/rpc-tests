@@ -1,0 +1,21 @@
+[
+    {
+        "test": {
+            "reference": "https://github.com/ethereum/execution-apis/pull/877",
+            "description": "unknown block number: null result instead of an error"
+        },
+        "request": {
+            "jsonrpc": "2.0",
+            "method": "eth_getHeaderByNumber",
+            "params": [
+                "0x7FFFFFFFFFFFFF"
+            ],
+            "id": 1
+        },
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": null
+        }
+    }
+]
