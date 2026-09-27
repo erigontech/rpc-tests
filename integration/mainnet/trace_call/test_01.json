@@ -17,16 +17,16 @@
           "trace",
           "stateDiff"
         ],
-        "0x4366AC"
+        "0x4366AB"
       ]
     },
     "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
       "error": {
         "code": -32000,
         "message": "intrinsic gas too low: have 21000, want 53000"
-      },
-      "id": 1,
-      "jsonrpc": "2.0"
+      }
     }
   }
 ]
