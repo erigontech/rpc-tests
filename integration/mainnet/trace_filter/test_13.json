@@ -13,8 +13,8 @@
     },
     "response": {
       "error": {
-        "code": -32000,
-        "message": "invalid parameters: fromBlock cannot be greater than toBlock"
+        "code": -32602,
+        "message": "invalid block range params: fromBlock 7200003 is greater than toBlock 7200002"
       },
       "id": 1,
       "jsonrpc": "2.0"
