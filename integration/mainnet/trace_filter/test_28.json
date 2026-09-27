@@ -1,0 +1,29 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_filter",
+            "params": [
+                {
+                    "after": 2,
+                    "count": 5,
+                    "fromAddress": [
+                        "0xd05526a73bf45dadf7f9a99dcceac23c2d43c6c7"
+                    ],
+                    "fromBlock": "0x6DDD00",
+                    "toAddress": [
+                        "0x0e50e6d6bB434938D8fE670a2d7A14Cd128eB50f",
+                        "0x50E924d9439072aEa1Dd428c4CEAfC50d3BA6100"
+                    ],
+                    "toBlock": "0x6DDD01"
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": []
+        }
+    }
+]
