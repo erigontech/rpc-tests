@@ -12,9 +12,12 @@
       ]
     },
     "response": {
+      "error": {
+        "code": -32602,
+        "message": "block range extends beyond current head block"
+      },
       "id": 1,
-      "jsonrpc": "2.0",
-      "result": []
+      "jsonrpc": "2.0"
     },
     "test": {
       "description": "fromBlock is non-existent",
