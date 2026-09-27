@@ -9,7 +9,6 @@
           "data": "0xa9059cbb000000000000000000000000fc9dd1f314dbb6b95c6b5386e00f662ee8e123780000000000000000000000000000000000000000000000004563918244f40000",
           "from": "0x3FAA17384CBab39B316b017EAD3DE7E47fE99A2b",
           "gas": "0xD798",
-          "gasPrice": "0x3B9ACA00",
           "value": "0x0"
         },
         [
@@ -21,12 +20,58 @@
       ]
     },
     "response": {
-      "error": {
-        "code": -32000,
-        "message": "insufficient funds for gas * price + value: address 0x3FAA17384CBab39B316b017EAD3DE7E47fE99A2b have 27660000000000 want 55192000000000"
-      },
+      "jsonrpc": "2.0",
       "id": 1,
-      "jsonrpc": "2.0"
+      "result": {
+        "output": "0x",
+        "stateDiff": {
+          "0x3faa17384cbab39b316b017ead3de7e47fe99a2b": {
+            "balance": "=",
+            "code": "=",
+            "nonce": {
+              "*": {
+                "from": "0x1",
+                "to": "0x2"
+              }
+            },
+            "storage": {}
+          }
+        },
+        "trace": [
+          {
+            "action": {
+              "from": "0x3faa17384cbab39b316b017ead3de7e47fe99a2b",
+              "creationMethod": "create",
+              "gas": "0x0",
+              "init": "0xa9059cbb000000000000000000000000fc9dd1f314dbb6b95c6b5386e00f662ee8e123780000000000000000000000000000000000000000000000004563918244f40000",
+              "value": "0x0"
+            },
+            "error": "invalid opcode: opcode 0xa9 not defined",
+            "result": null,
+            "subtraces": 0,
+            "traceAddress": [],
+            "type": "create"
+          }
+        ],
+        "vmTrace": {
+          "code": "0xa9059cbb000000000000000000000000fc9dd1f314dbb6b95c6b5386e00f662ee8e123780000000000000000000000000000000000000000000000004563918244f40000",
+          "ops": [
+            {
+              "cost": 0,
+              "ex": {
+                "mem": null,
+                "push": [],
+                "store": null,
+                "used": 0
+              },
+              "pc": 0,
+              "sub": null,
+              "op": "opcode 0xa9 not defined",
+              "idx": "0"
+            }
+          ]
+        }
+      }
     }
   }
 ]

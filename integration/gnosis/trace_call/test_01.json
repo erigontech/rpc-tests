@@ -33,17 +33,6 @@
               }
             },
             "storage": {}
-          },
-          "0x6bbe78ee9e474842dbd4ab4987b3cefe88426a92": {
-            "balance": {
-              "*": {
-                "from": "0x3ac92292fe5a68ec69c",
-                "to": "0x3ac92292fe5a69114cc"
-              }
-            },
-            "code": "=",
-            "nonce": "=",
-            "storage": {}
           }
         },
         "trace": [],
