@@ -22,7 +22,7 @@
                     },
                     "blockHash": "0xa04817be4e04f998eb7b56621106b2434bb30f07ec0db3595debda7e34fabe85",
                     "blockNumber": 5001211,
-                    "error": "contract creation code storage out of gas",
+                    "error": "Out of gas",
                     "result": null,
                     "subtraces": 0,
                     "traceAddress": [],

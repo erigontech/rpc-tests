@@ -4461,7 +4461,7 @@
                 "to": "0xa2327a938febf5fec13bacfb16ae10ecbc4cbdcf",
                 "value": "0x0"
               },
-              "error": "out of gas",
+              "error": "Out of gas",
               "result": null,
               "subtraces": 0,
               "traceAddress": [
@@ -20713,7 +20713,7 @@
                 "to": "0x0a252663dbcc0b073063d6420a40319e438cfa59",
                 "value": "0x0"
               },
-              "error": "out of gas",
+              "error": "Out of gas",
               "result": null,
               "subtraces": 21,
               "traceAddress": [],

@@ -85,7 +85,7 @@
                 "to": "0x419d0d8bdd9af5e606ae2232ed285aff190e711b",
                 "value": "0xcce416600"
               },
-              "error": "invalid opcode: INVALID",
+              "error": "Bad instruction",
               "result": null,
               "subtraces": 0,
               "traceAddress": [],

@@ -22,7 +22,7 @@
                     },
                     "blockHash": "0x9e8df3150f00e68f8a2673316b58e9943fcd2541e686299017bdb4e8f0740c5f",
                     "blockNumber": 5003975,
-                    "error": "gas uint64 overflow",
+                    "error": "Out of gas",
                     "result": null,
                     "subtraces": 0,
                     "traceAddress": [],

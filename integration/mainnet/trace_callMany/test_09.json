@@ -84,7 +84,7 @@
                 "to": "0x8d12a197cb00d4747a1fe03395095ce2a5cc6819",
                 "value": "0x0"
               },
-              "error": "invalid jump destination",
+              "error": "Bad jump destination",
               "result": null,
               "subtraces": 0,
               "traceAddress": [],
@@ -1464,7 +1464,7 @@
                 "init": "0xd0679d34000000000000000000000000c9e808ebc99b9879a4a71a09425b85501c67b3ed0000000000000000000000000000000000000000000000000000000000000073",
                 "value": "0x0"
               },
-              "error": "invalid opcode: opcode 0xd0 not defined",
+              "error": "Bad instruction",
               "result": null,
               "subtraces": 0,
               "traceAddress": [],

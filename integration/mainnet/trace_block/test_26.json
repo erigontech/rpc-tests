@@ -4064,7 +4064,7 @@
           },
           "blockHash": "0xd0d133fcedc050040fb52c48ae5ac1749846cd2b32478bcbe8be67000269336f",
           "blockNumber": 17073191,
-          "error": "out of gas",
+          "error": "Out of gas",
           "result": null,
           "subtraces": 0,
           "traceAddress": [
@@ -15698,7 +15698,7 @@
           },
           "blockHash": "0xd0d133fcedc050040fb52c48ae5ac1749846cd2b32478bcbe8be67000269336f",
           "blockNumber": 17073191,
-          "error": "out of gas",
+          "error": "Out of gas",
           "result": null,
           "subtraces": 21,
           "traceAddress": [],

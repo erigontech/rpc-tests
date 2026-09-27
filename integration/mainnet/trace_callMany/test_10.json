@@ -83,7 +83,7 @@
                 "init": "0xd0679d34000000000000000000000000c9e808ebc99b9879a4a71a09425b85501c67b3ed0000000000000000000000000000000000000000000000000000000000000073",
                 "value": "0x0"
               },
-              "error": "invalid opcode: opcode 0xd0 not defined",
+              "error": "Bad instruction",
               "result": null,
               "subtraces": 0,
               "traceAddress": [],
