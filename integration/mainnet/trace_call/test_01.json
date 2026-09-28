@@ -24,7 +24,7 @@
       "jsonrpc": "2.0",
       "id": 1,
       "error": {
-        "code": -32000,
+        "code": -38013,
         "message": "intrinsic gas too low: have 21000, want 53000"
       }
     }
