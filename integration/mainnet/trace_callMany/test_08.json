@@ -1477,12 +1477,7 @@
               },
               {
                 "cost": 8,
-                "ex": {
-                  "mem": null,
-                  "push": [],
-                  "store": null,
-                  "used": 227467
-                },
+                "ex": null,
                 "idx": "1-87",
                 "op": "JUMP",
                 "pc": 3078,
