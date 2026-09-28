@@ -42,7 +42,7 @@
     },
     "response": {
       "error": {
-        "code": -32000,
+        "code": -38013,
         "message": "first run for txIndex 1 error: intrinsic gas too low: have 50000, want 443032"
       },
       "id": 1,
