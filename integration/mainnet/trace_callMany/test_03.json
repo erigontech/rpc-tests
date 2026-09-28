@@ -106,7 +106,7 @@
                 "to": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
                 "value": "0x0"
               },
-              "error": "invalid opcode: INVALID",
+              "error": "Bad instruction",
               "result": null,
               "subtraces": 0,
               "traceAddress": [],

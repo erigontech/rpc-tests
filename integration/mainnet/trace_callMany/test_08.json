@@ -151,7 +151,7 @@
                 "to": "0x8d12a197cb00d4747a1fe03395095ce2a5cc6819",
                 "value": "0x0"
               },
-              "error": "invalid jump destination",
+              "error": "Bad jump destination",
               "result": null,
               "subtraces": 0,
               "traceAddress": [],

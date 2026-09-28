@@ -7510,7 +7510,7 @@
                 "to": "0xa146240bf2c04005a743032dc0d241ec0bb2ba2b",
                 "value": "0x0"
               },
-              "error": "invalid opcode: INVALID",
+              "error": "Bad instruction",
               "result": null,
               "subtraces": 0,
               "traceAddress": [],

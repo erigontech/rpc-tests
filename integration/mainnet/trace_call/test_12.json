@@ -63,7 +63,7 @@
               "init": "0x071ccd0a00610023",
               "value": "0x0"
             },
-            "error": "stack underflow (0 <=> 2)",
+            "error": "Stack underflow",
             "result": null,
             "subtraces": 0,
             "traceAddress": [],
