@@ -72,21 +72,7 @@
         ],
         "vmTrace": {
           "code": "0xe4849b320000000000000000000000000000000000000000000000000000000000000000",
-          "ops": [
-            {
-              "cost": 0,
-              "ex": {
-                "mem": null,
-                "push": [],
-                "store": null,
-                "used": 7550321
-              },
-              "idx": "0",
-              "op": "opcode 0xe4 not defined",
-              "pc": 0,
-              "sub": null
-            }
-          ]
+          "ops": []
         }
       }
     }

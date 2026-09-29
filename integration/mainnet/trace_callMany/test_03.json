@@ -4279,19 +4279,6 @@
                 "sub": null,
                 "op": "JUMPI",
                 "idx": "1-274"
-              },
-              {
-                "cost": 0,
-                "ex": {
-                  "mem": null,
-                  "push": [],
-                  "store": null,
-                  "used": 34066
-                },
-                "pc": 6521,
-                "sub": null,
-                "op": "INVALID",
-                "idx": "1-275"
               }
             ]
           }

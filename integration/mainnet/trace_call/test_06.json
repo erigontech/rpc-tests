@@ -55,21 +55,7 @@
         ],
         "vmTrace": {
           "code": "0xa9059cbb000000000000000000000000fc9dd1f314dbb6b95c6b5386e00f662ee8e123780000000000000000000000000000000000000000000000004563918244f40000",
-          "ops": [
-            {
-              "cost": 0,
-              "ex": {
-                "mem": null,
-                "push": [],
-                "store": null,
-                "used": 0
-              },
-              "pc": 0,
-              "sub": null,
-              "op": "opcode 0xa9 not defined",
-              "idx": "0"
-            }
-          ]
+          "ops": []
         }
       }
     }

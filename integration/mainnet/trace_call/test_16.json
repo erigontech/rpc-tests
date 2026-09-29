@@ -72,21 +72,7 @@
         ],
         "vmTrace": {
           "code": "0x071ccd0a00610023",
-          "ops": [
-            {
-              "cost": 5,
-              "ex": {
-                "mem": null,
-                "push": [],
-                "store": null,
-                "used": 306579
-              },
-              "idx": "0",
-              "op": "SMOD",
-              "pc": 0,
-              "sub": null
-            }
-          ]
+          "ops": []
         }
       }
     }
