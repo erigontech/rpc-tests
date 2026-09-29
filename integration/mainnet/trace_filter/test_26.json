@@ -1,0 +1,26 @@
+[
+    {
+        "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "trace_filter",
+            "params": [
+                {
+                    "fromAddress": [
+                        "0x4E69eBb5dD1C75DFf083dE765D0D8e21e1312529"
+                    ],
+                    "fromBlock": "0x6DDD00",
+                    "toAddress": [
+                        "0x827727B4C3F75ea6Eb6Bd2CC256De40dB2B13665"
+                    ],
+                    "toBlock": "0x6DDD01"
+                }
+            ]
+        },
+        "response": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "result": []
+        }
+    }
+]
