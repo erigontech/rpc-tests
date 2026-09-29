@@ -13,15 +13,14 @@
         },
         "response": {
             "error": {
-                "code": -32000,
-                "message": "invalid parameters: fromBlock cannot be greater than toBlock"
+                "code": -32602,
+                "message": "block range extends beyond current head block"
             },
             "id": 1,
-            "jsonrpc": "2.0",
-            "result": null
+            "jsonrpc": "2.0"
         },
         "test": {
-            "description": "FROM block greather than TO block",
+            "description": "fromBlock greater than toBlock, both past the head",
             "reference": ""
         }
     }
