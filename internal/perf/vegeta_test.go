@@ -3,11 +3,13 @@ package perf
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -264,7 +266,7 @@ func TestProcessResultsSuccess(t *testing.T) {
 	cfg.InstantReport = true
 
 	metrics := syntheticMetrics(okResult(10*time.Millisecond), okResult(20*time.Millisecond))
-	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics); err != nil {
+	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, nil); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
@@ -273,7 +275,7 @@ func TestProcessResultsAllFailedIsAnError(t *testing.T) {
 	pt, _, _ := newTestPerf(t, "http://localhost:8545")
 
 	metrics := syntheticMetrics(errResult("connection refused"), errResult("connection refused"))
-	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics)
+	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, nil)
 	if err == nil {
 		t.Fatal("expected an error when the success ratio is 0")
 	}
@@ -287,7 +289,7 @@ func TestProcessResultsHaltOnVegetaError(t *testing.T) {
 	cfg.HaltOnVegetaError = true
 
 	metrics := syntheticMetrics(okResult(time.Millisecond), errResult("timeout"))
-	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics)
+	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, nil)
 	if err == nil {
 		t.Fatal("expected an error when halt-on-error is set and errors occurred")
 	}
@@ -307,7 +309,7 @@ func TestProcessResultsSummarisesManyErrors(t *testing.T) {
 		errResult("connection refused"),
 		errResult("EOF"),
 	)
-	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics); err != nil {
+	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, nil); err != nil {
 		t.Errorf("errors alone should not fail the test: %v", err)
 	}
 }
@@ -445,5 +447,110 @@ func TestExecuteSequencePropagatesFailure(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "ratio is 0.00%") {
 		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestRPCErrorMessage(t *testing.T) {
+	tests := []struct {
+		name    string
+		body    string
+		wantMsg string
+		wantErr bool
+	}{
+		{"result", `{"jsonrpc":"2.0","id":1,"result":"0x"}`, "", false},
+		{"error", `{"jsonrpc":"2.0","id":1,"error":{"code":-32000,"message":"insufficient funds for gas * price + value"}}`, "insufficient funds for gas * price + value", true},
+		{"error before id", `{"jsonrpc":"2.0","error":{"code":-32005,"message":"server overloaded, retry later"},"id":null}`, "server overloaded, retry later", true},
+		{"nested error inside a result", `{"jsonrpc":"2.0","id":1,"result":{"type":"CALL","error":"execution reverted"}}`, "", false},
+		{"empty body", ``, "", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg, isErr := rpcErrorMessage([]byte(tt.body))
+			if isErr != tt.wantErr || msg != tt.wantMsg {
+				t.Errorf("got (%q, %v), want (%q, %v)", msg, isErr, tt.wantMsg, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestRunVegetaAttackCountsRPCErrors(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"error":{"code":3,"message":"execution reverted"}}`))
+	}))
+	defer server.Close()
+
+	pt, _, dirs := newTestPerf(t, server.URL)
+	targets := []vegeta.Target{{Method: "POST", URL: server.URL, Body: []byte(`{}`)}}
+	out := filepath.Join(dirs.RunTestDir, "attack.bin")
+	metrics, rpcErrors, err := pt.runVegetaAttack(context.Background(), targets, 50, 200*time.Millisecond, out)
+	if err != nil {
+		t.Fatalf("runVegetaAttack: %v", err)
+	}
+	if metrics.Requests == 0 {
+		t.Fatal("the attack should have reached the server")
+	}
+	if metrics.Success != 1 {
+		t.Errorf("vegeta success = %v: HTTP 200 counts as success", metrics.Success)
+	}
+	if got := rpcErrors["execution reverted"]; uint64(got) != metrics.Requests {
+		t.Errorf("rpc errors = %d, want one per request (%d)", got, metrics.Requests)
+	}
+}
+
+func TestFormatRPCErrors(t *testing.T) {
+	tests := []struct {
+		name      string
+		rpcErrors map[string]int
+		requests  uint64
+		want      string
+	}{
+		{"none", nil, 10, ""},
+		{"one kind", map[string]int{"execution reverted": 5}, 10, " rpc_errors=5 (50.00%) top=execution reverted (x5)"},
+		{"several kinds", map[string]int{"execution reverted": 1, "insufficient funds": 3}, 8, " rpc_errors=4 (50.00%) top=insufficient funds (x3) (+1 more)"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := formatRPCErrors(tt.rpcErrors, tt.requests); got != tt.want {
+				t.Errorf("got %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRPCErrorKind(t *testing.T) {
+	tests := []struct{ msg, want string }{
+		{"insufficient funds for gas * price + value: address 0xD251 have 2122 want 5343", "insufficient funds for gas * price + value"},
+		{"fee cap less than block base fee: address 0xbD23, feeCap: 128399523 baseFee: 214962990", "fee cap less than block base fee"},
+		{"execution reverted: Ownable: caller is not the owner", "execution reverted"},
+		{"execution reverted", "execution reverted"},
+		{"out of gas", "out of gas"},
+	}
+	for _, tt := range tests {
+		if got := RPCErrorKind(tt.msg); got != tt.want {
+			t.Errorf("RPCErrorKind(%q) = %q, want %q", tt.msg, got, tt.want)
+		}
+	}
+}
+
+func TestRunVegetaAttackGroupsRPCErrorsByKind(t *testing.T) {
+	var n int
+	var mu sync.Mutex
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		n++
+		i := n
+		mu.Unlock()
+		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"error":{"code":-32000,"message":"fee cap less than block base fee: address 0x%x, feeCap: %d"}}`, i, i)
+	}))
+	defer server.Close()
+
+	pt, _, dirs := newTestPerf(t, server.URL)
+	targets := []vegeta.Target{{Method: "POST", URL: server.URL, Body: []byte(`{}`)}}
+	metrics, rpcErrors, err := pt.runVegetaAttack(context.Background(), targets, 50, 200*time.Millisecond, filepath.Join(dirs.RunTestDir, "attack.bin"))
+	if err != nil {
+		t.Fatalf("runVegetaAttack: %v", err)
+	}
+	if len(rpcErrors) != 1 || uint64(rpcErrors["fee cap less than block base fee"]) != metrics.Requests {
+		t.Errorf("rpc errors %v, want all %d grouped under one kind", rpcErrors, metrics.Requests)
 	}
 }

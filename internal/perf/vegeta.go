@@ -3,6 +3,7 @@ package perf
 import (
 	"archive/tar"
 	"bufio"
+	"bytes"
 	"compress/bzip2"
 	"compress/gzip"
 	"context"
@@ -168,7 +169,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		return fmt.Errorf("failed to load targets: %w", err)
 	}
 
-	metrics, err := pt.runVegetaAttack(ctx, targets, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
+	metrics, rpcErrors, err := pt.runVegetaAttack(ctx, targets, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
 	if err != nil {
 		return fmt.Errorf("vegeta attack failed: %w", err)
 	}
@@ -180,7 +181,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		}
 	}
 
-	return pt.processResults(testNumber, repetition, name, qps, duration, metrics)
+	return pt.processResults(testNumber, repetition, name, qps, duration, metrics, rpcErrors)
 }
 
 // ExecuteSequence executes a sequence of performance tests.
@@ -279,7 +280,8 @@ func (pt *PerfTest) loadTargets(filepath string) ([]vegeta.Target, error) {
 }
 
 // runVegetaAttack executes a Vegeta attack using the library.
-func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target, qps int, duration time.Duration, outputFile string) (*vegeta.Metrics, error) {
+// It also returns the JSON-RPC error responses by message: they come with HTTP 200, so vegeta counts them as successes.
+func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target, qps int, duration time.Duration, outputFile string) (*vegeta.Metrics, map[string]int, error) {
 	rate := vegeta.Rate{Freq: qps, Per: time.Second}
 	targeter := vegeta.NewStaticTargeter(targets...)
 
@@ -318,13 +320,14 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 
 	out, err := os.Create(outputFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create output file: %w", err)
+		return nil, nil, fmt.Errorf("failed to create output file: %w", err)
 	}
 	defer out.Close()
 
 	encoder := vegeta.NewEncoder(out)
 
 	var metrics vegeta.Metrics
+	rpcErrors := map[string]int{}
 	resultCh := attacker.Attack(targeter, rate, duration, "vegeta-attack")
 	for {
 		select {
@@ -332,20 +335,55 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 			if result == nil {
 				metrics.Close()
 				tr.CloseIdleConnections()
-				return &metrics, nil
+				return &metrics, rpcErrors, nil
 			}
 			metrics.Add(result)
+			if result.Code == http.StatusOK {
+				if msg, ok := rpcErrorMessage(result.Body); ok {
+					rpcErrors[RPCErrorKind(msg)]++
+				}
+			}
 			if err := encoder.Encode(result); err != nil {
 				log.Printf("Warning: failed to encode result: %v", err)
 			}
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			return nil, nil, ctx.Err()
 		}
 	}
 }
 
+// RPCErrorKind drops what nodes append after the first colon (addresses, amounts, revert reasons),
+// so that errors of the same kind are counted together.
+func RPCErrorKind(msg string) string {
+	kind, _, _ := strings.Cut(msg, ":")
+	return strings.TrimSpace(kind)
+}
+
+// rpcErrorMessage reports whether body is a JSON-RPC error response and returns its message.
+// Only the head is scanned for a top-level "error" ahead of any "result", so a result that embeds
+// an "error" field (e.g. a call trace) is not taken for an error, and successful bodies are never decoded.
+func rpcErrorMessage(body []byte) (string, bool) {
+	head := body[:min(len(body), 128)]
+	errAt := bytes.Index(head, []byte(`"error"`))
+	if errAt < 0 {
+		return "", false
+	}
+	if resAt := bytes.Index(head, []byte(`"result"`)); resAt >= 0 && resAt < errAt {
+		return "", false
+	}
+	var resp struct {
+		Error *struct {
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+	if json.Unmarshal(body, &resp) != nil || resp.Error == nil {
+		return "", false
+	}
+	return resp.Error.Message, true
+}
+
 // processResults processes the vegeta metrics and generates reports.
-func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps, duration int, metrics *vegeta.Metrics) error {
+func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps, duration int, metrics *vegeta.Metrics, rpcErrors map[string]int) error {
 	minLatency := FormatDuration(metrics.Latencies.Min)
 	mean := FormatDuration(metrics.Latencies.Mean)
 	p50 := FormatDuration(metrics.Latencies.P50)
@@ -390,6 +428,7 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 	if errorMsg != "" {
 		resultRecord += fmt.Sprintf(" error=%s", errorMsg)
 	}
+	resultRecord += formatRPCErrors(rpcErrors, metrics.Requests)
 	fmt.Println(resultRecord)
 
 	if errorMsg != "" && pt.Config.HaltOnVegetaError {
@@ -598,4 +637,23 @@ func replaceInFile(filepath, old, new string) error {
 	}
 	output := strings.ReplaceAll(string(input), old, new)
 	return os.WriteFile(filepath, []byte(output), 0644)
+}
+
+// formatRPCErrors summarises JSON-RPC error responses as " rpc_errors=N (P%) top=message (xC)", or "" when there are none.
+func formatRPCErrors(rpcErrors map[string]int, requests uint64) string {
+	total, topMsg, topCount := 0, "", 0
+	for msg, count := range rpcErrors {
+		total += count
+		if count > topCount || (count == topCount && msg < topMsg) {
+			topMsg, topCount = msg, count
+		}
+	}
+	if total == 0 || requests == 0 {
+		return ""
+	}
+	out := fmt.Sprintf(" rpc_errors=%d (%.2f%%) top=%s (x%d)", total, 100*float64(total)/float64(requests), topMsg, topCount)
+	if len(rpcErrors) > 1 {
+		out += fmt.Sprintf(" (+%d more)", len(rpcErrors)-1)
+	}
+	return out
 }
