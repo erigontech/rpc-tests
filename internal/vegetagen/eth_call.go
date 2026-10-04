@@ -13,11 +13,13 @@ type callArgs struct {
 }
 
 func (EthCall) Method() string { return "eth_call" }
+func (EthCall) Kind() Kind     { return PerTx }
 
-func (EthCall) Request(txn Transaction, blockParam string) ([]byte, error) {
+func (EthCall) Request(it Item, p Params) ([]byte, error) {
+	txn := it.Txn
 	args := callArgs{From: txn.From, To: txn.To, Gas: txn.Gas, GasPrice: txn.GasPrice, Value: txn.Value}
 	if txn.Input != "0x" {
 		args.Data = txn.Input
 	}
-	return marshalRequest("eth_call", args, blockParam)
+	return marshalRequest("eth_call", args, p.BlockParam)
 }
