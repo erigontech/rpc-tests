@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -266,7 +267,7 @@ func TestProcessResultsSuccess(t *testing.T) {
 	cfg.InstantReport = true
 
 	metrics := syntheticMetrics(okResult(10*time.Millisecond), okResult(20*time.Millisecond))
-	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, nil); err != nil {
+	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{}); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
@@ -275,7 +276,7 @@ func TestProcessResultsAllFailedIsAnError(t *testing.T) {
 	pt, _, _ := newTestPerf(t, "http://localhost:8545")
 
 	metrics := syntheticMetrics(errResult("connection refused"), errResult("connection refused"))
-	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, nil)
+	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{})
 	if err == nil {
 		t.Fatal("expected an error when the success ratio is 0")
 	}
@@ -289,7 +290,7 @@ func TestProcessResultsHaltOnVegetaError(t *testing.T) {
 	cfg.HaltOnVegetaError = true
 
 	metrics := syntheticMetrics(okResult(time.Millisecond), errResult("timeout"))
-	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, nil)
+	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{})
 	if err == nil {
 		t.Fatal("expected an error when halt-on-error is set and errors occurred")
 	}
@@ -309,7 +310,7 @@ func TestProcessResultsSummarisesManyErrors(t *testing.T) {
 		errResult("connection refused"),
 		errResult("EOF"),
 	)
-	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, nil); err != nil {
+	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{}); err != nil {
 		t.Errorf("errors alone should not fail the test: %v", err)
 	}
 }
@@ -482,7 +483,7 @@ func TestRunVegetaAttackCountsRPCErrors(t *testing.T) {
 	pt, _, dirs := newTestPerf(t, server.URL)
 	targets := []vegeta.Target{{Method: "POST", URL: server.URL, Body: []byte(`{}`)}}
 	out := filepath.Join(dirs.RunTestDir, "attack.bin")
-	metrics, rpcErrors, err := pt.runVegetaAttack(context.Background(), targets, 50, 200*time.Millisecond, out)
+	metrics, results, err := pt.runVegetaAttack(context.Background(), targets, 50, 200*time.Millisecond, out)
 	if err != nil {
 		t.Fatalf("runVegetaAttack: %v", err)
 	}
@@ -492,7 +493,7 @@ func TestRunVegetaAttackCountsRPCErrors(t *testing.T) {
 	if metrics.Success != 1 {
 		t.Errorf("vegeta success = %v: HTTP 200 counts as success", metrics.Success)
 	}
-	if got := rpcErrors["execution reverted"]; uint64(got) != metrics.Requests {
+	if got := results.rpcErrors["execution reverted"]; uint64(got) != metrics.Requests {
 		t.Errorf("rpc errors = %d, want one per request (%d)", got, metrics.Requests)
 	}
 }
@@ -546,11 +547,104 @@ func TestRunVegetaAttackGroupsRPCErrorsByKind(t *testing.T) {
 
 	pt, _, dirs := newTestPerf(t, server.URL)
 	targets := []vegeta.Target{{Method: "POST", URL: server.URL, Body: []byte(`{}`)}}
-	metrics, rpcErrors, err := pt.runVegetaAttack(context.Background(), targets, 50, 200*time.Millisecond, filepath.Join(dirs.RunTestDir, "attack.bin"))
+	metrics, results, err := pt.runVegetaAttack(context.Background(), targets, 50, 200*time.Millisecond, filepath.Join(dirs.RunTestDir, "attack.bin"))
 	if err != nil {
 		t.Fatalf("runVegetaAttack: %v", err)
 	}
-	if len(rpcErrors) != 1 || uint64(rpcErrors["fee cap less than block base fee"]) != metrics.Requests {
-		t.Errorf("rpc errors %v, want all %d grouped under one kind", rpcErrors, metrics.Requests)
+	if len(results.rpcErrors) != 1 || uint64(results.rpcErrors["fee cap less than block base fee"]) != metrics.Requests {
+		t.Errorf("rpc errors %v, want all %d grouped under one kind", results.rpcErrors, metrics.Requests)
+	}
+}
+
+func TestLoadTargetsTagsTheMethodWhenVerbose(t *testing.T) {
+	pt, cfg, _ := newTestPerf(t, "http://localhost:8545")
+	cfg.Verbose = true
+
+	path := filepath.Join(t.TempDir(), "targets.txt")
+	if err := os.WriteFile(path, []byte(targetLine("http://localhost:8545")+"\n"), 0644); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	targets, err := pt.loadTargets(path)
+	if err != nil {
+		t.Fatalf("loadTargets: %v", err)
+	}
+	if got := targets[0].URL; got != "http://localhost:8545#eth_getLogs" {
+		t.Errorf("url %q, want the method as fragment", got)
+	}
+}
+
+// apiServer answers eth_call with an error and any other method with a result.
+func apiServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		if r.URL.Fragment != "" || strings.Contains(r.RequestURI, "#") {
+			t.Errorf("the fragment reached the server: %q", r.RequestURI)
+		}
+		if strings.Contains(string(body), `"eth_call"`) {
+			_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"error":{"code":3,"message":"execution reverted: no"}}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":[]}`))
+	}))
+	t.Cleanup(srv.Close)
+	return srv
+}
+
+func TestRunVegetaAttackCountsResultsByAPI(t *testing.T) {
+	srv := apiServer(t)
+	pt, cfg, dirs := newTestPerf(t, srv.URL)
+	cfg.Verbose = true
+	targets := []vegeta.Target{
+		{Method: "POST", URL: srv.URL + "#eth_call", Body: []byte(`{"jsonrpc":"2.0","method":"eth_call","params":[],"id":1}`)},
+		{Method: "POST", URL: srv.URL + "#eth_getLogs", Body: []byte(`{"jsonrpc":"2.0","method":"eth_getLogs","params":[],"id":1}`)},
+	}
+	out := filepath.Join(dirs.RunTestDir, "attack.bin")
+	metrics, results, err := pt.runVegetaAttack(context.Background(), targets, 50, 200*time.Millisecond, out)
+	if err != nil {
+		t.Fatalf("runVegetaAttack: %v", err)
+	}
+	calls, logs := results.apis["eth_call"], results.apis["eth_getLogs"]
+	if calls == nil || logs == nil {
+		t.Fatalf("apis %v, want eth_call and eth_getLogs", results.apis)
+	}
+	if uint64(calls.requests+logs.requests) != metrics.Requests {
+		t.Errorf("api requests %d+%d, want %d", calls.requests, logs.requests, metrics.Requests)
+	}
+	if calls.errors["execution reverted"] != calls.requests || len(logs.errors) != 0 {
+		t.Errorf("eth_call errors %v of %d, eth_getLogs errors %v", calls.errors, calls.requests, logs.errors)
+	}
+
+	// The .bin keeps the URL the node received, without the fragment.
+	f, err := os.Open(out)
+	if err != nil {
+		t.Fatalf("open bin: %v", err)
+	}
+	defer f.Close()
+	dec := vegeta.NewDecoder(f)
+	for {
+		var r vegeta.Result
+		if err := dec.Decode(&r); err != nil {
+			break
+		}
+		if r.URL != srv.URL {
+			t.Fatalf("bin url %q, want %q", r.URL, srv.URL)
+		}
+	}
+}
+
+func TestFormatAPIResults(t *testing.T) {
+	apis := map[string]*apiResult{
+		"eth_call":    {requests: 6, errors: map[string]int{"execution reverted": 2}},
+		"eth_getLogs": {requests: 2, errors: map[string]int{}},
+	}
+	got := formatAPIResults(apis)
+	want := []string{
+		"      api                             share   result    error",
+		"      eth_call                        75.0%    66.7%    33.3%  top=execution reverted (x2)",
+		"      eth_getLogs                     25.0%   100.0%     0.0%",
+	}
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Errorf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
 	}
 }
