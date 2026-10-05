@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -169,7 +170,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		return fmt.Errorf("failed to load targets: %w", err)
 	}
 
-	metrics, rpcErrors, err := pt.runVegetaAttack(ctx, targets, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
+	metrics, results, err := pt.runVegetaAttack(ctx, targets, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
 	if err != nil {
 		return fmt.Errorf("vegeta attack failed: %w", err)
 	}
@@ -181,7 +182,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		}
 	}
 
-	return pt.processResults(testNumber, repetition, name, qps, duration, metrics, rpcErrors)
+	return pt.processResults(testNumber, repetition, name, qps, duration, metrics, results)
 }
 
 // ExecuteSequence executes a sequence of performance tests.
@@ -252,9 +253,16 @@ func (pt *PerfTest) loadTargets(filepath string) ([]vegeta.Target, error) {
 			return nil, fmt.Errorf("failed to parse target: %w", err)
 		}
 
+		url := vt.URL
+		// The method rides in the URL fragment, which is never sent, so each result tells its API.
+		if pt.Config.Verbose {
+			if method := jsonrpcMethod(vt.Body); method != "" {
+				url += "#" + method
+			}
+		}
 		target := vegeta.Target{
 			Method: vt.Method,
-			URL:    vt.URL,
+			URL:    url,
 			Body:   vt.Body,
 			Header: make(http.Header),
 		}
@@ -281,7 +289,7 @@ func (pt *PerfTest) loadTargets(filepath string) ([]vegeta.Target, error) {
 
 // runVegetaAttack executes a Vegeta attack using the library.
 // It also returns the JSON-RPC error responses by message: they come with HTTP 200, so vegeta counts them as successes.
-func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target, qps int, duration time.Duration, outputFile string) (*vegeta.Metrics, map[string]int, error) {
+func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target, qps int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
 	rate := vegeta.Rate{Freq: qps, Per: time.Second}
 	targeter := vegeta.NewStaticTargeter(targets...)
 
@@ -320,14 +328,14 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 
 	out, err := os.Create(outputFile)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create output file: %w", err)
+		return nil, attackResults{}, fmt.Errorf("failed to create output file: %w", err)
 	}
 	defer out.Close()
 
 	encoder := vegeta.NewEncoder(out)
 
 	var metrics vegeta.Metrics
-	rpcErrors := map[string]int{}
+	results := attackResults{rpcErrors: map[string]int{}, apis: map[string]*apiResult{}}
 	resultCh := attacker.Attack(targeter, rate, duration, "vegeta-attack")
 	for {
 		select {
@@ -335,19 +343,15 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 			if result == nil {
 				metrics.Close()
 				tr.CloseIdleConnections()
-				return &metrics, rpcErrors, nil
+				return &metrics, results, nil
 			}
+			results.add(result)
 			metrics.Add(result)
-			if result.Code == http.StatusOK {
-				if msg, ok := rpcErrorMessage(result.Body); ok {
-					rpcErrors[RPCErrorKind(msg)]++
-				}
-			}
 			if err := encoder.Encode(result); err != nil {
 				log.Printf("Warning: failed to encode result: %v", err)
 			}
 		case <-ctx.Done():
-			return nil, nil, ctx.Err()
+			return nil, attackResults{}, ctx.Err()
 		}
 	}
 }
@@ -383,7 +387,7 @@ func rpcErrorMessage(body []byte) (string, bool) {
 }
 
 // processResults processes the vegeta metrics and generates reports.
-func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps, duration int, metrics *vegeta.Metrics, rpcErrors map[string]int) error {
+func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps, duration int, metrics *vegeta.Metrics, results attackResults) error {
 	minLatency := FormatDuration(metrics.Latencies.Min)
 	mean := FormatDuration(metrics.Latencies.Mean)
 	p50 := FormatDuration(metrics.Latencies.P50)
@@ -428,8 +432,13 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 	if errorMsg != "" {
 		resultRecord += fmt.Sprintf(" error=%s", errorMsg)
 	}
-	resultRecord += formatRPCErrors(rpcErrors, metrics.Requests)
+	resultRecord += formatRPCErrors(results.rpcErrors, metrics.Requests)
 	fmt.Println(resultRecord)
+	if pt.Config.Verbose {
+		for _, line := range formatAPIResults(results.apis) {
+			fmt.Println(line)
+		}
+	}
 
 	if errorMsg != "" && pt.Config.HaltOnVegetaError {
 		return fmt.Errorf("test failed: %s", errorMsg)
@@ -654,6 +663,109 @@ func formatRPCErrors(rpcErrors map[string]int, requests uint64) string {
 	out := fmt.Sprintf(" rpc_errors=%d (%.2f%%) top=%s (x%d)", total, 100*float64(total)/float64(requests), topMsg, topCount)
 	if len(rpcErrors) > 1 {
 		out += fmt.Sprintf(" (+%d more)", len(rpcErrors)-1)
+	}
+	return out
+}
+
+// attackResults are the JSON-RPC outcomes of one attack, which vegeta does not see.
+type attackResults struct {
+	rpcErrors map[string]int        // JSON-RPC error responses by kind
+	apis      map[string]*apiResult // by method, for targets tagged by loadTargets
+}
+
+type apiResult struct {
+	requests int
+	errors   map[string]int // JSON-RPC errors and failed requests, by kind
+}
+
+// add counts one result and strips the method fragment from its URL, so that the .bin holds
+// the URL the node received.
+func (r attackResults) add(result *vegeta.Result) {
+	base, api, tagged := strings.Cut(result.URL, "#")
+	if tagged {
+		result.URL = base
+	}
+	kind := ""
+	if result.Code == http.StatusOK {
+		if msg, ok := rpcErrorMessage(result.Body); ok {
+			kind = RPCErrorKind(msg)
+			r.rpcErrors[kind]++
+		}
+	} else if result.Error != "" {
+		kind = "request failed"
+	} else {
+		kind = fmt.Sprintf("http %d", result.Code)
+	}
+	if !tagged {
+		return
+	}
+	a := r.apis[api]
+	if a == nil {
+		a = &apiResult{errors: map[string]int{}}
+		r.apis[api] = a
+	}
+	a.requests++
+	if kind != "" {
+		a.errors[kind]++
+	}
+}
+
+// jsonrpcMethod returns the method of a JSON-RPC request body, or "" if it has none.
+func jsonrpcMethod(body []byte) string {
+	var req struct {
+		Method string `json:"method"`
+	}
+	if json.Unmarshal(body, &req) != nil {
+		return ""
+	}
+	return req.Method
+}
+
+// formatAPIResults returns a table of the share of each API in the attack and of its results
+// and errors, the largest share first.
+func formatAPIResults(apis map[string]*apiResult) []string {
+	if len(apis) == 0 {
+		return nil
+	}
+	total := 0
+	names := make([]string, 0, len(apis))
+	for name, a := range apis {
+		total += a.requests
+		names = append(names, name)
+	}
+	sort.Slice(names, func(i, j int) bool {
+		ai, aj := apis[names[i]], apis[names[j]]
+		return ai.requests > aj.requests || (ai.requests == aj.requests && names[i] < names[j])
+	})
+	lines := []string{fmt.Sprintf("      %-30s %6s %8s %8s", "api", "share", "result", "error")}
+	for _, name := range names {
+		a := apis[name]
+		failed := 0
+		for _, n := range a.errors {
+			failed += n
+		}
+		pct := func(n int) float64 { return 100 * float64(n) / float64(a.requests) }
+		line := fmt.Sprintf("      %-30s %5.1f%% %7.1f%% %7.1f%%", name, 100*float64(a.requests)/float64(total), pct(a.requests-failed), pct(failed))
+		line += formatTopError(a.errors)
+		lines = append(lines, line)
+	}
+	return lines
+}
+
+// formatTopError returns "  top=kind (xN)", plus "(+M more)" for other kinds, or "" with no errors.
+func formatTopError(errors map[string]int) string {
+	topKind, topCount := "", 0
+	for kind, n := range errors {
+		if n > topCount || (n == topCount && kind < topKind) {
+			topKind, topCount = kind, n
+		}
+	}
+	if topCount == 0 {
+		return ""
+	}
+	out := fmt.Sprintf("  top=%s (x%d)", topKind, topCount)
+	if len(errors) > 1 {
+		out += fmt.Sprintf(" (+%d more)", len(errors)-1)
 	}
 	return out
 }

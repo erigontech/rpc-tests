@@ -42,7 +42,7 @@ func TestEthCallRequest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := EthCall{}.Request(tt.txn, tt.blockParam)
+			got, err := EthCall{}.Request(Item{Txn: &tt.txn}, Params{BlockParam: tt.blockParam})
 			if err != nil {
 				t.Fatalf("Request: %v", err)
 			}

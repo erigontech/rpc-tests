@@ -12,19 +12,30 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 
 	"github.com/erigontech/rpc-tests/internal/perf"
 )
 
-// fakeNode serves eth_blockNumber, eth_getBlockByNumber and eth_call.
-// Every block has two txs; eth_call fails for txs sent from failingFrom.
+// fakeNode serves eth_blockNumber, eth_getBlockByNumber and eth_call, and answers any other method with a result.
+// Every block has two txs, plus one to extraTo when set; eth_call fails for txs sent from failingFrom.
 type fakeNode struct {
 	head           uint64
 	failingFrom    string
+	extraTo        string
 	detailedErrors bool // append the block number to each error, as real nodes add addresses and amounts
 	calls          atomic.Int64
+	mu             sync.Mutex
+	requests       map[string]int // by method
+	blocksRead     map[string]bool
+}
+
+func (n *fakeNode) count(method string) int {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	return n.requests[method]
 }
 
 const failingFrom = "0xbad0000000000000000000000000000000000bad"
@@ -38,16 +49,29 @@ func (n *fakeNode) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	n.mu.Lock()
+	if n.requests == nil {
+		n.requests, n.blocksRead = map[string]int{}, map[string]bool{}
+	}
+	n.requests[req.Method]++
+	if req.Method == "eth_getBlockByNumber" {
+		n.blocksRead[string(req.Params[0])] = true
+	}
+	n.mu.Unlock()
 	switch req.Method {
 	case "eth_blockNumber":
 		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":"0x%x"}`, n.head)
 	case "eth_getBlockByNumber":
 		var num string
 		_ = json.Unmarshal(req.Params[0], &num)
-		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":{"number":%q,"transactions":[`+
+		extra := ""
+		if n.extraTo != "" {
+			extra = fmt.Sprintf(`,{"hash":"0xc","from":"0x0000000000000000000000000000000000000001","to":%q,"gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"}`, n.extraTo)
+		}
+		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":{"number":%q,"hash":"0xb10c%s","transactions":[`+
 			`{"hash":"0xa","from":"0x0000000000000000000000000000000000000001","to":"0x0000000000000000000000000000000000000002","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"},`+
-			`{"hash":"0xb","from":%q,"to":"0x0000000000000000000000000000000000000002","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"}]}}`,
-			num, n.failingFrom)
+			`{"hash":"0xb","from":%q,"to":"0x0000000000000000000000000000000000000002","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"}%s]}}`,
+			num, strings.TrimPrefix(num, "0x"), n.failingFrom, extra)
 	case "eth_call":
 		n.calls.Add(1)
 		var args struct {
@@ -66,7 +90,7 @@ func (n *fakeNode) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x"}`)
 	default:
-		http.Error(w, "unknown method "+req.Method, http.StatusBadRequest)
+		fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x1"}`)
 	}
 }
 
@@ -134,7 +158,7 @@ func TestRunLatestKeepsOnlySuccessfulCalls(t *testing.T) {
 	_, url := startNode(t)
 	cfg := baseConfig(t, url)
 
-	sum, err := Run(context.Background(), cfg, EthCall{})
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
@@ -173,7 +197,7 @@ func TestRunWritesBlocksFromHeadDownwards(t *testing.T) {
 	cfg.Verify = false
 	cfg.Keep = KeepAll
 
-	if _, err := Run(context.Background(), cfg, EthCall{}); err != nil {
+	if _, err := Run(context.Background(), cfg, single(EthCall{})); err != nil {
 		t.Fatalf("Run: %v", err)
 	}
 	targets := readTargets(t, cfg.Out, "eth_call")
@@ -195,7 +219,7 @@ func TestRunParentWithoutVerifyDoesNotCallNode(t *testing.T) {
 	cfg.Verify = false
 	cfg.Keep = KeepAll
 
-	sum, err := Run(context.Background(), cfg, EthCall{})
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
@@ -213,7 +237,7 @@ func TestRunParentWithVerifyKeepsOK(t *testing.T) {
 	cfg.Tag = TagParent
 	cfg.Verify = true
 
-	sum, err := Run(context.Background(), cfg, EthCall{})
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
@@ -227,7 +251,7 @@ func TestRunHeadPinsTheHeadNumber(t *testing.T) {
 	cfg := baseConfig(t, url)
 	cfg.Tag = TagHead
 
-	if _, err := Run(context.Background(), cfg, EthCall{}); err != nil {
+	if _, err := Run(context.Background(), cfg, single(EthCall{})); err != nil {
 		t.Fatalf("Run: %v", err)
 	}
 	for _, vt := range readTargets(t, cfg.Out, "eth_call") {
@@ -243,7 +267,7 @@ func TestRunStopsAtCount(t *testing.T) {
 	cfg.Blocks = 0
 	cfg.Count = 3
 
-	sum, err := Run(context.Background(), cfg, EthCall{})
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
@@ -260,7 +284,7 @@ func TestRunFailsBelowMinCount(t *testing.T) {
 	cfg := baseConfig(t, url)
 	cfg.MinCount = 3
 
-	if _, err := Run(context.Background(), cfg, EthCall{}); err == nil {
+	if _, err := Run(context.Background(), cfg, single(EthCall{})); err == nil {
 		t.Fatal("Run: want error when fewer than min-count calls are written")
 	}
 	if _, err := os.Stat(cfg.Out); !os.IsNotExist(err) {
@@ -276,7 +300,7 @@ func TestRunGroupsErrorsByKind(t *testing.T) {
 	cfg.Tag = TagParent // a different block per request, so each error message differs
 	cfg.Verify = true
 
-	sum, err := Run(context.Background(), cfg, EthCall{})
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
@@ -294,7 +318,7 @@ func TestRunDropsFeesUnlessKept(t *testing.T) {
 		cfg.Keep = KeepAll
 		cfg.KeepFees = keepFees
 
-		if _, err := Run(context.Background(), cfg, EthCall{}); err != nil {
+		if _, err := Run(context.Background(), cfg, single(EthCall{})); err != nil {
 			t.Fatalf("Run: %v", err)
 		}
 		for _, vt := range readTargets(t, cfg.Out, "eth_call") {
@@ -310,7 +334,7 @@ func TestRunLatestWithoutVerifyWritesAllCalls(t *testing.T) {
 	cfg := baseConfig(t, url)
 	cfg.Verify = false
 
-	sum, err := Run(context.Background(), cfg, EthCall{})
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
@@ -327,7 +351,7 @@ func TestRunLatestVerifyKeepAllWritesFailuresToo(t *testing.T) {
 	cfg := baseConfig(t, url)
 	cfg.Keep = KeepAll
 
-	sum, err := Run(context.Background(), cfg, EthCall{})
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
@@ -342,7 +366,7 @@ func TestRunCountScansBlocksUntilEnoughCallsAreWritten(t *testing.T) {
 	cfg.Blocks = 0
 	cfg.Count = 5 // one successful call per block
 
-	sum, err := Run(context.Background(), cfg, EthCall{})
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
@@ -358,7 +382,7 @@ func TestRunReportsBlocksScanned(t *testing.T) {
 	_, url := startNode(t)
 	cfg := baseConfig(t, url)
 
-	sum, err := Run(context.Background(), cfg, EthCall{})
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
@@ -375,8 +399,214 @@ func TestRunNeedsEitherBlocksOrCount(t *testing.T) {
 	}{{0, 0}, {2, 3}} {
 		cfg := baseConfig(t, url)
 		cfg.Blocks, cfg.Count = tc.blocks, tc.count
-		if _, err := Run(context.Background(), cfg, EthCall{}); err == nil {
+		if _, err := Run(context.Background(), cfg, single(EthCall{})); err == nil {
 			t.Errorf("blocks=%d count=%d: want an error", tc.blocks, tc.count)
 		}
+	}
+}
+
+func single(gen Generator) []Spec { return []Spec{{Gen: gen, Weight: 1}} }
+
+func mustGen(t *testing.T, method string) Generator {
+	t.Helper()
+	gen, err := NewGenerator(method, nil)
+	if err != nil {
+		t.Fatalf("NewGenerator(%s): %v", method, err)
+	}
+	return gen
+}
+
+func methodOf(t *testing.T, body []byte) string {
+	t.Helper()
+	var req struct {
+		Method string `json:"method"`
+	}
+	if err := json.Unmarshal(body, &req); err != nil {
+		t.Fatalf("decode body: %v", err)
+	}
+	return req.Method
+}
+
+func TestRunMixWritesExactSharesInterleaved(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count = 0, 8
+
+	sum, err := Run(context.Background(), cfg, []Spec{{Gen: EthCall{}, Weight: 3}, {Gen: mustGen(t, "eth_getBlockByNumber"), Weight: 1}})
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	counts := map[string]int{}
+	lastCall, firstBlock := -1, -1
+	for i, vt := range readTargets(t, cfg.Out, "mixed") {
+		m := methodOf(t, vt.Body)
+		counts[m]++
+		if m == "eth_call" {
+			lastCall = i
+		} else if firstBlock < 0 {
+			firstBlock = i
+		}
+	}
+	if counts["eth_call"] != 6 || counts["eth_getBlockByNumber"] != 2 {
+		t.Errorf("counts %v, want 6 eth_call and 2 eth_getBlockByNumber", counts)
+	}
+	if firstBlock > lastCall {
+		t.Errorf("methods are grouped, not interleaved: first eth_getBlockByNumber at %d, last eth_call at %d", firstBlock, lastCall)
+	}
+	if sum.Methods["eth_call"].Written != 6 || sum.Methods["eth_getBlockByNumber"].Written != 2 {
+		t.Errorf("per-method summary %+v", sum.Methods)
+	}
+}
+
+func TestRunMixIsReproducible(t *testing.T) {
+	_, url := startNode(t)
+	var bodies [2]string
+	for i := range bodies {
+		cfg := baseConfig(t, url)
+		cfg.Blocks, cfg.Count = 0, 8
+		if _, err := Run(context.Background(), cfg, []Spec{{Gen: EthCall{}, Weight: 3}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}}); err != nil {
+			t.Fatalf("Run: %v", err)
+		}
+		for _, vt := range readTargets(t, cfg.Out, "mixed") {
+			bodies[i] += string(vt.Body)
+		}
+	}
+	if bodies[0] != bodies[1] {
+		t.Error("two runs on the same chain wrote different patterns")
+	}
+}
+
+func TestRunMixNeedsCounts(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	if _, err := Run(context.Background(), cfg, []Spec{{Gen: EthCall{}, Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}}); err == nil {
+		t.Error("blocks with several methods: want an error, the shares need a total count")
+	}
+}
+
+func TestRunContractsKeepOnlyTheirTransactions(t *testing.T) {
+	const contract = "0x0000000000000000000000000000000000000003"
+	node, url := startNode(t)
+	node.extraTo = contract
+	cfg := baseConfig(t, url)
+	cfg.Contracts = []string{contract}
+
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Written != 2 {
+		t.Errorf("written %d, want the 2 txs to the contract", sum.Written)
+	}
+	for _, vt := range readTargets(t, cfg.Out, "eth_call") {
+		if !strings.Contains(string(vt.Body), `"to":"`+contract+`"`) {
+			t.Errorf("call not to the contract: %s", vt.Body)
+		}
+	}
+}
+
+func TestRunContractsFilterLogsByAddress(t *testing.T) {
+	const contract = "0x0000000000000000000000000000000000000003"
+	node, url := startNode(t)
+	node.extraTo = contract
+	cfg := baseConfig(t, url)
+	cfg.Contracts = []string{contract}
+
+	if _, err := Run(context.Background(), cfg, single(mustGen(t, "eth_getLogs"))); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	for _, vt := range readTargets(t, cfg.Out, "eth_getLogs") {
+		if !strings.Contains(string(vt.Body), `"address":["`+contract+`"]`) {
+			t.Errorf("logs not filtered by the contract: %s", vt.Body)
+		}
+	}
+}
+
+func TestRunNameOverridesTheFileName(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Name = "custom"
+	if _, err := Run(context.Background(), cfg, single(EthCall{})); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if got := len(readTargets(t, cfg.Out, "custom")); got != 2 {
+		t.Errorf("got %d targets in vegeta_erigon_custom.txt, want 2", got)
+	}
+}
+
+func TestRunMixDrawsFromAWindowOfRecentBlocks(t *testing.T) {
+	node, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.MaxBlocks = 0, 40, 3
+
+	sum, err := Run(context.Background(), cfg, []Spec{{Gen: mustGen(t, "eth_getBlockReceipts"), Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}})
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if len(node.blocksRead) != 3 {
+		t.Errorf("read %d blocks, want the 3 of the window", len(node.blocksRead))
+	}
+	if sum.BlocksScanned != 3 || sum.FirstBlock != 100 || sum.LastBlock != 98 {
+		t.Errorf("blocks scanned=%d range %d..%d, want 3 blocks 100..98", sum.BlocksScanned, sum.FirstBlock, sum.LastBlock)
+	}
+	window := map[string]bool{`["0x64"]`: true, `["0x63"]`: true, `["0x62"]`: true}
+	receipts := 0
+	for _, vt := range readTargets(t, cfg.Out, "mixed") {
+		if methodOf(t, vt.Body) != "eth_getBlockReceipts" {
+			continue
+		}
+		receipts++
+		var req struct {
+			Params json.RawMessage `json:"params"`
+		}
+		_ = json.Unmarshal(vt.Body, &req)
+		if !window[string(req.Params)] {
+			t.Errorf("block outside the window: %s", req.Params)
+		}
+	}
+	if receipts != 20 {
+		t.Errorf("got %d eth_getBlockReceipts, want 20 drawn from 3 blocks", receipts)
+	}
+}
+
+func TestRunMixVerifiesBlockMethodsWithOneSample(t *testing.T) {
+	node, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.MaxBlocks = 0, 40, 3
+
+	if _, err := Run(context.Background(), cfg, []Spec{{Gen: mustGen(t, "eth_getBlockReceipts"), Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}}); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if got := node.count("eth_getBlockReceipts"); got != 1 {
+		t.Errorf("eth_getBlockReceipts verified %d times, want 1 sample", got)
+	}
+	if got := node.count("eth_chainId"); got != 1 {
+		t.Errorf("eth_chainId verified %d times, want 1 sample", got)
+	}
+}
+
+func TestRunMixDrawsOnlyVerifiedCalls(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.MaxBlocks = 0, 40, 3
+
+	sum, err := Run(context.Background(), cfg, []Spec{{Gen: EthCall{}, Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}})
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	calls := 0
+	for _, vt := range readTargets(t, cfg.Out, "mixed") {
+		if methodOf(t, vt.Body) == "eth_call" {
+			calls++
+			if strings.Contains(string(vt.Body), failingFrom) {
+				t.Errorf("failing call written: %s", vt.Body)
+			}
+		}
+	}
+	if calls != 20 {
+		t.Errorf("got %d eth_call, want 20 drawn from the verified ones", calls)
+	}
+	if sum.Methods["eth_call"].Errors["insufficient funds for gas * price + value"] == 0 {
+		t.Errorf("the failing calls of the window were not counted: %+v", sum.Methods["eth_call"])
 	}
 }
