@@ -614,6 +614,9 @@ func TestRunVegetaAttackCountsResultsByAPI(t *testing.T) {
 	if calls.errors["execution reverted"] != calls.requests || len(logs.errors) != 0 {
 		t.Errorf("eth_call errors %v of %d, eth_getLogs errors %v", calls.errors, calls.requests, logs.errors)
 	}
+	if calls.latencies.Max <= 0 || logs.latencies.Max <= 0 || max(calls.latencies.Max, logs.latencies.Max) != metrics.Latencies.Max {
+		t.Errorf("api max latencies %v and %v, want the attack max %v", calls.latencies.Max, logs.latencies.Max, metrics.Latencies.Max)
+	}
 
 	// The .bin keeps the URL the node received, without the fragment.
 	f, err := os.Open(out)
@@ -633,18 +636,66 @@ func TestRunVegetaAttackCountsResultsByAPI(t *testing.T) {
 	}
 }
 
-func TestFormatAPIResults(t *testing.T) {
-	apis := map[string]*apiResult{
-		"eth_call":    {requests: 6, errors: map[string]int{"execution reverted": 2}},
-		"eth_getLogs": {requests: 2, errors: map[string]int{}},
+// newAPIResult returns the result of an API with the given latencies and errors.
+func newAPIResult(errors map[string]int, latencies ...time.Duration) *apiResult {
+	a := &apiResult{requests: len(latencies), errors: errors}
+	for _, l := range latencies {
+		a.latencies.Add(l)
 	}
-	got := formatAPIResults(apis)
+	return a
+}
+
+func TestFormatAPIResults(t *testing.T) {
+	ms := time.Millisecond
+	apis := map[string]*apiResult{
+		"eth_call":    newAPIResult(map[string]int{"execution reverted": 2}, 2*ms, 2*ms, 2*ms, 2*ms, 2*ms, 2*ms),
+		"eth_getLogs": newAPIResult(map[string]int{}, 500*time.Microsecond, 500*time.Microsecond),
+	}
+	got := formatAPIResults(apis, false)
 	want := []string{
-		"      api                             share   result    error",
-		"      eth_call                        75.0%    66.7%    33.3%  top=execution reverted (x2)",
-		"      eth_getLogs                     25.0%   100.0%     0.0%",
+		"      api                               reqs  share   result    error       p50       p99       max",
+		"      eth_call                             6  75.0%    66.7%    33.3%    2.00ms    2.00ms    2.00ms  top=execution reverted (x2)",
+		"      eth_getLogs                          2  25.0%   100.0%     0.0%     500µs     500µs     500µs",
 	}
 	if strings.Join(got, "\n") != strings.Join(want, "\n") {
 		t.Errorf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
+	}
+}
+
+func TestFormatAPIResultsMorePercentiles(t *testing.T) {
+	apis := map[string]*apiResult{
+		"eth_blockNumber": newAPIResult(map[string]int{}, 3*time.Millisecond, 3*time.Millisecond),
+	}
+	got := formatAPIResults(apis, true)
+	want := []string{
+		"      api                               reqs  share   result    error       p50       p90       p95       p99       max",
+		"      eth_blockNumber                      2 100.0%   100.0%     0.0%    3.00ms    3.00ms    3.00ms    3.00ms    3.00ms",
+	}
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Errorf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
+	}
+}
+
+// TestFormatAPIResultsLatencies checks that the percentiles of an API come from its own
+// latencies, in order and up to its max.
+func TestFormatAPIResultsLatencies(t *testing.T) {
+	var latencies []time.Duration
+	for i := 1; i <= 100; i++ {
+		latencies = append(latencies, time.Duration(i)*time.Millisecond)
+	}
+	a := newAPIResult(map[string]int{}, latencies...)
+	p50, p99 := a.latencies.Quantile(0.50), a.latencies.Quantile(0.99)
+	if p50 < 45*time.Millisecond || p50 > 55*time.Millisecond {
+		t.Errorf("p50 %v, want about 50ms", p50)
+	}
+	if p50 > p99 || p99 > a.latencies.Max {
+		t.Errorf("p50 %v, p99 %v, max %v, want them in order", p50, p99, a.latencies.Max)
+	}
+	if a.latencies.Max != 100*time.Millisecond {
+		t.Errorf("max %v, want 100ms", a.latencies.Max)
+	}
+	row := formatAPIResults(map[string]*apiResult{"eth_getLogs": a}, false)[1]
+	if !strings.HasSuffix(row, " "+FormatDuration(p50)+" "+fmt.Sprintf("%9s", FormatDuration(p99))+"  100.00ms") {
+		t.Errorf("row %q, want p50 %v, p99 %v and max 100.00ms", row, p50, p99)
 	}
 }
