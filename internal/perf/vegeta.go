@@ -435,7 +435,7 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 	resultRecord += formatRPCErrors(results.rpcErrors, metrics.Requests)
 	fmt.Println(resultRecord)
 	if pt.Config.Verbose {
-		for _, line := range formatAPIResults(results.apis) {
+		for _, line := range formatAPIResults(results.apis, pt.Config.MorePercentiles) {
 			fmt.Println(line)
 		}
 	}
@@ -674,8 +674,9 @@ type attackResults struct {
 }
 
 type apiResult struct {
-	requests int
-	errors   map[string]int // JSON-RPC errors and failed requests, by kind
+	requests  int
+	errors    map[string]int // JSON-RPC errors and failed requests, by kind
+	latencies vegeta.LatencyMetrics
 }
 
 // add counts one result and strips the method fragment from its URL, so that the .bin holds
@@ -705,6 +706,7 @@ func (r attackResults) add(result *vegeta.Result) {
 		r.apis[api] = a
 	}
 	a.requests++
+	a.latencies.Add(result.Latency)
 	if kind != "" {
 		a.errors[kind]++
 	}
@@ -721,9 +723,10 @@ func jsonrpcMethod(body []byte) string {
 	return req.Method
 }
 
-// formatAPIResults returns a table of the share of each API in the attack and of its results
-// and errors, the largest share first.
-func formatAPIResults(apis map[string]*apiResult) []string {
+// formatAPIResults returns a table of the requests of each API, its share of the attack, its
+// results and errors and its latencies (p50, p99 and max, plus p90 and p95 with morePercentiles),
+// the largest share first.
+func formatAPIResults(apis map[string]*apiResult, morePercentiles bool) []string {
 	if len(apis) == 0 {
 		return nil
 	}
@@ -737,7 +740,13 @@ func formatAPIResults(apis map[string]*apiResult) []string {
 		ai, aj := apis[names[i]], apis[names[j]]
 		return ai.requests > aj.requests || (ai.requests == aj.requests && names[i] < names[j])
 	})
-	lines := []string{fmt.Sprintf("      %-30s %6s %8s %8s", "api", "share", "result", "error")}
+	quantiles := []float64{0.50, 0.99}
+	header := fmt.Sprintf("      %-30s %7s %6s %8s %8s %9s %9s %9s", "api", "reqs", "share", "result", "error", "p50", "p99", "max")
+	if morePercentiles {
+		quantiles = []float64{0.50, 0.90, 0.95, 0.99}
+		header = fmt.Sprintf("      %-30s %7s %6s %8s %8s %9s %9s %9s %9s %9s", "api", "reqs", "share", "result", "error", "p50", "p90", "p95", "p99", "max")
+	}
+	lines := []string{header}
 	for _, name := range names {
 		a := apis[name]
 		failed := 0
@@ -745,9 +754,14 @@ func formatAPIResults(apis map[string]*apiResult) []string {
 			failed += n
 		}
 		pct := func(n int) float64 { return 100 * float64(n) / float64(a.requests) }
-		line := fmt.Sprintf("      %-30s %5.1f%% %7.1f%% %7.1f%%", name, 100*float64(a.requests)/float64(total), pct(a.requests-failed), pct(failed))
-		line += formatTopError(a.errors)
-		lines = append(lines, line)
+		var line strings.Builder
+		fmt.Fprintf(&line, "      %-30s %7d %5.1f%% %7.1f%% %7.1f%%", name, a.requests, 100*float64(a.requests)/float64(total), pct(a.requests-failed), pct(failed))
+		for _, q := range quantiles {
+			fmt.Fprintf(&line, " %9s", FormatDuration(a.latencies.Quantile(q)))
+		}
+		fmt.Fprintf(&line, " %9s", FormatDuration(a.latencies.Max))
+		line.WriteString(formatTopError(a.errors))
+		lines = append(lines, line.String())
 	}
 	return lines
 }
