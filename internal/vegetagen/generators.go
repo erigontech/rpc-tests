@@ -49,6 +49,7 @@ func NewGenerator(method string, options map[string]string) (Generator, error) {
 
 var generators = map[string]func(options map[string]string) (Generator, error){
 	"eth_call":                  noOptions(EthCall{}),
+	"eth_estimateGas":           noOptions(EstimateGas{}),
 	"eth_getTransactionReceipt": noOptions(simple{"eth_getTransactionReceipt", PerTx, txHash}),
 	"eth_getTransactionByHash":  noOptions(simple{"eth_getTransactionByHash", PerTx, txHash}),
 	"eth_getBalance":            noOptions(simple{"eth_getBalance", PerTx, senderAtBlock}),
@@ -61,6 +62,8 @@ var generators = map[string]func(options map[string]string) (Generator, error){
 	"eth_blockNumber":           noOptions(simple{"eth_blockNumber", Constant, noParams}),
 	"eth_chainId":               noOptions(simple{"eth_chainId", Constant, noParams}),
 	"net_listening":             noOptions(simple{"net_listening", Constant, noParams}),
+	"eth_gasPrice":              noOptions(simple{"eth_gasPrice", Constant, noParams}),
+	"eth_maxPriorityFeePerGas":  noOptions(simple{"eth_maxPriorityFeePerGas", Constant, noParams}),
 }
 
 type simple struct {

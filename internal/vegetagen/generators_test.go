@@ -17,6 +17,7 @@ func TestGeneratorRequests(t *testing.T) {
 		params  Params
 		want    string
 	}{
+		{"eth_estimateGas", nil, params, `{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x01","to":"0x02","gas":"0x5208","value":"0x0"},"latest"],"id":1}`},
 		{"eth_getTransactionReceipt", nil, params, `{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0xaa"],"id":1}`},
 		{"eth_getTransactionByHash", nil, params, `{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":["0xaa"],"id":1}`},
 		{"eth_getBalance", nil, params, `{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x01","latest"],"id":1}`},
@@ -32,6 +33,8 @@ func TestGeneratorRequests(t *testing.T) {
 		{"eth_blockNumber", nil, params, `{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}`},
 		{"eth_chainId", nil, params, `{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}`},
 		{"net_listening", nil, params, `{"jsonrpc":"2.0","method":"net_listening","params":[],"id":1}`},
+		{"eth_gasPrice", nil, params, `{"jsonrpc":"2.0","method":"eth_gasPrice","params":[],"id":1}`},
+		{"eth_maxPriorityFeePerGas", nil, params, `{"jsonrpc":"2.0","method":"eth_maxPriorityFeePerGas","params":[],"id":1}`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.method, func(t *testing.T) {
@@ -52,9 +55,10 @@ func TestGeneratorRequests(t *testing.T) {
 
 func TestGeneratorKinds(t *testing.T) {
 	kinds := map[string]Kind{
-		"eth_call": PerTx, "eth_getTransactionReceipt": PerTx, "eth_getBalance": PerTx,
+		"eth_call": PerTx, "eth_estimateGas": PerTx, "eth_getTransactionReceipt": PerTx, "eth_getBalance": PerTx,
 		"eth_getBlockByNumber": PerBlock, "eth_getLogs": PerBlock, "debug_traceBlockByHash": PerBlock,
 		"eth_blockNumber": Constant, "net_listening": Constant,
+		"eth_gasPrice": Constant, "eth_maxPriorityFeePerGas": Constant,
 	}
 	for method, want := range kinds {
 		gen, err := NewGenerator(method, nil)
