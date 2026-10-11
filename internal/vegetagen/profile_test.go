@@ -39,6 +39,26 @@ net_listening           3.42%
 	}
 }
 
+func TestParseProfileBlocks(t *testing.T) {
+	p, err := ParseProfile(strings.NewReader("[methods]\ndebug_traceBlockByHash 3.91% tracer=callTracer blocks=100\neth_call 1\n"))
+	if err != nil {
+		t.Fatalf("ParseProfile: %v", err)
+	}
+	if m := p.Methods[0]; m.Blocks != 100 || len(m.Options) != 1 || m.Options["tracer"] != "callTracer" {
+		t.Errorf("first method %+v, want blocks 100 apart from the generator options", m)
+	}
+	if p.Methods[1].Blocks != 0 {
+		t.Errorf("second method %+v, want the whole window", p.Methods[1])
+	}
+	specs, err := p.Specs()
+	if err != nil {
+		t.Fatalf("Specs: %v", err)
+	}
+	if specs[0].Blocks != 100 || specs[0].Name != "debug_traceBlockByHash tracer=callTracer blocks=100" {
+		t.Errorf("spec %+v", specs[0])
+	}
+}
+
 func TestParseProfileSingleMethod(t *testing.T) {
 	p, err := ParseProfile(strings.NewReader("[methods]\neth_call 100%\n"))
 	if err != nil {
@@ -58,6 +78,8 @@ func TestParseProfileErrors(t *testing.T) {
 		{"duplicated method", "[methods]\neth_call 1\neth_call 2\n", "duplicated"},
 		{"bad weight", "[methods]\neth_call x\n", "invalid weight"},
 		{"zero weight", "[methods]\neth_call 0\n", "positive"},
+		{"bad blocks", "[methods]\neth_call 1 blocks=x\n", "invalid blocks"},
+		{"zero blocks", "[methods]\neth_call 1 blocks=0\n", "invalid blocks"},
 		{"bad option", "[methods]\neth_getBlockByNumber 1 full=maybe\n", "full"},
 		{"unknown option", "[methods]\neth_call 1 foo=bar\n", "option"},
 		{"bad address", "[methods]\neth_call 1\n[contracts]\n0x1234\n", "address"},

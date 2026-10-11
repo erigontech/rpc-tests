@@ -610,3 +610,33 @@ func TestRunMixDrawsOnlyVerifiedCalls(t *testing.T) {
 		t.Errorf("the failing calls of the window were not counted: %+v", sum.Methods["eth_call"])
 	}
 }
+
+func TestRunMixBlocksDrawsAMethodFromTheMostRecentBlocks(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.MaxBlocks = 0, 40, 3
+
+	specs := []Spec{{Gen: mustGen(t, "eth_getBlockReceipts"), Weight: 1, Blocks: 1}, {Gen: mustGen(t, "eth_getBlockByNumber"), Weight: 1}}
+	if _, err := Run(context.Background(), cfg, specs); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	byNumber := map[string]bool{}
+	for _, vt := range readTargets(t, cfg.Out, "mixed") {
+		var req struct {
+			Method string            `json:"method"`
+			Params []json.RawMessage `json:"params"`
+		}
+		_ = json.Unmarshal(vt.Body, &req)
+		switch req.Method {
+		case "eth_getBlockReceipts":
+			if string(req.Params[0]) != `"0x64"` {
+				t.Errorf("eth_getBlockReceipts outside its 1 recent block: %s", req.Params[0])
+			}
+		case "eth_getBlockByNumber":
+			byNumber[string(req.Params[0])] = true
+		}
+	}
+	if len(byNumber) != 3 {
+		t.Errorf("eth_getBlockByNumber drew from %d blocks, want the whole window of 3", len(byNumber))
+	}
+}
