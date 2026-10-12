@@ -533,6 +533,61 @@ func TestRPCErrorKind(t *testing.T) {
 	}
 }
 
+func TestEmptyResult(t *testing.T) {
+	tests := []struct {
+		body string
+		want bool
+	}{
+		{`{"jsonrpc":"2.0","id":1,"result":null}`, true},
+		{`{"jsonrpc":"2.0","id":1,"result":[]}`, true},
+		{`{"jsonrpc":"2.0","id":1,"result":[ ]}`, true},
+		{`{"result":[],"jsonrpc":"2.0","id":1}`, true},
+		{`{"jsonrpc":"2.0","id":1,"result":"0x"}`, false},
+		{`{"jsonrpc":"2.0","id":1,"result":{}}`, false},
+		{`{"jsonrpc":"2.0","id":1,"result":[{"address":"0x1"}]}`, false},
+		{`{"jsonrpc":"2.0","id":1,"error":{"code":3,"message":"execution reverted"}}`, false},
+		{`not json`, false},
+		{`{"jsonrpc":"2.0","id":1,"result":[` + strings.Repeat(`"0x00",`, 40) + `"0x00"]}`, false},
+	}
+	for _, tt := range tests {
+		if got := emptyResult([]byte(tt.body)); got != tt.want {
+			t.Errorf("emptyResult(%s) = %v, want %v", tt.body, got, tt.want)
+		}
+	}
+}
+
+func TestFormatEmpty(t *testing.T) {
+	if got := formatEmpty(0, 10); got != "" {
+		t.Errorf("got %q, want none", got)
+	}
+	if got, want := formatEmpty(3, 12), " empty=3 (25.00%)"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestRunVegetaAttackCountsEmptyResults(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":[]}`))
+	}))
+	defer server.Close()
+
+	pt, _, dirs := newTestPerf(t, server.URL)
+	targets := []vegeta.Target{{Method: "POST", URL: server.URL + "#eth_getLogs", Body: []byte(`{}`)}}
+	metrics, results, err := pt.runVegetaAttack(context.Background(), targets, 50, 200*time.Millisecond, filepath.Join(dirs.RunTestDir, "attack.bin"))
+	if err != nil {
+		t.Fatalf("runVegetaAttack: %v", err)
+	}
+	if metrics.Requests == 0 {
+		t.Fatal("the attack should have reached the server")
+	}
+	if uint64(results.empty) != metrics.Requests {
+		t.Errorf("empty results = %d, want one per request (%d)", results.empty, metrics.Requests)
+	}
+	if a := results.apis["eth_getLogs"]; a == nil || a.empty != a.requests {
+		t.Errorf("eth_getLogs = %+v, want all its results empty", a)
+	}
+}
+
 func TestRunVegetaAttackGroupsRPCErrorsByKind(t *testing.T) {
 	var n int
 	var mu sync.Mutex
@@ -651,11 +706,12 @@ func TestFormatAPIResults(t *testing.T) {
 		"eth_call":    newAPIResult(map[string]int{"execution reverted": 2}, 2*ms, 2*ms, 2*ms, 2*ms, 2*ms, 2*ms),
 		"eth_getLogs": newAPIResult(map[string]int{}, 500*time.Microsecond, 500*time.Microsecond),
 	}
+	apis["eth_getLogs"].empty = 1
 	got := formatAPIResults(apis, false)
 	want := []string{
-		"      api                               reqs  share   result    error       p50       p99       max",
-		"      eth_call                             6  75.0%    66.7%    33.3%    2.00ms    2.00ms    2.00ms  top=execution reverted (x2)",
-		"      eth_getLogs                          2  25.0%   100.0%     0.0%     500µs     500µs     500µs",
+		"      api                               reqs  share   result    empty    error       p50       p99       max",
+		"      eth_call                             6  75.0%    66.7%     0.0%    33.3%    2.00ms    2.00ms    2.00ms  top=execution reverted (x2)",
+		"      eth_getLogs                          2  25.0%   100.0%    50.0%     0.0%     500µs     500µs     500µs",
 	}
 	if strings.Join(got, "\n") != strings.Join(want, "\n") {
 		t.Errorf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
@@ -668,8 +724,8 @@ func TestFormatAPIResultsMorePercentiles(t *testing.T) {
 	}
 	got := formatAPIResults(apis, true)
 	want := []string{
-		"      api                               reqs  share   result    error       p50       p90       p95       p99       max",
-		"      eth_blockNumber                      2 100.0%   100.0%     0.0%    3.00ms    3.00ms    3.00ms    3.00ms    3.00ms",
+		"      api                               reqs  share   result    empty    error       p50       p90       p95       p99       max",
+		"      eth_blockNumber                      2 100.0%   100.0%     0.0%     0.0%    3.00ms    3.00ms    3.00ms    3.00ms    3.00ms",
 	}
 	if strings.Join(got, "\n") != strings.Join(want, "\n") {
 		t.Errorf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))

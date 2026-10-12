@@ -288,7 +288,8 @@ func (pt *PerfTest) loadTargets(filepath string) ([]vegeta.Target, error) {
 }
 
 // runVegetaAttack executes a Vegeta attack using the library.
-// It also returns the JSON-RPC error responses by message: they come with HTTP 200, so vegeta counts them as successes.
+// It also returns the JSON-RPC error responses by message and the empty results: they come with HTTP 200,
+// so vegeta counts them as successes.
 func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target, qps int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
 	rate := vegeta.Rate{Freq: qps, Per: time.Second}
 	targeter := vegeta.NewStaticTargeter(targets...)
@@ -386,6 +387,30 @@ func rpcErrorMessage(body []byte) (string, bool) {
 	return resp.Error.Message, true
 }
 
+// emptyResult reports whether body is a JSON-RPC response whose result is null or an empty list.
+// Such responses are short, so longer bodies are never decoded.
+func emptyResult(body []byte) bool {
+	if len(body) > 128 {
+		return false
+	}
+	var resp struct {
+		Result json.RawMessage `json:"result"`
+	}
+	if json.Unmarshal(body, &resp) != nil {
+		return false
+	}
+	result := bytes.Join(bytes.Fields(resp.Result), nil)
+	return bytes.Equal(result, []byte("null")) || bytes.Equal(result, []byte("[]"))
+}
+
+// formatEmpty returns " empty=N (P%)" for the results that are null or an empty list, or "" when there are none.
+func formatEmpty(empty int, requests uint64) string {
+	if empty == 0 || requests == 0 {
+		return ""
+	}
+	return fmt.Sprintf(" empty=%d (%.2f%%)", empty, 100*float64(empty)/float64(requests))
+}
+
 // processResults processes the vegeta metrics and generates reports.
 func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps, duration int, metrics *vegeta.Metrics, results attackResults) error {
 	minLatency := FormatDuration(metrics.Latencies.Min)
@@ -433,6 +458,7 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 		resultRecord += fmt.Sprintf(" error=%s", errorMsg)
 	}
 	resultRecord += formatRPCErrors(results.rpcErrors, metrics.Requests)
+	resultRecord += formatEmpty(results.empty, metrics.Requests)
 	fmt.Println(resultRecord)
 	if pt.Config.Verbose {
 		for _, line := range formatAPIResults(results.apis, pt.Config.MorePercentiles) {
@@ -670,27 +696,32 @@ func formatRPCErrors(rpcErrors map[string]int, requests uint64) string {
 // attackResults are the JSON-RPC outcomes of one attack, which vegeta does not see.
 type attackResults struct {
 	rpcErrors map[string]int        // JSON-RPC error responses by kind
+	empty     int                   // results that are null or an empty list
 	apis      map[string]*apiResult // by method, for targets tagged by loadTargets
 }
 
 type apiResult struct {
 	requests  int
 	errors    map[string]int // JSON-RPC errors and failed requests, by kind
+	empty     int            // results that are null or an empty list
 	latencies vegeta.LatencyMetrics
 }
 
 // add counts one result and strips the method fragment from its URL, so that the .bin holds
 // the URL the node received.
-func (r attackResults) add(result *vegeta.Result) {
+func (r *attackResults) add(result *vegeta.Result) {
 	base, api, tagged := strings.Cut(result.URL, "#")
 	if tagged {
 		result.URL = base
 	}
-	kind := ""
+	kind, empty := "", false
 	if result.Code == http.StatusOK {
 		if msg, ok := rpcErrorMessage(result.Body); ok {
 			kind = RPCErrorKind(msg)
 			r.rpcErrors[kind]++
+		} else if emptyResult(result.Body) {
+			empty = true
+			r.empty++
 		}
 	} else if result.Error != "" {
 		kind = "request failed"
@@ -710,6 +741,9 @@ func (r attackResults) add(result *vegeta.Result) {
 	if kind != "" {
 		a.errors[kind]++
 	}
+	if empty {
+		a.empty++
+	}
 }
 
 // jsonrpcMethod returns the method of a JSON-RPC request body, or "" if it has none.
@@ -724,7 +758,7 @@ func jsonrpcMethod(body []byte) string {
 }
 
 // formatAPIResults returns a table of the requests of each API, its share of the attack, its
-// results and errors and its latencies (p50, p99 and max, plus p90 and p95 with morePercentiles),
+// results, empty results and errors and its latencies (p50, p99 and max, plus p90 and p95 with morePercentiles),
 // the largest share first.
 func formatAPIResults(apis map[string]*apiResult, morePercentiles bool) []string {
 	if len(apis) == 0 {
@@ -741,10 +775,10 @@ func formatAPIResults(apis map[string]*apiResult, morePercentiles bool) []string
 		return ai.requests > aj.requests || (ai.requests == aj.requests && names[i] < names[j])
 	})
 	quantiles := []float64{0.50, 0.99}
-	header := fmt.Sprintf("      %-30s %7s %6s %8s %8s %9s %9s %9s", "api", "reqs", "share", "result", "error", "p50", "p99", "max")
+	header := fmt.Sprintf("      %-30s %7s %6s %8s %8s %8s %9s %9s %9s", "api", "reqs", "share", "result", "empty", "error", "p50", "p99", "max")
 	if morePercentiles {
 		quantiles = []float64{0.50, 0.90, 0.95, 0.99}
-		header = fmt.Sprintf("      %-30s %7s %6s %8s %8s %9s %9s %9s %9s %9s", "api", "reqs", "share", "result", "error", "p50", "p90", "p95", "p99", "max")
+		header = fmt.Sprintf("      %-30s %7s %6s %8s %8s %8s %9s %9s %9s %9s %9s", "api", "reqs", "share", "result", "empty", "error", "p50", "p90", "p95", "p99", "max")
 	}
 	lines := []string{header}
 	for _, name := range names {
@@ -755,7 +789,7 @@ func formatAPIResults(apis map[string]*apiResult, morePercentiles bool) []string
 		}
 		pct := func(n int) float64 { return 100 * float64(n) / float64(a.requests) }
 		var line strings.Builder
-		fmt.Fprintf(&line, "      %-30s %7d %5.1f%% %7.1f%% %7.1f%%", name, a.requests, 100*float64(a.requests)/float64(total), pct(a.requests-failed), pct(failed))
+		fmt.Fprintf(&line, "      %-30s %7d %5.1f%% %7.1f%% %7.1f%% %7.1f%%", name, a.requests, 100*float64(a.requests)/float64(total), pct(a.requests-failed), pct(a.empty), pct(failed))
 		for _, q := range quantiles {
 			fmt.Fprintf(&line, " %9s", FormatDuration(a.latencies.Quantile(q)))
 		}
