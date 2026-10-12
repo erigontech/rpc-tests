@@ -43,6 +43,7 @@ type Spec struct {
 	Name   string // as reported in the summary; the method when empty
 	Gen    Generator
 	Weight float64
+	Blocks uint64 // in a mix, draw only from this many most recent blocks of the window; 0 = the whole window
 }
 
 func (s Spec) name() string {
@@ -366,6 +367,7 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 			p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], head), Contracts: cfg.Contracts}
 			return sp.Gen.Request(Item{Block: &blocks[bi], BlockNum: nums[bi], Txn: txn}, p)
 		}
+		recent := func(bi int) bool { return sp.Blocks == 0 || uint64(bi) < sp.Blocks }
 		var reqs [][]byte
 		switch sp.Gen.Kind() {
 		case Constant:
@@ -376,6 +378,9 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 			reqs = [][]byte{req}
 		case PerBlock:
 			for _, bi := range blockRefs {
+				if !recent(bi) {
+					continue
+				}
 				req, err := build(bi, nil)
 				if err != nil {
 					return sum, err
@@ -384,6 +389,9 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 			}
 		case PerTx:
 			for _, j := range rng.Perm(len(txRefs)) {
+				if !recent(txRefs[j].block) {
+					continue
+				}
 				req, err := build(txRefs[j].block, &txRefs[j].txn)
 				if err != nil {
 					return sum, err
@@ -396,7 +404,11 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 			return sum, err
 		}
 		if len(pool) == 0 && targets[i] > 0 {
-			return sum, fmt.Errorf("%s: no valid request in the window of %d blocks", sp.name(), len(blocks))
+			span := uint64(len(blocks))
+			if sp.Blocks > 0 {
+				span = min(span, sp.Blocks)
+			}
+			return sum, fmt.Errorf("%s: no valid request in the window of %d blocks", sp.name(), span)
 		}
 		for range targets[i] {
 			written[i] = append(written[i], pool[rng.Intn(len(pool))])

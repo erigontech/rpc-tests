@@ -1,5 +1,5 @@
 # Mixed mainnet load: method shares of a provider's RPC traffic (from erigon cmd/rpctest/mixedLoad.txt).
-# Weights are relative. Usage:
+# Weights are relative; blocks=N draws a method only from the N most recent blocks of the window. Usage:
 #   rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts N --verify --out mixed.tar
 #   rpc_perf -p mixed.tar -y mixed ...
 
@@ -9,7 +9,7 @@ eth_getBlockByNumber       19.9%
 eth_getLogs                6.42%
 eth_getTransactionReceipt  5.74%
 eth_blockNumber            4.26%
-debug_traceBlockByHash     3.91%   tracer=callTracer
+debug_traceBlockByHash     3.91%   tracer=callTracer blocks=100   # geth and nethermind keep the state of the recent blocks only
 eth_getBalance             3.73%
 net_listening              3.42%
 eth_getTransactionByHash   2.62%

@@ -18,6 +18,7 @@ import (
 //	[methods]
 //	eth_call              35.8%
 //	eth_getBlockByNumber  15%    full=true
+//	debug_traceBlockByHash 3.9%  tracer=callTracer blocks=100
 //
 //	[contracts]
 //	0xdac17f958d2ee523a2206206994597c13d831ec7  USDT
@@ -26,10 +27,14 @@ type Profile struct {
 	Contracts []string // lower case
 }
 
+// MethodSpec is one method of a profile. The blocks=N option, common to every method,
+// draws its requests only from the N most recent blocks of the window of a mix,
+// e.g. for nodes that keep the history needed to trace only the latest blocks.
 type MethodSpec struct {
 	Method  string
-	Weight  float64 // relative, the weights need not sum to 100
-	Options map[string]string
+	Weight  float64           // relative, the weights need not sum to 100
+	Options map[string]string // generator options
+	Blocks  uint64            // the blocks option; 0 = the whole window
 }
 
 var addressRe = regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`)
@@ -110,17 +115,24 @@ func parseMethod(fields []string) (MethodSpec, error) {
 		return MethodSpec{}, fmt.Errorf("weight of %s must be positive, got %v", fields[0], weight)
 	}
 	options := map[string]string{}
+	var blocks uint64
 	for _, opt := range fields[2:] {
 		key, value, ok := strings.Cut(opt, "=")
 		if !ok {
 			return MethodSpec{}, fmt.Errorf("invalid option %q: want key=value", opt)
+		}
+		if key == "blocks" {
+			if blocks, err = strconv.ParseUint(value, 10, 64); err != nil || blocks == 0 {
+				return MethodSpec{}, fmt.Errorf("%s: invalid blocks %q: want a positive number", fields[0], value)
+			}
+			continue
 		}
 		options[key] = value
 	}
 	if _, err := NewGenerator(fields[0], options); err != nil {
 		return MethodSpec{}, err
 	}
-	return MethodSpec{Method: fields[0], Weight: weight, Options: options}, nil
+	return MethodSpec{Method: fields[0], Weight: weight, Options: options, Blocks: blocks}, nil
 }
 
 // Specs builds the generators of the profile, named after the method and its options.
@@ -135,7 +147,10 @@ func (p Profile) Specs() ([]Spec, error) {
 		for _, key := range slices.Sorted(maps.Keys(m.Options)) {
 			parts = append(parts, key+"="+m.Options[key])
 		}
-		specs = append(specs, Spec{Name: strings.Join(parts, " "), Gen: gen, Weight: m.Weight})
+		if m.Blocks > 0 {
+			parts = append(parts, fmt.Sprintf("blocks=%d", m.Blocks))
+		}
+		specs = append(specs, Spec{Name: strings.Join(parts, " "), Gen: gen, Weight: m.Weight, Blocks: m.Blocks})
 	}
 	return specs, nil
 }
