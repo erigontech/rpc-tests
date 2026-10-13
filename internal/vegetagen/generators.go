@@ -13,22 +13,24 @@ const (
 	PerTx    Kind = iota // one request per transaction
 	PerBlock             // one request per block
 	Constant             // the same request, with no parameters taken from the chain
+	PerLog               // one request per log of a block
 )
 
 func (k Kind) String() string {
-	return [...]string{"per-tx", "per-block", "constant"}[k]
+	return [...]string{"per-tx", "per-block", "constant", "per-log"}[k]
 }
 
-// Item is the chain data a request is built from: Txn is nil for PerBlock generators.
+// Item is the chain data a request is built from: Txn is set for PerTx generators only, Log for PerLog only.
 type Item struct {
 	Block    *Block
 	BlockNum uint64
 	Txn      *Transaction
+	Log      *Log
 }
 
 type Params struct {
-	BlockParam string   // state to run on, for methods that take a block parameter
-	Contracts  []string // contract filter, used by eth_getLogs as its address list
+	BlockParam string // state to run on, for methods that take a block parameter
+	Head       uint64 // head at generation time, the newest block a request may refer to
 }
 
 // Generator turns one item into the body of one JSON-RPC request.
@@ -57,7 +59,7 @@ var generators = map[string]func(options map[string]string) (Generator, error){
 	"eth_getBlockByNumber":      blockGenerator("eth_getBlockByNumber", func(it Item) any { return hexNum(it.BlockNum) }),
 	"eth_getBlockByHash":        blockGenerator("eth_getBlockByHash", func(it Item) any { return it.Block.Hash }),
 	"eth_getBlockReceipts":      noOptions(simple{"eth_getBlockReceipts", PerBlock, func(it Item, _ Params) []any { return []any{hexNum(it.BlockNum)} }}),
-	"eth_getLogs":               noOptions(simple{"eth_getLogs", PerBlock, logsOfBlock}),
+	"eth_getLogs":               getLogsGenerator,
 	"debug_traceBlockByHash":    traceBlockGenerator,
 	"eth_blockNumber":           noOptions(simple{"eth_blockNumber", Constant, noParams}),
 	"eth_chainId":               noOptions(simple{"eth_chainId", Constant, noParams}),
@@ -81,14 +83,6 @@ func (g simple) Request(it Item, p Params) ([]byte, error) {
 func txHash(it Item, _ Params) []any        { return []any{it.Txn.Hash} }
 func senderAtBlock(it Item, p Params) []any { return []any{it.Txn.From, p.BlockParam} }
 func noParams(Item, Params) []any           { return nil }
-
-func logsOfBlock(it Item, p Params) []any {
-	return []any{struct {
-		FromBlock string   `json:"fromBlock"`
-		ToBlock   string   `json:"toBlock"`
-		Address   []string `json:"address,omitempty"`
-	}{hexNum(it.BlockNum), hexNum(it.BlockNum), p.Contracts}}
-}
 
 func hexNum(n uint64) string { return fmt.Sprintf("0x%x", n) }
 

@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-// node answers eth_blockNumber and eth_getBlockByNumber with one block holding one tx.
+// node answers eth_blockNumber and eth_getBlockByNumber with one block holding one tx, and eth_getLogs with one log.
 func node(t *testing.T) string {
 	t.Helper()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -22,6 +22,8 @@ func node(t *testing.T) string {
 			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x10"}`)
 		case strings.Contains(req, "eth_getBlockByNumber"):
 			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":{"number":"0x10","hash":"0x1","transactions":[{"hash":"0xa","from":"0x01","to":"0x02","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"}]}}`)
+		case strings.Contains(req, "eth_getLogs"):
+			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":[{"address":"0x02","topics":["0x7e"],"transactionHash":"0xa","logIndex":"0x0"}]}`)
 		default:
 			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x"}`)
 		}
@@ -38,6 +40,20 @@ func TestEthCallCommandWritesThePattern(t *testing.T) {
 	}
 	if _, err := os.Stat(out); err != nil {
 		t.Errorf("pattern not written: %v", err)
+	}
+}
+
+func TestEthGetLogsCommandWritesThePattern(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "eth_getLogs.tar")
+	err := newApp().Run([]string{"rpc_pattern_gen", "eth_getLogs", "--url", node(t), "--counts", "1", "--range", "10", "--verify", "--out", out})
+	if err != nil {
+		t.Fatalf("eth_getLogs command: %v", err)
+	}
+	if _, err := os.Stat(out); err != nil {
+		t.Errorf("pattern not written: %v", err)
+	}
+	if err := newApp().Run([]string{"rpc_pattern_gen", "eth_getLogs", "--url", node(t), "--counts", "1", "--range", "0", "--out", out}); err == nil {
+		t.Error("range 0: want an error")
 	}
 }
 
