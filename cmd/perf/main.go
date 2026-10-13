@@ -46,7 +46,7 @@ func perfFlags() []cli.Flag {
 		&cli.StringFlag{Name: "client-build-dir", Aliases: []string{"g"}, Value: perf.DefaultClientBuildDir, Usage: "Path to Client build folder"},
 		&cli.StringFlag{Name: "run-vegeta-on-core", Aliases: []string{"c"}, Value: perf.DefaultClientVegetaOnCore, Usage: "Taskset format for Vegeta"},
 		&cli.StringFlag{Name: "response-timeout", Aliases: []string{"T"}, Value: perf.DefaultVegetaResponseTimeout, Usage: "Vegeta response timeout"},
-		&cli.StringFlag{Name: "max-body-rsp", Aliases: []string{"M"}, Value: perf.DefaultMaxBodyRsp, Usage: "Max bytes to read from response bodies"},
+		&cli.StringFlag{Name: "max-body-rsp", Aliases: []string{"M"}, Value: perf.DefaultMaxBodyRsp, Usage: "Max bytes of each response body written to the vegeta binary file (-1 = the whole body)"},
 		&cli.StringFlag{Name: "json-report", Aliases: []string{"j"}, Usage: "Generate JSON report at specified path"},
 		&cli.BoolFlag{Name: "more-percentiles", Aliases: []string{"P"}, Usage: "Print more percentiles in console report"},
 		&cli.BoolFlag{Name: "halt-on-vegeta-error", Aliases: []string{"H"}, Usage: "Consider test failed if Vegeta reports any error"},

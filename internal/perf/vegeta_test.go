@@ -474,6 +474,70 @@ func TestRPCErrorMessage(t *testing.T) {
 	}
 }
 
+func TestRunVegetaAttackTruncatesBodiesInTheBinaryFile(t *testing.T) {
+	body := `{"jsonrpc":"2.0","id":1,"result":["` + strings.Repeat("a", 10000) + `"]}`
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(body))
+	}))
+	defer server.Close()
+
+	pt, cfg, dirs := newTestPerf(t, server.URL)
+	cfg.MaxBodyRsp = "100"
+	targets := []vegeta.Target{{Method: "POST", URL: server.URL, Body: []byte(`{}`)}}
+	out := filepath.Join(dirs.RunTestDir, "attack.bin")
+	metrics, _, err := pt.runVegetaAttack(context.Background(), targets, 50, 200*time.Millisecond, out)
+	if err != nil {
+		t.Fatalf("runVegetaAttack: %v", err)
+	}
+	if metrics.Requests == 0 || metrics.Success != 1 {
+		t.Fatalf("requests %d success %v: want every full body read as a success", metrics.Requests, metrics.Success)
+	}
+	f, err := os.Open(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	dec := vegeta.NewDecoder(f)
+	decoded := 0
+	for {
+		var r vegeta.Result
+		if err := dec.Decode(&r); err != nil {
+			break
+		}
+		decoded++
+		if len(r.Body) != 100 {
+			t.Fatalf("body of %d bytes in the binary file, want the first 100", len(r.Body))
+		}
+	}
+	if uint64(decoded) != metrics.Requests {
+		t.Errorf("decoded %d results, want %d", decoded, metrics.Requests)
+	}
+}
+
+func TestPerfTestCleanupKeepsTheRunDirOnlyForAReport(t *testing.T) {
+	for _, report := range []bool{false, true} {
+		pt, cfg, dirs := newTestPerf(t, "http://localhost:8545")
+		cfg.CreateTestReport = report
+		bin := filepath.Join(dirs.RunTestDir, BinaryDir, "test.bin")
+		if err := os.MkdirAll(filepath.Dir(bin), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(bin, []byte("x"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if err := pt.Cleanup(false); err != nil {
+			t.Fatalf("Cleanup: %v", err)
+		}
+		_, err := os.Stat(bin)
+		if report && err != nil {
+			t.Errorf("with a report the binary file should be kept: %v", err)
+		}
+		if !report && !os.IsNotExist(err) {
+			t.Errorf("without a report the run dir should be gone, stat err = %v", err)
+		}
+	}
+}
+
 func TestRunVegetaAttackCountsRPCErrors(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"error":{"code":3,"message":"execution reverted"}}`))

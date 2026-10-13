@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"strconv"
 	"time"
 )
 
@@ -103,6 +104,10 @@ func (c *Config) ProcessName() string {
 func (c *Config) Validate() error {
 	if c.JSONReportFile != "" && c.TestingClient == "" {
 		return fmt.Errorf("with json-report must also set testing-client")
+	}
+
+	if n, err := strconv.Atoi(c.MaxBodyRsp); err != nil || n < -1 {
+		return fmt.Errorf("invalid max-body-rsp %q: want a number of bytes, or -1 for the whole body", c.MaxBodyRsp)
 	}
 
 	if c.ClientBuildDir != "" {
