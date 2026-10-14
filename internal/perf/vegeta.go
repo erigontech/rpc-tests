@@ -79,7 +79,8 @@ func (pt *PerfTest) Cleanup(initial bool) error {
 		return err
 	}
 
-	if initial {
+	// Without a test report nothing reads the run directory (the vegeta binary files) after the run.
+	if initial || !pt.Config.CreateTestReport {
 		if err := os.RemoveAll(pt.RunDirs.RunTestDir); err != nil {
 			return err
 		}
@@ -296,6 +297,7 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 
 	timeout, _ := time.ParseDuration(pt.Config.VegetaResponseTimeout)
 	maxConnInt, _ := strconv.Atoi(pt.Config.MaxConnection)
+	maxBody, _ := strconv.Atoi(pt.Config.MaxBodyRsp)
 
 	tr := &http.Transport{
 		DisableCompression:  pt.Config.DisableHttpCompression,
@@ -316,6 +318,11 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 	// With MaxBody(-1) Vegeta reads the full body; the drain is then a no-op
 	// (0 bytes remaining), res.Code is always set correctly, and success
 	// counting matches Python/vegeta-CLI behaviour.
+	//
+	// The whole body is still read, but only its first MaxBodyRsp bytes are written to the
+	// binary file, as vegeta's -max-body did: full bodies made the file grow by the response
+	// size (tens of GB per test for eth_getLogs), and its single writer fell behind the attack,
+	// piling up results in memory and draining them for minutes after the attack ended.
 	//
 	// High workers() counts can saturate server resources.
 	//
@@ -348,6 +355,9 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 			}
 			results.add(result)
 			metrics.Add(result)
+			if maxBody >= 0 && len(result.Body) > maxBody {
+				result.Body = result.Body[:maxBody]
+			}
 			if err := encoder.Encode(result); err != nil {
 				log.Printf("Warning: failed to encode result: %v", err)
 			}

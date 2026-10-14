@@ -103,7 +103,7 @@ OPTIONS:
    -g, --client-build-dir <value>          Path to Client build folder
    -c, --run-vegeta-on-core <value>        Taskset format for Vegeta [default: -:-]
    -T, --response-timeout <value>          Vegeta response timeout [default: 300s]
-   -M, --max-body-rsp <value>              Max bytes to read from response bodies [default: 1500]
+   -M, --max-body-rsp <value>              Max bytes of each response body written to the vegeta binary file, -1 = the whole body [default: 1500]
    -j, --json-report <value>              Generate JSON report at specified path
    -P, --more-percentiles                  Print more percentiles in console report
    -H, --halt-on-vegeta-error              Consider test failed if Vegeta reports any error

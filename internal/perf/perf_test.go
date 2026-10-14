@@ -259,3 +259,20 @@ func TestIsProcessRunning_NonExistent(t *testing.T) {
 		t.Error("nonexistent process should not be running")
 	}
 }
+
+func TestConfig_Validate_MaxBodyRsp(t *testing.T) {
+	for _, v := range []string{"1500", "0", "-1"} {
+		cfg := NewConfig()
+		cfg.MaxBodyRsp = v
+		if err := cfg.Validate(); err != nil {
+			t.Errorf("max-body-rsp %q: %v", v, err)
+		}
+	}
+	for _, v := range []string{"x", "-2", ""} {
+		cfg := NewConfig()
+		cfg.MaxBodyRsp = v
+		if err := cfg.Validate(); err == nil {
+			t.Errorf("max-body-rsp %q: want an error", v)
+		}
+	}
+}
