@@ -36,6 +36,7 @@ type Block struct {
 	Number       string        `json:"number"`
 	Hash         string        `json:"hash"`
 	Transactions []Transaction `json:"transactions"`
+	Logs         []Log         `json:"-"` // read only for PerLog generators
 }
 
 // Spec is one method of a load with its relative weight.
@@ -98,7 +99,7 @@ type Config struct {
 	KeepFees  bool     // copy the tx gas price; dropped by default, see Run
 	Count     int      // or stop after writing this many requests, scanning as many blocks as needed
 	MinCount  int      // fail if fewer requests are written
-	Contracts []string // keep only the txs to these contracts (lower case), and the blocks holding them
+	Contracts []string // keep only the txs to these contracts (lower case), the blocks holding them and the logs they emit
 	Name      string   // vegeta_erigon_<Name>.txt; the method for one method, "mixed" for several
 	MaxBlocks uint64   // with several methods, the window of recent blocks the requests are drawn from
 	Workers   int
@@ -205,7 +206,8 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 			constants = append(constants, candidate{spec: i, req: req})
 		}
 	}
-	if err := n.check(ctx, constants, verify, workers, accept); err != nil {
+	rejectEmpty := specs[0].Gen.Kind() == PerLog
+	if err := n.check(ctx, constants, verify, rejectEmpty, workers, accept); err != nil {
 		return sum, err
 	}
 
@@ -221,7 +223,7 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 	for _, c := range cfg.Contracts {
 		contracts[strings.ToLower(c)] = true
 	}
-	params := Params{Contracts: cfg.Contracts}
+	withLogs := needsLogs(specs)
 
 	scanAll := cfg.Blocks == 0 // stop on count only
 	var scanned uint64
@@ -238,6 +240,11 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 		if err != nil {
 			return sum, err
 		}
+		if withLogs {
+			if err := n.fetchLogs(ctx, blocks, nums, workers); err != nil {
+				return sum, err
+			}
+		}
 		scanned += uint64(len(blocks))
 		var cands []candidate
 		for i, sp := range specs {
@@ -246,6 +253,19 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 			}
 			for bi := range blocks {
 				b := &blocks[bi]
+				p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], head), Head: head}
+				item := Item{Block: b, BlockNum: nums[bi]}
+				if sp.Gen.Kind() == PerLog {
+					for _, lg := range blockLogs(b.Logs, contracts) {
+						item.Log = &lg
+						req, err := sp.Gen.Request(item, p)
+						if err != nil {
+							return sum, fmt.Errorf("building %s for block %d: %w", sp.Gen.Method(), nums[bi], err)
+						}
+						cands = append(cands, candidate{spec: i, req: req, offset: offset + uint64(bi)})
+					}
+					continue
+				}
 				txs := b.Transactions
 				if len(contracts) > 0 {
 					txs = slices.DeleteFunc(slices.Clone(txs), func(t Transaction) bool {
@@ -255,9 +275,6 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 						continue
 					}
 				}
-				p := params
-				p.BlockParam = blockParam(cfg.Tag, nums[bi], head)
-				item := Item{Block: b, BlockNum: nums[bi]}
 				if sp.Gen.Kind() == PerBlock {
 					req, err := sp.Gen.Request(item, p)
 					if err != nil {
@@ -281,7 +298,7 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 				}
 			}
 		}
-		if err := n.check(ctx, cands, verify, workers, accept); err != nil {
+		if err := n.check(ctx, cands, verify, rejectEmpty, workers, accept); err != nil {
 			return sum, err
 		}
 	}
@@ -325,6 +342,11 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 	if err != nil {
 		return sum, err
 	}
+	if needsLogs(specs) {
+		if err := n.fetchLogs(ctx, blocks, nums, workers); err != nil {
+			return sum, err
+		}
+	}
 	sum.FirstBlock, sum.BlocksScanned = head, uint64(len(blocks))
 	sum.LastBlock = head - (sum.BlocksScanned - 1)
 
@@ -336,11 +358,19 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 		block int
 		txn   Transaction
 	}
+	type logRef struct {
+		block int
+		log   Log
+	}
 	var (
 		blockRefs []int
 		txRefs    []txRef
+		logRefs   []logRef
 	)
 	for bi, b := range blocks {
+		for _, lg := range blockLogs(b.Logs, contracts) {
+			logRefs = append(logRefs, logRef{bi, lg})
+		}
 		matched := false
 		for _, txn := range b.Transactions {
 			if len(contracts) > 0 && (txn.To == nil || !contracts[strings.ToLower(*txn.To)]) {
@@ -363,9 +393,9 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 	written := make([][][]byte, len(specs))
 	for i, sp := range specs {
 		ms := sum.Methods[sp.name()]
-		build := func(bi int, txn *Transaction) ([]byte, error) {
-			p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], head), Contracts: cfg.Contracts}
-			return sp.Gen.Request(Item{Block: &blocks[bi], BlockNum: nums[bi], Txn: txn}, p)
+		build := func(bi int, txn *Transaction, lg *Log) ([]byte, error) {
+			p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], head), Head: head}
+			return sp.Gen.Request(Item{Block: &blocks[bi], BlockNum: nums[bi], Txn: txn, Log: lg}, p)
 		}
 		recent := func(bi int) bool { return sp.Blocks == 0 || uint64(bi) < sp.Blocks }
 		var reqs [][]byte
@@ -381,7 +411,7 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 				if !recent(bi) {
 					continue
 				}
-				req, err := build(bi, nil)
+				req, err := build(bi, nil, nil)
 				if err != nil {
 					return sum, err
 				}
@@ -392,7 +422,18 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 				if !recent(txRefs[j].block) {
 					continue
 				}
-				req, err := build(txRefs[j].block, &txRefs[j].txn)
+				req, err := build(txRefs[j].block, &txRefs[j].txn, nil)
+				if err != nil {
+					return sum, err
+				}
+				reqs = append(reqs, req)
+			}
+		case PerLog:
+			for _, j := range rng.Perm(len(logRefs)) {
+				if !recent(logRefs[j].block) {
+					continue
+				}
+				req, err := build(logRefs[j].block, nil, &logRefs[j].log)
 				if err != nil {
 					return sum, err
 				}
@@ -419,14 +460,14 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 	return sum, write(cfg, specs, sum, written)
 }
 
-// mixPool returns the requests a mix method draws from. Per-tx requests are verified in batches
-// until target of them are kept; for the others the first request is verified as a sample.
+// mixPool returns the requests a mix method draws from. Per-tx and per-log requests are verified
+// in batches until target of them are kept; for the others the first request is verified as a sample.
 func (n node) mixPool(ctx context.Context, cfg Config, kind Kind, reqs [][]byte, target, workers int, ms *MethodSummary, sum *Summary) ([][]byte, error) {
 	if !cfg.Verify || len(reqs) == 0 {
 		return reqs, nil
 	}
-	if kind != PerTx {
-		kept, err := n.tally(ctx, cfg, reqs[:1], workers, ms, sum)
+	if kind != PerTx && kind != PerLog {
+		kept, err := n.tally(ctx, cfg, reqs[:1], false, workers, ms, sum)
 		if err != nil || len(kept) == 0 {
 			return nil, err
 		}
@@ -435,7 +476,7 @@ func (n node) mixPool(ctx context.Context, cfg Config, kind Kind, reqs [][]byte,
 	var pool [][]byte
 	for start := 0; start < len(reqs) && len(pool) < target; {
 		end := min(len(reqs), start+max(1024, 2*(target-len(pool))))
-		kept, err := n.tally(ctx, cfg, reqs[start:end], workers, ms, sum)
+		kept, err := n.tally(ctx, cfg, reqs[start:end], kind == PerLog, workers, ms, sum)
 		if err != nil {
 			return nil, err
 		}
@@ -446,8 +487,8 @@ func (n node) mixPool(ctx context.Context, cfg Config, kind Kind, reqs [][]byte,
 }
 
 // tally verifies reqs, counts the outcomes and returns the requests to keep.
-func (n node) tally(ctx context.Context, cfg Config, reqs [][]byte, workers int, ms *MethodSummary, sum *Summary) ([][]byte, error) {
-	failures, err := n.verify(ctx, reqs, workers)
+func (n node) tally(ctx context.Context, cfg Config, reqs [][]byte, rejectEmpty bool, workers int, ms *MethodSummary, sum *Summary) ([][]byte, error) {
+	failures, err := n.verify(ctx, reqs, rejectEmpty, workers)
 	if err != nil {
 		return nil, err
 	}
@@ -593,7 +634,7 @@ func (n node) blocks(ctx context.Context, nums []uint64, workers int) ([]Block, 
 }
 
 // check verifies cands on the node when verify is set, then hands them to accept.
-func (n node) check(ctx context.Context, cands []candidate, verify bool, workers int, accept func([]candidate, []string)) error {
+func (n node) check(ctx context.Context, cands []candidate, verify, rejectEmpty bool, workers int, accept func([]candidate, []string)) error {
 	var failures []string
 	if verify {
 		reqs := make([][]byte, len(cands))
@@ -601,7 +642,7 @@ func (n node) check(ctx context.Context, cands []candidate, verify bool, workers
 			reqs[i] = c.req
 		}
 		var err error
-		if failures, err = n.verify(ctx, reqs, workers); err != nil {
+		if failures, err = n.verify(ctx, reqs, rejectEmpty, workers); err != nil {
 			return err
 		}
 	}
@@ -610,8 +651,9 @@ func (n node) check(ctx context.Context, cands []candidate, verify bool, workers
 }
 
 // verify runs every request on the node and returns, for each one, its error
-// kind, or "" when it succeeded. A transport failure aborts the run.
-func (n node) verify(ctx context.Context, reqs [][]byte, workers int) ([]string, error) {
+// kind, or "" when it succeeded. With rejectEmpty a null or empty list result is a failure too.
+// A transport failure aborts the run.
+func (n node) verify(ctx context.Context, reqs [][]byte, rejectEmpty bool, workers int) ([]string, error) {
 	failures := make([]string, len(reqs))
 	err := parallel(len(reqs), workers, func(i int) error {
 		var resp struct {
@@ -621,8 +663,11 @@ func (n node) verify(ctx context.Context, reqs [][]byte, workers int) ([]string,
 		if _, err := n.client.Call(ctx, n.target, reqs[i], &resp); err != nil {
 			return fmt.Errorf("verifying request: %w", err)
 		}
-		if resp.Error != nil {
+		switch result := strings.TrimSpace(string(resp.Result)); {
+		case resp.Error != nil:
 			failures[i] = perf.RPCErrorKind(resp.Error.Message)
+		case rejectEmpty && (result == "" || result == "null" || strings.ReplaceAll(result, " ", "") == "[]"):
+			failures[i] = "empty result"
 		}
 		return nil
 	})

@@ -25,7 +25,8 @@ type fakeNode struct {
 	head           uint64
 	failingFrom    string
 	extraTo        string
-	detailedErrors bool // append the block number to each error, as real nodes add addresses and amounts
+	detailedErrors bool   // append the block number to each error, as real nodes add addresses and amounts
+	noLogsAt       string // eth_getLogs filtering on this address returns no logs
 	calls          atomic.Int64
 	mu             sync.Mutex
 	requests       map[string]int // by method
@@ -72,6 +73,23 @@ func (n *fakeNode) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			`{"hash":"0xa","from":"0x0000000000000000000000000000000000000001","to":"0x0000000000000000000000000000000000000002","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"},`+
 			`{"hash":"0xb","from":%q,"to":"0x0000000000000000000000000000000000000002","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"}%s]}}`,
 			num, strings.TrimPrefix(num, "0x"), n.failingFrom, extra)
+	case "eth_getLogs":
+		var f struct {
+			FromBlock string `json:"fromBlock"`
+			Address   string `json:"address"`
+		}
+		_ = json.Unmarshal(req.Params[0], &f)
+		if n.noLogsAt != "" && f.Address == n.noLogsAt {
+			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":[]}`)
+			return
+		}
+		extra := ""
+		if n.extraTo != "" {
+			extra = fmt.Sprintf(`,{"address":%q,"topics":["0x7e"],"transactionHash":"0xc","logIndex":"0x2"}`, n.extraTo)
+		}
+		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":[`+
+			`{"address":"0x0000000000000000000000000000000000000002","topics":["0x7e","0x01","0x02"],"transactionHash":"0xa","logIndex":"0x0"},`+
+			`{"address":"0x0000000000000000000000000000000000000002","topics":["0x7e","0x01","0x02"],"transactionHash":"0xb","logIndex":"0x1"}%s]}`, extra)
 	case "eth_call":
 		n.calls.Add(1)
 		var args struct {
@@ -512,12 +530,89 @@ func TestRunContractsFilterLogsByAddress(t *testing.T) {
 	cfg := baseConfig(t, url)
 	cfg.Contracts = []string{contract}
 
-	if _, err := Run(context.Background(), cfg, single(mustGen(t, "eth_getLogs"))); err != nil {
+	sum, err := Run(context.Background(), cfg, single(mustGen(t, "eth_getLogs")))
+	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
+	if sum.Written != 2 {
+		t.Errorf("written %d, want the log of the contract in each of the 2 blocks", sum.Written)
+	}
 	for _, vt := range readTargets(t, cfg.Out, "eth_getLogs") {
-		if !strings.Contains(string(vt.Body), `"address":["`+contract+`"]`) {
-			t.Errorf("logs not filtered by the contract: %s", vt.Body)
+		if !strings.Contains(string(vt.Body), `"address":"`+contract+`"`) {
+			t.Errorf("logs not of the contract: %s", vt.Body)
+		}
+	}
+}
+
+func TestRunLogsMatchALogOfTheBlockWithinTheHead(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks = 10
+
+	sum, err := Run(context.Background(), cfg, single(mustGen(t, "eth_getLogs")))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Written != 10 {
+		t.Errorf("written %d, want 1 per block: the 2 logs of a block are identical", sum.Written)
+	}
+	for _, vt := range readTargets(t, cfg.Out, "eth_getLogs") {
+		var req struct {
+			Params []struct {
+				FromBlock string `json:"fromBlock"`
+				ToBlock   string `json:"toBlock"`
+				Address   string `json:"address"`
+				Topics    []any  `json:"topics"`
+			} `json:"params"`
+		}
+		if err := json.Unmarshal(vt.Body, &req); err != nil {
+			t.Fatal(err)
+		}
+		f := req.Params[0]
+		var from, to uint64
+		fmt.Sscanf(f.FromBlock, "0x%x", &from)
+		fmt.Sscanf(f.ToBlock, "0x%x", &to)
+		if from > to || to > 100 || to-from >= DefaultLogsRange {
+			t.Errorf("range %s..%s: want within %d blocks and not past the head", f.FromBlock, f.ToBlock, DefaultLogsRange)
+		}
+		if f.Address == "" && len(f.Topics) < 2 {
+			t.Errorf("filter on topic0 alone or on nothing: %s", vt.Body)
+		}
+	}
+}
+
+func TestRunLogsDropEmptyResults(t *testing.T) {
+	node, url := startNode(t)
+	node.noLogsAt = "0x0000000000000000000000000000000000000002"
+	cfg := baseConfig(t, url)
+	cfg.Blocks = 20
+
+	sum, err := Run(context.Background(), cfg, single(mustGen(t, "eth_getLogs")))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Errors["empty result"] == 0 || sum.Written != sum.OK {
+		t.Errorf("errors %v, written %d, ok %d: want the empty results counted and not written", sum.Errors, sum.Written, sum.OK)
+	}
+	for _, vt := range readTargets(t, cfg.Out, "eth_getLogs") {
+		if strings.Contains(string(vt.Body), `"address"`) {
+			t.Errorf("request with an empty result written: %s", vt.Body)
+		}
+	}
+}
+
+func TestRunMixVerifiesEveryLogsRequest(t *testing.T) {
+	node, url := startNode(t)
+	node.noLogsAt = "0x0000000000000000000000000000000000000002"
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.MaxBlocks = 0, 40, 20
+
+	if _, err := Run(context.Background(), cfg, []Spec{{Gen: mustGen(t, "eth_getLogs"), Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}}); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	for _, vt := range readTargets(t, cfg.Out, "mixed") {
+		if methodOf(t, vt.Body) == "eth_getLogs" && strings.Contains(string(vt.Body), `"address"`) {
+			t.Errorf("request with an empty result written: %s", vt.Body)
 		}
 	}
 }

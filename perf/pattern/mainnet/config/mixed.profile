@@ -6,7 +6,7 @@
 [methods]
 eth_call                   35.8%
 eth_getBlockByNumber       19.9%
-eth_getLogs                6.42%
+eth_getLogs                6.42%   range=100   # filters matching a real log, over up to 100 blocks
 eth_getTransactionReceipt  5.74%
 eth_blockNumber            4.26%
 debug_traceBlockByHash     3.91%   tracer=callTracer blocks=100   # geth and nethermind keep the state of the recent blocks only
@@ -19,7 +19,7 @@ eth_chainId                1.22%
 eth_getTransactionCount    1.07%
 
 # Most called contracts (tx "to") in 500 recent mainnet blocks (24677092..24677591, 194456 txs).
-# Only these txs, and the blocks holding them, are used; eth_getLogs filters on these addresses.
+# Only these txs, the blocks holding them and the logs they emit are used.
 [contracts]
 0xdac17f958d2ee523a2206206994597c13d831ec7   USDT                       14.4% of txs
 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48   USDC                        7.6%

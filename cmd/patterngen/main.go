@@ -51,6 +51,18 @@ func newApp() *cli.App {
 			Action: func(c *cli.Context) error {
 				return generate(c, []vegetagen.Spec{{Gen: vegetagen.EthCall{}, Weight: 1}}, nil)
 			},
+		}, {
+			Name:  "eth_getLogs",
+			Usage: "Generate eth_getLogs requests whose filters match the logs of each block, so none returns empty",
+			Flags: append(commonFlags(true),
+				&cli.Uint64Flag{Name: "range", Value: vegetagen.DefaultLogsRange, Usage: "Widest block range of a request, around the block of its log"},
+			),
+			Action: func(c *cli.Context) error {
+				if c.Uint64("range") == 0 {
+					return fmt.Errorf("invalid range 0: want a positive number of blocks")
+				}
+				return generate(c, []vegetagen.Spec{{Gen: vegetagen.GetLogs{Range: c.Uint64("range")}, Weight: 1}}, nil)
+			},
 		}},
 	}
 }
