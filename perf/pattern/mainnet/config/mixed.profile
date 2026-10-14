@@ -9,7 +9,7 @@ eth_getBlockByNumber       19.9%
 eth_getLogs                6.42%   range=100   # filters matching a real log, over up to 100 blocks
 eth_getTransactionReceipt  5.74%
 eth_blockNumber            4.26%
-debug_traceBlockByHash     3.91%   tracer=callTracer blocks=100   # geth and nethermind keep the state of the recent blocks only
+debug_traceBlockByHash     3.91%   tracer=callTracer blocks=50    # geth and nethermind keep the state of the recent blocks only
 eth_getBalance             3.73%
 net_listening              3.42%
 eth_getTransactionByHash   2.62%
