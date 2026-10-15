@@ -12,7 +12,7 @@
       "jsonrpc": "2.0",
       "id": 1,
       "error": {
-        "code": -32000,
+        "code": -32602,
         "message": "rlp: value size exceeds available input length"
       }
     },
