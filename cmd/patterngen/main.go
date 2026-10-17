@@ -42,14 +42,14 @@ func newApp() *cli.App {
 			if err != nil {
 				return err
 			}
-			return generate(c, specs, profile.Contracts)
+			return generate(c, specs, profile.Contracts, true)
 		},
 		Commands: []*cli.Command{{
 			Name:  "eth_call",
 			Usage: "Generate eth_call requests with the call arguments of each transaction",
 			Flags: commonFlags(true),
 			Action: func(c *cli.Context) error {
-				return generate(c, []vegetagen.Spec{{Gen: vegetagen.EthCall{}, Weight: 1}}, nil)
+				return generate(c, []vegetagen.Spec{{Gen: vegetagen.EthCall{}, Weight: 1}}, nil, false)
 			},
 		}, {
 			Name:  "eth_getLogs",
@@ -61,7 +61,7 @@ func newApp() *cli.App {
 				if c.Uint64("range") == 0 {
 					return fmt.Errorf("invalid range 0: want a positive number of blocks")
 				}
-				return generate(c, []vegetagen.Spec{{Gen: vegetagen.GetLogs{Range: c.Uint64("range")}, Weight: 1}}, nil)
+				return generate(c, []vegetagen.Spec{{Gen: vegetagen.GetLogs{Range: c.Uint64("range")}, Weight: 1}}, nil, false)
 			},
 		}},
 	}
@@ -78,7 +78,7 @@ func commonFlags(outRequired bool) []cli.Flag {
 		&cli.StringFlag{Name: "fees", Value: "drop", Usage: "Gas price of each request: drop (no fee, the node skips the base fee and balance checks) or keep (the tx gas price)"},
 		&cli.IntFlag{Name: "counts", Usage: "Read blocks from the head downwards until this many requests are written (alternative to --blocks)"},
 		&cli.IntFlag{Name: "min-count", Usage: "Fail if fewer requests are written"},
-		&cli.Uint64Flag{Name: "max-blocks", Value: vegetagen.DefaultMaxBlocks, Usage: "With several methods, the window of recent blocks all requests are drawn from, with repetitions"},
+		&cli.Uint64Flag{Name: "max-blocks", Value: vegetagen.DefaultMaxBlocks, Usage: "With a profile, the window of recent blocks all requests are drawn from, with repetitions"},
 		&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
 		&cli.StringFlag{Name: "name", Usage: "Name of the vegeta file in the tar, the rpc_perf --test-type (default: the method, or mixed for several)"},
 		&cli.StringFlag{Name: "out", Required: outRequired, Usage: "Output tar file, usable as rpc_perf --pattern-file"},
@@ -86,7 +86,9 @@ func commonFlags(outRequired bool) []cli.Flag {
 	}
 }
 
-func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string) error {
+// generate writes the pattern of specs. With window, as for a profile, the requests are drawn from
+// the window of recent blocks even when the profile has one method.
+func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window bool) error {
 	tag, err := vegetagen.ParseBlockTag(c.String("block-tag"))
 	if err != nil {
 		return err
@@ -98,8 +100,8 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string) error 
 	if (c.Uint64("blocks") == 0) == (c.Int("counts") == 0) {
 		return fmt.Errorf("set exactly one of --blocks or --counts")
 	}
-	if c.Uint64("blocks") > 0 && len(specs) > 1 {
-		return fmt.Errorf("a profile with several methods needs --counts, since the shares apply to a total")
+	if c.Uint64("blocks") > 0 && (len(specs) > 1 || window) {
+		return fmt.Errorf("a profile needs --counts, since its requests are drawn from the window of --max-blocks blocks")
 	}
 	fees := c.String("fees")
 	if fees != "drop" && fees != "keep" {
@@ -118,6 +120,7 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string) error 
 		Contracts: contracts,
 		Name:      c.String("name"),
 		MaxBlocks: c.Uint64("max-blocks"),
+		Window:    window,
 		Workers:   c.Int("workers"),
 		Out:       c.String("out"),
 	}

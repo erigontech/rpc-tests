@@ -735,3 +735,124 @@ func TestRunMixBlocksDrawsAMethodFromTheMostRecentBlocks(t *testing.T) {
 		t.Errorf("eth_getBlockByNumber drew from %d blocks, want the whole window of 3", len(byNumber))
 	}
 }
+
+func TestRunWindowDrawsOneMethodFromTheWindow(t *testing.T) {
+	node, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.MaxBlocks, cfg.Window = 0, 40, 5, true
+
+	sum, err := Run(context.Background(), cfg, single(mustGen(t, "eth_getLogs")))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if len(node.blocksRead) != 5 || sum.BlocksScanned != 5 {
+		t.Errorf("read %d blocks, scanned %d, want the 5 of the window", len(node.blocksRead), sum.BlocksScanned)
+	}
+	froms := map[string]bool{}
+	for _, vt := range readTargets(t, cfg.Out, "eth_getLogs") {
+		var req struct {
+			Params []struct {
+				ToBlock string `json:"toBlock"`
+			} `json:"params"`
+		}
+		_ = json.Unmarshal(vt.Body, &req)
+		froms[req.Params[0].ToBlock] = true
+	}
+	if sum.Written != 40 || len(froms) < 2 {
+		t.Errorf("written %d with %d distinct toBlock, want 40 spread over the window", sum.Written, len(froms))
+	}
+	cfg.Blocks, cfg.Count = 2, 0
+	if _, err := Run(context.Background(), cfg, single(mustGen(t, "eth_getLogs"))); err == nil {
+		t.Error("blocks with a window: want an error, the window needs count")
+	}
+}
+
+func TestRunLogsFilterSkipsLogsWithTooFewTopics(t *testing.T) {
+	node, url := startNode(t)
+	node.extraTo = "0x0000000000000000000000000000000000000003" // its log has topic0 only
+	cfg := baseConfig(t, url)
+
+	gen, err := NewGenerator("eth_getLogs", map[string]string{"filter": FilterTopics})
+	if err != nil {
+		t.Fatalf("NewGenerator: %v", err)
+	}
+	sum, err := Run(context.Background(), cfg, single(gen))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Written != 2 {
+		t.Errorf("written %d, want 1 per block: the log with topic0 only is skipped", sum.Written)
+	}
+	for _, vt := range readTargets(t, cfg.Out, "eth_getLogs") {
+		if strings.Contains(string(vt.Body), `"address"`) || strings.Contains(string(vt.Body), node.extraTo) {
+			t.Errorf("filter=topics wrote %s", vt.Body)
+		}
+	}
+}
+
+func TestRunMixLogsFilterSkipsLogsWithTooFewTopics(t *testing.T) {
+	node, url := startNode(t)
+	node.extraTo = "0x0000000000000000000000000000000000000003" // its log has topic0 only
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.MaxBlocks, cfg.Window = 0, 20, 3, true
+
+	gen, err := NewGenerator("eth_getLogs", map[string]string{"filter": FilterTopics})
+	if err != nil {
+		t.Fatalf("NewGenerator: %v", err)
+	}
+	sum, err := Run(context.Background(), cfg, single(gen))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Written != 20 {
+		t.Errorf("written %d, want 20", sum.Written)
+	}
+	for _, vt := range readTargets(t, cfg.Out, "eth_getLogs") {
+		if strings.Contains(string(vt.Body), `"address"`) || strings.Contains(string(vt.Body), node.extraTo) {
+			t.Errorf("filter=topics wrote %s", vt.Body)
+		}
+	}
+}
+
+func TestRunLogsFilterWithNoUsableLogFails(t *testing.T) {
+	node, url := startNode(t)
+	node.extraTo = "0x0000000000000000000000000000000000000003" // its log has topic0 only
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.MaxBlocks, cfg.Window = 0, 5, 3, true
+	cfg.Contracts = []string{node.extraTo}
+
+	gen, err := NewGenerator("eth_getLogs", map[string]string{"filter": FilterTopics})
+	if err != nil {
+		t.Fatalf("NewGenerator: %v", err)
+	}
+	if _, err := Run(context.Background(), cfg, single(gen)); err == nil {
+		t.Error("filter=topics on contracts whose logs have topic0 only: want an error, no request can be built")
+	}
+}
+
+// The or lists of the logs of a contract hold only the values of the logs of the contracts, in the
+// walk from the head as in the window.
+func TestRunOrListsKeepToTheContracts(t *testing.T) {
+	const contract = "0x0000000000000000000000000000000000000002"
+	other := "0x0000000000000000000000000000000000000003"
+	for _, window := range []bool{false, true} {
+		node, url := startNode(t)
+		node.extraTo = other
+		cfg := baseConfig(t, url)
+		cfg.Blocks, cfg.Count, cfg.MaxBlocks, cfg.Window = 0, 30, 30, window
+		cfg.Contracts = []string{contract}
+
+		gen, err := NewGenerator("eth_getLogs", map[string]string{"or": "16"})
+		if err != nil {
+			t.Fatalf("NewGenerator: %v", err)
+		}
+		if _, err := Run(context.Background(), cfg, single(gen)); err != nil {
+			t.Fatalf("window=%v: Run: %v", window, err)
+		}
+		for _, vt := range readTargets(t, cfg.Out, "eth_getLogs") {
+			if strings.Contains(string(vt.Body), other) {
+				t.Errorf("window=%v: %s holds %s, outside the contracts", window, vt.Body, other)
+			}
+		}
+	}
+}

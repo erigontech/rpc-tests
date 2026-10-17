@@ -101,7 +101,8 @@ type Config struct {
 	MinCount  int      // fail if fewer requests are written
 	Contracts []string // keep only the txs to these contracts (lower case), the blocks holding them and the logs they emit
 	Name      string   // vegeta_erigon_<Name>.txt; the method for one method, "mixed" for several
-	MaxBlocks uint64   // with several methods, the window of recent blocks the requests are drawn from
+	MaxBlocks uint64   // with several methods or Window, the window of recent blocks the requests are drawn from
+	Window    bool     // draw from the window even with one method, as a profile does
 	Workers   int
 	Out       string // tar file path
 }
@@ -143,13 +144,14 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 	if (cfg.Blocks == 0) == (cfg.Count == 0) {
 		return sum, errors.New("set exactly one of blocks or count")
 	}
-	if cfg.Blocks > 0 && len(specs) > 1 {
-		return sum, errors.New("a mix of methods needs count, since the shares apply to a total")
+	mix := len(specs) > 1 || cfg.Window
+	if cfg.Blocks > 0 && mix {
+		return sum, errors.New("a mix of methods or a window needs count, since the shares apply to a total")
 	}
 	for _, sp := range specs {
 		sum.Methods[sp.name()] = &MethodSummary{Errors: map[string]int{}}
 	}
-	if len(specs) > 1 {
+	if mix {
 		return runMix(ctx, cfg, specs, sum)
 	}
 	targets := shares(cfg.Count, specs) // -1 = no limit
@@ -253,10 +255,13 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 			}
 			for bi := range blocks {
 				b := &blocks[bi]
-				p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], head), Head: head}
+				p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], head), Head: head, Contracts: contracts}
 				item := Item{Block: b, BlockNum: nums[bi]}
 				if sp.Gen.Kind() == PerLog {
 					for _, lg := range blockLogs(b.Logs, contracts) {
+						if !usableLog(sp.Gen, lg) {
+							continue
+						}
 						item.Log = &lg
 						req, err := sp.Gen.Request(item, p)
 						if err != nil {
@@ -394,7 +399,7 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 	for i, sp := range specs {
 		ms := sum.Methods[sp.name()]
 		build := func(bi int, txn *Transaction, lg *Log) ([]byte, error) {
-			p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], head), Head: head}
+			p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], head), Head: head, Contracts: contracts}
 			return sp.Gen.Request(Item{Block: &blocks[bi], BlockNum: nums[bi], Txn: txn, Log: lg}, p)
 		}
 		recent := func(bi int) bool { return sp.Blocks == 0 || uint64(bi) < sp.Blocks }
@@ -430,7 +435,7 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 			}
 		case PerLog:
 			for _, j := range rng.Perm(len(logRefs)) {
-				if !recent(logRefs[j].block) {
+				if !recent(logRefs[j].block) || !usableLog(sp.Gen, logRefs[j].log) {
 					continue
 				}
 				req, err := build(logRefs[j].block, nil, &logRefs[j].log)

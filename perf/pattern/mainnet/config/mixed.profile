@@ -6,7 +6,7 @@
 [methods]
 eth_call                   35.8%
 eth_getBlockByNumber       19.9%
-eth_getLogs                6.42%   range=100   # filters matching a real log, over up to 100 blocks
+eth_getLogs                6.42%   filter=address range=100   # the address of a real log, over up to 100 blocks; eth_getLogs_mixed.profile has every filter shape
 eth_getTransactionReceipt  5.74%
 eth_blockNumber            4.26%
 debug_traceBlockByHash     3.91%   tracer=callTracer blocks=50    # geth and nethermind keep the state of the recent blocks only

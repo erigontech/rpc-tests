@@ -29,8 +29,9 @@ type Item struct {
 }
 
 type Params struct {
-	BlockParam string // state to run on, for methods that take a block parameter
-	Head       uint64 // head at generation time, the newest block a request may refer to
+	BlockParam string          // state to run on, for methods that take a block parameter
+	Head       uint64          // head at generation time, the newest block a request may refer to
+	Contracts  map[string]bool // the [contracts] filter (lower case): a request takes values only from their logs; empty = all
 }
 
 // Generator turns one item into the body of one JSON-RPC request.

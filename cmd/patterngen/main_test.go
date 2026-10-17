@@ -72,3 +72,33 @@ func TestProfileWritesThePattern(t *testing.T) {
 		t.Errorf("pattern not written: %v", err)
 	}
 }
+
+func TestProfileWithOneMethodDrawsFromTheWindow(t *testing.T) {
+	dir := t.TempDir()
+	profile := filepath.Join(dir, "eth_call.profile")
+	if err := os.WriteFile(profile, []byte("[methods]\neth_call 1\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := filepath.Join(dir, "eth_call.tar")
+	if err := newApp().Run([]string{"rpc_pattern_gen", "--profile", profile, "--url", node(t), "--counts", "4", "--max-blocks", "2", "--out", out}); err != nil {
+		t.Fatalf("profile: %v", err)
+	}
+	if err := newApp().Run([]string{"rpc_pattern_gen", "--profile", profile, "--url", node(t), "--blocks", "1", "--out", out}); err == nil {
+		t.Error("profile with --blocks: want an error, the window needs --counts")
+	}
+}
+
+func TestProfileWithLogsOptionsWritesThePattern(t *testing.T) {
+	dir := t.TempDir()
+	profile := filepath.Join(dir, "eth_getLogs.profile")
+	if err := os.WriteFile(profile, []byte("[methods]\neth_getLogs 1 filter=address+topics or=4 range=10\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := filepath.Join(dir, "eth_getLogs.tar")
+	if err := newApp().Run([]string{"rpc_pattern_gen", "--profile", profile, "--url", node(t), "--counts", "4", "--max-blocks", "2", "--out", out}); err != nil {
+		t.Fatalf("profile: %v", err)
+	}
+	if _, err := os.Stat(out); err != nil {
+		t.Errorf("pattern not written: %v", err)
+	}
+}

@@ -1,0 +1,174 @@
+# Vegeta patterns and `rpc_pattern_gen`
+
+`rpc_perf` replays a Vegeta pattern: a tar file holding the JSON-RPC requests to send. This directory
+keeps the patterns of each network (`<network>/stress_test_*.tar`) and the profiles used to generate new
+ones (`<network>/config/*.profile`).
+
+`rpc_pattern_gen` builds a pattern from the recent blocks of a running node: it reads blocks from the
+head, turns their transactions, blocks or logs into requests, optionally runs each request on the node
+to keep only the working ones, and writes the tar that `rpc_perf --pattern-file` reads.
+
+## Build
+
+```bash
+make rpc_pattern_gen rpc_perf
+# or
+go build -o ./build/bin/rpc_pattern_gen ./cmd/patterngen
+go build -o ./build/bin/rpc_perf ./cmd/perf
+```
+
+## Workflow
+
+```bash
+# 1. Generate the pattern from a synced node
+./build/bin/rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile \
+    --url http://localhost:8545 --counts 400000 --verify --out mixed.tar
+
+# 2. Replay it with rpc_perf: -y is the name of the vegeta file in the tar (see --name)
+./build/bin/rpc_perf -p mixed.tar -y mixed -t 1000:30,2000:30 ...
+```
+
+The tar holds a single file, `erigon_stress_test/vegeta_erigon_<name>.txt`, one Vegeta target per
+request. `<name>` is `--name` when set, otherwise the method for a single method or `mixed` for several,
+and is the value to pass to `rpc_perf --test-type` (`-y`). Each target posts to `--target-url`
+(default `http://localhost:8545`); `rpc_perf` replaces `localhost` with its `--rpc-client-address`.
+
+## Two ways to run it
+
+### Subcommands: one method, from the head downwards
+
+```bash
+rpc_pattern_gen eth_call    --counts 400000 --block-tag latest --verify --out eth_call.tar
+rpc_pattern_gen eth_getLogs --counts 400000 --range 100        --verify --out eth_getLogs.tar
+```
+
+The blocks are read from the head downwards, each one once, until `--counts` requests are written or
+`--blocks` blocks are read. `eth_getLogs` takes `--range`, the widest block range of a request (default
+100); the other eth_getLogs options are available through a profile only.
+
+### Profiles: a mix of methods drawn from a window of recent blocks
+
+```bash
+rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400000 --verify --out mixed.tar
+```
+
+The `--max-blocks` most recent blocks (default 3000) are read once; then each method gets its share of
+`--counts` and draws its requests from that window, with repetitions when the window holds fewer
+requests than its share. A profile always uses the window, even with a single method, so it needs
+`--counts`: `--blocks` is rejected.
+
+## Common flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--url` | `http://localhost:8545` | Node used to read the blocks and verify the requests |
+| `--target-url` | `http://localhost:8545` | URL written in each Vegeta target |
+| `--counts` | | Number of requests to write (exclusive with `--blocks`) |
+| `--blocks` | | Read this many blocks from the head (subcommands only) |
+| `--max-blocks` | 3000 | With a profile, the window of recent blocks the requests are drawn from |
+| `--block-tag` | `latest` | Block parameter of the methods that take one: `latest` (resolved by the node at replay), `head` (head number pinned at generation, the same state on every node) or `parent` (the block before the transaction) |
+| `--fees` | `drop` | Gas price of eth_call/eth_estimateGas: `drop` (no fee, the node skips the base fee and balance checks) or `keep` (the tx gas price) |
+| `--verify` | off | Run every request on the node and count the failures |
+| `--keep` | `ok` | With `--verify`, the requests to write: `ok` (only the working ones) or `all` |
+| `--min-count` | | Fail if fewer requests are written |
+| `--name` | method or `mixed` | Name of the Vegeta file in the tar, the `rpc_perf -y` value |
+| `--workers` | 16 | Concurrent requests to the node |
+| `--out` | | Output tar file (required) |
+| `-v`, `--verbose` | off | Print the verification statistics per method and error kind |
+
+With `--verify`, per-tx and per-log requests are checked one by one until each method has enough working
+ones; an eth_getLogs request returning no log counts as a failure. For per-block and constant methods a
+sample request is checked.
+
+## Profile format
+
+```ini
+# Comments start with #, also at the end of a line.
+[methods]
+# <method>                 <weight>  [option=value ...]
+eth_call                   35.8%
+eth_getBlockByNumber       19.9%     full=true
+eth_getLogs                6.42%     filter=address range=100
+debug_traceBlockByHash     3.91%     tracer=callTracer blocks=50
+
+[contracts]
+# <address>                                  free text
+0xdac17f958d2ee523a2206206994597c13d831ec7   USDT
+```
+
+- **`[methods]`** (required): one method per line. The weight is relative (the `%` is optional and the
+  weights need not sum to 100); `--counts` is split among the methods by weight.
+- **`blocks=N`** (any method): draw this method only from the N most recent blocks of the window, e.g.
+  for traces on nodes that keep the state of the recent blocks only.
+- **`[contracts]`** (optional): keep only the transactions sent to these addresses, the blocks holding
+  them and the logs these contracts emit. Without it every transaction, block and log is used.
+- The same method can appear on several lines with different options; it is then reported as one method
+  per option set.
+
+## Methods and options
+
+| Method | Built from | Options |
+|--------|-----------|---------|
+| `eth_call` | each transaction: its from, to, gas, value, input, on `--block-tag` | |
+| `eth_estimateGas` | each transaction, as eth_call (the tx gas caps the search) | |
+| `eth_getTransactionReceipt` | each transaction hash | |
+| `eth_getTransactionByHash` | each transaction hash | |
+| `eth_getBalance` | each transaction sender, on `--block-tag` | |
+| `eth_getTransactionCount` | each transaction sender, on `--block-tag` | |
+| `eth_getBlockByNumber` | each block | `full=true\|false` (full transactions, default false) |
+| `eth_getBlockByHash` | each block | `full=true\|false` |
+| `eth_getBlockReceipts` | each block | |
+| `debug_traceBlockByHash` | each block | `tracer=<name>`, e.g. `callTracer` (default: the struct logger) |
+| `eth_getLogs` | each log of a block | `range=N`, `filter=...`, `or=N`, see below |
+| `eth_blockNumber`, `eth_chainId`, `net_listening`, `eth_gasPrice`, `eth_maxPriorityFeePerGas` | nothing: the same request repeated | |
+
+### eth_getLogs
+
+Every request is built from a real log of a block, so it returns at least that log. The choices below
+are drawn per log with a seed taken from the log, so a pattern is reproducible on the same chain.
+
+- **`range=N`** (default 100): block range of the request, from 1 to N blocks around the log's block,
+  log-uniform (mostly narrow, a few up to N) and never past the head. The range is in block numbers, so
+  the request keeps its result when replayed some blocks later.
+- **`filter=`**: the filter shapes, one drawn at random per log among those the log can match:
+
+  | `filter` | Shapes |
+  |----------|--------|
+  | (unset) | all of the below |
+  | `address` | address |
+  | `address+topics` | address+topic0, address+topic0+topic1, address+topic0+topic2 |
+  | `topics` | topic0+topic1, topic0+topic2 (no address) |
+
+  topic0 alone is never used: an event signature such as Transfer matches too many logs across
+  contracts. The logs with too few topics for the chosen family are skipped (e.g. a log with topic0 only
+  under `filter=topics`).
+- **`or=N`** (default 1): above 1, the address and each topic of the filter become a list of up to N
+  alternatives: the log's own value plus other distinct values found at the same position in the logs
+  of the same block. With `[contracts]` the other values come only from the logs of those contracts.
+  The list lengths are log-uniform between 1 and N, mostly short, a few up to N
+  (fewer when the block has fewer distinct values); null topic positions stay null.
+
+## Mainnet profiles
+
+All in `mainnet/config/`. Use the method name as `rpc_perf -y` for the single-method profiles, `mixed`
+for `mixed.profile`.
+
+| Profile | Load |
+|---------|------|
+| `mixed.profile` | Method shares of a provider's RPC traffic, on the txs and logs of the most called contracts; eth_getLogs by address, traces on the 50 most recent blocks |
+| `eth_call.profile` | eth_call only, from the window (the `eth_call` subcommand reads from the head down instead) |
+| `eth_gasPrice.profile` | eth_gasPrice only, a constant request |
+| `eth_getLogs_mixed.profile` | eth_getLogs with every filter shape, on the logs of the `mixed.profile` contracts, range up to 100 |
+| `eth_getLogs_address_topics.profile` | `filter=address+topics`, range up to 100: address and topic indexes intersected |
+| `eth_getLogs_topics.profile` | `filter=topics`, range up to 10: topic index alone, where events such as Transfer are dense |
+| `eth_getLogs_wide.profile` | `filter=address+topics`, range up to 1000: the cost of walking many blocks |
+| `eth_getLogs_head.profile` | range=1 on the 100 most recent blocks: indexers following the head |
+| `eth_getLogs_or.profile` | `or=16`: lists of addresses and topics, as indexers watching many contracts or events |
+
+Example:
+
+```bash
+./build/bin/rpc_pattern_gen --profile perf/pattern/mainnet/config/eth_getLogs_or.profile \
+    --counts 200000 --verify --out eth_getLogs_or.tar
+./build/bin/rpc_perf -p eth_getLogs_or.tar -y eth_getLogs -t 500:30,1000:30
+```
