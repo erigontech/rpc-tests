@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -991,6 +992,7 @@ func TestRunRangeRejectsInvalidSettings(t *testing.T) {
 		{"end past the head", BlockRange{From: 10, To: 101, Len: 2}, TagParent, 0},
 		{"latest", BlockRange{From: 10, To: 12}, TagLatest, 0},
 		{"blocks", BlockRange{From: 10, To: 12}, TagParent, 2},
+		{"sample larger than the range", BlockRange{From: 10, To: 12, Sample: 4}, TagParent, 0},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			cfg := baseConfig(t, url)
@@ -1018,5 +1020,84 @@ func TestRunMixDrawsFromTheRange(t *testing.T) {
 	}
 	if sum.BlocksScanned != 3 || sum.FirstBlock != 12 || sum.LastBlock != 10 {
 		t.Errorf("blocks scanned=%d range %d..%d, want 3 blocks 12..10", sum.BlocksScanned, sum.FirstBlock, sum.LastBlock)
+	}
+}
+
+// blockNums returns the numbers of the blocks the node served.
+func blockNums(t *testing.T, node *fakeNode) []uint64 {
+	t.Helper()
+	read := blocksRead(node)
+	nums := make([]uint64, 0, len(read))
+	for k := range read {
+		n, err := strconv.ParseUint(strings.TrimPrefix(strings.Trim(k, `"`), "0x"), 16, 64)
+		if err != nil {
+			t.Fatalf("block number %s: %v", k, err)
+		}
+		nums = append(nums, n)
+	}
+	return nums
+}
+
+func TestRunSampleReadsDistinctBlocksOfTheRange(t *testing.T) {
+	node, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Tag, cfg.Verify, cfg.Keep = 0, TagParent, false, KeepAll
+	cfg.Range = &BlockRange{From: 10, To: 50, Sample: 5}
+
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	nums := blockNums(t, node)
+	if len(nums) != 5 || sum.Written != 10 {
+		t.Fatalf("read %d blocks, written %d, want 5 distinct blocks and their 10 calls", len(nums), sum.Written)
+	}
+	for _, n := range nums {
+		if n < 10 || n > 50 {
+			t.Errorf("block %d outside the range 10..50", n)
+		}
+	}
+	if sum.BlocksScanned != 5 {
+		t.Errorf("blocks scanned=%d, want 5", sum.BlocksScanned)
+	}
+}
+
+func TestRunSampleIsReproducible(t *testing.T) {
+	_, url := startNode(t)
+	var bodies [2]string
+	for i := range bodies {
+		cfg := baseConfig(t, url)
+		cfg.Blocks, cfg.Tag, cfg.Verify, cfg.Keep = 0, TagParent, false, KeepAll
+		cfg.Range = &BlockRange{From: 10, To: 90, Sample: 5}
+		if _, err := Run(context.Background(), cfg, single(EthCall{})); err != nil {
+			t.Fatalf("Run: %v", err)
+		}
+		for _, vt := range readTargets(t, cfg.Out, "eth_call") {
+			bodies[i] += string(vt.Body)
+		}
+	}
+	if bodies[0] != bodies[1] {
+		t.Error("two runs on the same range wrote different patterns")
+	}
+}
+
+func TestRunMixDrawsFromTheSample(t *testing.T) {
+	node, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.Tag = 0, 40, TagParent
+	cfg.Range = &BlockRange{From: 10, To: 50, Sample: 3}
+
+	sum, err := Run(context.Background(), cfg, []Spec{{Gen: mustGen(t, "eth_getBlockReceipts"), Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}})
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	nums := blockNums(t, node)
+	if len(nums) != 3 || sum.BlocksScanned != 3 {
+		t.Fatalf("read %d blocks, scanned %d, want the 3 sampled blocks", len(nums), sum.BlocksScanned)
+	}
+	for _, n := range nums {
+		if n < 10 || n > 50 {
+			t.Errorf("block %d outside the range 10..50", n)
+		}
 	}
 }

@@ -81,6 +81,7 @@ func commonFlags(outRequired bool) []cli.Flag {
 		&cli.Uint64Flag{Name: "max-blocks", Value: vegetagen.DefaultMaxBlocks, Usage: "With a profile, the window of recent blocks all requests are drawn from, with repetitions; with --start-block, the length of the range"},
 		&cli.Uint64Flag{Name: "start-block", Usage: "Read the blocks from this one up to --end-block or for --max-blocks blocks, whichever ends first, instead of those below the head"},
 		&cli.Uint64Flag{Name: "end-block", Usage: "With --start-block, the last block of the range"},
+		&cli.Uint64Flag{Name: "sample-blocks", Usage: "With --start-block, read only this many distinct blocks of the range, drawn at random with a fixed seed"},
 		&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
 		&cli.StringFlag{Name: "name", Usage: "Name of the vegeta file in the tar, the rpc_perf --test-type (default: the method, or mixed for several)"},
 		&cli.StringFlag{Name: "out", Required: outRequired, Usage: "Output tar file, gzipped if it ends in .tar.gz or .tgz, usable as rpc_perf --pattern-file"},
@@ -153,8 +154,10 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 // their values, since --max-blocks has a default.
 func parseBlockRange(c *cli.Context) (*vegetagen.BlockRange, error) {
 	if !c.IsSet("start-block") {
-		if c.IsSet("end-block") {
-			return nil, fmt.Errorf("--end-block needs --start-block")
+		for _, name := range []string{"end-block", "sample-blocks"} {
+			if c.IsSet(name) {
+				return nil, fmt.Errorf("--%s needs --start-block", name)
+			}
 		}
 		return nil, nil
 	}
@@ -164,7 +167,7 @@ func parseBlockRange(c *cli.Context) (*vegetagen.BlockRange, error) {
 	if c.IsSet("blocks") {
 		return nil, fmt.Errorf("--blocks cannot be used with --start-block: the range sets the blocks to read")
 	}
-	r := &vegetagen.BlockRange{From: c.Uint64("start-block"), To: c.Uint64("end-block")}
+	r := &vegetagen.BlockRange{From: c.Uint64("start-block"), To: c.Uint64("end-block"), Sample: c.Uint64("sample-blocks")}
 	if c.IsSet("max-blocks") {
 		r.Len = c.Uint64("max-blocks")
 	}

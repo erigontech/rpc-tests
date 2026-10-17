@@ -110,11 +110,13 @@ type Config struct {
 }
 
 // BlockRange is the blocks to read instead of those below the head: from From up to the first of
-// To and From+Len-1. A zero To or Len is unset; at least one must be set.
+// To and From+Len-1. A zero To or Len is unset; at least one must be set. A non-zero Sample reads only
+// that many distinct blocks of the range, drawn at random with a fixed seed.
 type BlockRange struct {
-	From uint64
-	To   uint64
-	Len  uint64
+	From   uint64
+	To     uint64
+	Len    uint64
+	Sample uint64
 }
 
 // last returns the newest block of the range.
@@ -129,22 +131,60 @@ func (r BlockRange) last() (uint64, error) {
 	if r.From > last {
 		return 0, fmt.Errorf("invalid block range: start %d after end %d", r.From, last)
 	}
+	if size := last - r.From + 1; r.Sample > size {
+		return 0, fmt.Errorf("sample of %d blocks larger than the range of %d", r.Sample, size)
+	}
 	return last, nil
 }
 
-// span returns the newest and the oldest block to read: the range when set, else from the head down to block 0.
-func (cfg Config) span(head uint64) (top, floor uint64, err error) {
+// count returns the number of blocks to read from a range ending at last.
+func (r BlockRange) count(last uint64) uint64 {
+	if r.Sample > 0 {
+		return r.Sample
+	}
+	return last - r.From + 1
+}
+
+// blocksToRead returns the newest block of the range or the head, and the blocks to read, newest
+// first, as a count and an accessor, so that a walk from the head does not allocate them.
+func (cfg Config) blocksToRead(head uint64) (top, count uint64, num func(i uint64) uint64, err error) {
 	if cfg.Range == nil {
-		return head, 0, nil
+		return head, head + 1, func(i uint64) uint64 { return head - i }, nil
 	}
 	top, err = cfg.Range.last()
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, nil, err
 	}
 	if end := max(cfg.Range.To, top); end > head {
-		return 0, 0, fmt.Errorf("end block %d is past the head %d", end, head)
+		return 0, 0, nil, fmt.Errorf("end block %d is past the head %d", end, head)
 	}
-	return top, cfg.Range.From, nil
+	if cfg.Range.Sample == 0 {
+		return top, cfg.Range.count(top), func(i uint64) uint64 { return top - i }, nil
+	}
+	nums := sampleBlocks(cfg.Range.From, top, cfg.Range.Sample)
+	return top, uint64(len(nums)), func(i uint64) uint64 { return nums[i] }, nil
+}
+
+// sampleBlocks draws k distinct blocks of from..to with Floyd's algorithm, in O(k) whatever the range,
+// and returns them newest first.
+func sampleBlocks(from, to, k uint64) []uint64 {
+	rng := rand.New(rand.NewSource(1)) //nolint:gosec
+	size := to - from + 1
+	picked := make(map[uint64]bool, k)
+	for j := size - k; j < size; j++ {
+		t := uint64(rng.Int63n(int64(j + 1)))
+		if picked[t] {
+			t = j
+		}
+		picked[t] = true
+	}
+	nums := make([]uint64, 0, k)
+	for t := range picked {
+		nums = append(nums, from+t)
+	}
+	slices.Sort(nums)
+	slices.Reverse(nums)
+	return nums
 }
 
 type Summary struct {
@@ -193,7 +233,7 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 			return sum, err
 		}
 		if cfg.Count == 0 {
-			cfg.Blocks = last - cfg.Range.From + 1
+			cfg.Blocks = cfg.Range.count(last)
 		}
 	}
 	if (cfg.Blocks == 0) == (cfg.Count == 0) {
@@ -218,11 +258,11 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 	if err != nil {
 		return sum, fmt.Errorf("reading head block: %w", err)
 	}
-	top, floor, err := cfg.span(head)
+	top, count, num, err := cfg.blocksToRead(head)
 	if err != nil {
 		return sum, err
 	}
-	sum.FirstBlock = top
+	sum.FirstBlock = num(0)
 
 	written := make([][][]byte, len(specs))
 	full := func(i int) bool { return targets[i] >= 0 && len(written[i]) >= targets[i] }
@@ -288,14 +328,14 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 
 	scanAll := cfg.Blocks == 0 // stop on count only
 	var scanned uint64
-	for offset := uint64(0); (scanAll || offset < cfg.Blocks) && offset <= top-floor && pending(); offset += uint64(workers) {
+	for offset := uint64(0); (scanAll || offset < cfg.Blocks) && offset < count && pending(); offset += uint64(workers) {
 		end := offset + uint64(workers)
 		if !scanAll {
 			end = min(end, cfg.Blocks)
 		}
 		var nums []uint64
-		for i := offset; i < end && i <= top-floor; i++ {
-			nums = append(nums, top-i)
+		for i := offset; i < end && i < count; i++ {
+			nums = append(nums, num(i))
 		}
 		blocks, err := n.blocks(ctx, nums, workers)
 		if err != nil {
@@ -374,7 +414,7 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 		sum.BlocksScanned = scanned
 	}
 	if sum.BlocksScanned > 0 {
-		sum.LastBlock = top - (sum.BlocksScanned - 1)
+		sum.LastBlock = num(sum.BlocksScanned - 1)
 	}
 
 	return sum, write(cfg, specs, sum, written)
@@ -398,16 +438,16 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 	if err != nil {
 		return sum, fmt.Errorf("reading head block: %w", err)
 	}
-	top, floor, err := cfg.span(head)
+	top, count, num, err := cfg.blocksToRead(head)
 	if err != nil {
 		return sum, err
 	}
 	if cfg.Range != nil {
-		window = top - floor + 1
+		window = count
 	}
 	var nums []uint64
-	for i := uint64(0); i < window && i <= top-floor; i++ {
-		nums = append(nums, top-i)
+	for i := uint64(0); i < window && i < count; i++ {
+		nums = append(nums, num(i))
 	}
 	blocks, err := n.blocks(ctx, nums, workers)
 	if err != nil {
@@ -418,8 +458,8 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 			return sum, err
 		}
 	}
-	sum.FirstBlock, sum.BlocksScanned = top, uint64(len(blocks))
-	sum.LastBlock = top - (sum.BlocksScanned - 1)
+	sum.FirstBlock, sum.BlocksScanned = nums[0], uint64(len(blocks))
+	sum.LastBlock = nums[len(nums)-1]
 
 	contracts := map[string]bool{}
 	for _, c := range cfg.Contracts {

@@ -108,6 +108,7 @@ func TestEthCallCommandWithBlockRangeWritesThePattern(t *testing.T) {
 		{"--start-block", "5", "--end-block", "8"},
 		{"--start-block", "5", "--max-blocks", "2"},
 		{"--start-block", "5", "--end-block", "8", "--max-blocks", "2"},
+		{"--start-block", "5", "--end-block", "8", "--sample-blocks", "2"},
 	} {
 		out := filepath.Join(t.TempDir(), "eth_call.tar")
 		cmd := append([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--block-tag", "parent", "--out", out}, args...)
@@ -126,6 +127,7 @@ func TestBlockRangeFlagsRejectInvalidCombinations(t *testing.T) {
 		{"--start-block", "5"},
 		{"--end-block", "8"},
 		{"--start-block", "5", "--end-block", "8", "--blocks", "1"},
+		{"--sample-blocks", "2", "--counts", "1"},
 	} {
 		out := filepath.Join(t.TempDir(), "eth_call.tar")
 		cmd := append([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--block-tag", "parent", "--out", out}, args...)
