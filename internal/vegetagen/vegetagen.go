@@ -93,7 +93,7 @@ const (
 type Config struct {
 	URL       string // node used to read blocks and verify requests
 	TargetURL string // url written in each vegeta target
-	Blocks    uint64 // blocks to read, from the head downwards; set this or Count
+	Blocks    uint64 // blocks to read, from the head downwards; set this or Count, or neither with Range
 	Tag       BlockTag
 	Verify    bool // run each request on the node; Keep then selects what is written
 	Keep      Keep
@@ -102,15 +102,54 @@ type Config struct {
 	MinCount  int      // fail if fewer requests are written
 	Contracts []string // keep only the txs to these contracts (lower case), the blocks holding them and the logs they emit
 	Name      string   // vegeta_erigon_<Name>.txt; the method for one method, "mixed" for several
-	MaxBlocks uint64   // with several methods or Window, the window of recent blocks the requests are drawn from
+	MaxBlocks uint64   // with several methods or Window, the window of recent blocks the requests are drawn from; Range replaces it
 	Window    bool     // draw from the window even with one method, as a profile does
+	Range     *BlockRange
 	Workers   int
 	Out       string // tar file path
 }
 
+// BlockRange is the blocks to read instead of those below the head: from From up to the first of
+// To and From+Len-1. A zero To or Len is unset; at least one must be set.
+type BlockRange struct {
+	From uint64
+	To   uint64
+	Len  uint64
+}
+
+// last returns the newest block of the range.
+func (r BlockRange) last() (uint64, error) {
+	if r.To == 0 && r.Len == 0 {
+		return 0, errors.New("a block range needs an end block or a length")
+	}
+	last := r.To
+	if r.Len > 0 && (last == 0 || r.From+r.Len-1 < last) {
+		last = r.From + r.Len - 1
+	}
+	if r.From > last {
+		return 0, fmt.Errorf("invalid block range: start %d after end %d", r.From, last)
+	}
+	return last, nil
+}
+
+// span returns the newest and the oldest block to read: the range when set, else from the head down to block 0.
+func (cfg Config) span(head uint64) (top, floor uint64, err error) {
+	if cfg.Range == nil {
+		return head, 0, nil
+	}
+	top, err = cfg.Range.last()
+	if err != nil {
+		return 0, 0, err
+	}
+	if end := max(cfg.Range.To, top); end > head {
+		return 0, 0, fmt.Errorf("end block %d is past the head %d", end, head)
+	}
+	return top, cfg.Range.From, nil
+}
+
 type Summary struct {
 	BlocksScanned uint64
-	FirstBlock    uint64 // head, the first block scanned
+	FirstBlock    uint64 // the newest block scanned: the head or the end of the range
 	LastBlock     uint64 // the oldest block scanned
 	Generated     int
 	OK            int
@@ -130,17 +169,32 @@ type MethodSummary struct {
 type candidate struct {
 	spec   int
 	req    []byte
-	offset uint64 // blocks from the head
+	offset uint64 // blocks from the head or the end of the range
 }
 
-// Run reads blocks from the head downwards, turns their transactions and blocks into
-// requests with the generators of specs and writes them as a vegeta target file inside a tar.
+// Run reads blocks from the head, or from the end of cfg.Range, downwards, turns their transactions and
+// blocks into requests with the generators of specs and writes them as a vegeta target file inside a tar.
 // With several specs the requests are interleaved at random, with a fixed seed, so that every
 // part of the file keeps the shares of the weights.
 func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 	sum := Summary{Errors: map[string]int{}, Methods: map[string]*MethodSummary{}}
 	if len(specs) == 0 {
 		return sum, errors.New("no methods")
+	}
+	if cfg.Range != nil {
+		if cfg.Blocks > 0 {
+			return sum, errors.New("a block range sets the blocks to read: unset blocks")
+		}
+		if cfg.Tag == TagLatest {
+			return sum, errors.New("a block range needs the head or parent block tag: latest is the state at replay")
+		}
+		last, err := cfg.Range.last()
+		if err != nil {
+			return sum, err
+		}
+		if cfg.Count == 0 {
+			cfg.Blocks = last - cfg.Range.From + 1
+		}
 	}
 	if (cfg.Blocks == 0) == (cfg.Count == 0) {
 		return sum, errors.New("set exactly one of blocks or count")
@@ -164,7 +218,11 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 	if err != nil {
 		return sum, fmt.Errorf("reading head block: %w", err)
 	}
-	sum.FirstBlock = head
+	top, floor, err := cfg.span(head)
+	if err != nil {
+		return sum, err
+	}
+	sum.FirstBlock = top
 
 	written := make([][][]byte, len(specs))
 	full := func(i int) bool { return targets[i] >= 0 && len(written[i]) >= targets[i] }
@@ -230,14 +288,14 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 
 	scanAll := cfg.Blocks == 0 // stop on count only
 	var scanned uint64
-	for offset := uint64(0); (scanAll || offset < cfg.Blocks) && offset <= head && pending(); offset += uint64(workers) {
+	for offset := uint64(0); (scanAll || offset < cfg.Blocks) && offset <= top-floor && pending(); offset += uint64(workers) {
 		end := offset + uint64(workers)
 		if !scanAll {
 			end = min(end, cfg.Blocks)
 		}
 		var nums []uint64
-		for i := offset; i < end && i <= head; i++ {
-			nums = append(nums, head-i)
+		for i := offset; i < end && i <= top-floor; i++ {
+			nums = append(nums, top-i)
 		}
 		blocks, err := n.blocks(ctx, nums, workers)
 		if err != nil {
@@ -256,7 +314,7 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 			}
 			for bi := range blocks {
 				b := &blocks[bi]
-				p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], head), Head: head, Contracts: contracts}
+				p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], top), Head: top, Contracts: contracts}
 				item := Item{Block: b, BlockNum: nums[bi]}
 				if sp.Gen.Kind() == PerLog {
 					for _, lg := range blockLogs(b.Logs, contracts) {
@@ -316,7 +374,7 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 		sum.BlocksScanned = scanned
 	}
 	if sum.BlocksScanned > 0 {
-		sum.LastBlock = head - (sum.BlocksScanned - 1)
+		sum.LastBlock = top - (sum.BlocksScanned - 1)
 	}
 
 	return sum, write(cfg, specs, sum, written)
@@ -340,9 +398,16 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 	if err != nil {
 		return sum, fmt.Errorf("reading head block: %w", err)
 	}
+	top, floor, err := cfg.span(head)
+	if err != nil {
+		return sum, err
+	}
+	if cfg.Range != nil {
+		window = top - floor + 1
+	}
 	var nums []uint64
-	for i := uint64(0); i < window && i <= head; i++ {
-		nums = append(nums, head-i)
+	for i := uint64(0); i < window && i <= top-floor; i++ {
+		nums = append(nums, top-i)
 	}
 	blocks, err := n.blocks(ctx, nums, workers)
 	if err != nil {
@@ -353,8 +418,8 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 			return sum, err
 		}
 	}
-	sum.FirstBlock, sum.BlocksScanned = head, uint64(len(blocks))
-	sum.LastBlock = head - (sum.BlocksScanned - 1)
+	sum.FirstBlock, sum.BlocksScanned = top, uint64(len(blocks))
+	sum.LastBlock = top - (sum.BlocksScanned - 1)
 
 	contracts := map[string]bool{}
 	for _, c := range cfg.Contracts {
@@ -400,7 +465,7 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 	for i, sp := range specs {
 		ms := sum.Methods[sp.name()]
 		build := func(bi int, txn *Transaction, lg *Log) ([]byte, error) {
-			p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], head), Head: head, Contracts: contracts}
+			p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], top), Head: top, Contracts: contracts}
 			return sp.Gen.Request(Item{Block: &blocks[bi], BlockNum: nums[bi], Txn: txn, Log: lg}, p)
 		}
 		recent := func(bi int) bool { return sp.Blocks == 0 || uint64(bi) < sp.Blocks }

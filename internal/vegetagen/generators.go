@@ -30,7 +30,7 @@ type Item struct {
 
 type Params struct {
 	BlockParam string          // state to run on, for methods that take a block parameter
-	Head       uint64          // head at generation time, the newest block a request may refer to
+	Head       uint64          // head at generation time, or the end of the block range: the newest block a request may refer to
 	Contracts  map[string]bool // the [contracts] filter (lower case): a request takes values only from their logs; empty = all
 }
 

@@ -78,7 +78,9 @@ func commonFlags(outRequired bool) []cli.Flag {
 		&cli.StringFlag{Name: "fees", Value: "drop", Usage: "Gas price of each request: drop (no fee, the node skips the base fee and balance checks) or keep (the tx gas price)"},
 		&cli.IntFlag{Name: "counts", Usage: "Read blocks from the head downwards until this many requests are written (alternative to --blocks)"},
 		&cli.IntFlag{Name: "min-count", Usage: "Fail if fewer requests are written"},
-		&cli.Uint64Flag{Name: "max-blocks", Value: vegetagen.DefaultMaxBlocks, Usage: "With a profile, the window of recent blocks all requests are drawn from, with repetitions"},
+		&cli.Uint64Flag{Name: "max-blocks", Value: vegetagen.DefaultMaxBlocks, Usage: "With a profile, the window of recent blocks all requests are drawn from, with repetitions; with --start-block, the length of the range"},
+		&cli.Uint64Flag{Name: "start-block", Usage: "Read the blocks from this one up to --end-block or for --max-blocks blocks, whichever ends first, instead of those below the head"},
+		&cli.Uint64Flag{Name: "end-block", Usage: "With --start-block, the last block of the range"},
 		&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
 		&cli.StringFlag{Name: "name", Usage: "Name of the vegeta file in the tar, the rpc_perf --test-type (default: the method, or mixed for several)"},
 		&cli.StringFlag{Name: "out", Required: outRequired, Usage: "Output tar file, gzipped if it ends in .tar.gz or .tgz, usable as rpc_perf --pattern-file"},
@@ -97,7 +99,11 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 	if keep != vegetagen.KeepOK && keep != vegetagen.KeepAll {
 		return fmt.Errorf("invalid keep %q: want ok or all", keep)
 	}
-	if (c.Uint64("blocks") == 0) == (c.Int("counts") == 0) {
+	blockRange, err := parseBlockRange(c)
+	if err != nil {
+		return err
+	}
+	if blockRange == nil && (c.Uint64("blocks") == 0) == (c.Int("counts") == 0) {
 		return fmt.Errorf("set exactly one of --blocks or --counts")
 	}
 	if c.Uint64("blocks") > 0 && (len(specs) > 1 || window) {
@@ -121,6 +127,7 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 		Name:      c.String("name"),
 		MaxBlocks: c.Uint64("max-blocks"),
 		Window:    window,
+		Range:     blockRange,
 		Workers:   c.Int("workers"),
 		Out:       c.String("out"),
 	}
@@ -140,6 +147,28 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 	fmt.Printf("%s: %d blocks scanned (%d..%d), %d requests written to %s\n",
 		label, sum.BlocksScanned, sum.FirstBlock, sum.LastBlock, sum.Written, cfg.Out)
 	return nil
+}
+
+// parseBlockRange returns the range of --start-block, or nil without it. It checks which flags are set, not
+// their values, since --max-blocks has a default.
+func parseBlockRange(c *cli.Context) (*vegetagen.BlockRange, error) {
+	if !c.IsSet("start-block") {
+		if c.IsSet("end-block") {
+			return nil, fmt.Errorf("--end-block needs --start-block")
+		}
+		return nil, nil
+	}
+	if !c.IsSet("end-block") && !c.IsSet("max-blocks") {
+		return nil, fmt.Errorf("--start-block needs --end-block or --max-blocks")
+	}
+	if c.IsSet("blocks") {
+		return nil, fmt.Errorf("--blocks cannot be used with --start-block: the range sets the blocks to read")
+	}
+	r := &vegetagen.BlockRange{From: c.Uint64("start-block"), To: c.Uint64("end-block")}
+	if c.IsSet("max-blocks") {
+		r.Len = c.Uint64("max-blocks")
+	}
+	return r, nil
 }
 
 func printSummary(label string, cfg vegetagen.Config, specs []vegetagen.Spec, sum vegetagen.Summary) {
