@@ -81,7 +81,7 @@ func commonFlags(outRequired bool) []cli.Flag {
 		&cli.Uint64Flag{Name: "max-blocks", Value: vegetagen.DefaultMaxBlocks, Usage: "With several methods, the window of recent blocks all requests are drawn from, with repetitions"},
 		&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
 		&cli.StringFlag{Name: "name", Usage: "Name of the vegeta file in the tar, the rpc_perf --test-type (default: the method, or mixed for several)"},
-		&cli.StringFlag{Name: "out", Required: outRequired, Usage: "Output tar file, usable as rpc_perf --pattern-file"},
+		&cli.StringFlag{Name: "out", Required: outRequired, Usage: "Output tar file, gzipped if it ends in .tar.gz or .tgz, usable as rpc_perf --pattern-file"},
 		&cli.BoolFlag{Name: "verbose", Aliases: []string{"v"}, Usage: "Print the verification statistics by error kind"},
 	}
 }
