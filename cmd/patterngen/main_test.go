@@ -102,3 +102,54 @@ func TestProfileWithLogsOptionsWritesThePattern(t *testing.T) {
 		t.Errorf("pattern not written: %v", err)
 	}
 }
+
+func TestEthCallCommandWithBlockRangeWritesThePattern(t *testing.T) {
+	for _, args := range [][]string{
+		{"--start-block", "5", "--end-block", "8"},
+		{"--start-block", "5", "--max-blocks", "2"},
+		{"--start-block", "5", "--end-block", "8", "--max-blocks", "2"},
+		{"--start-block", "5", "--end-block", "8", "--sample-blocks", "2"},
+	} {
+		out := filepath.Join(t.TempDir(), "eth_call.tar")
+		cmd := append([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--block-tag", "parent", "--out", out}, args...)
+		if err := newApp().Run(cmd); err != nil {
+			t.Errorf("%v: %v", args, err)
+			continue
+		}
+		if _, err := os.Stat(out); err != nil {
+			t.Errorf("%v: pattern not written: %v", args, err)
+		}
+	}
+}
+
+func TestBlockRangeFlagsRejectInvalidCombinations(t *testing.T) {
+	for _, args := range [][]string{
+		{"--start-block", "5"},
+		{"--end-block", "8"},
+		{"--start-block", "5", "--end-block", "8", "--blocks", "1"},
+		{"--sample-blocks", "2", "--counts", "1"},
+	} {
+		out := filepath.Join(t.TempDir(), "eth_call.tar")
+		cmd := append([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--block-tag", "parent", "--out", out}, args...)
+		if err := newApp().Run(cmd); err == nil {
+			t.Errorf("%v: want an error", args)
+		}
+	}
+}
+
+func TestProfileWithBlockRangeWritesThePattern(t *testing.T) {
+	dir := t.TempDir()
+	profile := filepath.Join(dir, "mixed.profile")
+	if err := os.WriteFile(profile, []byte("[methods]\neth_call 3\neth_chainId 1\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := filepath.Join(dir, "mixed.tar")
+	if err := newApp().Run([]string{"rpc_pattern_gen", "--profile", profile, "--url", node(t), "--counts", "4", "--block-tag", "parent",
+		"--start-block", "5", "--max-blocks", "2", "--out", out}); err != nil {
+		t.Fatalf("profile: %v", err)
+	}
+	if err := newApp().Run([]string{"rpc_pattern_gen", "--profile", profile, "--url", node(t), "--block-tag", "parent",
+		"--start-block", "5", "--max-blocks", "2", "--out", out}); err == nil {
+		t.Error("profile with a block range and no --counts: want an error")
+	}
+}

@@ -4,8 +4,8 @@
 keeps the patterns of each network (`<network>/stress_test_*.tar`) and the profiles used to generate new
 ones (`<network>/config/*.profile`).
 
-`rpc_pattern_gen` builds a pattern from the recent blocks of a running node: it reads blocks from the
-head, turns their transactions, blocks or logs into requests, optionally runs each request on the node
+`rpc_pattern_gen` builds a pattern from the recent blocks of a running node, or from a range of blocks
+(see [Block range](#block-range)): it reads blocks from the head, turns their transactions, blocks or logs into requests, optionally runs each request on the node
 to keep only the working ones, and writes the tar that `rpc_perf --pattern-file` reads.
 
 ## Build
@@ -57,6 +57,38 @@ The `--max-blocks` most recent blocks (default 3000) are read once; then each me
 requests than its share. A profile always uses the window, even with a single method, so it needs
 `--counts`: `--blocks` is rejected.
 
+## Block range
+
+By default the blocks are read from the head. `--start-block` reads a fixed range instead, e.g. to build a
+historical dataset that does not change with the head:
+
+```bash
+rpc_pattern_gen eth_call --start-block 20000000 --end-block 20000999 --block-tag parent --verify --out eth_call.tar
+rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --start-block 20000000 --max-blocks 1000 \
+    --counts 100000 --block-tag parent --verify --out mixed.tar
+# the txs of 10000 blocks drawn at random from 1M, e.g. to defeat the block caches of the nodes
+rpc_pattern_gen eth_call --start-block 19000000 --end-block 19999999 --sample-blocks 10000 \
+    --block-tag parent --verify --out eth_call.tar
+```
+
+| Flags | Blocks read |
+|-------|-------------|
+| `--start-block M --end-block N` | M to N |
+| `--start-block M --max-blocks K` | M to M+K-1 |
+| `--start-block M --end-block N --max-blocks K` | M to the first of N and M+K-1 |
+
+- `--start-block` needs `--end-block` or `--max-blocks`; `--end-block` and `--sample-blocks` need
+  `--start-block`.
+- The range must end at or below the head, and `--end-block` too when `--max-blocks` ends first.
+- The blocks are read from the end of the range downwards. A subcommand reads the whole range, or stops
+  earlier at `--counts` requests; `--blocks` is rejected. A profile draws from the range as its window
+  and still needs `--counts`.
+- `--sample-blocks K` reads only K distinct blocks of the range, drawn at random with a fixed seed, so the
+  same command on the same range writes the same pattern. Only the K blocks are downloaded, whatever the
+  size of the range. K must not exceed the range.
+- `--block-tag latest` is rejected: with old transactions it would run them on the state at replay. Use
+  `parent`, or `head` to pin every request to the end of the range.
+
 ## Common flags
 
 | Flag | Default | Description |
@@ -65,8 +97,11 @@ requests than its share. A profile always uses the window, even with a single me
 | `--target-url` | `http://localhost:8545` | URL written in each Vegeta target |
 | `--counts` | | Number of requests to write (exclusive with `--blocks`) |
 | `--blocks` | | Read this many blocks from the head (subcommands only) |
-| `--max-blocks` | 3000 | With a profile, the window of recent blocks the requests are drawn from |
-| `--block-tag` | `latest` | Block parameter of the methods that take one: `latest` (resolved by the node at replay), `head` (head number pinned at generation, the same state on every node) or `parent` (the block before the transaction) |
+| `--max-blocks` | 3000 | With a profile, the window of recent blocks the requests are drawn from; with `--start-block`, the length of the range |
+| `--start-block` | | First block of a [block range](#block-range), read instead of the blocks below the head |
+| `--end-block` | | With `--start-block`, the last block of the range |
+| `--sample-blocks` | | With `--start-block`, read only this many distinct blocks of the range, drawn at random |
+| `--block-tag` | `latest` | Block parameter of the methods that take one: `latest` (resolved by the node at replay), `head` (head number pinned at generation, or the end of the block range, the same state on every node) or `parent` (the block before the transaction) |
 | `--fees` | `drop` | Gas price of eth_call/eth_estimateGas: `drop` (no fee, the node skips the base fee and balance checks) or `keep` (the tx gas price) |
 | `--verify` | off | Run every request on the node and count the failures |
 | `--keep` | `ok` | With `--verify`, the requests to write: `ok` (only the working ones) or `all` |

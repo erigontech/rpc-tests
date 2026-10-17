@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -875,6 +876,228 @@ func TestRunOrListsKeepToTheContracts(t *testing.T) {
 			if strings.Contains(string(vt.Body), other) {
 				t.Errorf("window=%v: %s holds %s, outside the contracts", window, vt.Body, other)
 			}
+		}
+	}
+}
+
+func blocksRead(node *fakeNode) map[string]bool {
+	node.mu.Lock()
+	defer node.mu.Unlock()
+	return node.blocksRead
+}
+
+func TestRunRangeReadsEveryBlockOfTheRange(t *testing.T) {
+	node, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Tag, cfg.Verify, cfg.Keep = 0, TagParent, false, KeepAll
+	cfg.Range = &BlockRange{From: 10, To: 12}
+
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	want := map[string]bool{`"0xc"`: true, `"0xb"`: true, `"0xa"`: true}
+	if got := blocksRead(node); len(got) != len(want) || !got[`"0xc"`] || !got[`"0xb"`] || !got[`"0xa"`] {
+		t.Errorf("blocks read %v, want %v", got, want)
+	}
+	if sum.Written != 6 || sum.FirstBlock != 12 || sum.LastBlock != 10 {
+		t.Errorf("written=%d range %d..%d, want 6 requests from 12..10", sum.Written, sum.FirstBlock, sum.LastBlock)
+	}
+}
+
+func TestRunRangeEndsAtTheFirstOfToAndLen(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		rng      BlockRange
+		wantLast uint64
+	}{
+		{"to", BlockRange{From: 10, To: 12}, 12},
+		{"len", BlockRange{From: 10, Len: 2}, 11},
+		{"len before to", BlockRange{From: 10, To: 12, Len: 2}, 11},
+		{"to before len", BlockRange{From: 10, To: 12, Len: 5}, 12},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			_, url := startNode(t)
+			cfg := baseConfig(t, url)
+			cfg.Blocks, cfg.Tag = 0, TagParent
+			cfg.Range = &tc.rng
+
+			sum, err := Run(context.Background(), cfg, single(EthCall{}))
+			if err != nil {
+				t.Fatalf("Run: %v", err)
+			}
+			if sum.FirstBlock != tc.wantLast || sum.LastBlock != 10 {
+				t.Errorf("range %d..%d, want %d..10", sum.FirstBlock, sum.LastBlock, tc.wantLast)
+			}
+		})
+	}
+}
+
+func TestRunRangeStopsAtItsStartBeforeCount(t *testing.T) {
+	node, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.Tag, cfg.Verify, cfg.Keep = 0, 100, TagParent, false, KeepAll
+	cfg.Range = &BlockRange{From: 10, To: 11}
+
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if got := len(blocksRead(node)); got != 2 || sum.Written != 4 {
+		t.Errorf("read %d blocks, written %d, want the 2 blocks of the range and their 4 calls", got, sum.Written)
+	}
+}
+
+func TestRunRangeStopsAtCountBeforeItsStart(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.Tag, cfg.Verify = 0, 3, TagParent, false
+	cfg.Range = &BlockRange{From: 10, To: 50}
+
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Written != 3 || sum.FirstBlock != 50 || sum.LastBlock != 49 {
+		t.Errorf("written=%d range %d..%d, want 3 requests from 50..49", sum.Written, sum.FirstBlock, sum.LastBlock)
+	}
+}
+
+func TestRunHeadWithRangePinsTheEndOfTheRange(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Tag = 0, TagHead
+	cfg.Range = &BlockRange{From: 10, To: 12}
+
+	if _, err := Run(context.Background(), cfg, single(EthCall{})); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	for _, vt := range readTargets(t, cfg.Out, "eth_call") {
+		if !strings.HasSuffix(string(vt.Body), `,"0xc"],"id":1}`) {
+			t.Errorf("body not pinned to the end of the range 0xc: %s", vt.Body)
+		}
+	}
+}
+
+func TestRunRangeRejectsInvalidSettings(t *testing.T) {
+	_, url := startNode(t)
+	for _, tc := range []struct {
+		name   string
+		rng    BlockRange
+		tag    BlockTag
+		blocks uint64
+	}{
+		{"no end", BlockRange{From: 10}, TagParent, 0},
+		{"start after end", BlockRange{From: 12, To: 10}, TagParent, 0},
+		{"end past the head", BlockRange{From: 10, To: 101, Len: 2}, TagParent, 0},
+		{"latest", BlockRange{From: 10, To: 12}, TagLatest, 0},
+		{"blocks", BlockRange{From: 10, To: 12}, TagParent, 2},
+		{"sample larger than the range", BlockRange{From: 10, To: 12, Sample: 4}, TagParent, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := baseConfig(t, url)
+			cfg.Blocks, cfg.Tag = tc.blocks, tc.tag
+			cfg.Range = &tc.rng
+			if _, err := Run(context.Background(), cfg, single(EthCall{})); err == nil {
+				t.Error("want an error")
+			}
+		})
+	}
+}
+
+func TestRunMixDrawsFromTheRange(t *testing.T) {
+	node, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.Tag = 0, 40, TagParent
+	cfg.Range = &BlockRange{From: 10, To: 12}
+
+	sum, err := Run(context.Background(), cfg, []Spec{{Gen: mustGen(t, "eth_getBlockReceipts"), Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}})
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if got := blocksRead(node); len(got) != 3 || !got[`"0xc"`] || !got[`"0xb"`] || !got[`"0xa"`] {
+		t.Errorf("blocks read %v, want the 3 blocks of the range", got)
+	}
+	if sum.BlocksScanned != 3 || sum.FirstBlock != 12 || sum.LastBlock != 10 {
+		t.Errorf("blocks scanned=%d range %d..%d, want 3 blocks 12..10", sum.BlocksScanned, sum.FirstBlock, sum.LastBlock)
+	}
+}
+
+// blockNums returns the numbers of the blocks the node served.
+func blockNums(t *testing.T, node *fakeNode) []uint64 {
+	t.Helper()
+	read := blocksRead(node)
+	nums := make([]uint64, 0, len(read))
+	for k := range read {
+		n, err := strconv.ParseUint(strings.TrimPrefix(strings.Trim(k, `"`), "0x"), 16, 64)
+		if err != nil {
+			t.Fatalf("block number %s: %v", k, err)
+		}
+		nums = append(nums, n)
+	}
+	return nums
+}
+
+func TestRunSampleReadsDistinctBlocksOfTheRange(t *testing.T) {
+	node, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Tag, cfg.Verify, cfg.Keep = 0, TagParent, false, KeepAll
+	cfg.Range = &BlockRange{From: 10, To: 50, Sample: 5}
+
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	nums := blockNums(t, node)
+	if len(nums) != 5 || sum.Written != 10 {
+		t.Fatalf("read %d blocks, written %d, want 5 distinct blocks and their 10 calls", len(nums), sum.Written)
+	}
+	for _, n := range nums {
+		if n < 10 || n > 50 {
+			t.Errorf("block %d outside the range 10..50", n)
+		}
+	}
+	if sum.BlocksScanned != 5 {
+		t.Errorf("blocks scanned=%d, want 5", sum.BlocksScanned)
+	}
+}
+
+func TestRunSampleIsReproducible(t *testing.T) {
+	_, url := startNode(t)
+	var bodies [2]string
+	for i := range bodies {
+		cfg := baseConfig(t, url)
+		cfg.Blocks, cfg.Tag, cfg.Verify, cfg.Keep = 0, TagParent, false, KeepAll
+		cfg.Range = &BlockRange{From: 10, To: 90, Sample: 5}
+		if _, err := Run(context.Background(), cfg, single(EthCall{})); err != nil {
+			t.Fatalf("Run: %v", err)
+		}
+		for _, vt := range readTargets(t, cfg.Out, "eth_call") {
+			bodies[i] += string(vt.Body)
+		}
+	}
+	if bodies[0] != bodies[1] {
+		t.Error("two runs on the same range wrote different patterns")
+	}
+}
+
+func TestRunMixDrawsFromTheSample(t *testing.T) {
+	node, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.Tag = 0, 40, TagParent
+	cfg.Range = &BlockRange{From: 10, To: 50, Sample: 3}
+
+	sum, err := Run(context.Background(), cfg, []Spec{{Gen: mustGen(t, "eth_getBlockReceipts"), Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}})
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	nums := blockNums(t, node)
+	if len(nums) != 3 || sum.BlocksScanned != 3 {
+		t.Fatalf("read %d blocks, scanned %d, want the 3 sampled blocks", len(nums), sum.BlocksScanned)
+	}
+	for _, n := range nums {
+		if n < 10 || n > 50 {
+			t.Errorf("block %d outside the range 10..50", n)
 		}
 	}
 }
