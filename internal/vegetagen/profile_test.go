@@ -1,6 +1,7 @@
 package vegetagen
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -91,5 +92,45 @@ func TestParseProfileErrors(t *testing.T) {
 				t.Errorf("got %v, want an error containing %q", err, tt.want)
 			}
 		})
+	}
+}
+
+func TestParseProfileLogsOptions(t *testing.T) {
+	p, err := ParseProfile(strings.NewReader("[methods]\neth_getLogs 1 filter=address+topics or=16 range=10 blocks=50\n"))
+	if err != nil {
+		t.Fatalf("ParseProfile: %v", err)
+	}
+	specs, err := p.Specs()
+	if err != nil {
+		t.Fatalf("Specs: %v", err)
+	}
+	if got, want := specs[0].Gen, (GetLogs{Range: 10, Filter: FilterAddressTopics, Or: 16}); got != want {
+		t.Errorf("generator %+v, want %+v", got, want)
+	}
+	if specs[0].Name != "eth_getLogs filter=address+topics or=16 range=10 blocks=50" || specs[0].Blocks != 50 {
+		t.Errorf("spec %+v", specs[0])
+	}
+	for _, bad := range []string{"filter=topic0", "or=0", "or=x"} {
+		if _, err := ParseProfile(strings.NewReader("[methods]\neth_getLogs 1 " + bad + "\n")); err == nil {
+			t.Errorf("%s: want an error", bad)
+		}
+	}
+}
+
+// The profiles shipped in perf/pattern must parse and build their generators.
+func TestShippedProfilesLoad(t *testing.T) {
+	paths, err := filepath.Glob("../../perf/pattern/*/config/*.profile")
+	if err != nil || len(paths) == 0 {
+		t.Fatalf("no profile found: %v", err)
+	}
+	for _, path := range paths {
+		p, err := LoadProfile(path)
+		if err != nil {
+			t.Errorf("%v", err)
+			continue
+		}
+		if _, err := p.Specs(); err != nil {
+			t.Errorf("%s: %v", path, err)
+		}
 	}
 }
