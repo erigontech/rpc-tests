@@ -3,6 +3,7 @@ package vegetagen
 import (
 	"archive/tar"
 	"bufio"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -141,7 +142,15 @@ func readTargets(t *testing.T, tarPath, method string) []perf.VegetaTarget {
 		t.Fatalf("open tar: %v", err)
 	}
 	defer f.Close()
-	tr := tar.NewReader(f)
+	var r io.Reader = f
+	if strings.HasSuffix(tarPath, ".tar.gz") {
+		gz, err := gzip.NewReader(f)
+		if err != nil {
+			t.Fatalf("gzip reader: %v", err)
+		}
+		r = gz
+	}
+	tr := tar.NewReader(r)
 	// rpc_perf extracts without creating parent directories, so the directory entry must come first.
 	hdr, err := tr.Next()
 	if err != nil {
@@ -205,6 +214,19 @@ func TestRunLatestKeepsOnlySuccessfulCalls(t *testing.T) {
 		if !strings.HasSuffix(body, `,"latest"],"id":1}`) {
 			t.Errorf("body not at latest: %s", body)
 		}
+	}
+}
+
+func TestRunWritesGzippedTar(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Out = filepath.Join(t.TempDir(), "out.tar.gz")
+
+	if _, err := Run(context.Background(), cfg, single(EthCall{})); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if got := len(readTargets(t, cfg.Out, "eth_call")); got != 2 {
+		t.Fatalf("got %d targets, want 2", got)
 	}
 }
 

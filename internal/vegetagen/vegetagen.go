@@ -5,6 +5,7 @@ package vegetagen
 import (
 	"archive/tar"
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"errors"
@@ -722,15 +723,21 @@ func writeTarget(out *bytes.Buffer, url string, body []byte) error {
 	return nil
 }
 
-// writeTar writes a tar holding the directory of name followed by name itself.
+// writeTar writes a tar holding the directory of name followed by name itself,
+// gzipped when path ends in .tar.gz or .tgz.
 func writeTar(path, name string, content []byte) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	now := time.Now()
+	var gz *gzip.Writer
 	tw := tar.NewWriter(f)
+	if strings.HasSuffix(path, ".tar.gz") || strings.HasSuffix(path, ".tgz") {
+		gz = gzip.NewWriter(f)
+		tw = tar.NewWriter(gz)
+	}
+	now := time.Now()
 	dir := name[:strings.LastIndex(name, "/")+1]
 	if err := tw.WriteHeader(&tar.Header{Name: dir, Typeflag: tar.TypeDir, Mode: 0755, ModTime: now}); err != nil {
 		return err
@@ -743,6 +750,11 @@ func writeTar(path, name string, content []byte) error {
 	}
 	if err := tw.Close(); err != nil {
 		return err
+	}
+	if gz != nil {
+		if err := gz.Close(); err != nil {
+			return err
+		}
 	}
 	return f.Close()
 }
