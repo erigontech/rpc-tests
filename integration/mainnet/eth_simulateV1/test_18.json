@@ -2,7 +2,7 @@
     {
         "test": {
             "reference": "",
-            "description": "override difficulty at block 22842259"
+            "description": "override difficulty at block 22842259: rejected after the merge (-32602)"
         },
         "request": {
             "id": 1,
@@ -35,7 +35,10 @@
         "response": {
             "jsonrpc": "2.0",
             "id": 1,
-            "result": null
+            "error": {
+                "code": -32602,
+                "message": "block 22842260: difficulty override is not allowed after the merge"
+            }
         },
         "metadata": {
             "erigon.request-commitment-history": true
