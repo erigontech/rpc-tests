@@ -23,9 +23,6 @@
                                 "0x1111111111111111111111111111111111111111": {
                                     "balance": "0x8ac7230489e80000"
                                 }
-                            },
-                            "blockOverrides": {
-                                "timestamp": "0x68D3B730"
                             }
                         },
                         {
@@ -35,10 +32,7 @@
                                     "to": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
                                     "value": "0x6f05b59d3b20000"
                                 }
-                            ],
-                            "blockOverrides": {
-                                "timestamp": "0x68D3B73C"
-                            }
+                            ]
                         }
                     ],
                     "traceTransfers": true,

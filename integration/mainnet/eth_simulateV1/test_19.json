@@ -35,9 +35,7 @@
                                 }
                             },
                             "blockOverrides": {
-                                "timestamp": "0x6ADBE380",
-                                "baseFeePerGas": "0x2E90EDD000",
-                                "coinbase": "0xdddddddddddddddddddddddddddddddddddddddd"
+                                "baseFeePerGas": "0x2E90EDD000"
                             }
                         }
                     ],
