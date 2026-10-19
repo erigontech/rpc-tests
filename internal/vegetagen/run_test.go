@@ -1101,3 +1101,98 @@ func TestRunMixDrawsFromTheSample(t *testing.T) {
 		}
 	}
 }
+
+// requestsPerBlock counts the written requests by their block parameter, the last param of each body.
+func requestsPerBlock(t *testing.T, targets []perf.VegetaTarget) map[string]int {
+	t.Helper()
+	counts := map[string]int{}
+	for _, vt := range targets {
+		var req struct {
+			Params []json.RawMessage `json:"params"`
+		}
+		if err := json.Unmarshal(vt.Body, &req); err != nil || len(req.Params) == 0 {
+			t.Fatalf("decode request %s: %v", vt.Body, err)
+		}
+		counts[string(req.Params[len(req.Params)-1])]++
+	}
+	return counts
+}
+
+func TestRunPerBlockTakesNTxsOfEachBlock(t *testing.T) {
+	node, url := startNode(t)
+	node.extraTo = "0x0000000000000000000000000000000000000003"
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Tag, cfg.Verify, cfg.Keep, cfg.PerBlock = 4, TagParent, false, KeepAll, 2
+
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	perBlock := requestsPerBlock(t, readTargets(t, cfg.Out, "eth_call"))
+	if sum.Written != 8 || len(perBlock) != 4 {
+		t.Fatalf("written %d over %d blocks, want 2 of the 3 txs of each of the 4 blocks", sum.Written, len(perBlock))
+	}
+	for block, n := range perBlock {
+		if n != 2 {
+			t.Errorf("block %s: %d requests, want 2", block, n)
+		}
+	}
+}
+
+func TestRunPerBlockAboveTheTxsOfABlockTakesThemAll(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Tag, cfg.Verify, cfg.Keep, cfg.PerBlock = TagParent, false, KeepAll, 5
+
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Written != 4 {
+		t.Errorf("written %d, want the 2 txs of each of the 2 blocks", sum.Written)
+	}
+}
+
+func TestRunPerBlockIsReproducible(t *testing.T) {
+	node, url := startNode(t)
+	node.extraTo = "0x0000000000000000000000000000000000000003"
+	var bodies [2]string
+	for i := range bodies {
+		cfg := baseConfig(t, url)
+		cfg.Blocks, cfg.Tag, cfg.Verify, cfg.Keep, cfg.PerBlock = 10, TagParent, false, KeepAll, 1
+		if _, err := Run(context.Background(), cfg, single(EthCall{})); err != nil {
+			t.Fatalf("Run: %v", err)
+		}
+		for _, vt := range readTargets(t, cfg.Out, "eth_call") {
+			bodies[i] += string(vt.Body)
+		}
+	}
+	if bodies[0] != bodies[1] {
+		t.Error("two runs on the same blocks picked different txs")
+	}
+}
+
+func TestRunPerBlockTakesNLogsOfEachBlock(t *testing.T) {
+	node, url := startNode(t)
+	node.extraTo = "0x0000000000000000000000000000000000000003"
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Verify, cfg.Keep, cfg.PerBlock = 3, false, KeepAll, 1
+
+	sum, err := Run(context.Background(), cfg, single(mustGen(t, "eth_getLogs")))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Written != 3 {
+		t.Errorf("written %d, want 1 of the 3 logs of each of the 3 blocks", sum.Written)
+	}
+}
+
+func TestRunMixRejectsPerBlock(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.PerBlock = 0, 10, 1
+
+	if _, err := Run(context.Background(), cfg, []Spec{{Gen: EthCall{}, Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}}); err == nil {
+		t.Error("want an error: a mix already draws its requests at random from the window")
+	}
+}

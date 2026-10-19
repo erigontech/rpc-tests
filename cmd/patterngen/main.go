@@ -82,6 +82,7 @@ func commonFlags(outRequired bool) []cli.Flag {
 		&cli.Uint64Flag{Name: "start-block", Usage: "Read the blocks from this one up to --end-block or for --max-blocks blocks, whichever ends first, instead of those below the head"},
 		&cli.Uint64Flag{Name: "end-block", Usage: "With --start-block, the last block of the range"},
 		&cli.Uint64Flag{Name: "sample-blocks", Usage: "With --start-block, read only this many distinct blocks of the range, drawn at random with a fixed seed"},
+		&cli.IntFlag{Name: "per-block", Usage: "Take at most this many txs (or logs for eth_getLogs) of each block, picked at random with the block number as seed (subcommands only; default: all)"},
 		&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
 		&cli.StringFlag{Name: "name", Usage: "Name of the vegeta file in the tar, the rpc_perf --test-type (default: the method, or mixed for several)"},
 		&cli.StringFlag{Name: "out", Required: outRequired, Usage: "Output tar file, gzipped if it ends in .tar.gz or .tgz, usable as rpc_perf --pattern-file"},
@@ -129,6 +130,7 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 		MaxBlocks: c.Uint64("max-blocks"),
 		Window:    window,
 		Range:     blockRange,
+		PerBlock:  c.Int("per-block"),
 		Workers:   c.Int("workers"),
 		Out:       c.String("out"),
 	}
