@@ -38,6 +38,9 @@ type Block struct {
 	Hash         string        `json:"hash"`
 	Transactions []Transaction `json:"transactions"`
 	Logs         []Log         `json:"-"` // read only for PerLog generators
+
+	values          map[int][]string // blockValues by position, for valuesContracts
+	valuesContracts map[string]bool
 }
 
 // Spec is one method of a load with its relative weight.

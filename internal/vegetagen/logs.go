@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"hash/fnv"
+	"maps"
 	"math"
 	"math/rand"
 	"strconv"
@@ -127,6 +128,12 @@ func blockValues(b *Block, pos int, contracts map[string]bool) []string {
 	if b == nil {
 		return nil
 	}
+	if b.values == nil || !maps.Equal(b.valuesContracts, contracts) {
+		b.values, b.valuesContracts = map[int][]string{}, contracts
+	}
+	if v, ok := b.values[pos]; ok {
+		return v
+	}
 	seen := map[string]bool{}
 	var out []string
 	for _, lg := range blockLogs(b.Logs, contracts) {
@@ -143,6 +150,7 @@ func blockValues(b *Block, pos int, contracts map[string]bool) []string {
 		seen[strings.ToLower(v)] = true
 		out = append(out, v)
 	}
+	b.values[pos] = out
 	return out
 }
 
