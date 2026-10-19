@@ -2,7 +2,7 @@
     {
         "test": {
             "reference": "https://github.com/ethereum/execution-apis/blob/main/tests/eth_simulateV1/ethSimulate-overflow-nonce.io",
-            "description": "nonce overridden to max uint64 (0xffffffffffffffff) without validation: both calls succeed (nonce wraps or is ignored)"
+            "description": "nonce overridden to max uint64 (0xffffffffffffffff) without validation: rejected with nonce has max value (EIP-2681)"
         },
         "request": {
             "id": 1,
