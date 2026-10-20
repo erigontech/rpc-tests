@@ -94,7 +94,7 @@ OPTIONS:
    -D, --testing-client <value>            Name of testing client [default: rpcdaemon]
    -n, --process-name <value>             Server process name for liveness check (default: testing-client)
    -b, --blockchain <value>               Blockchain network name [default: mainnet]
-   -y, --test-type <value>                Test type (e.g., eth_call, eth_getLogs) [default: eth_getLogs]
+   -y, --test-type <value>                Test name in the reports; with a tar, also the vegeta file to replay; with a .jsonl, defaults to the method of its requests, or mixed [default: eth_getLogs]
    -p, --pattern-file <value>             Path to the pattern file: a Vegeta tar, or a .jsonl with one JSON-RPC request per line
    -r, --repetitions <value>              Number of repetitions for each test in sequence [default: 10]
    -t, --test-sequence <value>            Test sequence as qps:duration,... [default: 50:30,1000:30,2500:20,10000:20]
@@ -121,8 +121,9 @@ When `-u` is specified, the CSV file is written to `./reports/<network>/<machine
   target per line. `-y` selects the file in the tar, and `localhost` in the target URLs is replaced with `-d`.
 - **JSONL** (`.jsonl`): one JSON-RPC request per line, as written by `rpc_pattern_gen --out <file>.jsonl`
   (see [`pattern/README.md`](pattern/README.md#jsonl-output)). The file is read in place; each request is
-  posted to `http://<-d>:8545`, or to the port given in `-d` as `host:port`. `-y` only names the test in the
-  reports.
+  posted to `http://<-d>:8545`, or to the port given in `-d` as `host:port`. `-y` is optional: it names
+  the test in the reports (result files, CSV, JSON report) and defaults to the method of the requests, or
+  `mixed` when they use several methods.
 
 ### Invocation examples
 
@@ -133,7 +134,7 @@ Run perf eth_call test with default test sequence (50:30,1000:30,2500:20,10000:2
 
 Run a JSONL pattern against a node on another host and port:
 ```bash
-./build/bin/rpc_perf -y eth_call -p eth_call.jsonl -d 10.0.0.5:8546 -t 1000:30
+./build/bin/rpc_perf -p eth_call.jsonl -d 10.0.0.5:8546 -t 1000:30
 ```
 
 Run with custom test sequence and 5 repetitions:

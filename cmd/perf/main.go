@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/erigontech/rpc-tests/internal/perf"
 	"github.com/urfave/cli/v2"
@@ -37,7 +38,7 @@ func perfFlags() []cli.Flag {
 		&cli.StringFlag{Name: "testing-client", Aliases: []string{"D"}, Value: perf.DefaultClientName, Usage: "Name of testing client"},
 		&cli.StringFlag{Name: "process-name", Aliases: []string{"n"}, Usage: "Server process name for liveness check (default: testing-client)"},
 		&cli.StringFlag{Name: "blockchain", Aliases: []string{"b"}, Value: "mainnet", Usage: "Blockchain network name"},
-		&cli.StringFlag{Name: "test-type", Aliases: []string{"y"}, Value: perf.DefaultTestType, Usage: "Test type (e.g., eth_call, eth_getLogs)"},
+		&cli.StringFlag{Name: "test-type", Aliases: []string{"y"}, Value: perf.DefaultTestType, Usage: "Test name in the reports (e.g., eth_call, eth_getLogs); with a tar, also the vegeta file to replay; with a .jsonl, defaults to the method of its requests, or mixed"},
 		&cli.StringFlag{Name: "pattern-file", Aliases: []string{"p"}, Value: perf.DefaultVegetaPatternTarFile, Usage: "Path to the pattern file: a Vegeta tar, or a .jsonl with one JSON-RPC request per line"},
 		&cli.IntFlag{Name: "repetitions", Aliases: []string{"r"}, Value: perf.DefaultRepetitions, Usage: "Number of repetitions for each test in sequence"},
 		&cli.StringFlag{Name: "test-sequence", Aliases: []string{"t"}, Value: perf.DefaultTestSequence, Usage: "Test sequence as qps:duration,..."},
@@ -85,6 +86,13 @@ func runPerfTests(c *cli.Context) error {
 	cfg.MorePercentiles = c.Bool("more-percentiles")
 	cfg.HaltOnVegetaError = c.Bool("halt-on-vegeta-error")
 	cfg.InstantReport = c.Bool("instant-report")
+	if strings.HasSuffix(cfg.VegetaPatternTarFile, ".jsonl") && !c.IsSet("test-type") {
+		testType, err := perf.JSONLTestType(cfg.VegetaPatternTarFile)
+		if err != nil {
+			return fmt.Errorf("invalid pattern file: %w", err)
+		}
+		cfg.TestType = testType
+	}
 
 	if err := cfg.Validate(); err != nil {
 		return fmt.Errorf("configuration validation failed: %w", err)

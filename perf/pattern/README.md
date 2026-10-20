@@ -44,7 +44,7 @@ as can any other load tool.
 ```bash
 rpc_pattern_gen eth_call --counts 400000 --block-tag parent --verify --out eth_call.jsonl
 rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400000 --verify --out mixed.jsonl
-./build/bin/rpc_perf -p mixed.jsonl -y mixed -t 1000:30,2000:30
+./build/bin/rpc_perf -p mixed.jsonl -t 1000:30,2000:30
 ```
 
 ```

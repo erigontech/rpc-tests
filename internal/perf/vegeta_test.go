@@ -925,3 +925,38 @@ func TestExecuteReplaysAJSONLPattern(t *testing.T) {
 		}
 	}
 }
+
+func TestJSONLTestType(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		lines []string
+		want  string
+	}{
+		{"one method", []string{jsonlCall, "", jsonlCall}, "eth_call"},
+		{"several methods", []string{jsonlCall, `{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}`}, "mixed"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "p.jsonl")
+			if err := os.WriteFile(path, []byte(strings.Join(tc.lines, "\n")+"\n"), 0644); err != nil {
+				t.Fatal(err)
+			}
+			got, err := JSONLTestType(path)
+			if err != nil {
+				t.Fatalf("JSONLTestType: %v", err)
+			}
+			if got != tc.want {
+				t.Errorf("got %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestJSONLTestTypeWithoutRequestsFails(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "p.jsonl")
+	if err := os.WriteFile(path, []byte("\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := JSONLTestType(path); err == nil {
+		t.Error("want an error for a pattern without requests")
+	}
+}

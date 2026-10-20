@@ -261,3 +261,51 @@ func TestRunPerfTestsPropagatesAttackFailure(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
+
+// testingAPIOfJSONL replays a JSONL pattern of eth_getTransactionReceipt requests with args and
+// returns the testingApi of the JSON report.
+func testingAPIOfJSONL(t *testing.T, args ...string) string {
+	t.Helper()
+	server := fakeNode(t)
+	pattern := filepath.Join(t.TempDir(), "receipts.jsonl")
+	line := `{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0x01"],"id":1}`
+	if err := os.WriteFile(pattern, []byte(line+"\n"+line+"\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	reportPath := filepath.Join(t.TempDir(), "perf.json")
+	err := runPerf(t, append([]string{
+		"--pattern-file", pattern,
+		"--rpc-client-address", strings.TrimPrefix(server.URL, "http://"),
+		"--test-sequence", "10:1",
+		"--repetitions", "1",
+		"--wait-after-test-sequence", "0",
+		"--not-verify-server-alive",
+		"--tmp-test-report",
+		"--json-report", reportPath,
+	}, args...)...)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	data, err := os.ReadFile(reportPath)
+	if err != nil {
+		t.Fatalf("JSON report was not written: %v", err)
+	}
+	var report struct {
+		Configuration struct {
+			TestingAPI string `json:"testingApi"`
+		} `json:"configuration"`
+	}
+	if err := json.Unmarshal(data, &report); err != nil {
+		t.Fatalf("JSON report is malformed: %v", err)
+	}
+	return report.Configuration.TestingAPI
+}
+
+func TestRunPerfTestsNamesAJSONLPatternAfterItsMethod(t *testing.T) {
+	if got := testingAPIOfJSONL(t); got != "eth_getTransactionReceipt" {
+		t.Errorf("testingApi without --test-type: got %q, want the method of the requests", got)
+	}
+	if got := testingAPIOfJSONL(t, "--test-type", "receipts_15M"); got != "receipts_15M" {
+		t.Errorf("testingApi with --test-type: got %q, want receipts_15M", got)
+	}
+}

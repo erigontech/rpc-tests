@@ -862,3 +862,33 @@ func formatTopError(errors map[string]int) string {
 	}
 	return out
 }
+
+// JSONLTestType returns the test name of a JSONL pattern: the method of its requests, or "mixed".
+func JSONLTestType(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	name := ""
+	scanner := bufio.NewScanner(file)
+	scanner.Buffer(make([]byte, 0, 1024*1024), 1024*1024)
+	for scanner.Scan() {
+		if scanner.Text() == "" {
+			continue
+		}
+		method := jsonrpcMethod(scanner.Bytes())
+		if name != "" && method != name {
+			return "mixed", nil
+		}
+		name = method
+	}
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+	if name == "" {
+		return "", fmt.Errorf("no JSON-RPC request in %s", path)
+	}
+	return name, nil
+}
