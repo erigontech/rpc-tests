@@ -1196,3 +1196,62 @@ func TestRunMixRejectsPerBlock(t *testing.T) {
 		t.Error("want an error: a mix already draws its requests at random from the window")
 	}
 }
+
+// readJSONL returns the lines of a JSONL pattern, checking that each one is a JSON-RPC request.
+func readJSONL(t *testing.T, path string) []string {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read jsonl: %v", err)
+	}
+	lines := strings.Split(strings.TrimSuffix(string(data), "\n"), "\n")
+	for i, line := range lines {
+		var req struct {
+			Jsonrpc string `json:"jsonrpc"`
+			Method  string `json:"method"`
+		}
+		if err := json.Unmarshal([]byte(line), &req); err != nil || req.Jsonrpc != "2.0" || req.Method == "" {
+			t.Fatalf("line %d is not a JSON-RPC request: %s", i, line)
+		}
+	}
+	return lines
+}
+
+// assertJSONLMatchesTar runs specs twice, to a tar and to a .jsonl, and checks that the .jsonl holds the
+// bodies of the tar targets, in the same order.
+func assertJSONLMatchesTar(t *testing.T, cfg Config, specs []Spec, name string) {
+	t.Helper()
+	if _, err := Run(context.Background(), cfg, specs); err != nil {
+		t.Fatalf("Run tar: %v", err)
+	}
+	targets := readTargets(t, cfg.Out, name)
+	cfg.Out = filepath.Join(t.TempDir(), "out.jsonl")
+	if _, err := Run(context.Background(), cfg, specs); err != nil {
+		t.Fatalf("Run jsonl: %v", err)
+	}
+	lines := readJSONL(t, cfg.Out)
+	if len(lines) != len(targets) {
+		t.Fatalf("got %d lines, want the %d requests of the tar", len(lines), len(targets))
+	}
+	for i, vt := range targets {
+		if lines[i] != string(vt.Body) {
+			t.Errorf("line %d = %s, want %s", i, lines[i], vt.Body)
+		}
+	}
+}
+
+func TestRunWritesJSONLWithTheRequestsOfTheTar(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Tag = TagParent
+
+	assertJSONLMatchesTar(t, cfg, single(EthCall{}), "eth_call")
+}
+
+func TestRunMixWritesJSONLWithTheRequestsOfTheTar(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.MaxBlocks = 0, 20, 3
+
+	assertJSONLMatchesTar(t, cfg, []Spec{{Gen: mustGen(t, "eth_getBlockReceipts"), Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}}, "mixed")
+}

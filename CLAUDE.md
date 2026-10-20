@@ -50,8 +50,8 @@ pytest
 **Four independent tools** under `cmd/`:
 - `cmd/integration/` — RPC integration test runner (primary tool, ~2100 lines in main.go)
 - `cmd/compat/` — RPC compatibility checker
-- `cmd/perf/` — Load/performance testing (uses Vegeta)
-- `cmd/patterngen/` — `rpc_pattern_gen`: generates Vegeta pattern tars for `rpc_perf` from the transactions of recent blocks, either one method (`rpc_pattern_gen eth_call --url http://localhost:8545 --counts 400000 --block-tag latest --verify --out eth_call.tar`, or `rpc_pattern_gen eth_getLogs --counts 400000 --range 100 --verify --out eth_getLogs.tar`) or a mix from a profile file (`rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400000 --verify --out mixed.tar`, profiles in `perf/pattern/<network>/config/`)
+- `cmd/perf/` — Load/performance testing (uses Vegeta); `-p` takes a Vegeta pattern tar or a `.jsonl` with one JSON-RPC request per line
+- `cmd/patterngen/` — `rpc_pattern_gen`: generates Vegeta pattern tars for `rpc_perf`, or JSONL files with `--out <file>.jsonl`, from the transactions of recent blocks, either one method (`rpc_pattern_gen eth_call --url http://localhost:8545 --counts 400000 --block-tag latest --verify --out eth_call.tar`, or `rpc_pattern_gen eth_getLogs --counts 400000 --range 100 --verify --out eth_getLogs.tar`) or a mix from a profile file (`rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400000 --verify --out mixed.tar`, profiles in `perf/pattern/<network>/config/`)
 
 **Integration test runner flow:**
 1. Scans `integration/{network}/` for test fixture files (JSON or tar archives)
@@ -73,7 +73,7 @@ pytest
 - `internal/runner/` — Parallel test orchestration (worker pool, scheduling, stats)
 - `internal/testdata/` — Test discovery, fixture loading, types
 - `internal/perf/` — Performance test support (Vegeta integration, reporting)
-- `internal/vegetagen/` — Pattern generation for `rpc_pattern_gen`: block walk from the head or from a block range (`--start-block`, optionally sampled with `--sample-blocks`; `--per-block N` takes N random txs or logs of each block), profiles (`[methods]` with weights, optional `[contracts]` filter), per-method request generators (eth_getLogs builds its filters from the real logs of the blocks, so results are never empty), a window of recent blocks shared by a mix, verification on the node, tar output (gzipped when `--out` ends in `.tar.gz` or `.tgz`)
+- `internal/vegetagen/` — Pattern generation for `rpc_pattern_gen`: block walk from the head or from a block range (`--start-block`, optionally sampled with `--sample-blocks`; `--per-block N` takes N random txs or logs of each block), profiles (`[methods]` with weights, optional `[contracts]` filter), per-method request generators (eth_getLogs builds its filters from the real logs of the blocks, so results are never empty), a window of recent blocks shared by a mix, verification on the node, tar output (gzipped when `--out` ends in `.tar.gz` or `.tgz`) or JSONL output (one request per line when `--out` ends in `.jsonl`)
 - `internal/tools/` — Subcommand implementations (block-by-number, empty-blocks, filter-changes, latest-block-logs, subscriptions, graphql, replay-request, replay-tx, scan-block-receipts)
 - `internal/eth/` — Ethereum primitives: RLP encoding, Keccak256, MPT (Modified Merkle-Patricia Trie) for computing receipts root hashes
 

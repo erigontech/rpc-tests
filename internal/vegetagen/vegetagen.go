@@ -95,7 +95,7 @@ const (
 
 type Config struct {
 	URL       string // node used to read blocks and verify requests
-	TargetURL string // url written in each vegeta target
+	TargetURL string // url written in each vegeta target; tar output only
 	Blocks    uint64 // blocks to read, from the head downwards; set this or Count, or neither with Range
 	Tag       BlockTag
 	Verify    bool // run each request on the node; Keep then selects what is written
@@ -104,13 +104,13 @@ type Config struct {
 	Count     int      // or stop after writing this many requests, scanning as many blocks as needed
 	MinCount  int      // fail if fewer requests are written
 	Contracts []string // keep only the txs to these contracts (lower case), the blocks holding them and the logs they emit
-	Name      string   // vegeta_erigon_<Name>.txt; the method for one method, "mixed" for several
+	Name      string   // vegeta_erigon_<Name>.txt; the method for one method, "mixed" for several; tar output only
 	MaxBlocks uint64   // with several methods or Window, the window of recent blocks the requests are drawn from; Range replaces it
 	Window    bool     // draw from the window even with one method, as a profile does
 	Range     *BlockRange
 	PerBlock  int // take at most this many txs or logs of each block, picked at random; 0 = all
 	Workers   int
-	Out       string // tar file path
+	Out       string // tar file path, or a JSONL file when it ends in .jsonl
 }
 
 // BlockRange is the blocks to read instead of those below the head: from From up to the first of
@@ -217,7 +217,8 @@ type candidate struct {
 }
 
 // Run reads blocks from the head, or from the end of cfg.Range, downwards, turns their transactions and
-// blocks into requests with the generators of specs and writes them as a vegeta target file inside a tar.
+// blocks into requests with the generators of specs and writes them as a vegeta target file inside a tar,
+// or one per line in a .jsonl file.
 // With several specs the requests are interleaved at random, with a fixed seed, so that every
 // part of the file keeps the shares of the weights.
 func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
@@ -647,6 +648,9 @@ func write(cfg Config, specs []Spec, sum Summary, written [][][]byte) error {
 	if sum.Written < cfg.MinCount {
 		return fmt.Errorf("%d requests written, fewer than min-count %d", sum.Written, cfg.MinCount)
 	}
+	if strings.HasSuffix(cfg.Out, ".jsonl") {
+		return writeJSONL(cfg.Out, interleave(written))
+	}
 	name := cfg.Name
 	if name == "" {
 		name = specs[0].Gen.Method()
@@ -851,6 +855,16 @@ func writeTarget(out *bytes.Buffer, url string, body []byte) error {
 	out.Write(line)
 	out.WriteByte('\n')
 	return nil
+}
+
+// writeJSONL writes one JSON-RPC request per line.
+func writeJSONL(path string, reqs [][]byte) error {
+	var out bytes.Buffer
+	for _, req := range reqs {
+		out.Write(req)
+		out.WriteByte('\n')
+	}
+	return os.WriteFile(path, out.Bytes(), 0o644)
 }
 
 // writeTar writes a tar holding the directory of name followed by name itself,

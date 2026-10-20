@@ -167,3 +167,30 @@ func TestPerBlockFlag(t *testing.T) {
 		t.Error("--per-block with a profile: want an error")
 	}
 }
+
+func TestEthCallCommandWritesJSONL(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "eth_call.jsonl")
+	if err := newApp().Run([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--blocks", "1", "--out", out}); err != nil {
+		t.Fatalf("eth_call command: %v", err)
+	}
+	data, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatalf("pattern not written: %v", err)
+	}
+	if !strings.HasPrefix(string(data), `{"jsonrpc":"2.0","method":"eth_call"`) {
+		t.Errorf("not a JSONL pattern: %s", data)
+	}
+}
+
+func TestJSONLRejectsTheVegetaFlags(t *testing.T) {
+	for _, args := range [][]string{
+		{"--target-url", "http://localhost:8545"},
+		{"--name", "eth_call"},
+	} {
+		out := filepath.Join(t.TempDir(), "eth_call.jsonl")
+		cmd := append([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--blocks", "1", "--out", out}, args...)
+		if err := newApp().Run(cmd); err == nil {
+			t.Errorf("%v with a .jsonl output: want an error", args)
+		}
+	}
+}

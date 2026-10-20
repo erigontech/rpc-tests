@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -91,10 +92,36 @@ func (pt *PerfTest) Cleanup(initial bool) error {
 	return nil
 }
 
-// CopyAndExtractPatternFile copies and extracts the vegeta pattern tar file.
+// isJSONL reports whether the pattern file holds one JSON-RPC request per line instead of a vegeta tar.
+func (pt *PerfTest) isJSONL() bool {
+	return strings.HasSuffix(pt.Config.VegetaPatternTarFile, ".jsonl")
+}
+
+// patternFile returns the file the targets are read from.
+func (pt *PerfTest) patternFile() string {
+	if pt.isJSONL() {
+		return pt.Config.VegetaPatternTarFile
+	}
+	return pt.RunDirs.PatternBase + pt.Config.TestType + ".txt"
+}
+
+// jsonlURL returns the URL the requests of a JSONL pattern are posted to: the client address, on port
+// 8545 unless it has one, as the vegeta targets of the tar patterns.
+func (pt *PerfTest) jsonlURL() string {
+	host := pt.Config.ClientAddress
+	if _, _, err := net.SplitHostPort(host); err != nil {
+		host = net.JoinHostPort(host, "8545")
+	}
+	return "http://" + host
+}
+
+// CopyAndExtractPatternFile copies and extracts the vegeta pattern tar file; a JSONL pattern is read in place.
 func (pt *PerfTest) CopyAndExtractPatternFile() error {
 	if _, err := os.Stat(pt.Config.VegetaPatternTarFile); os.IsNotExist(err) {
 		return fmt.Errorf("invalid pattern file: %s", pt.Config.VegetaPatternTarFile)
+	}
+	if pt.isJSONL() {
+		return nil
 	}
 
 	if err := os.MkdirAll(pt.RunDirs.RunTestDir, 0755); err != nil {
@@ -135,7 +162,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		}
 	}
 
-	pattern := pt.RunDirs.PatternBase + pt.Config.TestType + ".txt"
+	pattern := pt.patternFile()
 
 	timestamp := time.Now().Format("20060102150405")
 	pt.Config.BinaryFile = fmt.Sprintf("%s_%s_%s_%s_%d_%d_%d.bin",
@@ -190,9 +217,11 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 func (pt *PerfTest) ExecuteSequence(ctx context.Context, sequence TestSequence, tag string) error {
 	testNumber := 1
 
-	pattern := pt.RunDirs.PatternBase + pt.Config.TestType + ".txt"
+	pattern := pt.patternFile()
 
-	if file, err := os.Open(pattern); err == nil {
+	if pt.isJSONL() {
+		fmt.Printf("Test on port: %s\n", pt.jsonlURL())
+	} else if file, err := os.Open(pattern); err == nil {
 		scanner := bufio.NewScanner(file)
 		if scanner.Scan() {
 			var vt VegetaTarget
@@ -243,6 +272,7 @@ func (pt *PerfTest) loadTargets(filepath string) ([]vegeta.Target, error) {
 	buffer := make([]byte, 0, maxCapacity)
 	scanner.Buffer(buffer, maxCapacity)
 
+	jsonl, jsonlURL := pt.isJSONL(), pt.jsonlURL()
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
@@ -250,7 +280,12 @@ func (pt *PerfTest) loadTargets(filepath string) ([]vegeta.Target, error) {
 		}
 
 		var vt VegetaTarget
-		if err := json.Unmarshal([]byte(line), &vt); err != nil {
+		if jsonl {
+			if !json.Valid([]byte(line)) {
+				return nil, fmt.Errorf("failed to parse request: not JSON: %.100s", line)
+			}
+			vt = VegetaTarget{Method: "POST", URL: jsonlURL, Body: []byte(line), Header: map[string][]string{"Content-Type": {"application/json"}}}
+		} else if err := json.Unmarshal([]byte(line), &vt); err != nil {
 			return nil, fmt.Errorf("failed to parse target: %w", err)
 		}
 

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"sort"
+	"strings"
 	"syscall"
 
 	"github.com/erigontech/rpc-tests/internal/vegetagen"
@@ -70,7 +71,7 @@ func newApp() *cli.App {
 func commonFlags(outRequired bool) []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{Name: "url", Value: "http://localhost:8545", Usage: "Node used to read blocks and verify requests"},
-		&cli.StringFlag{Name: "target-url", Value: "http://localhost:8545", Usage: "URL written in each vegeta target (rpc_perf replaces localhost with --rpc-client-address)"},
+		&cli.StringFlag{Name: "target-url", Value: "http://localhost:8545", Usage: "URL written in each vegeta target (rpc_perf replaces localhost with --rpc-client-address); tar output only"},
 		&cli.Uint64Flag{Name: "blocks", Usage: "Read this many blocks, from the head downwards (alternative to --counts, one method only)"},
 		&cli.StringFlag{Name: "block-tag", Value: string(vegetagen.TagLatest), Usage: "State of each request: latest, head (head number pinned at generation) or parent (block before the transaction)"},
 		&cli.BoolFlag{Name: "verify", Usage: "Run each request on the node and count the failures"},
@@ -84,8 +85,8 @@ func commonFlags(outRequired bool) []cli.Flag {
 		&cli.Uint64Flag{Name: "sample-blocks", Usage: "With --start-block, read only this many distinct blocks of the range, drawn at random with a fixed seed"},
 		&cli.IntFlag{Name: "per-block", Usage: "Take at most this many txs (or logs for eth_getLogs) of each block, picked at random with the block number as seed (subcommands only; default: all)"},
 		&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
-		&cli.StringFlag{Name: "name", Usage: "Name of the vegeta file in the tar, the rpc_perf --test-type (default: the method, or mixed for several)"},
-		&cli.StringFlag{Name: "out", Required: outRequired, Usage: "Output tar file, gzipped if it ends in .tar.gz or .tgz, usable as rpc_perf --pattern-file"},
+		&cli.StringFlag{Name: "name", Usage: "Name of the vegeta file in the tar, the rpc_perf --test-type (default: the method, or mixed for several); tar output only"},
+		&cli.StringFlag{Name: "out", Required: outRequired, Usage: "Output file: a vegeta tar usable as rpc_perf --pattern-file, gzipped if it ends in .tar.gz or .tgz, or one JSON-RPC request per line if it ends in .jsonl"},
 		&cli.BoolFlag{Name: "verbose", Aliases: []string{"v"}, Usage: "Print the verification statistics by error kind"},
 	}
 }
@@ -100,6 +101,13 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 	keep := vegetagen.Keep(c.String("keep"))
 	if keep != vegetagen.KeepOK && keep != vegetagen.KeepAll {
 		return fmt.Errorf("invalid keep %q: want ok or all", keep)
+	}
+	if strings.HasSuffix(c.String("out"), ".jsonl") {
+		for _, name := range []string{"target-url", "name"} {
+			if c.IsSet(name) {
+				return fmt.Errorf("--%s applies to a vegeta tar only, not to a .jsonl output", name)
+			}
+		}
 	}
 	blockRange, err := parseBlockRange(c)
 	if err != nil {
