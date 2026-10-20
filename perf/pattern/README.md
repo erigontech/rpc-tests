@@ -46,6 +46,21 @@ The blocks are read from the head downwards, each one once, until `--counts` req
 `--blocks` blocks are read. `eth_getLogs` takes `--range`, the widest block range of a request (default
 100); the other eth_getLogs options are available through a profile only.
 
+Every tx (or log, for eth_getLogs) of a block becomes a request, so consecutive requests share the block
+and its state, and a low `--counts` uses only a few blocks. `--per-block N` takes at most N txs or logs of
+each block, picked at random with the block number as seed, so the same command writes the same pattern.
+With `--sample-blocks` it spreads the requests over the whole range, e.g. one `eth_call` on each of 1000
+random blocks between 13M and 14M:
+
+```bash
+rpc_pattern_gen eth_call --start-block 13000000 --end-block 13999999 --sample-blocks 1000 --per-block 1 \
+    --block-tag parent --verify --out eth_call_13000000.tar
+```
+
+The blocks are read from the highest down and the run stops at `--counts`, so to cover the whole range
+set `--sample-blocks` to the number of blocks wanted and leave `--counts` unset. A profile already draws
+its requests at random from the whole window, so `--per-block` is rejected with `--profile`.
+
 ### Profiles: a mix of methods drawn from a window of recent blocks
 
 ```bash
@@ -107,6 +122,7 @@ rpc_pattern_gen eth_call --start-block 19000000 --end-block 19999999 --sample-bl
 | `--keep` | `ok` | With `--verify`, the requests to write: `ok` (only the working ones) or `all` |
 | `--min-count` | | Fail if fewer requests are written |
 | `--name` | method or `mixed` | Name of the Vegeta file in the tar, the `rpc_perf -y` value |
+| `--per-block` | all | Subcommands only: take at most this many txs (or logs for eth_getLogs) of each block, picked at random with the block number as seed |
 | `--workers` | 16 | Concurrent requests to the node |
 | `--out` | | Output tar file (required) |
 | `-v`, `--verbose` | off | Print the verification statistics per method and error kind |

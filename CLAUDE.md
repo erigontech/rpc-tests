@@ -73,7 +73,7 @@ pytest
 - `internal/runner/` — Parallel test orchestration (worker pool, scheduling, stats)
 - `internal/testdata/` — Test discovery, fixture loading, types
 - `internal/perf/` — Performance test support (Vegeta integration, reporting)
-- `internal/vegetagen/` — Pattern generation for `rpc_pattern_gen`: block walk from the head or from a block range (`--start-block`, optionally sampled with `--sample-blocks`), profiles (`[methods]` with weights, optional `[contracts]` filter), per-method request generators (eth_getLogs builds its filters from the real logs of the blocks, so results are never empty), a window of recent blocks shared by a mix, verification on the node, tar output (gzipped when `--out` ends in `.tar.gz` or `.tgz`)
+- `internal/vegetagen/` — Pattern generation for `rpc_pattern_gen`: block walk from the head or from a block range (`--start-block`, optionally sampled with `--sample-blocks`; `--per-block N` takes N random txs or logs of each block), profiles (`[methods]` with weights, optional `[contracts]` filter), per-method request generators (eth_getLogs builds its filters from the real logs of the blocks, so results are never empty), a window of recent blocks shared by a mix, verification on the node, tar output (gzipped when `--out` ends in `.tar.gz` or `.tgz`)
 - `internal/tools/` — Subcommand implementations (block-by-number, empty-blocks, filter-changes, latest-block-logs, subscriptions, graphql, replay-request, replay-tx, scan-block-receipts)
 - `internal/eth/` — Ethereum primitives: RLP encoding, Keccak256, MPT (Modified Merkle-Patricia Trie) for computing receipts root hashes
 

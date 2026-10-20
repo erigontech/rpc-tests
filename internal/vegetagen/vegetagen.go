@@ -108,6 +108,7 @@ type Config struct {
 	MaxBlocks uint64   // with several methods or Window, the window of recent blocks the requests are drawn from; Range replaces it
 	Window    bool     // draw from the window even with one method, as a profile does
 	Range     *BlockRange
+	PerBlock  int // take at most this many txs or logs of each block, picked at random; 0 = all
 	Workers   int
 	Out       string // tar file path
 }
@@ -243,6 +244,9 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 		return sum, errors.New("set exactly one of blocks or count")
 	}
 	mix := len(specs) > 1 || cfg.Window
+	if cfg.PerBlock > 0 && mix {
+		return sum, errors.New("per-block applies to one method read from the head: a mix already draws its requests at random from the window")
+	}
 	if cfg.Blocks > 0 && mix {
 		return sum, errors.New("a mix of methods or a window needs count, since the shares apply to a total")
 	}
@@ -360,10 +364,8 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 				p := Params{BlockParam: blockParam(cfg.Tag, nums[bi], top), Head: top, Contracts: contracts}
 				item := Item{Block: b, BlockNum: nums[bi]}
 				if sp.Gen.Kind() == PerLog {
-					for _, lg := range blockLogs(b.Logs, contracts) {
-						if !usableLog(sp.Gen, lg) {
-							continue
-						}
+					logs := slices.DeleteFunc(blockLogs(b.Logs, contracts), func(lg Log) bool { return !usableLog(sp.Gen, lg) })
+					for _, lg := range pickPerBlock(logs, cfg.PerBlock, nums[bi]) {
 						item.Log = &lg
 						req, err := sp.Gen.Request(item, p)
 						if err != nil {
@@ -390,7 +392,7 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 					cands = append(cands, candidate{spec: i, req: req, offset: offset + uint64(bi)})
 					continue
 				}
-				for _, txn := range txs {
+				for _, txn := range pickPerBlock(txs, cfg.PerBlock, nums[bi]) {
 					// A copied gas price fails the base fee and balance checks once the base fee has risen;
 					// with no fee the node skips both and still executes the call.
 					if !cfg.KeepFees {
@@ -421,6 +423,21 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 	}
 
 	return sum, write(cfg, specs, sum, written)
+}
+
+// pickPerBlock returns n items of a block picked at random, in their order, or all of them when n is 0 or
+// they are no more than n. The seed is the block number, so a pattern is reproducible.
+func pickPerBlock[T any](items []T, n int, blockNum uint64) []T {
+	if n <= 0 || len(items) <= n {
+		return items
+	}
+	idx := rand.New(rand.NewSource(int64(blockNum))).Perm(len(items))[:n] //nolint:gosec
+	slices.Sort(idx)
+	picked := make([]T, n)
+	for i, j := range idx {
+		picked[i] = items[j]
+	}
+	return picked
 }
 
 // DefaultMaxBlocks is the window of recent blocks a mix of methods is drawn from.

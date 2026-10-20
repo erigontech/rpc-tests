@@ -153,3 +153,17 @@ func TestProfileWithBlockRangeWritesThePattern(t *testing.T) {
 		t.Error("profile with a block range and no --counts: want an error")
 	}
 }
+
+func TestPerBlockFlag(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "eth_call.tar")
+	if err := newApp().Run([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--blocks", "1", "--per-block", "1", "--out", out}); err != nil {
+		t.Fatalf("eth_call with --per-block: %v", err)
+	}
+	profile := filepath.Join(t.TempDir(), "eth_call.profile")
+	if err := os.WriteFile(profile, []byte("[methods]\neth_call 1\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := newApp().Run([]string{"rpc_pattern_gen", "--profile", profile, "--url", node(t), "--counts", "4", "--per-block", "1", "--out", out}); err == nil {
+		t.Error("--per-block with a profile: want an error")
+	}
+}
