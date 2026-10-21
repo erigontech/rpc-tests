@@ -31,6 +31,8 @@ type Transaction struct {
 	GasPrice string  `json:"gasPrice"`
 	Value    string  `json:"value"`
 	Input    string  `json:"input"`
+
+	BlockNumber *string `json:"blockNumber"` // nil while pending
 }
 
 type Block struct {
@@ -110,7 +112,8 @@ type Config struct {
 	Range     *BlockRange
 	PerBlock  int // take at most this many txs or logs of each block, picked at random; 0 = all
 	Workers   int
-	Out       string // tar file path, or a JSONL file when it ends in .jsonl
+	Out       string    // tar file path, or a JSONL file when it ends in .jsonl
+	Txs       []NamedTx // build the requests from these txs instead of reading blocks
 }
 
 // BlockRange is the blocks to read instead of those below the head: from From up to the first of
@@ -200,6 +203,7 @@ type Summary struct {
 	Written       int
 	Errors        map[string]int            // verification errors by kind
 	Methods       map[string]*MethodSummary // by spec name
+	FailedTxs     map[string]string         // with Txs, the error kind of each tx whose request failed verification, by name
 }
 
 type MethodSummary struct {
@@ -225,6 +229,12 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 	sum := Summary{Errors: map[string]int{}, Methods: map[string]*MethodSummary{}}
 	if len(specs) == 0 {
 		return sum, errors.New("no methods")
+	}
+	if len(cfg.Txs) > 0 {
+		for _, sp := range specs {
+			sum.Methods[sp.name()] = &MethodSummary{Errors: map[string]int{}}
+		}
+		return runTxs(ctx, cfg, specs, sum)
 	}
 	if cfg.Range != nil {
 		if cfg.Blocks > 0 {

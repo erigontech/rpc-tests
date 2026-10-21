@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"maps"
 	"os"
 	"os/signal"
+	"slices"
 	"sort"
 	"strings"
 	"syscall"
@@ -48,7 +50,9 @@ func newApp() *cli.App {
 		Commands: []*cli.Command{{
 			Name:  "eth_call",
 			Usage: "Generate eth_call requests with the call arguments of each transaction",
-			Flags: commonFlags(true),
+			Flags: append(commonFlags(true),
+				&cli.StringFlag{Name: "txs", Usage: "File with one \"<name> <hash>\" per line: one request per tx, in this order, with the name as its id, instead of reading blocks"},
+			),
 			Action: func(c *cli.Context) error {
 				return generate(c, []vegetagen.Spec{{Gen: vegetagen.EthCall{}, Weight: 1}}, nil, false)
 			},
@@ -113,7 +117,13 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 	if err != nil {
 		return err
 	}
-	if blockRange == nil && (c.Uint64("blocks") == 0) == (c.Int("counts") == 0) {
+	var txs []vegetagen.NamedTx
+	if c.IsSet("txs") {
+		if txs, err = vegetagen.LoadTxList(c.String("txs")); err != nil {
+			return err
+		}
+	}
+	if blockRange == nil && txs == nil && (c.Uint64("blocks") == 0) == (c.Int("counts") == 0) {
 		return fmt.Errorf("set exactly one of --blocks or --counts")
 	}
 	if c.Uint64("blocks") > 0 && (len(specs) > 1 || window) {
@@ -141,6 +151,7 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 		PerBlock:  c.Int("per-block"),
 		Workers:   c.Int("workers"),
 		Out:       c.String("out"),
+		Txs:       txs,
 	}
 	label := specs[0].Gen.Method()
 	if len(specs) > 1 {
@@ -154,6 +165,13 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 	}
 	if err != nil {
 		return err
+	}
+	if txs != nil {
+		for _, name := range slices.Sorted(maps.Keys(sum.FailedTxs)) {
+			fmt.Printf("%s: %s\n", name, sum.FailedTxs[name])
+		}
+		fmt.Printf("%s: %d txs, %d requests written to %s\n", label, len(txs), sum.Written, cfg.Out)
+		return nil
 	}
 	fmt.Printf("%s: %d blocks scanned (%d..%d), %d requests written to %s\n",
 		label, sum.BlocksScanned, sum.FirstBlock, sum.LastBlock, sum.Written, cfg.Out)
