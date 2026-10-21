@@ -50,7 +50,7 @@ pytest
 **Four independent tools** under `cmd/`:
 - `cmd/integration/` — RPC integration test runner (primary tool, ~2100 lines in main.go)
 - `cmd/compat/` — RPC compatibility checker
-- `cmd/perf/` — Load/performance testing (uses Vegeta); `-p` takes a Vegeta pattern tar or a `.jsonl` with one JSON-RPC request per line
+- `cmd/perf/` — Load/performance testing (uses Vegeta); `-p` takes a Vegeta pattern tar or a `.jsonl` with one JSON-RPC request per line; `-i` prints the results by request id (per tx of a `--txs` pattern)
 - `cmd/patterngen/` — `rpc_pattern_gen`: generates Vegeta pattern tars for `rpc_perf`, or JSONL files with `--out <file>.jsonl`, from the transactions of recent blocks, either one method (`rpc_pattern_gen eth_call --url http://localhost:8545 --counts 400000 --block-tag latest --verify --out eth_call.tar`, or `rpc_pattern_gen eth_getLogs --counts 400000 --range 100 --verify --out eth_getLogs.tar`) or a mix from a profile file (`rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400000 --verify --out mixed.tar`, profiles in `perf/pattern/<network>/config/`), or one eth_call per tx of a `<name> <hash>` list (`rpc_pattern_gen eth_call --txs slow.txt --block-tag latest --verify --out slow.jsonl`, the name is the request id)
 
 **Integration test runner flow:**

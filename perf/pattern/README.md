@@ -143,7 +143,11 @@ rpc_pattern_gen eth_call --txs slow.txt --block-tag parent --verify --out slow_p
 ```
 
 - Each tx gives one `eth_call` with its call arguments, in the order of the list. The request `id` is the
-  name of the tx, so the requests of each tx can be told apart in the results.
+  name of the tx, so `rpc_perf -i` prints the latencies of each tx:
+
+  ```bash
+  ./build/bin/rpc_perf -p slow_parent.jsonl -Z -t 50:30 -r 1 -i
+  ```
 - The name is a free label, unique in the file. A short summary of the bottleneck, after a sequence
   number, is easy to find in a long output: `3-sload-storm`.
 - `latest` runs the calls on the state at replay: the same code and input on the current storage, so the

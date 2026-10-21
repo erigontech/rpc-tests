@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -958,5 +960,64 @@ func TestJSONLTestTypeWithoutRequestsFails(t *testing.T) {
 	}
 	if _, err := JSONLTestType(path); err == nil {
 		t.Error("want an error for a pattern without requests")
+	}
+}
+
+func TestLoadTargetsByIDTagsEachRequestWithItsID(t *testing.T) {
+	pt, cfg, _ := newJSONLPerf(t, "localhost",
+		`{"jsonrpc":"2.0","method":"eth_call","params":[],"id":"2-sload-storm"}`,
+		`{"jsonrpc":"2.0","method":"eth_call","params":[],"id":7}`,
+		`{"jsonrpc":"2.0","method":"eth_call","params":[],"id":"3-50%-gas"}`)
+	cfg.ByID = true
+
+	targets, err := pt.loadTargets(cfg.VegetaPatternTarFile)
+	if err != nil {
+		t.Fatalf("loadTargets: %v", err)
+	}
+	got := make([]string, 0, len(targets))
+	for _, tg := range targets {
+		_, frag, _ := strings.Cut(tg.URL, "#")
+		got = append(got, frag)
+	}
+	if want := []string{"2-sload-storm", "7", "3-50%25-gas"}; !slices.Equal(got, want) {
+		t.Errorf("fragments %v, want %v", got, want)
+	}
+}
+
+func TestRunVegetaAttackByIDCountsResultsByID(t *testing.T) {
+	srv := apiServer(t)
+	pt, cfg, dirs := newTestPerf(t, srv.URL)
+	cfg.ByID = true
+	targets := []vegeta.Target{
+		{Method: "POST", URL: srv.URL + "#1-div-loop", Body: []byte(`{"jsonrpc":"2.0","method":"eth_getLogs","params":[],"id":"1-div-loop"}`)},
+		{Method: "POST", URL: srv.URL + "#3-50%25-gas", Body: []byte(`{"jsonrpc":"2.0","method":"eth_getLogs","params":[],"id":"3-50%-gas"}`)},
+	}
+	_, results, err := pt.runVegetaAttack(context.Background(), targets, 50, 200*time.Millisecond, filepath.Join(dirs.RunTestDir, "attack.bin"))
+	if err != nil {
+		t.Fatalf("runVegetaAttack: %v", err)
+	}
+	if results.apis["1-div-loop"] == nil || results.apis["3-50%-gas"] == nil {
+		t.Errorf("results by %v, want 1-div-loop and 3-50%%-gas", slices.Collect(maps.Keys(results.apis)))
+	}
+}
+
+func TestFormatIDResultsSortsByLeadingNumberAndFitsLongNames(t *testing.T) {
+	ms := time.Millisecond
+	ids := map[string]*apiResult{
+		"10-call-loop":                         newAPIResult(map[string]int{}, ms),
+		"2-div-loop-28M":                       newAPIResult(map[string]int{}, ms),
+		"16-52c62f26-create-selfdestruct-2c20": newAPIResult(map[string]int{}, ms),
+		"unnumbered":                           newAPIResult(map[string]int{}, ms),
+	}
+	got := formatIDResults(ids, false)
+	want := []string{
+		"      id                                      reqs  share   result    empty    error       p50       p99       max",
+		"      2-div-loop-28M                             1  25.0%   100.0%     0.0%     0.0%    1.00ms    1.00ms    1.00ms",
+		"      10-call-loop                               1  25.0%   100.0%     0.0%     0.0%    1.00ms    1.00ms    1.00ms",
+		"      16-52c62f26-create-selfdestruct-2c20       1  25.0%   100.0%     0.0%     0.0%    1.00ms    1.00ms    1.00ms",
+		"      unnumbered                                 1  25.0%   100.0%     0.0%     0.0%    1.00ms    1.00ms    1.00ms",
+	}
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Errorf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
 	}
 }

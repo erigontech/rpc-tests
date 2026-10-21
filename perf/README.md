@@ -147,10 +147,12 @@ A test with 0% success always stops the run.
 | `-P`, `--more-percentiles` | off | Print p50, p90, p95 and p99 too, in the test line and in the `-v` table |
 | `-I`, `--instant-report` | off | Print the full Vegeta report of each test (latencies, bytes, status codes, errors) |
 | `-x`, `--tracing` | off | As `-v`, plus the steps of the run (pattern copy and extraction) |
+| `-i`, `--by-id` | off | Print the `-v` table by request `id` instead of by method, ordered by the number the ids start with: one line per tx of a pattern built with `rpc_pattern_gen --txs` |
 
 ```bash
 ./build/bin/rpc_perf -p mixed.jsonl -Z -t 1000:30 -r 1 -v -P
 ./build/bin/rpc_perf -p mixed.jsonl -Z -t 1000:30 -r 1 -I
+./build/bin/rpc_perf -p slow_parent.jsonl -Z -t 50:30 -r 1 -i      # one line per tx of the list
 ```
 
 ### Reports
