@@ -104,7 +104,6 @@
                   "store": null,
                   "used": 228149
                 },
-                "idx": "0-0",
                 "op": "PUSH1",
                 "pc": 0,
                 "sub": null
@@ -119,7 +118,6 @@
                   "store": null,
                   "used": 228146
                 },
-                "idx": "0-1",
                 "op": "PUSH1",
                 "pc": 2,
                 "sub": null
@@ -135,7 +133,6 @@
                   "store": null,
                   "used": 228134
                 },
-                "idx": "0-2",
                 "op": "MSTORE",
                 "pc": 4,
                 "sub": null
@@ -150,7 +147,6 @@
                   "store": null,
                   "used": 228132
                 },
-                "idx": "0-3",
                 "op": "CALLDATASIZE",
                 "pc": 5,
                 "sub": null
@@ -165,7 +161,6 @@
                   "store": null,
                   "used": 228129
                 },
-                "idx": "0-4",
                 "op": "ISZERO",
                 "pc": 6,
                 "sub": null
@@ -180,7 +175,6 @@
                   "store": null,
                   "used": 228126
                 },
-                "idx": "0-5",
                 "op": "PUSH2",
                 "pc": 7,
                 "sub": null
@@ -193,7 +187,6 @@
                   "store": null,
                   "used": 228116
                 },
-                "idx": "0-6",
                 "op": "JUMPI",
                 "pc": 10,
                 "sub": null
@@ -208,7 +201,6 @@
                   "store": null,
                   "used": 228113
                 },
-                "idx": "0-7",
                 "op": "PUSH4",
                 "pc": 11,
                 "sub": null
@@ -223,7 +215,6 @@
                   "store": null,
                   "used": 228110
                 },
-                "idx": "0-8",
                 "op": "PUSH1",
                 "pc": 16,
                 "sub": null
@@ -238,7 +229,6 @@
                   "store": null,
                   "used": 228107
                 },
-                "idx": "0-9",
                 "op": "PUSH1",
                 "pc": 18,
                 "sub": null
@@ -253,7 +243,6 @@
                   "store": null,
                   "used": 228047
                 },
-                "idx": "0-10",
                 "op": "EXP",
                 "pc": 20,
                 "sub": null
@@ -268,7 +257,6 @@
                   "store": null,
                   "used": 228044
                 },
-                "idx": "0-11",
                 "op": "PUSH1",
                 "pc": 21,
                 "sub": null
@@ -283,7 +271,6 @@
                   "store": null,
                   "used": 228041
                 },
-                "idx": "0-12",
                 "op": "CALLDATALOAD",
                 "pc": 23,
                 "sub": null
@@ -298,7 +285,6 @@
                   "store": null,
                   "used": 228036
                 },
-                "idx": "0-13",
                 "op": "DIV",
                 "pc": 24,
                 "sub": null
@@ -313,7 +299,6 @@
                   "store": null,
                   "used": 228033
                 },
-                "idx": "0-14",
                 "op": "AND",
                 "pc": 25,
                 "sub": null
@@ -328,7 +313,6 @@
                   "store": null,
                   "used": 228030
                 },
-                "idx": "0-15",
                 "op": "PUSH4",
                 "pc": 26,
                 "sub": null
@@ -345,7 +329,6 @@
                   "store": null,
                   "used": 228027
                 },
-                "idx": "0-16",
                 "op": "DUP2",
                 "pc": 31,
                 "sub": null
@@ -360,7 +343,6 @@
                   "store": null,
                   "used": 228024
                 },
-                "idx": "0-17",
                 "op": "EQ",
                 "pc": 32,
                 "sub": null
@@ -375,7 +357,6 @@
                   "store": null,
                   "used": 228021
                 },
-                "idx": "0-18",
                 "op": "PUSH2",
                 "pc": 33,
                 "sub": null
@@ -388,7 +369,6 @@
                   "store": null,
                   "used": 228011
                 },
-                "idx": "0-19",
                 "op": "JUMPI",
                 "pc": 36,
                 "sub": null
@@ -404,7 +384,6 @@
                   "store": null,
                   "used": 228008
                 },
-                "idx": "0-20",
                 "op": "DUP1",
                 "pc": 37,
                 "sub": null
@@ -419,7 +398,6 @@
                   "store": null,
                   "used": 228005
                 },
-                "idx": "0-21",
                 "op": "PUSH4",
                 "pc": 38,
                 "sub": null
@@ -434,7 +412,6 @@
                   "store": null,
                   "used": 228002
                 },
-                "idx": "0-22",
                 "op": "EQ",
                 "pc": 43,
                 "sub": null
@@ -449,7 +426,6 @@
                   "store": null,
                   "used": 227999
                 },
-                "idx": "0-23",
                 "op": "PUSH2",
                 "pc": 44,
                 "sub": null
@@ -462,7 +438,6 @@
                   "store": null,
                   "used": 227989
                 },
-                "idx": "0-24",
                 "op": "JUMPI",
                 "pc": 47,
                 "sub": null
@@ -478,7 +453,6 @@
                   "store": null,
                   "used": 227986
                 },
-                "idx": "0-25",
                 "op": "DUP1",
                 "pc": 48,
                 "sub": null
@@ -493,7 +467,6 @@
                   "store": null,
                   "used": 227983
                 },
-                "idx": "0-26",
                 "op": "PUSH4",
                 "pc": 49,
                 "sub": null
@@ -508,7 +481,6 @@
                   "store": null,
                   "used": 227980
                 },
-                "idx": "0-27",
                 "op": "EQ",
                 "pc": 54,
                 "sub": null
@@ -523,7 +495,6 @@
                   "store": null,
                   "used": 227977
                 },
-                "idx": "0-28",
                 "op": "PUSH2",
                 "pc": 55,
                 "sub": null
@@ -536,7 +507,6 @@
                   "store": null,
                   "used": 227967
                 },
-                "idx": "0-29",
                 "op": "JUMPI",
                 "pc": 58,
                 "sub": null
@@ -552,7 +522,6 @@
                   "store": null,
                   "used": 227964
                 },
-                "idx": "0-30",
                 "op": "DUP1",
                 "pc": 59,
                 "sub": null
@@ -567,7 +536,6 @@
                   "store": null,
                   "used": 227961
                 },
-                "idx": "0-31",
                 "op": "PUSH4",
                 "pc": 60,
                 "sub": null
@@ -582,7 +550,6 @@
                   "store": null,
                   "used": 227958
                 },
-                "idx": "0-32",
                 "op": "EQ",
                 "pc": 65,
                 "sub": null
@@ -597,7 +564,6 @@
                   "store": null,
                   "used": 227955
                 },
-                "idx": "0-33",
                 "op": "PUSH2",
                 "pc": 66,
                 "sub": null
@@ -610,7 +576,6 @@
                   "store": null,
                   "used": 227945
                 },
-                "idx": "0-34",
                 "op": "JUMPI",
                 "pc": 69,
                 "sub": null
@@ -626,7 +591,6 @@
                   "store": null,
                   "used": 227942
                 },
-                "idx": "0-35",
                 "op": "DUP1",
                 "pc": 70,
                 "sub": null
@@ -641,7 +605,6 @@
                   "store": null,
                   "used": 227939
                 },
-                "idx": "0-36",
                 "op": "PUSH4",
                 "pc": 71,
                 "sub": null
@@ -656,7 +619,6 @@
                   "store": null,
                   "used": 227936
                 },
-                "idx": "0-37",
                 "op": "EQ",
                 "pc": 76,
                 "sub": null
@@ -671,7 +633,6 @@
                   "store": null,
                   "used": 227933
                 },
-                "idx": "0-38",
                 "op": "PUSH2",
                 "pc": 77,
                 "sub": null
@@ -684,7 +645,6 @@
                   "store": null,
                   "used": 227923
                 },
-                "idx": "0-39",
                 "op": "JUMPI",
                 "pc": 80,
                 "sub": null
@@ -697,7 +657,6 @@
                   "store": null,
                   "used": 227922
                 },
-                "idx": "0-40",
                 "op": "JUMPDEST",
                 "pc": 569,
                 "sub": null
@@ -712,7 +671,6 @@
                   "store": null,
                   "used": 227920
                 },
-                "idx": "0-41",
                 "op": "CALLVALUE",
                 "pc": 570,
                 "sub": null
@@ -727,7 +685,6 @@
                   "store": null,
                   "used": 227917
                 },
-                "idx": "0-42",
                 "op": "ISZERO",
                 "pc": 571,
                 "sub": null
@@ -742,7 +699,6 @@
                   "store": null,
                   "used": 227914
                 },
-                "idx": "0-43",
                 "op": "PUSH2",
                 "pc": 572,
                 "sub": null
@@ -755,7 +711,6 @@
                   "store": null,
                   "used": 227904
                 },
-                "idx": "0-44",
                 "op": "JUMPI",
                 "pc": 575,
                 "sub": null
@@ -768,7 +723,6 @@
                   "store": null,
                   "used": 227903
                 },
-                "idx": "0-45",
                 "op": "JUMPDEST",
                 "pc": 577,
                 "sub": null
@@ -783,7 +737,6 @@
                   "store": null,
                   "used": 227900
                 },
-                "idx": "0-46",
                 "op": "PUSH2",
                 "pc": 578,
                 "sub": null
@@ -798,7 +751,6 @@
                   "store": null,
                   "used": 227897
                 },
-                "idx": "0-47",
                 "op": "PUSH1",
                 "pc": 581,
                 "sub": null
@@ -813,7 +765,6 @@
                   "store": null,
                   "used": 227894
                 },
-                "idx": "0-48",
                 "op": "CALLDATALOAD",
                 "pc": 583,
                 "sub": null
@@ -828,7 +779,6 @@
                   "store": null,
                   "used": 227891
                 },
-                "idx": "0-49",
                 "op": "PUSH2",
                 "pc": 584,
                 "sub": null
@@ -841,7 +791,6 @@
                   "store": null,
                   "used": 227883
                 },
-                "idx": "0-50",
                 "op": "JUMP",
                 "pc": 587,
                 "sub": null
@@ -854,7 +803,6 @@
                   "store": null,
                   "used": 227882
                 },
-                "idx": "0-51",
                 "op": "JUMPDEST",
                 "pc": 3028,
                 "sub": null
@@ -869,7 +817,6 @@
                   "store": null,
                   "used": 227880
                 },
-                "idx": "0-52",
                 "op": "CALLER",
                 "pc": 3029,
                 "sub": null
@@ -884,7 +831,6 @@
                   "store": null,
                   "used": 227877
                 },
-                "idx": "0-53",
                 "op": "PUSH1",
                 "pc": 3030,
                 "sub": null
@@ -899,7 +845,6 @@
                   "store": null,
                   "used": 227874
                 },
-                "idx": "0-54",
                 "op": "PUSH1",
                 "pc": 3032,
                 "sub": null
@@ -914,7 +859,6 @@
                   "store": null,
                   "used": 227871
                 },
-                "idx": "0-55",
                 "op": "PUSH1",
                 "pc": 3034,
                 "sub": null
@@ -929,7 +873,6 @@
                   "store": null,
                   "used": 227811
                 },
-                "idx": "0-56",
                 "op": "EXP",
                 "pc": 3036,
                 "sub": null
@@ -944,7 +887,6 @@
                   "store": null,
                   "used": 227808
                 },
-                "idx": "0-57",
                 "op": "SUB",
                 "pc": 3037,
                 "sub": null
@@ -959,7 +901,6 @@
                   "store": null,
                   "used": 227805
                 },
-                "idx": "0-58",
                 "op": "AND",
                 "pc": 3038,
                 "sub": null
@@ -974,7 +915,6 @@
                   "store": null,
                   "used": 227802
                 },
-                "idx": "0-59",
                 "op": "PUSH1",
                 "pc": 3039,
                 "sub": null
@@ -990,7 +930,6 @@
                   "store": null,
                   "used": 227799
                 },
-                "idx": "0-60",
                 "op": "SWAP1",
                 "pc": 3041,
                 "sub": null
@@ -1007,7 +946,6 @@
                   "store": null,
                   "used": 227796
                 },
-                "idx": "0-61",
                 "op": "DUP2",
                 "pc": 3042,
                 "sub": null
@@ -1023,7 +961,6 @@
                   "store": null,
                   "used": 227793
                 },
-                "idx": "0-62",
                 "op": "MSTORE",
                 "pc": 3043,
                 "sub": null
@@ -1038,7 +975,6 @@
                   "store": null,
                   "used": 227790
                 },
-                "idx": "0-63",
                 "op": "PUSH1",
                 "pc": 3044,
                 "sub": null
@@ -1054,7 +990,6 @@
                   "store": null,
                   "used": 227787
                 },
-                "idx": "0-64",
                 "op": "DUP1",
                 "pc": 3046,
                 "sub": null
@@ -1072,7 +1007,6 @@
                   "store": null,
                   "used": 227784
                 },
-                "idx": "0-65",
                 "op": "MLOAD",
                 "pc": 3047,
                 "sub": null
@@ -1087,7 +1021,6 @@
                   "store": null,
                   "used": 227781
                 },
-                "idx": "0-66",
                 "op": "PUSH1",
                 "pc": 3048,
                 "sub": null
@@ -1102,7 +1035,6 @@
                   "store": null,
                   "used": 227778
                 },
-                "idx": "0-67",
                 "op": "PUSH2",
                 "pc": 3050,
                 "sub": null
@@ -1121,7 +1053,6 @@
                   "store": null,
                   "used": 227775
                 },
-                "idx": "0-68",
                 "op": "DUP4",
                 "pc": 3053,
                 "sub": null
@@ -1137,7 +1068,6 @@
                   "store": null,
                   "used": 227769
                 },
-                "idx": "0-69",
                 "op": "CODECOPY",
                 "pc": 3054,
                 "sub": null
@@ -1154,7 +1084,6 @@
                   "store": null,
                   "used": 227766
                 },
-                "idx": "0-70",
                 "op": "DUP2",
                 "pc": 3055,
                 "sub": null
@@ -1172,7 +1101,6 @@
                   "store": null,
                   "used": 227763
                 },
-                "idx": "0-71",
                 "op": "MLOAD",
                 "pc": 3056,
                 "sub": null
@@ -1189,7 +1117,6 @@
                   "store": null,
                   "used": 227760
                 },
-                "idx": "0-72",
                 "op": "SWAP2",
                 "pc": 3057,
                 "sub": null
@@ -1205,7 +1132,6 @@
                   "store": null,
                   "used": 227757
                 },
-                "idx": "0-73",
                 "op": "MSTORE",
                 "pc": 3058,
                 "sub": null
@@ -1220,7 +1146,6 @@
                   "store": null,
                   "used": 227754
                 },
-                "idx": "0-74",
                 "op": "PUSH1",
                 "pc": 3059,
                 "sub": null
@@ -1236,7 +1161,6 @@
                   "store": null,
                   "used": 227751
                 },
-                "idx": "0-75",
                 "op": "MSTORE",
                 "pc": 3061,
                 "sub": null
@@ -1251,7 +1175,6 @@
                   "store": null,
                   "used": 227748
                 },
-                "idx": "0-76",
                 "op": "PUSH1",
                 "pc": 3062,
                 "sub": null
@@ -1267,7 +1190,6 @@
                   "store": null,
                   "used": 227745
                 },
-                "idx": "0-77",
                 "op": "SWAP1",
                 "pc": 3064,
                 "sub": null
@@ -1282,7 +1204,6 @@
                   "store": null,
                   "used": 227703
                 },
-                "idx": "0-78",
                 "op": "KECCAK256",
                 "pc": 3065,
                 "sub": null
@@ -1297,7 +1218,6 @@
                   "store": null,
                   "used": 227503
                 },
-                "idx": "0-79",
                 "op": "SLOAD",
                 "pc": 3066,
                 "sub": null
@@ -1314,7 +1234,6 @@
                   "store": null,
                   "used": 227500
                 },
-                "idx": "0-80",
                 "op": "DUP2",
                 "pc": 3067,
                 "sub": null
@@ -1330,7 +1249,6 @@
                   "store": null,
                   "used": 227497
                 },
-                "idx": "0-81",
                 "op": "SWAP1",
                 "pc": 3068,
                 "sub": null
@@ -1345,7 +1263,6 @@
                   "store": null,
                   "used": 227494
                 },
-                "idx": "0-82",
                 "op": "LT",
                 "pc": 3069,
                 "sub": null
@@ -1360,7 +1277,6 @@
                   "store": null,
                   "used": 227491
                 },
-                "idx": "0-83",
                 "op": "ISZERO",
                 "pc": 3070,
                 "sub": null
@@ -1375,7 +1291,6 @@
                   "store": null,
                   "used": 227488
                 },
-                "idx": "0-84",
                 "op": "PUSH2",
                 "pc": 3071,
                 "sub": null
@@ -1388,7 +1303,6 @@
                   "store": null,
                   "used": 227478
                 },
-                "idx": "0-85",
                 "op": "JUMPI",
                 "pc": 3074,
                 "sub": null
@@ -1403,7 +1317,6 @@
                   "store": null,
                   "used": 227475
                 },
-                "idx": "0-86",
                 "op": "PUSH2",
                 "pc": 3075,
                 "sub": null
@@ -1411,7 +1324,6 @@
               {
                 "cost": 8,
                 "ex": null,
-                "idx": "0-87",
                 "op": "JUMP",
                 "pc": 3078,
                 "sub": null
