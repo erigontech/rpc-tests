@@ -398,7 +398,6 @@
                                     "store": null,
                                     "used": 106997
                                 },
-                                "idx": "4-0",
                                 "op": "PUSH1",
                                 "pc": 0,
                                 "sub": null
@@ -413,7 +412,6 @@
                                     "store": null,
                                     "used": 106994
                                 },
-                                "idx": "4-1",
                                 "op": "PUSH1",
                                 "pc": 2,
                                 "sub": null
@@ -429,7 +427,6 @@
                                     "store": null,
                                     "used": 106982
                                 },
-                                "idx": "4-2",
                                 "op": "MSTORE",
                                 "pc": 4,
                                 "sub": null
@@ -444,7 +441,6 @@
                                     "store": null,
                                     "used": 106980
                                 },
-                                "idx": "4-3",
                                 "op": "CALLDATASIZE",
                                 "pc": 5,
                                 "sub": null
@@ -459,7 +455,6 @@
                                     "store": null,
                                     "used": 106977
                                 },
-                                "idx": "4-4",
                                 "op": "ISZERO",
                                 "pc": 6,
                                 "sub": null
@@ -474,7 +469,6 @@
                                     "store": null,
                                     "used": 106974
                                 },
-                                "idx": "4-5",
                                 "op": "PUSH2",
                                 "pc": 7,
                                 "sub": null
@@ -487,7 +481,6 @@
                                     "store": null,
                                     "used": 106964
                                 },
-                                "idx": "4-6",
                                 "op": "JUMPI",
                                 "pc": 10,
                                 "sub": null
@@ -500,7 +493,6 @@
                                     "store": null,
                                     "used": 106963
                                 },
-                                "idx": "4-7",
                                 "op": "JUMPDEST",
                                 "pc": 42,
                                 "sub": null
@@ -515,7 +507,6 @@
                                     "store": null,
                                     "used": 106960
                                 },
-                                "idx": "4-8",
                                 "op": "PUSH2",
                                 "pc": 43,
                                 "sub": null
@@ -530,7 +521,6 @@
                                     "store": null,
                                     "used": 106957
                                 },
-                                "idx": "4-9",
                                 "op": "PUSH1",
                                 "pc": 46,
                                 "sub": null
@@ -546,7 +536,6 @@
                                     "store": null,
                                     "used": 106954
                                 },
-                                "idx": "4-10",
                                 "op": "DUP1",
                                 "pc": 48,
                                 "sub": null
@@ -561,7 +550,6 @@
                                     "store": null,
                                     "used": 106904
                                 },
-                                "idx": "4-11",
                                 "op": "SLOAD",
                                 "pc": 49,
                                 "sub": null
@@ -576,7 +564,6 @@
                                     "store": null,
                                     "used": 106901
                                 },
-                                "idx": "4-12",
                                 "op": "PUSH32",
                                 "pc": 50,
                                 "sub": null
@@ -591,7 +578,6 @@
                                     "store": null,
                                     "used": 106898
                                 },
-                                "idx": "4-13",
                                 "op": "PUSH1",
                                 "pc": 83,
                                 "sub": null
@@ -607,7 +593,6 @@
                                     "store": null,
                                     "used": 106895
                                 },
-                                "idx": "4-14",
                                 "op": "SWAP1",
                                 "pc": 85,
                                 "sub": null
@@ -624,7 +609,6 @@
                                     "store": null,
                                     "used": 106892
                                 },
-                                "idx": "4-15",
                                 "op": "DUP2",
                                 "pc": 86,
                                 "sub": null
@@ -640,7 +624,6 @@
                                     "store": null,
                                     "used": 106886
                                 },
-                                "idx": "4-16",
                                 "op": "MSTORE",
                                 "pc": 87,
                                 "sub": null
@@ -655,7 +638,6 @@
                                     "store": null,
                                     "used": 106883
                                 },
-                                "idx": "4-17",
                                 "op": "PUSH1",
                                 "pc": 88,
                                 "sub": null
@@ -670,7 +652,6 @@
                                     "store": null,
                                     "used": 106880
                                 },
-                                "idx": "4-18",
                                 "op": "PUSH1",
                                 "pc": 90,
                                 "sub": null
@@ -685,7 +666,6 @@
                                     "store": null,
                                     "used": 106877
                                 },
-                                "idx": "4-19",
                                 "op": "PUSH1",
                                 "pc": 92,
                                 "sub": null
@@ -700,7 +680,6 @@
                                     "store": null,
                                     "used": 106857
                                 },
-                                "idx": "4-20",
                                 "op": "EXP",
                                 "pc": 94,
                                 "sub": null
@@ -715,7 +694,6 @@
                                     "store": null,
                                     "used": 106854
                                 },
-                                "idx": "4-21",
                                 "op": "SUB",
                                 "pc": 95,
                                 "sub": null
@@ -731,7 +709,6 @@
                                     "store": null,
                                     "used": 106851
                                 },
-                                "idx": "4-22",
                                 "op": "SWAP1",
                                 "pc": 96,
                                 "sub": null
@@ -748,7 +725,6 @@
                                     "store": null,
                                     "used": 106848
                                 },
-                                "idx": "4-23",
                                 "op": "SWAP2",
                                 "pc": 97,
                                 "sub": null
@@ -763,7 +739,6 @@
                                     "store": null,
                                     "used": 106845
                                 },
-                                "idx": "4-24",
                                 "op": "AND",
                                 "pc": 98,
                                 "sub": null
@@ -780,7 +755,6 @@
                                     "store": null,
                                     "used": 106842
                                 },
-                                "idx": "4-25",
                                 "op": "SWAP2",
                                 "pc": 99,
                                 "sub": null
@@ -795,7 +769,6 @@
                                     "store": null,
                                     "used": 106839
                                 },
-                                "idx": "4-26",
                                 "op": "PUSH4",
                                 "pc": 100,
                                 "sub": null
@@ -812,7 +785,6 @@
                                     "store": null,
                                     "used": 106836
                                 },
-                                "idx": "4-27",
                                 "op": "SWAP2",
                                 "pc": 105,
                                 "sub": null
@@ -827,7 +799,6 @@
                                     "store": null,
                                     "used": 106833
                                 },
-                                "idx": "4-28",
                                 "op": "PUSH1",
                                 "pc": 106,
                                 "sub": null
@@ -844,7 +815,6 @@
                                     "store": null,
                                     "used": 106830
                                 },
-                                "idx": "4-29",
                                 "op": "SWAP2",
                                 "pc": 108,
                                 "sub": null
@@ -859,7 +829,6 @@
                                     "store": null,
                                     "used": 106827
                                 },
-                                "idx": "4-30",
                                 "op": "PUSH1",
                                 "pc": 109,
                                 "sub": null
@@ -876,7 +845,6 @@
                                     "store": null,
                                     "used": 106824
                                 },
-                                "idx": "4-31",
                                 "op": "SWAP2",
                                 "pc": 111,
                                 "sub": null
@@ -892,7 +860,6 @@
                                     "store": null,
                                     "used": 106821
                                 },
-                                "idx": "4-32",
                                 "op": "SWAP1",
                                 "pc": 112,
                                 "sub": null
@@ -907,7 +874,6 @@
                                     "store": null,
                                     "used": 106818
                                 },
-                                "idx": "4-33",
                                 "op": "PUSH1",
                                 "pc": 113,
                                 "sub": null
@@ -923,7 +889,6 @@
                                     "store": null,
                                     "used": 106815
                                 },
-                                "idx": "4-34",
                                 "op": "SWAP1",
                                 "pc": 115,
                                 "sub": null
@@ -941,7 +906,6 @@
                                     "store": null,
                                     "used": 106812
                                 },
-                                "idx": "4-35",
                                 "op": "DUP3",
                                 "pc": 116,
                                 "sub": null
@@ -957,7 +921,6 @@
                                     "store": null,
                                     "used": 106809
                                 },
-                                "idx": "4-36",
                                 "op": "SWAP1",
                                 "pc": 117,
                                 "sub": null
@@ -980,7 +943,6 @@
                                     "store": null,
                                     "used": 106806
                                 },
-                                "idx": "4-37",
                                 "op": "DUP8",
                                 "pc": 118,
                                 "sub": null
@@ -995,7 +957,6 @@
                                     "store": null,
                                     "used": 106803
                                 },
-                                "idx": "4-38",
                                 "op": "PUSH2",
                                 "pc": 119,
                                 "sub": null
@@ -1010,7 +971,6 @@
                                     "store": null,
                                     "used": 106801
                                 },
-                                "idx": "4-39",
                                 "op": "GAS",
                                 "pc": 122,
                                 "sub": null
@@ -1025,7 +985,6 @@
                                     "store": null,
                                     "used": 106798
                                 },
-                                "idx": "4-40",
                                 "op": "SUB",
                                 "pc": 123,
                                 "sub": null
@@ -1043,7 +1002,6 @@
                                     "store": null,
                                     "used": 106561
                                 },
-                                "idx": "4-41",
                                 "op": "CALL",
                                 "pc": 124,
                                 "sub": {
@@ -1059,7 +1017,6 @@
                                                 "store": null,
                                                 "used": 81748
                                             },
-                                            "idx": "4-41-0",
                                             "op": "PUSH1",
                                             "pc": 0,
                                             "sub": null
@@ -1074,7 +1031,6 @@
                                                 "store": null,
                                                 "used": 81745
                                             },
-                                            "idx": "4-41-1",
                                             "op": "PUSH1",
                                             "pc": 2,
                                             "sub": null
@@ -1090,7 +1046,6 @@
                                                 "store": null,
                                                 "used": 81733
                                             },
-                                            "idx": "4-41-2",
                                             "op": "MSTORE",
                                             "pc": 4,
                                             "sub": null
@@ -1105,7 +1060,6 @@
                                                 "store": null,
                                                 "used": 81731
                                             },
-                                            "idx": "4-41-3",
                                             "op": "CALLDATASIZE",
                                             "pc": 5,
                                             "sub": null
@@ -1120,7 +1074,6 @@
                                                 "store": null,
                                                 "used": 81728
                                             },
-                                            "idx": "4-41-4",
                                             "op": "ISZERO",
                                             "pc": 6,
                                             "sub": null
@@ -1135,7 +1088,6 @@
                                                 "store": null,
                                                 "used": 81725
                                             },
-                                            "idx": "4-41-5",
                                             "op": "PUSH1",
                                             "pc": 7,
                                             "sub": null
@@ -1148,7 +1100,6 @@
                                                 "store": null,
                                                 "used": 81715
                                             },
-                                            "idx": "4-41-6",
                                             "op": "JUMPI",
                                             "pc": 9,
                                             "sub": null
@@ -1163,7 +1114,6 @@
                                                 "store": null,
                                                 "used": 81712
                                             },
-                                            "idx": "4-41-7",
                                             "op": "PUSH1",
                                             "pc": 10,
                                             "sub": null
@@ -1178,7 +1128,6 @@
                                                 "store": null,
                                                 "used": 81709
                                             },
-                                            "idx": "4-41-8",
                                             "op": "PUSH1",
                                             "pc": 12,
                                             "sub": null
@@ -1193,7 +1142,6 @@
                                                 "store": null,
                                                 "used": 81689
                                             },
-                                            "idx": "4-41-9",
                                             "op": "EXP",
                                             "pc": 14,
                                             "sub": null
@@ -1208,7 +1156,6 @@
                                                 "store": null,
                                                 "used": 81686
                                             },
-                                            "idx": "4-41-10",
                                             "op": "PUSH1",
                                             "pc": 15,
                                             "sub": null
@@ -1223,7 +1170,6 @@
                                                 "store": null,
                                                 "used": 81683
                                             },
-                                            "idx": "4-41-11",
                                             "op": "CALLDATALOAD",
                                             "pc": 17,
                                             "sub": null
@@ -1238,7 +1184,6 @@
                                                 "store": null,
                                                 "used": 81678
                                             },
-                                            "idx": "4-41-12",
                                             "op": "DIV",
                                             "pc": 18,
                                             "sub": null
@@ -1253,7 +1198,6 @@
                                                 "store": null,
                                                 "used": 81675
                                             },
-                                            "idx": "4-41-13",
                                             "op": "PUSH4",
                                             "pc": 19,
                                             "sub": null
@@ -1270,7 +1214,6 @@
                                                 "store": null,
                                                 "used": 81672
                                             },
-                                            "idx": "4-41-14",
                                             "op": "DUP2",
                                             "pc": 24,
                                             "sub": null
@@ -1285,7 +1228,6 @@
                                                 "store": null,
                                                 "used": 81669
                                             },
-                                            "idx": "4-41-15",
                                             "op": "EQ",
                                             "pc": 25,
                                             "sub": null
@@ -1300,7 +1242,6 @@
                                                 "store": null,
                                                 "used": 81666
                                             },
-                                            "idx": "4-41-16",
                                             "op": "PUSH1",
                                             "pc": 26,
                                             "sub": null
@@ -1313,7 +1254,6 @@
                                                 "store": null,
                                                 "used": 81656
                                             },
-                                            "idx": "4-41-17",
                                             "op": "JUMPI",
                                             "pc": 28,
                                             "sub": null
@@ -1326,7 +1266,6 @@
                                                 "store": null,
                                                 "used": 81655
                                             },
-                                            "idx": "4-41-18",
                                             "op": "JUMPDEST",
                                             "pc": 45,
                                             "sub": null
@@ -1341,7 +1280,6 @@
                                                 "store": null,
                                                 "used": 81652
                                             },
-                                            "idx": "4-41-19",
                                             "op": "PUSH1",
                                             "pc": 46,
                                             "sub": null
@@ -1356,7 +1294,6 @@
                                                 "store": null,
                                                 "used": 81649
                                             },
-                                            "idx": "4-41-20",
                                             "op": "PUSH1",
                                             "pc": 48,
                                             "sub": null
@@ -1371,7 +1308,6 @@
                                                 "store": null,
                                                 "used": 81599
                                             },
-                                            "idx": "4-41-21",
                                             "op": "SLOAD",
                                             "pc": 50,
                                             "sub": null
@@ -1386,7 +1322,6 @@
                                                 "store": null,
                                                 "used": 81596
                                             },
-                                            "idx": "4-41-22",
                                             "op": "PUSH1",
                                             "pc": 51,
                                             "sub": null
@@ -1401,7 +1336,6 @@
                                                 "store": null,
                                                 "used": 81593
                                             },
-                                            "idx": "4-41-23",
                                             "op": "AND",
                                             "pc": 53,
                                             "sub": null
@@ -1418,7 +1352,6 @@
                                                 "store": null,
                                                 "used": 81590
                                             },
-                                            "idx": "4-41-24",
                                             "op": "DUP2",
                                             "pc": 54,
                                             "sub": null
@@ -1431,7 +1364,6 @@
                                                 "store": null,
                                                 "used": 81582
                                             },
-                                            "idx": "4-41-25",
                                             "op": "JUMP",
                                             "pc": 55,
                                             "sub": null
@@ -1444,7 +1376,6 @@
                                                 "store": null,
                                                 "used": 81581
                                             },
-                                            "idx": "4-41-26",
                                             "op": "JUMPDEST",
                                             "pc": 137,
                                             "sub": null
@@ -1459,7 +1390,6 @@
                                                 "store": null,
                                                 "used": 81578
                                             },
-                                            "idx": "4-41-27",
                                             "op": "ISZERO",
                                             "pc": 138,
                                             "sub": null
@@ -1474,7 +1404,6 @@
                                                 "store": null,
                                                 "used": 81575
                                             },
-                                            "idx": "4-41-28",
                                             "op": "ISZERO",
                                             "pc": 139,
                                             "sub": null
@@ -1489,7 +1418,6 @@
                                                 "store": null,
                                                 "used": 81572
                                             },
-                                            "idx": "4-41-29",
                                             "op": "PUSH1",
                                             "pc": 140,
                                             "sub": null
@@ -1505,7 +1433,6 @@
                                                 "store": null,
                                                 "used": 81569
                                             },
-                                            "idx": "4-41-30",
                                             "op": "SWAP1",
                                             "pc": 142,
                                             "sub": null
@@ -1522,7 +1449,6 @@
                                                 "store": null,
                                                 "used": 81566
                                             },
-                                            "idx": "4-41-31",
                                             "op": "DUP2",
                                             "pc": 143,
                                             "sub": null
@@ -1538,7 +1464,6 @@
                                                 "store": null,
                                                 "used": 81560
                                             },
-                                            "idx": "4-41-32",
                                             "op": "MSTORE",
                                             "pc": 144,
                                             "sub": null
@@ -1553,7 +1478,6 @@
                                                 "store": null,
                                                 "used": 81557
                                             },
-                                            "idx": "4-41-33",
                                             "op": "PUSH1",
                                             "pc": 145,
                                             "sub": null
@@ -1569,7 +1493,6 @@
                                                 "store": null,
                                                 "used": 81554
                                             },
-                                            "idx": "4-41-34",
                                             "op": "SWAP1",
                                             "pc": 147,
                                             "sub": null
@@ -1582,7 +1505,6 @@
                                                 "store": null,
                                                 "used": 81554
                                             },
-                                            "idx": "4-41-35",
                                             "op": "RETURN",
                                             "pc": 148,
                                             "sub": null
@@ -1600,7 +1522,6 @@
                                     "store": null,
                                     "used": 106558
                                 },
-                                "idx": "4-42",
                                 "op": "ISZERO",
                                 "pc": 125,
                                 "sub": null
@@ -1615,7 +1536,6 @@
                                     "store": null,
                                     "used": 106555
                                 },
-                                "idx": "4-43",
                                 "op": "PUSH2",
                                 "pc": 126,
                                 "sub": null
@@ -1628,7 +1548,6 @@
                                     "store": null,
                                     "used": 106545
                                 },
-                                "idx": "4-44",
                                 "op": "JUMPI",
                                 "pc": 129,
                                 "sub": null
@@ -1641,7 +1560,6 @@
                                     "store": null,
                                     "used": 106543
                                 },
-                                "idx": "4-45",
                                 "op": "POP",
                                 "pc": 130,
                                 "sub": null
@@ -1654,7 +1572,6 @@
                                     "store": null,
                                     "used": 106541
                                 },
-                                "idx": "4-46",
                                 "op": "POP",
                                 "pc": 131,
                                 "sub": null
@@ -1669,7 +1586,6 @@
                                     "store": null,
                                     "used": 106538
                                 },
-                                "idx": "4-47",
                                 "op": "PUSH1",
                                 "pc": 132,
                                 "sub": null
@@ -1687,7 +1603,6 @@
                                     "store": null,
                                     "used": 106535
                                 },
-                                "idx": "4-48",
                                 "op": "MLOAD",
                                 "pc": 134,
                                 "sub": null
@@ -1705,7 +1620,6 @@
                                     "store": null,
                                     "used": 106532
                                 },
-                                "idx": "4-49",
                                 "op": "MLOAD",
                                 "pc": 135,
                                 "sub": null
@@ -1721,7 +1635,6 @@
                                     "store": null,
                                     "used": 106529
                                 },
-                                "idx": "4-50",
                                 "op": "SWAP1",
                                 "pc": 136,
                                 "sub": null
@@ -1734,7 +1647,6 @@
                                     "store": null,
                                     "used": 106527
                                 },
-                                "idx": "4-51",
                                 "op": "POP",
                                 "pc": 137,
                                 "sub": null
@@ -1750,7 +1662,6 @@
                                     "store": null,
                                     "used": 106524
                                 },
-                                "idx": "4-52",
                                 "op": "DUP1",
                                 "pc": 138,
                                 "sub": null
@@ -1765,7 +1676,6 @@
                                     "store": null,
                                     "used": 106521
                                 },
-                                "idx": "4-53",
                                 "op": "ISZERO",
                                 "pc": 139,
                                 "sub": null
@@ -1780,7 +1690,6 @@
                                     "store": null,
                                     "used": 106518
                                 },
-                                "idx": "4-54",
                                 "op": "PUSH2",
                                 "pc": 140,
                                 "sub": null
@@ -1793,7 +1702,6 @@
                                     "store": null,
                                     "used": 106508
                                 },
-                                "idx": "4-55",
                                 "op": "JUMPI",
                                 "pc": 143,
                                 "sub": null
@@ -1806,7 +1714,6 @@
                                     "store": null,
                                     "used": 106506
                                 },
-                                "idx": "4-56",
                                 "op": "POP",
                                 "pc": 144,
                                 "sub": null
@@ -1821,7 +1728,6 @@
                                     "store": null,
                                     "used": 106503
                                 },
-                                "idx": "4-57",
                                 "op": "PUSH1",
                                 "pc": 145,
                                 "sub": null
@@ -1839,7 +1745,6 @@
                                     "store": null,
                                     "used": 106500
                                 },
-                                "idx": "4-58",
                                 "op": "MLOAD",
                                 "pc": 147,
                                 "sub": null
@@ -1854,7 +1759,6 @@
                                     "store": null,
                                     "used": 106497
                                 },
-                                "idx": "4-59",
                                 "op": "PUSH1",
                                 "pc": 148,
                                 "sub": null
@@ -1869,7 +1773,6 @@
                                     "store": null,
                                     "used": 106447
                                 },
-                                "idx": "4-60",
                                 "op": "SLOAD",
                                 "pc": 150,
                                 "sub": null
@@ -1884,7 +1787,6 @@
                                     "store": null,
                                     "used": 106444
                                 },
-                                "idx": "4-61",
                                 "op": "PUSH1",
                                 "pc": 151,
                                 "sub": null
@@ -1899,7 +1801,6 @@
                                     "store": null,
                                     "used": 106441
                                 },
-                                "idx": "4-62",
                                 "op": "PUSH1",
                                 "pc": 153,
                                 "sub": null
@@ -1914,7 +1815,6 @@
                                     "store": null,
                                     "used": 106438
                                 },
-                                "idx": "4-63",
                                 "op": "PUSH1",
                                 "pc": 155,
                                 "sub": null
@@ -1929,7 +1829,6 @@
                                     "store": null,
                                     "used": 106418
                                 },
-                                "idx": "4-64",
                                 "op": "EXP",
                                 "pc": 157,
                                 "sub": null
@@ -1944,7 +1843,6 @@
                                     "store": null,
                                     "used": 106415
                                 },
-                                "idx": "4-65",
                                 "op": "SUB",
                                 "pc": 158,
                                 "sub": null
@@ -1959,7 +1857,6 @@
                                     "store": null,
                                     "used": 106412
                                 },
-                                "idx": "4-66",
                                 "op": "AND",
                                 "pc": 159,
                                 "sub": null
@@ -1975,7 +1872,6 @@
                                     "store": null,
                                     "used": 106409
                                 },
-                                "idx": "4-67",
                                 "op": "SWAP1",
                                 "pc": 160,
                                 "sub": null
@@ -1990,7 +1886,6 @@
                                     "store": null,
                                     "used": 106406
                                 },
-                                "idx": "4-68",
                                 "op": "PUSH1",
                                 "pc": 161,
                                 "sub": null
@@ -2006,7 +1901,6 @@
                                     "store": null,
                                     "used": 106403
                                 },
-                                "idx": "4-69",
                                 "op": "SWAP1",
                                 "pc": 163,
                                 "sub": null
@@ -2021,7 +1915,6 @@
                                     "store": null,
                                     "used": 106401
                                 },
-                                "idx": "4-70",
                                 "op": "CALLVALUE",
                                 "pc": 164,
                                 "sub": null
@@ -2037,7 +1930,6 @@
                                     "store": null,
                                     "used": 106398
                                 },
-                                "idx": "4-71",
                                 "op": "SWAP1",
                                 "pc": 165,
                                 "sub": null
@@ -2055,7 +1947,6 @@
                                     "store": null,
                                     "used": 106395
                                 },
-                                "idx": "4-72",
                                 "op": "DUP3",
                                 "pc": 166,
                                 "sub": null
@@ -2072,7 +1963,6 @@
                                     "store": null,
                                     "used": 106392
                                 },
-                                "idx": "4-73",
                                 "op": "DUP2",
                                 "pc": 167,
                                 "sub": null
@@ -2089,7 +1979,6 @@
                                     "store": null,
                                     "used": 106389
                                 },
-                                "idx": "4-74",
                                 "op": "DUP2",
                                 "pc": 168,
                                 "sub": null
@@ -2106,7 +1995,6 @@
                                     "store": null,
                                     "used": 106386
                                 },
-                                "idx": "4-75",
                                 "op": "DUP2",
                                 "pc": 169,
                                 "sub": null
@@ -2127,7 +2015,6 @@
                                     "store": null,
                                     "used": 106383
                                 },
-                                "idx": "4-76",
                                 "op": "DUP6",
                                 "pc": 170,
                                 "sub": null
@@ -2151,7 +2038,6 @@
                                     "store": null,
                                     "used": 106380
                                 },
-                                "idx": "4-77",
                                 "op": "DUP9",
                                 "pc": 171,
                                 "sub": null
@@ -2170,7 +2056,6 @@
                                     "store": null,
                                     "used": 106377
                                 },
-                                "idx": "4-78",
                                 "op": "DUP4",
                                 "pc": 172,
                                 "sub": null
@@ -2185,7 +2070,6 @@
                                     "store": null,
                                     "used": 99637
                                 },
-                                "idx": "4-79",
                                 "op": "CALL",
                                 "pc": 173,
                                 "sub": {
@@ -2207,7 +2091,6 @@
                                     "store": null,
                                     "used": 99634
                                 },
-                                "idx": "4-80",
                                 "op": "SWAP4",
                                 "pc": 174,
                                 "sub": null
@@ -2220,7 +2103,6 @@
                                     "store": null,
                                     "used": 99632
                                 },
-                                "idx": "4-81",
                                 "op": "POP",
                                 "pc": 175,
                                 "sub": null
@@ -2233,7 +2115,6 @@
                                     "store": null,
                                     "used": 99630
                                 },
-                                "idx": "4-82",
                                 "op": "POP",
                                 "pc": 176,
                                 "sub": null
@@ -2246,7 +2127,6 @@
                                     "store": null,
                                     "used": 99628
                                 },
-                                "idx": "4-83",
                                 "op": "POP",
                                 "pc": 177,
                                 "sub": null
@@ -2259,7 +2139,6 @@
                                     "store": null,
                                     "used": 99626
                                 },
-                                "idx": "4-84",
                                 "op": "POP",
                                 "pc": 178,
                                 "sub": null
@@ -2272,7 +2151,6 @@
                                     "store": null,
                                     "used": 99625
                                 },
-                                "idx": "4-85",
                                 "op": "JUMPDEST",
                                 "pc": 179,
                                 "sub": null
@@ -2287,7 +2165,6 @@
                                     "store": null,
                                     "used": 99622
                                 },
-                                "idx": "4-86",
                                 "op": "ISZERO",
                                 "pc": 180,
                                 "sub": null
@@ -2302,7 +2179,6 @@
                                     "store": null,
                                     "used": 99619
                                 },
-                                "idx": "4-87",
                                 "op": "PUSH2",
                                 "pc": 181,
                                 "sub": null
@@ -2315,7 +2191,6 @@
                                     "store": null,
                                     "used": 99609
                                 },
-                                "idx": "4-88",
                                 "op": "JUMPI",
                                 "pc": 184,
                                 "sub": null
@@ -2330,7 +2205,6 @@
                                     "store": null,
                                     "used": 99606
                                 },
-                                "idx": "4-89",
                                 "op": "PUSH1",
                                 "pc": 185,
                                 "sub": null
@@ -2345,7 +2219,6 @@
                                     "store": null,
                                     "used": 99556
                                 },
-                                "idx": "4-90",
                                 "op": "SLOAD",
                                 "pc": 187,
                                 "sub": null
@@ -2360,7 +2233,6 @@
                                     "store": null,
                                     "used": 99553
                                 },
-                                "idx": "4-91",
                                 "op": "PUSH1",
                                 "pc": 188,
                                 "sub": null
@@ -2376,7 +2248,6 @@
                                     "store": null,
                                     "used": 99550
                                 },
-                                "idx": "4-92",
                                 "op": "DUP1",
                                 "pc": 190,
                                 "sub": null
@@ -2394,7 +2265,6 @@
                                     "store": null,
                                     "used": 99547
                                 },
-                                "idx": "4-93",
                                 "op": "MLOAD",
                                 "pc": 191,
                                 "sub": null
@@ -2409,7 +2279,6 @@
                                     "store": null,
                                     "used": 99544
                                 },
-                                "idx": "4-94",
                                 "op": "PUSH1",
                                 "pc": 192,
                                 "sub": null
@@ -2424,7 +2293,6 @@
                                     "store": null,
                                     "used": 99541
                                 },
-                                "idx": "4-95",
                                 "op": "PUSH1",
                                 "pc": 194,
                                 "sub": null
@@ -2439,7 +2307,6 @@
                                     "store": null,
                                     "used": 99538
                                 },
-                                "idx": "4-96",
                                 "op": "PUSH1",
                                 "pc": 196,
                                 "sub": null
@@ -2454,7 +2321,6 @@
                                     "store": null,
                                     "used": 99518
                                 },
-                                "idx": "4-97",
                                 "op": "EXP",
                                 "pc": 198,
                                 "sub": null
@@ -2469,7 +2335,6 @@
                                     "store": null,
                                     "used": 99515
                                 },
-                                "idx": "4-98",
                                 "op": "SUB",
                                 "pc": 199,
                                 "sub": null
@@ -2487,7 +2352,6 @@
                                     "store": null,
                                     "used": 99512
                                 },
-                                "idx": "4-99",
                                 "op": "SWAP3",
                                 "pc": 200,
                                 "sub": null
@@ -2503,7 +2367,6 @@
                                     "store": null,
                                     "used": 99509
                                 },
-                                "idx": "4-100",
                                 "op": "SWAP1",
                                 "pc": 201,
                                 "sub": null
@@ -2521,7 +2384,6 @@
                                     "store": null,
                                     "used": 99506
                                 },
-                                "idx": "4-101",
                                 "op": "SWAP3",
                                 "pc": 202,
                                 "sub": null
@@ -2536,7 +2398,6 @@
                                     "store": null,
                                     "used": 99503
                                 },
-                                "idx": "4-102",
                                 "op": "AND",
                                 "pc": 203,
                                 "sub": null
@@ -2554,7 +2415,6 @@
                                     "store": null,
                                     "used": 99500
                                 },
-                                "idx": "4-103",
                                 "op": "DUP3",
                                 "pc": 204,
                                 "sub": null
@@ -2570,7 +2430,6 @@
                                     "store": null,
                                     "used": 99497
                                 },
-                                "idx": "4-104",
                                 "op": "MSTORE",
                                 "pc": 205,
                                 "sub": null
@@ -2588,7 +2447,6 @@
                                     "store": null,
                                     "used": 99494
                                 },
-                                "idx": "4-105",
                                 "op": "MLOAD",
                                 "pc": 206,
                                 "sub": null
@@ -2603,7 +2461,6 @@
                                     "store": null,
                                     "used": 99491
                                 },
-                                "idx": "4-106",
                                 "op": "PUSH32",
                                 "pc": 207,
                                 "sub": null
@@ -2620,7 +2477,6 @@
                                     "store": null,
                                     "used": 99488
                                 },
-                                "idx": "4-107",
                                 "op": "SWAP2",
                                 "pc": 240,
                                 "sub": null
@@ -2637,7 +2493,6 @@
                                     "store": null,
                                     "used": 99485
                                 },
-                                "idx": "4-108",
                                 "op": "DUP2",
                                 "pc": 241,
                                 "sub": null
@@ -2653,7 +2508,6 @@
                                     "store": null,
                                     "used": 99482
                                 },
-                                "idx": "4-109",
                                 "op": "SWAP1",
                                 "pc": 242,
                                 "sub": null
@@ -2668,7 +2522,6 @@
                                     "store": null,
                                     "used": 99479
                                 },
-                                "idx": "4-110",
                                 "op": "SUB",
                                 "pc": 243,
                                 "sub": null
@@ -2683,7 +2536,6 @@
                                     "store": null,
                                     "used": 99476
                                 },
-                                "idx": "4-111",
                                 "op": "PUSH1",
                                 "pc": 244,
                                 "sub": null
@@ -2698,7 +2550,6 @@
                                     "store": null,
                                     "used": 99473
                                 },
-                                "idx": "4-112",
                                 "op": "ADD",
                                 "pc": 246,
                                 "sub": null
@@ -2714,7 +2565,6 @@
                                     "store": null,
                                     "used": 99470
                                 },
-                                "idx": "4-113",
                                 "op": "SWAP1",
                                 "pc": 247,
                                 "sub": null
@@ -2727,7 +2577,6 @@
                                     "store": null,
                                     "used": 98464
                                 },
-                                "idx": "4-114",
                                 "op": "LOG1",
                                 "pc": 248,
                                 "sub": null
@@ -2740,7 +2589,6 @@
                                     "store": null,
                                     "used": 98463
                                 },
-                                "idx": "4-115",
                                 "op": "JUMPDEST",
                                 "pc": 249,
                                 "sub": null
@@ -2753,7 +2601,6 @@
                                     "store": null,
                                     "used": 98455
                                 },
-                                "idx": "4-116",
                                 "op": "JUMP",
                                 "pc": 250,
                                 "sub": null
@@ -2766,7 +2613,6 @@
                                     "store": null,
                                     "used": 98454
                                 },
-                                "idx": "4-117",
                                 "op": "JUMPDEST",
                                 "pc": 287,
                                 "sub": null
@@ -2779,7 +2625,6 @@
                                     "store": null,
                                     "used": 98454
                                 },
-                                "idx": "4-118",
                                 "op": "STOP",
                                 "pc": 288,
                                 "sub": null
