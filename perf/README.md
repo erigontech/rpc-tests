@@ -1,12 +1,29 @@
 # Performance Tests
 
-These are the instructions to execute the RPC performance tests using [Vegeta](https://github.com/tsenart/vegeta/) HTTP load testing.
+`rpc_perf` replays a pattern file, a list of JSON-RPC requests, against a node at fixed rates with
+[Vegeta](https://github.com/tsenart/vegeta/), and reports the latencies and the errors of each run.
+The patterns are generated with `rpc_pattern_gen` (see [`pattern/README.md`](pattern/README.md)).
+
+## Quick start
+
+```bash
+make rpc_pattern_gen rpc_perf
+
+# 1. one eth_call per tx of 1000 random blocks of 13M-14M, kept only if it works on the node
+./build/bin/rpc_pattern_gen eth_call --start-block 13000000 --end-block 13999999 --sample-blocks 1000 \
+    --per-block 1 --block-tag parent --verify --out eth_call_13000000.jsonl
+
+# 2. replay it at 500 and then 1000 requests per second, 30 s each, against the node on localhost:8545
+./build/bin/rpc_perf -p eth_call_13000000.jsonl -Z -r 1 -t 500:30,1000:30 -v
+```
 
 ## Requirements
 
-Build the performance test runner:
+Build the runner:
 ```bash
-go build -o ./build/bin/rpc_perf ./cmd/perf/main.go
+make rpc_perf
+# or
+go build -o ./build/bin/rpc_perf ./cmd/perf
 ```
 
 ## System Configuration
@@ -34,86 +51,21 @@ sudo sysctl net.inet.ip.portrange
 sudo sysctl net.inet.ip.portrange.first=5000 net.inet.ip.portrange.last=65535
 ```
 
-## Setup
+## Node under test
 
-Currently, our setup for performance tests is "all-in-one", executing Erigon Core, Erigon RPCDaemon and/or Silkworm RPCDaemon all on the same host.
+Any node serving JSON-RPC over HTTP, e.g. Erigon with its embedded RPC server or a separate rpcdaemon:
 
-### Activation
-
-#### _Erigon Core_
-From Erigon project directory:
-```
-build/bin/erigon --goerli --private.api.addr=localhost:9090
-```
-#### _Erigon RPCDaemon_
-```
-./build/bin/rpcdaemon --private.api.addr=localhost:9090 --http.api=eth,debug,net,web3,txpool,trace,erigon,parity,ots --datadir <erigon_data_dir>
+```bash
+./build/bin/erigon --datadir <datadir> --http.api=eth,debug,net,web3,trace,erigon,ots
+./build/bin/rpcdaemon --datadir <datadir> --private.api.addr=localhost:9090 --http.api=eth,debug,net,web3,trace,erigon,ots
 ```
 
-#### _Silkrpc_
-```
-./build/cmd/silkrpcdaemon --private.addr 127.0.0.1:9090 --eth.addr 127.0.0.1:51515 --engine.addr 127.0.0.1:51516 --workers 64 --contexts 8 --datadir <erigon_data_dir> --api admin,debug,eth,parity,erigon,trace,web3,txpool,ots,net --log.verbosity 2
-```
-You *must* specify different ports for Silkrpc (i.e. `--eth.addr 127.0.0.1:51515 --engine.addr 127.0.0.1:51516`) if you want to run Silkrpc simultaneously with Erigon RPCDaemon.
+After each test `rpc_perf` checks that the server is still alive by looking for a process named `-n`
+(default: the value of `-D`, `rpcdaemon`) with `pgrep -x`. When no process has that name, e.g. Erigon with
+its embedded RPC server or a node on another host, the run fails with `server is Dead`: pass `-Z` to
+skip the check.
 
-## Test Workload
-
-Currently the performance workload targets the [eth_getLogs, eth_call, eth_getBalance] Ethereum APIs. The test workloads are executed using request files of [Vegeta](https://github.com/tsenart/vegeta/), a HTTP load testing tool.
-
-### Workload Generation
-
-Execute the relevant Erigon bench tool e.g. [bench_ethcall](https://github.com/ledgerwatch/erigon/blob/devel/cmd/rpctest/rpctest/bench_ethcall.go) against both Erigon RPCDaemon and Silkrpc using the following command line:
-
-```
-build/bin/rpctest bench_ethcall --erigonUrl http://localhost:8545 --gethUrl http://localhost:51515 --blockFrom 200000 --blockTo 300000
-```
-
-Vegeta request files are written to `/tmp/erigon_stress_test`:
-* `results_geth_debug_getModifiedAccountsByNumber.csv`, `results_geth_eth_<api>.csv`
-* `results_turbo_geth_debug_getModifiedAccountsByNumber.csv`, `results_turbo_geth_<api>.csv`
-* `vegeta_geth_debug_getModifiedAccountsByNumber.txt`, `vegeta_geth_eth_<api>.txt`
-* `vegeta_turbo_geth_debug_getModifiedAccountsByNumber.txt`, `vegeta_turbo_geth_eth_<api>.txt`
-
-### Workload Activation
-
-```
-./build/bin/rpc_perf --help
-
-NAME:
-   rpc_perf - Launch an automated sequence of RPC performance tests on target blockchain node(s)
-
-OPTIONS:
-   -O, --disable-http-compression          Disable Http compression
-   -Z, --not-verify-server-alive           Don't verify server is still active
-   -R, --tmp-test-report                   Generate report in tmp directory
-   -u, --test-report                       Generate report in reports area ready for Git repo
-   -v, --verbose                           Enable verbose output
-   -x, --tracing                           Enable verbose and tracing output
-   -e, --empty-cache                       Empty OS cache before each test
-   -C, --max-connections <value>           Maximum number of connections [default: 9000]
-   -D, --testing-client <value>            Name of testing client [default: rpcdaemon]
-   -n, --process-name <value>             Server process name for liveness check (default: testing-client)
-   -b, --blockchain <value>               Blockchain network name [default: mainnet]
-   -y, --test-type <value>                Test name in the reports; with a tar, also the vegeta file to replay; with a .jsonl, defaults to the method of its requests, or mixed [default: eth_getLogs]
-   -p, --pattern-file <value>             Path to the pattern file: a Vegeta tar, or a .jsonl with one JSON-RPC request per line
-   -r, --repetitions <value>              Number of repetitions for each test in sequence [default: 10]
-   -t, --test-sequence <value>            Test sequence as qps:duration,... [default: 50:30,1000:30,2500:20,10000:20]
-   -w, --wait-after-test-sequence <value>  Wait time between test iterations in seconds [default: 5]
-   -d, --rpc-client-address <value>        Client address; with a .jsonl pattern, host or host:port (default port 8545) [default: localhost]
-   -g, --client-build-dir <value>          Path to Client build folder
-   -c, --run-vegeta-on-core <value>        Taskset format for Vegeta [default: -:-]
-   -T, --response-timeout <value>          Vegeta response timeout [default: 300s]
-   -M, --max-body-rsp <value>              Max bytes of each response body written to the vegeta binary file, -1 = the whole body [default: 1500]
-   -j, --json-report <value>              Generate JSON report at specified path
-   -P, --more-percentiles                  Print more percentiles in console report
-   -H, --halt-on-vegeta-error              Consider test failed if Vegeta reports any error
-   -I, --instant-report                    Print instant Vegeta report for each test
-```
-
-Results are written to output and, when `-R` is specified, also to a CSV file at `/tmp/<network>/<machine>/<test_type><date_time>_<additional_test>_perf.csv`.
-When `-u` is specified, the CSV file is written to `./reports/<network>/<machine>/` ready to be committed into the Git repository.
-
-### Pattern files
+## Pattern files
 
 `-p` takes either format:
 
@@ -125,42 +77,115 @@ When `-u` is specified, the CSV file is written to `./reports/<network>/<machine
   the test in the reports (result files, CSV, JSON report) and defaults to the method of the requests, or
   `mixed` when they use several methods.
 
-### Invocation examples
+The patterns come from:
 
-Run perf eth_call test with default test sequence (50:30,1000:30,2500:20,10000:20), each repeated 10 times:
-```bash
-./build/bin/rpc_perf -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar
-```
+- `rpc_pattern_gen`, from the blocks of a node, a block range, a profile with a mix of methods, or a list
+  of chosen txs: see [`pattern/README.md`](pattern/README.md).
+- the `bench*` commands of Erigon's `cmd/rpctest` (e.g. `benchEthCall`), which write the requests they
+  send to `$TMPDIR/erigon_stress_test/` both as Vegeta targets (`vegeta_erigon_<method>.txt`) and as
+  `<method>.jsonl`.
+- the historical tars in `pattern/mainnet/`.
 
-Run a JSONL pattern against a node on another host and port:
-```bash
-./build/bin/rpc_perf -p eth_call.jsonl -d 10.0.0.5:8546 -t 1000:30
-```
+## Options
 
-Run with custom test sequence and 5 repetitions:
-```bash
-./build/bin/rpc_perf -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar -r 5 -t 50:30,1000:30,2500:20,5000:20
-```
+### Pattern and node
 
-Run with report generation in tmp area:
-```bash
-./build/bin/rpc_perf -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar -g /project/erigon -r 3 -R -b mainnet -t 50:30,1000:30
-```
-
-Run with report generation in reports area (for Git):
-```bash
-./build/bin/rpc_perf -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar -g /project/erigon -r 3 -u -b mainnet -t 50:30,1000:30,2500:20,5000:20
-```
-
-## Legacy Python Runner
-
-<details>
-<summary>Python performance test runner (run_perf_tests.py)</summary>
-
-The previous Python-based performance test runner is still available. It requires Python >= 3.10 and the same Vegeta setup.
+| Option | Default | Description |
+|--------|---------|-------------|
+| `-p`, `--pattern-file` | | The pattern to replay: a Vegeta tar or a `.jsonl`. Required |
+| `-y`, `--test-type` | `eth_getLogs`; for a `.jsonl`, its method or `mixed` | Test name in the output and the reports; with a tar, also the Vegeta file to replay |
+| `-d`, `--rpc-client-address` | `localhost` | Node to load: `host`, or `host:port` for a `.jsonl` (port 8545 otherwise) |
+| `-b`, `--blockchain` | `mainnet` | Network name, used in the report paths and file names |
 
 ```bash
-python3 ./run_perf_tests.py --help
+./build/bin/rpc_perf -p eth_call.jsonl -d localhost:8545 -Z -t 1000:30 -r 1   # the host and port of the node
+./build/bin/rpc_perf -p perf/pattern/mainnet/stress_test_eth_call_001_14M.tar -y eth_call -Z -t 1000:30 -r 1
 ```
 
-</details>
+### Load
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `-t`, `--test-sequence` | `50:30,1000:30,2500:20,10000:20` | The tests to run, in order, as `qps:seconds,...` |
+| `-r`, `--repetitions` | `10` | How many times each test of the sequence runs |
+| `-w`, `--wait-after-test-sequence` | `5` | Seconds to wait between two tests |
+| `-C`, `--max-connections` | `9000` | Maximum HTTP connections to the node |
+| `-T`, `--response-timeout` | `300s` | Timeout of each request; a request that takes longer counts as failed |
+| `-O`, `--disable-http-compression` | off | Send the requests without `Accept-Encoding: gzip` |
+| `-e`, `--empty-cache` | off | Drop the OS page cache before each test, to measure cold reads (root only) |
+
+The requests of the pattern are sent in a loop: a test at 1000 qps for 30 s sends 30000 requests,
+repeating the pattern when it holds fewer. A test at 0 qps is a pause: `0:60` waits 60 s.
+
+```bash
+./build/bin/rpc_perf -p mixed.jsonl -Z -t 1000:30 -r 1                       # one test, once
+./build/bin/rpc_perf -p mixed.jsonl -Z -t 100:30,500:30,1000:30 -r 3 -w 10   # three rates, three times each, 10 s apart
+./build/bin/rpc_perf -p eth_getLogs.jsonl -Z -t 200:60 -r 1 -T 30s -C 500    # 30 s timeout, at most 500 connections
+sudo ./build/bin/rpc_perf -p eth_call.jsonl -Z -t 500:30 -e                  # cold OS cache before each test
+```
+
+### Liveness check
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `-Z`, `--not-verify-server-alive` | off | Skip the check that the server process is still running after each test |
+| `-n`, `--process-name` | the value of `-D` | Process looked up with `pgrep -x` for the check |
+| `-H`, `--halt-on-vegeta-error` | off | Stop at the first test where Vegeta reports a failed request |
+
+A test with 0% success always stops the run.
+
+```bash
+./build/bin/rpc_perf -p eth_call.jsonl -Z -t 1000:30 -r 1             # no check
+./build/bin/rpc_perf -p eth_call.jsonl -n erigon -H -t 1000:30 -r 1   # stop if erigon dies or a request fails
+```
+
+### Output
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `-v`, `--verbose` | off | After each test, print a line per method: requests, share, result/empty/error rates, p50, p99, max |
+| `-P`, `--more-percentiles` | off | Print p50, p90, p95 and p99 too, in the test line and in the `-v` table |
+| `-I`, `--instant-report` | off | Print the full Vegeta report of each test (latencies, bytes, status codes, errors) |
+| `-x`, `--tracing` | off | As `-v`, plus the steps of the run (pattern copy and extraction) |
+
+```bash
+./build/bin/rpc_perf -p mixed.jsonl -Z -t 1000:30 -r 1 -v -P
+./build/bin/rpc_perf -p mixed.jsonl -Z -t 1000:30 -r 1 -I
+```
+
+### Reports
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `-R`, `--tmp-test-report` | off | Write a CSV report to `/tmp/run_tests_<n>/<network>/<machine>/<test-type>_<date>_<client>_perf.csv` |
+| `-u`, `--test-report` | off | Write the CSV report to `./perf/reports/<network>/<machine>/`, ready to commit |
+| `-j`, `--json-report` | | Also write a JSON report to this path. Needs `-R` or `-u`: without them it is not written |
+| `-D`, `--testing-client` | `rpcdaemon` | Client name in the output, the report file names and the JSON report |
+| `-g`, `--client-build-dir` | | Client source folder: its git commit goes into the report |
+| `-c`, `--run-vegeta-on-core` | `-:-` | Taskset written in the report; `rpc_perf` does not pin itself, run it under `taskset` to do so |
+| `-M`, `--max-body-rsp` | `1500` | Bytes of each response body kept in the Vegeta binary file of the report (`-1`: the whole body) |
+
+With a report, the Vegeta binary file of each test (every request with its latency, status and the
+first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/reports/bin/` with `-u`).
+
+```bash
+./build/bin/rpc_perf -p eth_call.jsonl -Z -t 500:30 -r 3 -R -j eth_call.json -D erigon -g /path/to/erigon
+./build/bin/rpc_perf -p perf/pattern/mainnet/stress_test_eth_call_001_14M.tar -y eth_call -Z -g /path/to/erigon \
+    -r 3 -u -b mainnet -t 50:30,1000:30,2500:20,5000:20
+```
+
+## Reading the output
+
+An example test at 500 qps for 30 s, with `-v`:
+
+```
+[1.1] rpcdaemon: executes test qps: 500 time: 30 -> success=100.00% lat=[max= 39.06ms] rpc_errors=12 (0.08%) top=execution reverted (x12)
+      api                               reqs  share   result    empty    error       p50       p99       max
+      eth_call                         15000 100.0%    99.9%     0.0%     0.1%    4.80ms   38.40ms   39.06ms  top=execution reverted (x12)
+```
+
+- `[1.1]`: test 1 of the sequence, repetition 1.
+- `success`: requests answered with HTTP 200. A JSON-RPC error comes with HTTP 200 too, so it counts as a
+  success here; `rpc_errors` counts them apart, with the most frequent message.
+- `result`, `error` (`-v`): requests with a result, and requests failed by HTTP or with a JSON-RPC error.
+- `empty` (`-v`): results that are `null` or `[]`, valid for some methods, counted apart.
