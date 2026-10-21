@@ -73,8 +73,7 @@
               },
               "pc": 0,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "0"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -88,8 +87,7 @@
               },
               "pc": 2,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "1"
+              "op": "PUSH1"
             },
             {
               "cost": 12,
@@ -104,8 +102,7 @@
               },
               "pc": 4,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "2"
+              "op": "MSTORE"
             },
             {
               "cost": 2,
@@ -119,8 +116,7 @@
               },
               "pc": 5,
               "sub": null,
-              "op": "CALLDATASIZE",
-              "idx": "3"
+              "op": "CALLDATASIZE"
             },
             {
               "cost": 3,
@@ -134,8 +130,7 @@
               },
               "pc": 6,
               "sub": null,
-              "op": "ISZERO",
-              "idx": "4"
+              "op": "ISZERO"
             },
             {
               "cost": 3,
@@ -149,8 +144,7 @@
               },
               "pc": 7,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "5"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -162,8 +156,7 @@
               },
               "pc": 10,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "6"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -177,8 +170,7 @@
               },
               "pc": 11,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "7"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -192,8 +184,7 @@
               },
               "pc": 16,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "8"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -207,8 +198,7 @@
               },
               "pc": 18,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "9"
+              "op": "PUSH1"
             },
             {
               "cost": 60,
@@ -222,8 +212,7 @@
               },
               "pc": 20,
               "sub": null,
-              "op": "EXP",
-              "idx": "10"
+              "op": "EXP"
             },
             {
               "cost": 3,
@@ -237,8 +226,7 @@
               },
               "pc": 21,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "11"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -252,8 +240,7 @@
               },
               "pc": 23,
               "sub": null,
-              "op": "CALLDATALOAD",
-              "idx": "12"
+              "op": "CALLDATALOAD"
             },
             {
               "cost": 5,
@@ -267,8 +254,7 @@
               },
               "pc": 24,
               "sub": null,
-              "op": "DIV",
-              "idx": "13"
+              "op": "DIV"
             },
             {
               "cost": 3,
@@ -282,8 +268,7 @@
               },
               "pc": 25,
               "sub": null,
-              "op": "AND",
-              "idx": "14"
+              "op": "AND"
             },
             {
               "cost": 3,
@@ -297,8 +282,7 @@
               },
               "pc": 26,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "15"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -314,8 +298,7 @@
               },
               "pc": 31,
               "sub": null,
-              "op": "DUP2",
-              "idx": "16"
+              "op": "DUP2"
             },
             {
               "cost": 3,
@@ -329,8 +312,7 @@
               },
               "pc": 32,
               "sub": null,
-              "op": "EQ",
-              "idx": "17"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -344,8 +326,7 @@
               },
               "pc": 33,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "18"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -357,8 +338,7 @@
               },
               "pc": 36,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "19"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -373,8 +353,7 @@
               },
               "pc": 37,
               "sub": null,
-              "op": "DUP1",
-              "idx": "20"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -388,8 +367,7 @@
               },
               "pc": 38,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "21"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -403,8 +381,7 @@
               },
               "pc": 43,
               "sub": null,
-              "op": "EQ",
-              "idx": "22"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -418,8 +395,7 @@
               },
               "pc": 44,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "23"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -431,8 +407,7 @@
               },
               "pc": 47,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "24"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -447,8 +422,7 @@
               },
               "pc": 48,
               "sub": null,
-              "op": "DUP1",
-              "idx": "25"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -462,8 +436,7 @@
               },
               "pc": 49,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "26"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -477,8 +450,7 @@
               },
               "pc": 54,
               "sub": null,
-              "op": "EQ",
-              "idx": "27"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -492,8 +464,7 @@
               },
               "pc": 55,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "28"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -505,8 +476,7 @@
               },
               "pc": 58,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "29"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -521,8 +491,7 @@
               },
               "pc": 59,
               "sub": null,
-              "op": "DUP1",
-              "idx": "30"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -536,8 +505,7 @@
               },
               "pc": 60,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "31"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -551,8 +519,7 @@
               },
               "pc": 65,
               "sub": null,
-              "op": "EQ",
-              "idx": "32"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -566,8 +533,7 @@
               },
               "pc": 66,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "33"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -579,8 +545,7 @@
               },
               "pc": 69,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "34"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -595,8 +560,7 @@
               },
               "pc": 70,
               "sub": null,
-              "op": "DUP1",
-              "idx": "35"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -610,8 +574,7 @@
               },
               "pc": 71,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "36"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -625,8 +588,7 @@
               },
               "pc": 76,
               "sub": null,
-              "op": "EQ",
-              "idx": "37"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -640,8 +602,7 @@
               },
               "pc": 77,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "38"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -653,8 +614,7 @@
               },
               "pc": 80,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "39"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -669,8 +629,7 @@
               },
               "pc": 81,
               "sub": null,
-              "op": "DUP1",
-              "idx": "40"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -684,8 +643,7 @@
               },
               "pc": 82,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "41"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -699,8 +657,7 @@
               },
               "pc": 87,
               "sub": null,
-              "op": "EQ",
-              "idx": "42"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -714,8 +671,7 @@
               },
               "pc": 88,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "43"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -727,8 +683,7 @@
               },
               "pc": 91,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "44"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -743,8 +698,7 @@
               },
               "pc": 92,
               "sub": null,
-              "op": "DUP1",
-              "idx": "45"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -758,8 +712,7 @@
               },
               "pc": 93,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "46"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -773,8 +726,7 @@
               },
               "pc": 98,
               "sub": null,
-              "op": "EQ",
-              "idx": "47"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -788,8 +740,7 @@
               },
               "pc": 99,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "48"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -801,8 +752,7 @@
               },
               "pc": 102,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "49"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -817,8 +767,7 @@
               },
               "pc": 103,
               "sub": null,
-              "op": "DUP1",
-              "idx": "50"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -832,8 +781,7 @@
               },
               "pc": 104,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "51"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -847,8 +795,7 @@
               },
               "pc": 109,
               "sub": null,
-              "op": "EQ",
-              "idx": "52"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -862,8 +809,7 @@
               },
               "pc": 110,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "53"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -875,8 +821,7 @@
               },
               "pc": 113,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "54"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -891,8 +836,7 @@
               },
               "pc": 114,
               "sub": null,
-              "op": "DUP1",
-              "idx": "55"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -906,8 +850,7 @@
               },
               "pc": 115,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "56"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -921,8 +864,7 @@
               },
               "pc": 120,
               "sub": null,
-              "op": "EQ",
-              "idx": "57"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -936,8 +878,7 @@
               },
               "pc": 121,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "58"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -949,8 +890,7 @@
               },
               "pc": 124,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "59"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -965,8 +905,7 @@
               },
               "pc": 125,
               "sub": null,
-              "op": "DUP1",
-              "idx": "60"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -980,8 +919,7 @@
               },
               "pc": 126,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "61"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -995,8 +933,7 @@
               },
               "pc": 131,
               "sub": null,
-              "op": "EQ",
-              "idx": "62"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1010,8 +947,7 @@
               },
               "pc": 132,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "63"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1023,8 +959,7 @@
               },
               "pc": 135,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "64"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1039,8 +974,7 @@
               },
               "pc": 136,
               "sub": null,
-              "op": "DUP1",
-              "idx": "65"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1054,8 +988,7 @@
               },
               "pc": 137,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "66"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1069,8 +1002,7 @@
               },
               "pc": 142,
               "sub": null,
-              "op": "EQ",
-              "idx": "67"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1084,8 +1016,7 @@
               },
               "pc": 143,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "68"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1097,8 +1028,7 @@
               },
               "pc": 146,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "69"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1113,8 +1043,7 @@
               },
               "pc": 147,
               "sub": null,
-              "op": "DUP1",
-              "idx": "70"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1128,8 +1057,7 @@
               },
               "pc": 148,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "71"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1143,8 +1071,7 @@
               },
               "pc": 153,
               "sub": null,
-              "op": "EQ",
-              "idx": "72"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1158,8 +1085,7 @@
               },
               "pc": 154,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "73"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1171,8 +1097,7 @@
               },
               "pc": 157,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "74"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1187,8 +1112,7 @@
               },
               "pc": 158,
               "sub": null,
-              "op": "DUP1",
-              "idx": "75"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1202,8 +1126,7 @@
               },
               "pc": 159,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "76"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1217,8 +1140,7 @@
               },
               "pc": 164,
               "sub": null,
-              "op": "EQ",
-              "idx": "77"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1232,8 +1154,7 @@
               },
               "pc": 165,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "78"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1245,8 +1166,7 @@
               },
               "pc": 168,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "79"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1261,8 +1181,7 @@
               },
               "pc": 169,
               "sub": null,
-              "op": "DUP1",
-              "idx": "80"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1276,8 +1195,7 @@
               },
               "pc": 170,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "81"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1291,8 +1209,7 @@
               },
               "pc": 175,
               "sub": null,
-              "op": "EQ",
-              "idx": "82"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1306,8 +1223,7 @@
               },
               "pc": 176,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "83"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1319,8 +1235,7 @@
               },
               "pc": 179,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "84"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1335,8 +1250,7 @@
               },
               "pc": 180,
               "sub": null,
-              "op": "DUP1",
-              "idx": "85"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1350,8 +1264,7 @@
               },
               "pc": 181,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "86"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1365,8 +1278,7 @@
               },
               "pc": 186,
               "sub": null,
-              "op": "EQ",
-              "idx": "87"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1380,8 +1292,7 @@
               },
               "pc": 187,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "88"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1393,8 +1304,7 @@
               },
               "pc": 190,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "89"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1409,8 +1319,7 @@
               },
               "pc": 191,
               "sub": null,
-              "op": "DUP1",
-              "idx": "90"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1424,8 +1333,7 @@
               },
               "pc": 192,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "91"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1439,8 +1347,7 @@
               },
               "pc": 197,
               "sub": null,
-              "op": "EQ",
-              "idx": "92"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1454,8 +1361,7 @@
               },
               "pc": 198,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "93"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1467,8 +1373,7 @@
               },
               "pc": 201,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "94"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1483,8 +1388,7 @@
               },
               "pc": 202,
               "sub": null,
-              "op": "DUP1",
-              "idx": "95"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1498,8 +1402,7 @@
               },
               "pc": 203,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "96"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1513,8 +1416,7 @@
               },
               "pc": 208,
               "sub": null,
-              "op": "EQ",
-              "idx": "97"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1528,8 +1430,7 @@
               },
               "pc": 209,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "98"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1541,8 +1442,7 @@
               },
               "pc": 212,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "99"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1557,8 +1457,7 @@
               },
               "pc": 213,
               "sub": null,
-              "op": "DUP1",
-              "idx": "100"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1572,8 +1471,7 @@
               },
               "pc": 214,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "101"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1587,8 +1485,7 @@
               },
               "pc": 219,
               "sub": null,
-              "op": "EQ",
-              "idx": "102"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1602,8 +1499,7 @@
               },
               "pc": 220,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "103"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1615,8 +1511,7 @@
               },
               "pc": 223,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "104"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1631,8 +1526,7 @@
               },
               "pc": 224,
               "sub": null,
-              "op": "DUP1",
-              "idx": "105"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1646,8 +1540,7 @@
               },
               "pc": 225,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "106"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1661,8 +1554,7 @@
               },
               "pc": 230,
               "sub": null,
-              "op": "EQ",
-              "idx": "107"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1676,8 +1568,7 @@
               },
               "pc": 231,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "108"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1689,8 +1580,7 @@
               },
               "pc": 234,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "109"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1705,8 +1595,7 @@
               },
               "pc": 235,
               "sub": null,
-              "op": "DUP1",
-              "idx": "110"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1720,8 +1609,7 @@
               },
               "pc": 236,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "111"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1735,8 +1623,7 @@
               },
               "pc": 241,
               "sub": null,
-              "op": "EQ",
-              "idx": "112"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1750,8 +1637,7 @@
               },
               "pc": 242,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "113"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1763,8 +1649,7 @@
               },
               "pc": 245,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "114"
+              "op": "JUMPI"
             },
             {
               "cost": 3,
@@ -1779,8 +1664,7 @@
               },
               "pc": 246,
               "sub": null,
-              "op": "DUP1",
-              "idx": "115"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -1794,8 +1678,7 @@
               },
               "pc": 247,
               "sub": null,
-              "op": "PUSH4",
-              "idx": "116"
+              "op": "PUSH4"
             },
             {
               "cost": 3,
@@ -1809,8 +1692,7 @@
               },
               "pc": 252,
               "sub": null,
-              "op": "EQ",
-              "idx": "117"
+              "op": "EQ"
             },
             {
               "cost": 3,
@@ -1824,8 +1706,7 @@
               },
               "pc": 253,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "118"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -1837,8 +1718,7 @@
               },
               "pc": 256,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "119"
+              "op": "JUMPI"
             },
             {
               "cost": 1,
@@ -1850,8 +1730,7 @@
               },
               "pc": 1221,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "120"
+              "op": "JUMPDEST"
             },
             {
               "cost": 3,
@@ -1865,8 +1744,7 @@
               },
               "pc": 1222,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "121"
+              "op": "PUSH2"
             },
             {
               "cost": 3,
@@ -1880,8 +1758,7 @@
               },
               "pc": 1225,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "122"
+              "op": "PUSH2"
             },
             {
               "cost": 8,
@@ -1893,8 +1770,7 @@
               },
               "pc": 1228,
               "sub": null,
-              "op": "JUMP",
-              "idx": "123"
+              "op": "JUMP"
             },
             {
               "cost": 1,
@@ -1906,8 +1782,7 @@
               },
               "pc": 4799,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "124"
+              "op": "JUMPDEST"
             },
             {
               "cost": 2,
@@ -1921,8 +1796,7 @@
               },
               "pc": 4800,
               "sub": null,
-              "op": "CALLER",
-              "idx": "125"
+              "op": "CALLER"
             },
             {
               "cost": 3,
@@ -1936,8 +1810,7 @@
               },
               "pc": 4801,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "126"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -1951,8 +1824,7 @@
               },
               "pc": 4803,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "127"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -1966,8 +1838,7 @@
               },
               "pc": 4805,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "128"
+              "op": "PUSH1"
             },
             {
               "cost": 60,
@@ -1981,8 +1852,7 @@
               },
               "pc": 4807,
               "sub": null,
-              "op": "EXP",
-              "idx": "129"
+              "op": "EXP"
             },
             {
               "cost": 3,
@@ -1996,8 +1866,7 @@
               },
               "pc": 4808,
               "sub": null,
-              "op": "SUB",
-              "idx": "130"
+              "op": "SUB"
             },
             {
               "cost": 3,
@@ -2011,8 +1880,7 @@
               },
               "pc": 4809,
               "sub": null,
-              "op": "AND",
-              "idx": "131"
+              "op": "AND"
             },
             {
               "cost": 3,
@@ -2026,8 +1894,7 @@
               },
               "pc": 4810,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "132"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -2042,8 +1909,7 @@
               },
               "pc": 4812,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "133"
+              "op": "SWAP1"
             },
             {
               "cost": 3,
@@ -2059,8 +1925,7 @@
               },
               "pc": 4813,
               "sub": null,
-              "op": "DUP2",
-              "idx": "134"
+              "op": "DUP2"
             },
             {
               "cost": 3,
@@ -2075,8 +1940,7 @@
               },
               "pc": 4814,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "135"
+              "op": "MSTORE"
             },
             {
               "cost": 3,
@@ -2090,8 +1954,7 @@
               },
               "pc": 4815,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "136"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -2106,8 +1969,7 @@
               },
               "pc": 4817,
               "sub": null,
-              "op": "DUP1",
-              "idx": "137"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -2124,8 +1986,7 @@
               },
               "pc": 4818,
               "sub": null,
-              "op": "MLOAD",
-              "idx": "138"
+              "op": "MLOAD"
             },
             {
               "cost": 3,
@@ -2139,8 +2000,7 @@
               },
               "pc": 4819,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "139"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -2154,8 +2014,7 @@
               },
               "pc": 4821,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "140"
+              "op": "PUSH2"
             },
             {
               "cost": 3,
@@ -2173,8 +2032,7 @@
               },
               "pc": 4824,
               "sub": null,
-              "op": "DUP4",
-              "idx": "141"
+              "op": "DUP4"
             },
             {
               "cost": 6,
@@ -2189,8 +2047,7 @@
               },
               "pc": 4825,
               "sub": null,
-              "op": "CODECOPY",
-              "idx": "142"
+              "op": "CODECOPY"
             },
             {
               "cost": 3,
@@ -2206,8 +2063,7 @@
               },
               "pc": 4826,
               "sub": null,
-              "op": "DUP2",
-              "idx": "143"
+              "op": "DUP2"
             },
             {
               "cost": 3,
@@ -2224,8 +2080,7 @@
               },
               "pc": 4827,
               "sub": null,
-              "op": "MLOAD",
-              "idx": "144"
+              "op": "MLOAD"
             },
             {
               "cost": 3,
@@ -2241,8 +2096,7 @@
               },
               "pc": 4828,
               "sub": null,
-              "op": "SWAP2",
-              "idx": "145"
+              "op": "SWAP2"
             },
             {
               "cost": 3,
@@ -2257,8 +2111,7 @@
               },
               "pc": 4829,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "146"
+              "op": "MSTORE"
             },
             {
               "cost": 3,
@@ -2272,8 +2125,7 @@
               },
               "pc": 4830,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "147"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -2288,8 +2140,7 @@
               },
               "pc": 4832,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "148"
+              "op": "MSTORE"
             },
             {
               "cost": 3,
@@ -2303,8 +2154,7 @@
               },
               "pc": 4833,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "149"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -2319,8 +2169,7 @@
               },
               "pc": 4835,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "150"
+              "op": "SWAP1"
             },
             {
               "cost": 42,
@@ -2334,8 +2183,7 @@
               },
               "pc": 4836,
               "sub": null,
-              "op": "KECCAK256",
-              "idx": "151"
+              "op": "KECCAK256"
             },
             {
               "cost": 2100,
@@ -2349,8 +2197,7 @@
               },
               "pc": 4837,
               "sub": null,
-              "op": "SLOAD",
-              "idx": "152"
+              "op": "SLOAD"
             },
             {
               "cost": 3,
@@ -2364,8 +2211,7 @@
               },
               "pc": 4838,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "153"
+              "op": "PUSH2"
             },
             {
               "cost": 3,
@@ -2380,8 +2226,7 @@
               },
               "pc": 4841,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "154"
+              "op": "SWAP1"
             },
             {
               "cost": 2,
@@ -2395,8 +2240,7 @@
               },
               "pc": 4842,
               "sub": null,
-              "op": "CALLVALUE",
-              "idx": "155"
+              "op": "CALLVALUE"
             },
             {
               "cost": 3,
@@ -2410,8 +2254,7 @@
               },
               "pc": 4843,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "156"
+              "op": "PUSH2"
             },
             {
               "cost": 8,
@@ -2423,8 +2266,7 @@
               },
               "pc": 4846,
               "sub": null,
-              "op": "JUMP",
-              "idx": "157"
+              "op": "JUMP"
             },
             {
               "cost": 1,
@@ -2436,8 +2278,7 @@
               },
               "pc": 5677,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "158"
+              "op": "JUMPDEST"
             },
             {
               "cost": 3,
@@ -2451,8 +2292,7 @@
               },
               "pc": 5678,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "159"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -2469,8 +2309,7 @@
               },
               "pc": 5680,
               "sub": null,
-              "op": "DUP3",
-              "idx": "160"
+              "op": "DUP3"
             },
             {
               "cost": 3,
@@ -2487,8 +2326,7 @@
               },
               "pc": 5681,
               "sub": null,
-              "op": "DUP3",
-              "idx": "161"
+              "op": "DUP3"
             },
             {
               "cost": 3,
@@ -2502,8 +2340,7 @@
               },
               "pc": 5682,
               "sub": null,
-              "op": "ADD",
-              "idx": "162"
+              "op": "ADD"
             },
             {
               "cost": 3,
@@ -2517,8 +2354,7 @@
               },
               "pc": 5683,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "163"
+              "op": "PUSH2"
             },
             {
               "cost": 3,
@@ -2537,8 +2373,7 @@
               },
               "pc": 5686,
               "sub": null,
-              "op": "DUP5",
-              "idx": "164"
+              "op": "DUP5"
             },
             {
               "cost": 3,
@@ -2555,8 +2390,7 @@
               },
               "pc": 5687,
               "sub": null,
-              "op": "DUP3",
-              "idx": "165"
+              "op": "DUP3"
             },
             {
               "cost": 3,
@@ -2570,8 +2404,7 @@
               },
               "pc": 5688,
               "sub": null,
-              "op": "LT",
-              "idx": "166"
+              "op": "LT"
             },
             {
               "cost": 3,
@@ -2586,8 +2419,7 @@
               },
               "pc": 5689,
               "sub": null,
-              "op": "DUP1",
-              "idx": "167"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -2601,8 +2433,7 @@
               },
               "pc": 5690,
               "sub": null,
-              "op": "ISZERO",
-              "idx": "168"
+              "op": "ISZERO"
             },
             {
               "cost": 3,
@@ -2617,8 +2448,7 @@
               },
               "pc": 5691,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "169"
+              "op": "SWAP1"
             },
             {
               "cost": 3,
@@ -2632,8 +2462,7 @@
               },
               "pc": 5692,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "170"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -2645,8 +2474,7 @@
               },
               "pc": 5695,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "171"
+              "op": "JUMPI"
             },
             {
               "cost": 2,
@@ -2658,8 +2486,7 @@
               },
               "pc": 5696,
               "sub": null,
-              "op": "POP",
-              "idx": "172"
+              "op": "POP"
             },
             {
               "cost": 3,
@@ -2677,8 +2504,7 @@
               },
               "pc": 5697,
               "sub": null,
-              "op": "DUP4",
-              "idx": "173"
+              "op": "DUP4"
             },
             {
               "cost": 3,
@@ -2695,8 +2521,7 @@
               },
               "pc": 5698,
               "sub": null,
-              "op": "DUP3",
-              "idx": "174"
+              "op": "DUP3"
             },
             {
               "cost": 3,
@@ -2710,8 +2535,7 @@
               },
               "pc": 5699,
               "sub": null,
-              "op": "LT",
-              "idx": "175"
+              "op": "LT"
             },
             {
               "cost": 3,
@@ -2725,8 +2549,7 @@
               },
               "pc": 5700,
               "sub": null,
-              "op": "ISZERO",
-              "idx": "176"
+              "op": "ISZERO"
             },
             {
               "cost": 1,
@@ -2738,8 +2561,7 @@
               },
               "pc": 5701,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "177"
+              "op": "JUMPDEST"
             },
             {
               "cost": 3,
@@ -2753,8 +2575,7 @@
               },
               "pc": 5702,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "178"
+              "op": "PUSH2"
             },
             {
               "cost": 8,
@@ -2766,8 +2587,7 @@
               },
               "pc": 5705,
               "sub": null,
-              "op": "JUMP",
-              "idx": "179"
+              "op": "JUMP"
             },
             {
               "cost": 1,
@@ -2779,8 +2599,7 @@
               },
               "pc": 6521,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "180"
+              "op": "JUMPDEST"
             },
             {
               "cost": 3,
@@ -2795,8 +2614,7 @@
               },
               "pc": 6522,
               "sub": null,
-              "op": "DUP1",
-              "idx": "181"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -2810,8 +2628,7 @@
               },
               "pc": 6523,
               "sub": null,
-              "op": "ISZERO",
-              "idx": "182"
+              "op": "ISZERO"
             },
             {
               "cost": 3,
@@ -2825,8 +2642,7 @@
               },
               "pc": 6524,
               "sub": null,
-              "op": "ISZERO",
-              "idx": "183"
+              "op": "ISZERO"
             },
             {
               "cost": 3,
@@ -2840,8 +2656,7 @@
               },
               "pc": 6525,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "184"
+              "op": "PUSH2"
             },
             {
               "cost": 10,
@@ -2853,8 +2668,7 @@
               },
               "pc": 6528,
               "sub": null,
-              "op": "JUMPI",
-              "idx": "185"
+              "op": "JUMPI"
             },
             {
               "cost": 1,
@@ -2866,8 +2680,7 @@
               },
               "pc": 3311,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "186"
+              "op": "JUMPDEST"
             },
             {
               "cost": 2,
@@ -2879,8 +2692,7 @@
               },
               "pc": 3312,
               "sub": null,
-              "op": "POP",
-              "idx": "187"
+              "op": "POP"
             },
             {
               "cost": 8,
@@ -2892,8 +2704,7 @@
               },
               "pc": 3313,
               "sub": null,
-              "op": "JUMP",
-              "idx": "188"
+              "op": "JUMP"
             },
             {
               "cost": 1,
@@ -2905,8 +2716,7 @@
               },
               "pc": 5706,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "189"
+              "op": "JUMPDEST"
             },
             {
               "cost": 3,
@@ -2921,8 +2731,7 @@
               },
               "pc": 5707,
               "sub": null,
-              "op": "DUP1",
-              "idx": "190"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -2938,8 +2747,7 @@
               },
               "pc": 5708,
               "sub": null,
-              "op": "SWAP2",
-              "idx": "191"
+              "op": "SWAP2"
             },
             {
               "cost": 2,
@@ -2951,8 +2759,7 @@
               },
               "pc": 5709,
               "sub": null,
-              "op": "POP",
-              "idx": "192"
+              "op": "POP"
             },
             {
               "cost": 1,
@@ -2964,8 +2771,7 @@
               },
               "pc": 5710,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "193"
+              "op": "JUMPDEST"
             },
             {
               "cost": 2,
@@ -2977,8 +2783,7 @@
               },
               "pc": 5711,
               "sub": null,
-              "op": "POP",
-              "idx": "194"
+              "op": "POP"
             },
             {
               "cost": 3,
@@ -2995,8 +2800,7 @@
               },
               "pc": 5712,
               "sub": null,
-              "op": "SWAP3",
-              "idx": "195"
+              "op": "SWAP3"
             },
             {
               "cost": 3,
@@ -3012,8 +2816,7 @@
               },
               "pc": 5713,
               "sub": null,
-              "op": "SWAP2",
-              "idx": "196"
+              "op": "SWAP2"
             },
             {
               "cost": 2,
@@ -3025,8 +2828,7 @@
               },
               "pc": 5714,
               "sub": null,
-              "op": "POP",
-              "idx": "197"
+              "op": "POP"
             },
             {
               "cost": 2,
@@ -3038,8 +2840,7 @@
               },
               "pc": 5715,
               "sub": null,
-              "op": "POP",
-              "idx": "198"
+              "op": "POP"
             },
             {
               "cost": 8,
@@ -3051,8 +2852,7 @@
               },
               "pc": 5716,
               "sub": null,
-              "op": "JUMP",
-              "idx": "199"
+              "op": "JUMP"
             },
             {
               "cost": 1,
@@ -3064,8 +2864,7 @@
               },
               "pc": 4847,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "200"
+              "op": "JUMPDEST"
             },
             {
               "cost": 2,
@@ -3079,8 +2878,7 @@
               },
               "pc": 4848,
               "sub": null,
-              "op": "CALLER",
-              "idx": "201"
+              "op": "CALLER"
             },
             {
               "cost": 3,
@@ -3094,8 +2892,7 @@
               },
               "pc": 4849,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "202"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -3109,8 +2906,7 @@
               },
               "pc": 4851,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "203"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -3124,8 +2920,7 @@
               },
               "pc": 4853,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "204"
+              "op": "PUSH1"
             },
             {
               "cost": 60,
@@ -3139,8 +2934,7 @@
               },
               "pc": 4855,
               "sub": null,
-              "op": "EXP",
-              "idx": "205"
+              "op": "EXP"
             },
             {
               "cost": 3,
@@ -3154,8 +2948,7 @@
               },
               "pc": 4856,
               "sub": null,
-              "op": "SUB",
-              "idx": "206"
+              "op": "SUB"
             },
             {
               "cost": 3,
@@ -3169,8 +2962,7 @@
               },
               "pc": 4857,
               "sub": null,
-              "op": "AND",
-              "idx": "207"
+              "op": "AND"
             },
             {
               "cost": 3,
@@ -3184,8 +2976,7 @@
               },
               "pc": 4858,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "208"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -3201,8 +2992,7 @@
               },
               "pc": 4860,
               "sub": null,
-              "op": "DUP2",
-              "idx": "209"
+              "op": "DUP2"
             },
             {
               "cost": 3,
@@ -3218,8 +3008,7 @@
               },
               "pc": 4861,
               "sub": null,
-              "op": "DUP2",
-              "idx": "210"
+              "op": "DUP2"
             },
             {
               "cost": 3,
@@ -3234,8 +3023,7 @@
               },
               "pc": 4862,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "211"
+              "op": "MSTORE"
             },
             {
               "cost": 3,
@@ -3249,8 +3037,7 @@
               },
               "pc": 4863,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "212"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -3265,8 +3052,7 @@
               },
               "pc": 4865,
               "sub": null,
-              "op": "DUP1",
-              "idx": "213"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -3283,8 +3069,7 @@
               },
               "pc": 4866,
               "sub": null,
-              "op": "MLOAD",
-              "idx": "214"
+              "op": "MLOAD"
             },
             {
               "cost": 3,
@@ -3298,8 +3083,7 @@
               },
               "pc": 4867,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "215"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -3313,8 +3097,7 @@
               },
               "pc": 4869,
               "sub": null,
-              "op": "PUSH2",
-              "idx": "216"
+              "op": "PUSH2"
             },
             {
               "cost": 3,
@@ -3332,8 +3115,7 @@
               },
               "pc": 4872,
               "sub": null,
-              "op": "DUP4",
-              "idx": "217"
+              "op": "DUP4"
             },
             {
               "cost": 6,
@@ -3348,8 +3130,7 @@
               },
               "pc": 4873,
               "sub": null,
-              "op": "CODECOPY",
-              "idx": "218"
+              "op": "CODECOPY"
             },
             {
               "cost": 3,
@@ -3365,8 +3146,7 @@
               },
               "pc": 4874,
               "sub": null,
-              "op": "DUP2",
-              "idx": "219"
+              "op": "DUP2"
             },
             {
               "cost": 3,
@@ -3383,8 +3163,7 @@
               },
               "pc": 4875,
               "sub": null,
-              "op": "MLOAD",
-              "idx": "220"
+              "op": "MLOAD"
             },
             {
               "cost": 3,
@@ -3400,8 +3179,7 @@
               },
               "pc": 4876,
               "sub": null,
-              "op": "SWAP2",
-              "idx": "221"
+              "op": "SWAP2"
             },
             {
               "cost": 3,
@@ -3416,8 +3194,7 @@
               },
               "pc": 4877,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "222"
+              "op": "MSTORE"
             },
             {
               "cost": 3,
@@ -3431,8 +3208,7 @@
               },
               "pc": 4878,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "223"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -3447,8 +3223,7 @@
               },
               "pc": 4880,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "224"
+              "op": "SWAP1"
             },
             {
               "cost": 3,
@@ -3464,8 +3239,7 @@
               },
               "pc": 4881,
               "sub": null,
-              "op": "DUP2",
-              "idx": "225"
+              "op": "DUP2"
             },
             {
               "cost": 3,
@@ -3480,8 +3254,7 @@
               },
               "pc": 4882,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "226"
+              "op": "MSTORE"
             },
             {
               "cost": 3,
@@ -3495,8 +3268,7 @@
               },
               "pc": 4883,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "227"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -3511,8 +3283,7 @@
               },
               "pc": 4885,
               "sub": null,
-              "op": "DUP1",
-              "idx": "228"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -3530,8 +3301,7 @@
               },
               "pc": 4886,
               "sub": null,
-              "op": "DUP4",
-              "idx": "229"
+              "op": "DUP4"
             },
             {
               "cost": 42,
@@ -3545,8 +3315,7 @@
               },
               "pc": 4887,
               "sub": null,
-              "op": "KECCAK256",
-              "idx": "230"
+              "op": "KECCAK256"
             },
             {
               "cost": 3,
@@ -3566,8 +3335,7 @@
               },
               "pc": 4888,
               "sub": null,
-              "op": "DUP6",
-              "idx": "231"
+              "op": "DUP6"
             },
             {
               "cost": 3,
@@ -3582,8 +3350,7 @@
               },
               "pc": 4889,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "232"
+              "op": "SWAP1"
             },
             {
               "cost": 100,
@@ -3598,8 +3365,7 @@
               },
               "pc": 4890,
               "sub": null,
-              "op": "SSTORE",
-              "idx": "233"
+              "op": "SSTORE"
             },
             {
               "cost": 3,
@@ -3614,8 +3380,7 @@
               },
               "pc": 4891,
               "sub": null,
-              "op": "DUP1",
-              "idx": "234"
+              "op": "DUP1"
             },
             {
               "cost": 3,
@@ -3632,8 +3397,7 @@
               },
               "pc": 4892,
               "sub": null,
-              "op": "MLOAD",
-              "idx": "235"
+              "op": "MLOAD"
             },
             {
               "cost": 3,
@@ -3650,8 +3414,7 @@
               },
               "pc": 4893,
               "sub": null,
-              "op": "SWAP3",
-              "idx": "236"
+              "op": "SWAP3"
             },
             {
               "cost": 3,
@@ -3669,8 +3432,7 @@
               },
               "pc": 4894,
               "sub": null,
-              "op": "DUP4",
-              "idx": "237"
+              "op": "DUP4"
             },
             {
               "cost": 6,
@@ -3685,8 +3447,7 @@
               },
               "pc": 4895,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "238"
+              "op": "MSTORE"
             },
             {
               "cost": 3,
@@ -3701,8 +3462,7 @@
               },
               "pc": 4896,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "239"
+              "op": "SWAP1"
             },
             {
               "cost": 3,
@@ -3719,8 +3479,7 @@
               },
               "pc": 4897,
               "sub": null,
-              "op": "DUP3",
-              "idx": "240"
+              "op": "DUP3"
             },
             {
               "cost": 3,
@@ -3734,8 +3493,7 @@
               },
               "pc": 4898,
               "sub": null,
-              "op": "ADD",
-              "idx": "241"
+              "op": "ADD"
             },
             {
               "cost": 3,
@@ -3752,8 +3510,7 @@
               },
               "pc": 4899,
               "sub": null,
-              "op": "SWAP3",
-              "idx": "242"
+              "op": "SWAP3"
             },
             {
               "cost": 3,
@@ -3768,8 +3525,7 @@
               },
               "pc": 4900,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "243"
+              "op": "SWAP1"
             },
             {
               "cost": 3,
@@ -3786,8 +3542,7 @@
               },
               "pc": 4901,
               "sub": null,
-              "op": "SWAP3",
-              "idx": "244"
+              "op": "SWAP3"
             },
             {
               "cost": 6,
@@ -3802,8 +3557,7 @@
               },
               "pc": 4902,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "245"
+              "op": "MSTORE"
             },
             {
               "cost": 2,
@@ -3817,8 +3571,7 @@
               },
               "pc": 4903,
               "sub": null,
-              "op": "CALLVALUE",
-              "idx": "246"
+              "op": "CALLVALUE"
             },
             {
               "cost": 3,
@@ -3834,8 +3587,7 @@
               },
               "pc": 4904,
               "sub": null,
-              "op": "DUP2",
-              "idx": "247"
+              "op": "DUP2"
             },
             {
               "cost": 3,
@@ -3853,8 +3605,7 @@
               },
               "pc": 4905,
               "sub": null,
-              "op": "DUP4",
-              "idx": "248"
+              "op": "DUP4"
             },
             {
               "cost": 3,
@@ -3868,8 +3619,7 @@
               },
               "pc": 4906,
               "sub": null,
-              "op": "ADD",
-              "idx": "249"
+              "op": "ADD"
             },
             {
               "cost": 6,
@@ -3884,8 +3634,7 @@
               },
               "pc": 4907,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "250"
+              "op": "MSTORE"
             },
             {
               "cost": 3,
@@ -3899,8 +3648,7 @@
               },
               "pc": 4908,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "251"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -3916,8 +3664,7 @@
               },
               "pc": 4910,
               "sub": null,
-              "op": "DUP2",
-              "idx": "252"
+              "op": "DUP2"
             },
             {
               "cost": 3,
@@ -3931,8 +3678,7 @@
               },
               "pc": 4911,
               "sub": null,
-              "op": "ADD",
-              "idx": "253"
+              "op": "ADD"
             },
             {
               "cost": 3,
@@ -3949,8 +3695,7 @@
               },
               "pc": 4912,
               "sub": null,
-              "op": "SWAP3",
-              "idx": "254"
+              "op": "SWAP3"
             },
             {
               "cost": 3,
@@ -3965,8 +3710,7 @@
               },
               "pc": 4913,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "255"
+              "op": "SWAP1"
             },
             {
               "cost": 3,
@@ -3983,8 +3727,7 @@
               },
               "pc": 4914,
               "sub": null,
-              "op": "SWAP3",
-              "idx": "256"
+              "op": "SWAP3"
             },
             {
               "cost": 6,
@@ -3999,8 +3742,7 @@
               },
               "pc": 4915,
               "sub": null,
-              "op": "MSTORE",
-              "idx": "257"
+              "op": "MSTORE"
             },
             {
               "cost": 3,
@@ -4017,8 +3759,7 @@
               },
               "pc": 4916,
               "sub": null,
-              "op": "MLOAD",
-              "idx": "258"
+              "op": "MLOAD"
             },
             {
               "cost": 3,
@@ -4032,8 +3773,7 @@
               },
               "pc": 4917,
               "sub": null,
-              "op": "PUSH32",
-              "idx": "259"
+              "op": "PUSH32"
             },
             {
               "cost": 3,
@@ -4049,8 +3789,7 @@
               },
               "pc": 4950,
               "sub": null,
-              "op": "SWAP2",
-              "idx": "260"
+              "op": "SWAP2"
             },
             {
               "cost": 3,
@@ -4066,8 +3805,7 @@
               },
               "pc": 4951,
               "sub": null,
-              "op": "DUP2",
-              "idx": "261"
+              "op": "DUP2"
             },
             {
               "cost": 3,
@@ -4082,8 +3820,7 @@
               },
               "pc": 4952,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "262"
+              "op": "SWAP1"
             },
             {
               "cost": 3,
@@ -4097,8 +3834,7 @@
               },
               "pc": 4953,
               "sub": null,
-              "op": "SUB",
-              "idx": "263"
+              "op": "SUB"
             },
             {
               "cost": 3,
@@ -4112,8 +3848,7 @@
               },
               "pc": 4954,
               "sub": null,
-              "op": "PUSH1",
-              "idx": "264"
+              "op": "PUSH1"
             },
             {
               "cost": 3,
@@ -4127,8 +3862,7 @@
               },
               "pc": 4956,
               "sub": null,
-              "op": "ADD",
-              "idx": "265"
+              "op": "ADD"
             },
             {
               "cost": 3,
@@ -4143,8 +3877,7 @@
               },
               "pc": 4957,
               "sub": null,
-              "op": "SWAP1",
-              "idx": "266"
+              "op": "SWAP1"
             },
             {
               "cost": 1774,
@@ -4156,8 +3889,7 @@
               },
               "pc": 4958,
               "sub": null,
-              "op": "LOG1",
-              "idx": "267"
+              "op": "LOG1"
             },
             {
               "cost": 1,
@@ -4169,8 +3901,7 @@
               },
               "pc": 4959,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "268"
+              "op": "JUMPDEST"
             },
             {
               "cost": 8,
@@ -4182,8 +3913,7 @@
               },
               "pc": 4960,
               "sub": null,
-              "op": "JUMP",
-              "idx": "269"
+              "op": "JUMP"
             },
             {
               "cost": 1,
@@ -4195,8 +3925,7 @@
               },
               "pc": 331,
               "sub": null,
-              "op": "JUMPDEST",
-              "idx": "270"
+              "op": "JUMPDEST"
             },
             {
               "cost": 0,
@@ -4208,8 +3937,7 @@
               },
               "pc": 332,
               "sub": null,
-              "op": "STOP",
-              "idx": "271"
+              "op": "STOP"
             }
           ]
         }
