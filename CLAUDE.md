@@ -47,10 +47,11 @@ pytest
 
 ## Architecture
 
-**Four independent tools** under `cmd/`:
+**Independent tools** under `cmd/`:
 - `cmd/integration/` — RPC integration test runner (primary tool, ~2100 lines in main.go)
 - `cmd/compat/` — RPC compatibility checker
 - `cmd/perf/` — Load/performance testing (uses Vegeta); `-p` takes a Vegeta pattern tar or a `.jsonl` with one JSON-RPC request per line
+- `cmd/patternconv/` — `rpc_pattern_convert`: converts a Vegeta pattern (a tar, plain/gzip/bzip2 detected from the content, holding `vegeta_erigon_<name>.txt`, or a Vegeta target file) to JSONL, one compacted JSON-RPC request per line (`rpc_pattern_convert --in stress_test_eth_getLogs_15M.tar --out eth_getLogs_15000000.jsonl`; `--name` selects the pattern of a tar holding several)
 - `cmd/patterngen/` — `rpc_pattern_gen`: generates Vegeta pattern tars for `rpc_perf`, or JSONL files with `--out <file>.jsonl`, from the transactions of recent blocks, either one method (`rpc_pattern_gen eth_call --url http://localhost:8545 --counts 400000 --block-tag latest --verify --out eth_call.tar`, or `rpc_pattern_gen eth_getLogs --counts 400000 --range 100 --verify --out eth_getLogs.tar`) or a mix from a profile file (`rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400000 --verify --out mixed.tar`, profiles in `perf/pattern/<network>/config/`)
 
 **Integration test runner flow:**
