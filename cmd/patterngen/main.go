@@ -68,8 +68,48 @@ func newApp() *cli.App {
 				}
 				return generate(c, []vegetagen.Spec{{Gen: vegetagen.GetLogs{Range: c.Uint64("range")}, Weight: 1}}, nil, false)
 			},
+		}, {
+			Name:  "tx-list",
+			Usage: "Write the txs that use the most gas in some blocks as a tx list for eth_call --txs",
+			Flags: []cli.Flag{
+				&cli.StringFlag{Name: "url", Value: "http://localhost:8545", Usage: "Node used to read the blocks and their receipts"},
+				&cli.IntFlag{Name: "top-gas", Required: true, Usage: "Number of txs to write: the successful txs that use the most gas, the heaviest first"},
+				&cli.Uint64Flag{Name: "blocks", Usage: "Read this many blocks, from the head downwards"},
+				&cli.Uint64Flag{Name: "start-block", Usage: "Read the blocks from this one up to --end-block or for --max-blocks blocks, instead of those below the head"},
+				&cli.Uint64Flag{Name: "end-block", Usage: "With --start-block, the last block of the range"},
+				&cli.Uint64Flag{Name: "max-blocks", Usage: "With --start-block, the length of the range"},
+				&cli.Uint64Flag{Name: "sample-blocks", Usage: "With --start-block, read only this many distinct blocks of the range, drawn at random with a fixed seed"},
+				&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
+				&cli.StringFlag{Name: "out", Required: true, Usage: "Output file: one \"<name> <hash>\" per line"},
+			},
+			Action: writeTxList,
 		}},
 	}
+}
+
+// writeTxList writes the heaviest txs of the blocks as a tx list.
+func writeTxList(c *cli.Context) error {
+	blockRange, err := parseBlockRange(c)
+	if err != nil {
+		return err
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	list, err := vegetagen.TopGasTxs(ctx, vegetagen.TxListConfig{
+		URL:     c.String("url"),
+		Blocks:  c.Uint64("blocks"),
+		Range:   blockRange,
+		Top:     c.Int("top-gas"),
+		Workers: c.Int("workers"),
+	})
+	if err != nil {
+		return err
+	}
+	if err := vegetagen.WriteGasTxList(c.String("out"), list); err != nil {
+		return err
+	}
+	fmt.Printf("tx-list: %d blocks scanned (%d..%d), %d txs written to %s\n", list.Scanned, list.First, list.Last, len(list.Txs), c.String("out"))
+	return nil
 }
 
 func commonFlags(outRequired bool) []cli.Flag {

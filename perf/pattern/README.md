@@ -138,6 +138,32 @@ line; `#` starts a comment:
 2-sload-storm  0xea93481b5f1faf0c45f4569755b5cd8059df3fe2e47f89bca4ef25acaa1ebd7e
 ```
 
+To start from candidates, `tx-list` writes such a list with the successful txs that use the most gas in
+some blocks, the heaviest first, named after their rank and gas. It reads the blocks as the other
+commands do: `--blocks` from the head, or `--start-block` with `--end-block`, `--max-blocks` and
+`--sample-blocks`. Failed txs are left out, since their eth_call would revert.
+
+```bash
+# the last 100 blocks
+rpc_pattern_gen tx-list --top-gas 20 --blocks 100 --out candidates.txt
+# every block of a range
+rpc_pattern_gen tx-list --top-gas 20 --start-block 26200000 --end-block 26200999 --out candidates.txt
+# 1000 blocks drawn at random from a range, the same ones on every run
+rpc_pattern_gen tx-list --top-gas 20 --start-block 19000000 --end-block 19999999 --sample-blocks 1000 --out candidates.txt
+```
+
+```
+# the 20 txs that use the most gas in 100 blocks between 26249958 and 26250057
+1-13.37Mgas 0x038cd6e51bf211b225a5a594938440ef089460197adadc182b877ef73838cd7e
+2-13.37Mgas 0xb1caa7ecf91b2f464b0d4af01eb03ead8c9bf8d5777b52f2039488240ec76a72
+3-10.59Mgas 0x7b6b049de27ddd4f67bd02cf7e86026d359d7b7c5c269595d6b72e5e3287eeef
+...
+```
+
+Rename a tx after its bottleneck once it proves interesting, e.g. `5-sload-storm`. The gas is the one of
+the original run: with `--block-tag latest` a call can take a shorter branch on the current state, so to
+measure the heavy txs as they ran, generate their pattern with `parent`.
+
 ```bash
 rpc_pattern_gen eth_call --txs slow.txt --block-tag latest --verify --out slow_latest.jsonl
 rpc_pattern_gen eth_call --txs slow.txt --block-tag parent --verify --out slow_parent.jsonl

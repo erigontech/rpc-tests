@@ -85,7 +85,17 @@ replay them with `-i`: from then on the tx has its own line in every run.
 
 ### Find txs where eth_call is slower than on another client
 
-1. Take candidates, e.g. the txs that use the most gas in some recent blocks, from a block explorer.
+1. Take candidates: the txs that use the most gas in some recent blocks, written as a list by
+   `tx-list`, or chosen on a block explorer:
+
+   ```bash
+   ./build/bin/rpc_pattern_gen tx-list --top-gas 20 --blocks 100 --out candidates.txt
+   ./build/bin/rpc_pattern_gen tx-list --top-gas 20 --start-block 26200000 --end-block 26200999 --out candidates.txt
+   ```
+
+   The first reads the last 100 blocks, the second every block of a range; `--sample-blocks` reads only
+   some blocks of a wide range. The whole set is ranked: the 20 heaviest txs of all the blocks are written.
+
 2. Put them in a list, generate with `--block-tag latest`, and replay the same `.jsonl` with `-i` on each
    client, one at a time, with the same `-t` and `-r` (see the rpc-perf-run skill).
 3. Keep the txs whose p50 is much higher on the node under test. Profile them (pprof) and keep the ones
