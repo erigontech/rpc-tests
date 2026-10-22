@@ -1,8 +1,14 @@
 # Vegeta patterns and `rpc_pattern_gen`
 
-`rpc_perf` replays a Vegeta pattern: a tar file holding the JSON-RPC requests to send. This directory
-keeps the patterns of each network (`<network>/stress_test_*.tar`) and the profiles used to generate new
-ones (`<network>/config/*.profile`).
+`rpc_perf` replays a pattern: the JSON-RPC requests to send, as a [JSONL file](#jsonl-output) or a Vegeta
+tar. This directory keeps, for each network:
+
+- the historical patterns, fixed datasets for comparisons over time: `<network>/<api>_<block>.jsonl`, named
+  after their method and the full first block of their range (e.g. `eth_getLogs_24100000.jsonl`), and the
+  older `<network>/stress_test_*.tar`. A historical pattern is not changed afterwards: a new dataset goes
+  into a new file;
+- the profiles used to generate new patterns (`<network>/config/*.profile`);
+- the tx lists, with the `parent` pattern of each one (`<network>/txs/`).
 
 `rpc_pattern_gen` builds a pattern from the recent blocks of a running node, or from a range of blocks
 (see [Block range](#block-range)): it reads blocks from the head, turns their transactions, blocks or logs into requests, optionally runs each request on the node

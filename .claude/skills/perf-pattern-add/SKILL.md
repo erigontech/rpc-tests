@@ -130,5 +130,6 @@ miss the caches:
 4. **Replay** a short run (`-t 50:30 -r 1`) and check the success rate and the errors.
 5. **Save**: the lists go in `perf/pattern/<network>/txs/` (e.g. `perf/pattern/mainnet/txs/heavy.txt`), and
    the `parent` pattern of a list next to it as `<list>_parent.jsonl`. A `latest` pattern drifts with the
-   state, so it is generated from its list when needed rather than saved. Where a historical `.jsonl` of a
-   block range goes (`<api>_<block>.jsonl`) is not settled yet: ask before adding it.
+   state, so it is generated from its list when needed rather than saved. A historical pattern of a block
+   range goes in `perf/pattern/<network>/`, next to the other patterns, as `<api>_<block>.jsonl` with the
+   full first block (e.g. `eth_getLogs_24100000.jsonl`), and is not changed afterwards.
