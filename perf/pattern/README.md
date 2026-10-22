@@ -301,6 +301,7 @@ rpc_pattern_convert --in /tmp/erigon_stress_test/vegeta_erigon_eth_call.txt --ou
 | `--profile` | | Root command only: the [profile](#profile-format) with the mix of methods to generate |
 | `--range` | 100 | `eth_getLogs` only: the widest block range of a request |
 | `--txs` | | `eth_call` only: a [tx list](#tx-lists), one request per tx instead of reading blocks |
+| `--top-gas` | | `tx-list` only, required: the number of txs to write, the heaviest first; `--out` is then the list file |
 
 ```bash
 rpc_pattern_gen eth_call --url http://localhost:8545 --blocks 100 --verify -v --out eth_call.jsonl
