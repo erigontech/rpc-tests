@@ -4,9 +4,9 @@ GOBIN := $(shell go env GOPATH)/bin
 GOLANGCI_LINT_VERSION := v2.11.4
 GOLANGCI_LINT := $(shell which golangci-lint 2>/dev/null || echo $(GOBIN)/golangci-lint)
 
-.PHONY: build rebuild rpc_int rpc_perf rpc_pattern_gen rpc_archive fmt lint test clean
+.PHONY: build rebuild rpc_int rpc_perf rpc_pattern_gen rpc_pattern_convert rpc_archive fmt lint test clean
 
-build: rpc_int rpc_perf rpc_pattern_gen
+build: rpc_int rpc_perf rpc_pattern_gen rpc_pattern_convert
 
 rebuild: clean build
 
@@ -15,6 +15,8 @@ rpc_int: $(BUILD_DIR)/rpc_int
 rpc_perf: $(BUILD_DIR)/rpc_perf
 
 rpc_pattern_gen: $(BUILD_DIR)/rpc_pattern_gen
+
+rpc_pattern_convert: $(BUILD_DIR)/rpc_pattern_convert
 
 rpc_archive: $(BUILD_DIR)/rpc_archive
 
@@ -26,6 +28,9 @@ $(BUILD_DIR)/rpc_perf: $(shell find cmd/perf internal -name '*.go')
 
 $(BUILD_DIR)/rpc_pattern_gen: $(shell find cmd/patterngen internal -name '*.go')
 	go build -o $@ ./cmd/patterngen/
+
+$(BUILD_DIR)/rpc_pattern_convert: $(shell find cmd/patternconv -name '*.go')
+	go build -o $@ ./cmd/patternconv/
 
 $(BUILD_DIR)/rpc_archive: $(shell find cmd/archive -name '*.go')
 	go build -o $@ ./cmd/archive/

@@ -12,10 +12,11 @@ to keep only the working ones, and writes the tar that `rpc_perf --pattern-file`
 ## Build
 
 ```bash
-make rpc_pattern_gen rpc_perf
+make rpc_pattern_gen rpc_perf rpc_pattern_convert
 # or
 go build -o ./build/bin/rpc_pattern_gen ./cmd/patterngen
 go build -o ./build/bin/rpc_perf ./cmd/perf
+go build -o ./build/bin/rpc_pattern_convert ./cmd/patternconv
 ```
 
 ## Workflow
@@ -155,6 +156,30 @@ rpc_pattern_gen eth_call --txs slow.txt --block-tag parent --verify --out slow_p
 - A tx that the node does not know fails the run. With `--verify`, the txs whose call fails are dropped
   and printed with their error.
 - `--counts`, `--blocks`, the block range flags and `--per-block` are rejected: the list sets the requests.
+
+## Converting Vegeta patterns to JSONL
+
+`rpc_pattern_convert` turns a Vegeta pattern into JSONL: one JSON-RPC request per line, compacted, in the
+order of the Vegeta targets, with no URL, header or base64. No node is needed, and the output can be read,
+grepped and compared with `diff`.
+
+```bash
+# a pattern tar: the vegeta_erigon_<name>.txt file inside is converted
+rpc_pattern_convert --in perf/pattern/mainnet/stress_test_eth_getLogs_15M.tar --out eth_getLogs_15000000.jsonl
+# a tar holding several patterns: select one by its name
+rpc_pattern_convert --in perf/pattern/mainnet/stress_test_debug_storageRangeAt_20M.tar --name debug_storageRangeAt \
+    --out debug_storageRangeAt_20000000.jsonl
+# a Vegeta target file, e.g. one written by Erigon's cmd/rpctest
+rpc_pattern_convert --in /tmp/erigon_stress_test/vegeta_erigon_eth_call.txt --out eth_call.jsonl
+```
+
+- `--in` is a tar, plain, gzip or bzip2 (detected from the content, whatever the extension), or any other
+  file, read as Vegeta targets.
+- In a tar only the non-empty `vegeta_erigon_<name>.txt` files count: `vegeta_geth_*`, `results_*.csv` and
+  the other files are ignored. With several of them, `--name` selects one; otherwise the run fails listing
+  them.
+- The output is written only when the whole pattern converts; a target that is not JSON fails the run with
+  its line number. The number of requests written is printed.
 
 ## Common flags
 
