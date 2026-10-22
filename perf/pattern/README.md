@@ -161,6 +161,17 @@ rpc_pattern_gen eth_call --txs slow.txt --block-tag parent --verify --out slow_p
   and printed with their error.
 - `--counts`, `--blocks`, the block range flags and `--per-block` are rejected: the list sets the requests.
 
+Typical lists, one per kind of tx, each replayed with `rpc_perf -i` to follow every tx on its own line:
+
+| List | Txs | Look at |
+|------|-----|---------|
+| `slow_vs_<client>.txt` | calls much slower than on another client, each with a different bottleneck | the p50 of each tx, on both clients with the same `-t` and `-r` |
+| `p99_spikes.txt` | calls whose p99 is much worse than their p50 (lock contention, disk reads) | how the p99 grows from a low to a high rate, e.g. `-t 50:30,500:30 -P` |
+| `popular_contracts.txt` | calls to the most used contracts | the p50 and p99 under a realistic rate |
+| `heavy.txt` | calls that use a lot of gas | the latency of each tx, which grows with its gas |
+
+The `.claude/skills/perf-pattern-add` skill has the steps to find and add such txs.
+
 ## Converting Vegeta patterns to JSONL
 
 `rpc_pattern_convert` turns a Vegeta pattern into JSONL: one JSON-RPC request per line, compacted, in the

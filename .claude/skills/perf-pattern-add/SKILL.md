@@ -27,8 +27,8 @@ make rpc_pattern_gen rpc_perf
 
 ## Add a tx to a list
 
-1. Pick the list of its kind in `perf/pattern/<network>/txs/` (e.g. `slow_vs_geth.txt`, `heavy.txt`), or
-   create a new one for a new kind. Comment lines start with `#`; say where the txs come from.
+1. Pick the list of its kind (e.g. `slow_vs_geth.txt`, `heavy.txt`; see step 5 of the workflow for where the
+   lists go), or create a new one for a new kind. Comment lines start with `#`; say where the txs come from.
 2. Add one line `<name> <hash>`. The name is a free label, unique in the file: a sequence number and a
    short summary of the bottleneck, e.g. `17-ecrecover-330-110KB`. The number makes it easy to find in a
    long output; do not reuse numbers.
@@ -128,6 +128,7 @@ miss the caches:
    - Do not overwrite an existing historical pattern: a new dataset goes into a new file.
 3. **Generate** with `--verify` and read the summary: the requests written and the txs dropped.
 4. **Replay** a short run (`-t 50:30 -r 1`) and check the success rate and the errors.
-5. **Save**: lists in `perf/pattern/<network>/txs/`; a `parent` or historical `.jsonl` next to them, named
-   after its source and block (`<api>_<block>.jsonl` for a range). A `latest` pattern is regenerated from its
-   list, not saved.
+5. **Save**: where the lists and patterns go is not settled yet. The proposal: lists in
+   `perf/pattern/<network>/txs/`, a `parent` or historical `.jsonl` next to them named after its source and
+   block (`<api>_<block>.jsonl` for a range), and a `latest` pattern regenerated from its list rather than
+   saved. Ask before adding files to the repo.

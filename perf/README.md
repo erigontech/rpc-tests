@@ -2,7 +2,9 @@
 
 `rpc_perf` replays a pattern file, a list of JSON-RPC requests, against a node at fixed rates with
 [Vegeta](https://github.com/tsenart/vegeta/), and reports the latencies and the errors of each run.
-The patterns are generated with `rpc_pattern_gen` (see [`pattern/README.md`](pattern/README.md)).
+The patterns are generated with `rpc_pattern_gen` (see [`pattern/README.md`](pattern/README.md)), or by
+the `bench*` commands of Erigon's `cmd/rpctest` (e.g. `benchEthCall`), which also write the requests they
+send as `<method>.jsonl` (see [Pattern files](#pattern-files)).
 
 ## Quick start
 
@@ -187,7 +189,7 @@ An example test at 500 qps for 30 s, with `-v`:
 ```
 
 - `[1.1]`: test 1 of the sequence, repetition 1.
-- `success`: requests answered with HTTP 200. A JSON-RPC error comes with HTTP 200 too, so it counts as a
-  success here; `rpc_errors` counts them apart, with the most frequent message.
+- `success`: requests answered with an HTTP status below 400. A JSON-RPC error comes with HTTP 200, so it
+  counts as a success here; `rpc_errors` counts them apart, with the most frequent message.
 - `result`, `error` (`-v`): requests with a result, and requests failed by HTTP or with a JSON-RPC error.
 - `empty` (`-v`): results that are `null` or `[]`, valid for some methods, counted apart.

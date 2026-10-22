@@ -51,7 +51,7 @@ make rpc_perf
 ```
 
 - `[1.1]`: test 1 of the sequence, repetition 1.
-- `success` counts HTTP 200 only: a JSON-RPC error is a success there. Look at `rpc_errors=` on the
+- `success` counts the HTTP statuses below 400: a JSON-RPC error, sent with HTTP 200, is a success there. Look at `rpc_errors=` on the
   same line and at the `error` column of `-v`/`-i`.
 - `empty`: results that are `null` or `[]`, valid for some methods.
 - A test with 0% success stops the run.
