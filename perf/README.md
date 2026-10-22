@@ -146,7 +146,7 @@ A test with 0% success always stops the run.
 | Option | Default | Description |
 |--------|---------|-------------|
 | `-v`, `--verbose` | off | After each test, print a line per method: requests, share, result/empty/error rates, p50, p99, max |
-| `-P`, `--more-percentiles` | off | Print p50, p90, p95 and p99 too, in the test line and in the `-v` table |
+| `-P`, `--more-percentiles` | off | Print p50, p90, p95 and p99 too, in the test line (also of the OK responses, as `lat_ok`) and in the `-v` table |
 | `-I`, `--instant-report` | off | Print the full Vegeta report of each test (latencies, bytes, status codes, errors) |
 | `-x`, `--tracing` | off | As `-v`, plus the steps of the run (pattern copy and extraction) |
 | `-i`, `--by-id` | off | Print the `-v` table by request `id` instead of by method, ordered by the number the ids start with: one line per tx of a pattern built with `rpc_pattern_gen --txs` |
@@ -168,6 +168,11 @@ A test with 0% success always stops the run.
 | `-g`, `--client-build-dir` | | Client source folder: its git commit goes into the report |
 | `-c`, `--run-vegeta-on-core` | `-:-` | Taskset written in the report; `rpc_perf` does not pin itself, run it under `taskset` to do so |
 | `-M`, `--max-body-rsp` | `1500` | Bytes of each response body kept in the Vegeta binary file of the report (`-1`: the whole body) |
+
+The CSV has one row per test: the latencies and the success ratio of all the responses, then `RpcRatio`,
+`50ok`, `90ok`, `95ok`, `99ok` and `MaxOk` of the OK responses. The JSON report has, for each repetition,
+the Vegeta report (`vegetaReport`), `rpcSuccessRatio` and `latenciesOk` (ns, with the keys of the Vegeta
+report).
 
 With a report, the Vegeta binary file of each test (every request with its latency, status and the
 first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/reports/bin/` with `-u`).
@@ -193,3 +198,14 @@ An example test at 500 qps for 30 s, with `-v`:
   counts as a success here; `rpc_errors` counts them apart, with the most frequent message.
 - `result`, `error` (`-v`): requests with a result, and requests failed by HTTP or with a JSON-RPC error.
 - `empty` (`-v`): results that are `null` or `[]`, valid for some methods, counted apart.
+- `rpc_success`, `p99_ok`: the rate and the p99 of the OK responses, HTTP 200 and no JSON-RPC error (`null`
+  and `[]` count as OK). With `-P`, `lat_ok=[...]` gives all their percentiles.
+
+The two series differ when calls fail. An `eth_call` pattern generated without `--verify`, with `-P`:
+
+```
+[1.1] erigon: executes test qps: 100 time: 10 -> success=100.00% lat=[p50=   478µs  p90=   803µs  p95=  1.22ms  p99=  6.36ms  max= 27.97ms] rpc_errors=493 (49.30%) top=execution reverted (x239) (+3 more) rpc_success= 50.70% lat_ok=[p50=   454µs  p90=   806µs  p95=  1.44ms  p99=  7.44ms  max= 27.97ms]
+```
+
+Half of the calls fail with a JSON-RPC error, so `success` stays at 100% while `rpc_success` is 50.70%; the
+errors are fast, so the p99 of all the responses (6.36 ms) is below the p99 of the OK ones (7.44 ms).
