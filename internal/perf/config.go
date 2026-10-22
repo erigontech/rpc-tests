@@ -55,6 +55,7 @@ type Config struct {
 	InstantReport          bool
 	HaltOnVegetaError      bool
 	DisableHttpCompression bool
+	ByID                   bool
 }
 
 // NewConfig creates a new Config with default values.

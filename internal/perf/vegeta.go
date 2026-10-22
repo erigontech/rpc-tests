@@ -12,10 +12,13 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -289,16 +292,14 @@ func (pt *PerfTest) loadTargets(filepath string) ([]vegeta.Target, error) {
 			return nil, fmt.Errorf("failed to parse target: %w", err)
 		}
 
-		url := vt.URL
-		// The method rides in the URL fragment, which is never sent, so each result tells its API.
-		if pt.Config.Verbose {
-			if method := jsonrpcMethod(vt.Body); method != "" {
-				url += "#" + method
-			}
+		targetURL := vt.URL
+		// The method, or the id with ByID, rides in the URL fragment, which is never sent, so each result tells its request.
+		if key := pt.resultKey(vt.Body); key != "" {
+			targetURL += "#" + url.PathEscape(key)
 		}
 		target := vegeta.Target{
 			Method: vt.Method,
-			URL:    url,
+			URL:    targetURL,
 			Body:   vt.Body,
 			Header: make(http.Header),
 		}
@@ -505,10 +506,12 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 	resultRecord += formatRPCErrors(results.rpcErrors, metrics.Requests)
 	resultRecord += formatEmpty(results.empty, metrics.Requests)
 	fmt.Println(resultRecord)
-	if pt.Config.Verbose {
-		for _, line := range formatAPIResults(results.apis, pt.Config.MorePercentiles) {
-			fmt.Println(line)
-		}
+	lines := formatAPIResults(results.apis, pt.Config.MorePercentiles)
+	if pt.Config.ByID {
+		lines = formatIDResults(results.apis, pt.Config.MorePercentiles)
+	}
+	for _, line := range lines {
+		fmt.Println(line)
 	}
 
 	if errorMsg != "" && pt.Config.HaltOnVegetaError {
@@ -742,7 +745,7 @@ func formatRPCErrors(rpcErrors map[string]int, requests uint64) string {
 type attackResults struct {
 	rpcErrors map[string]int        // JSON-RPC error responses by kind
 	empty     int                   // results that are null or an empty list
-	apis      map[string]*apiResult // by method, for targets tagged by loadTargets
+	apis      map[string]*apiResult // by method, or by id with ByID, for targets tagged by loadTargets
 }
 
 type apiResult struct {
@@ -752,12 +755,15 @@ type apiResult struct {
 	latencies vegeta.LatencyMetrics
 }
 
-// add counts one result and strips the method fragment from its URL, so that the .bin holds
+// add counts one result and strips the method or id fragment from its URL, so that the .bin holds
 // the URL the node received.
 func (r *attackResults) add(result *vegeta.Result) {
 	base, api, tagged := strings.Cut(result.URL, "#")
 	if tagged {
 		result.URL = base
+		if key, err := url.PathUnescape(api); err == nil {
+			api = key
+		}
 	}
 	kind, empty := "", false
 	if result.Code == http.StatusOK {
@@ -791,6 +797,33 @@ func (r *attackResults) add(result *vegeta.Result) {
 	}
 }
 
+// resultKey returns the key the results of a request are split by: its id with ByID, its method
+// with Verbose, or "" when they are not split.
+func (pt *PerfTest) resultKey(body []byte) string {
+	switch {
+	case pt.Config.ByID:
+		return jsonrpcID(body)
+	case pt.Config.Verbose:
+		return jsonrpcMethod(body)
+	}
+	return ""
+}
+
+// jsonrpcID returns the id of a JSON-RPC request body as text: a string id unquoted, a number as written.
+func jsonrpcID(body []byte) string {
+	var req struct {
+		ID json.RawMessage `json:"id"`
+	}
+	if json.Unmarshal(body, &req) != nil || len(req.ID) == 0 {
+		return ""
+	}
+	var id string
+	if json.Unmarshal(req.ID, &id) == nil {
+		return id
+	}
+	return string(req.ID)
+}
+
 // jsonrpcMethod returns the method of a JSON-RPC request body, or "" if it has none.
 func jsonrpcMethod(body []byte) string {
 	var req struct {
@@ -806,35 +839,68 @@ func jsonrpcMethod(body []byte) string {
 // results, empty results and errors and its latencies (p50, p99 and max, plus p90 and p95 with morePercentiles),
 // the largest share first.
 func formatAPIResults(apis map[string]*apiResult, morePercentiles bool) []string {
-	if len(apis) == 0 {
-		return nil
-	}
-	total := 0
-	names := make([]string, 0, len(apis))
-	for name, a := range apis {
-		total += a.requests
-		names = append(names, name)
-	}
+	names := slices.Collect(maps.Keys(apis))
 	sort.Slice(names, func(i, j int) bool {
 		ai, aj := apis[names[i]], apis[names[j]]
 		return ai.requests > aj.requests || (ai.requests == aj.requests && names[i] < names[j])
 	})
+	return formatResults("api", names, apis, morePercentiles)
+}
+
+// formatIDResults returns the table of formatAPIResults by request id, ordered by the number the ids
+// start with, as in "3-sload-storm", then by id.
+func formatIDResults(ids map[string]*apiResult, morePercentiles bool) []string {
+	names := slices.Collect(maps.Keys(ids))
+	sort.Slice(names, func(i, j int) bool {
+		ni, iok := leadingNumber(names[i])
+		nj, jok := leadingNumber(names[j])
+		if iok != jok {
+			return iok
+		}
+		if ni != nj {
+			return ni < nj
+		}
+		return names[i] < names[j]
+	})
+	return formatResults("id", names, ids, morePercentiles)
+}
+
+// leadingNumber returns the number a name starts with, if any.
+func leadingNumber(name string) (int, bool) {
+	end := strings.IndexFunc(name, func(r rune) bool { return r < '0' || r > '9' })
+	if end < 0 {
+		end = len(name)
+	}
+	n, err := strconv.Atoi(name[:end])
+	return n, err == nil
+}
+
+// formatResults returns the table of the results of names, in this order, under the column title.
+func formatResults(title string, names []string, results map[string]*apiResult, morePercentiles bool) []string {
+	if len(names) == 0 {
+		return nil
+	}
+	total, width := 0, 30
+	for _, name := range names {
+		total += results[name].requests
+		width = max(width, len(name))
+	}
 	quantiles := []float64{0.50, 0.99}
-	header := fmt.Sprintf("      %-30s %7s %6s %8s %8s %8s %9s %9s %9s", "api", "reqs", "share", "result", "empty", "error", "p50", "p99", "max")
+	header := fmt.Sprintf("      %-*s %7s %6s %8s %8s %8s %9s %9s %9s", width, title, "reqs", "share", "result", "empty", "error", "p50", "p99", "max")
 	if morePercentiles {
 		quantiles = []float64{0.50, 0.90, 0.95, 0.99}
-		header = fmt.Sprintf("      %-30s %7s %6s %8s %8s %8s %9s %9s %9s %9s %9s", "api", "reqs", "share", "result", "empty", "error", "p50", "p90", "p95", "p99", "max")
+		header = fmt.Sprintf("      %-*s %7s %6s %8s %8s %8s %9s %9s %9s %9s %9s", width, title, "reqs", "share", "result", "empty", "error", "p50", "p90", "p95", "p99", "max")
 	}
 	lines := []string{header}
 	for _, name := range names {
-		a := apis[name]
+		a := results[name]
 		failed := 0
 		for _, n := range a.errors {
 			failed += n
 		}
 		pct := func(n int) float64 { return 100 * float64(n) / float64(a.requests) }
 		var line strings.Builder
-		fmt.Fprintf(&line, "      %-30s %7d %5.1f%% %7.1f%% %7.1f%% %7.1f%%", name, a.requests, 100*float64(a.requests)/float64(total), pct(a.requests-failed), pct(a.empty), pct(failed))
+		fmt.Fprintf(&line, "      %-*s %7d %5.1f%% %7.1f%% %7.1f%% %7.1f%%", width, name, a.requests, 100*float64(a.requests)/float64(total), pct(a.requests-failed), pct(a.empty), pct(failed))
 		for _, q := range quantiles {
 			fmt.Fprintf(&line, " %9s", FormatDuration(a.latencies.Quantile(q)))
 		}

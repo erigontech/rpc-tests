@@ -309,3 +309,32 @@ func TestRunPerfTestsNamesAJSONLPatternAfterItsMethod(t *testing.T) {
 		t.Errorf("testingApi with --test-type: got %q, want receipts_15M", got)
 	}
 }
+
+func TestRunPerfTestsByIDPrintsALinePerID(t *testing.T) {
+	server := fakeNode(t)
+	pattern := filepath.Join(t.TempDir(), "txs.jsonl")
+	lines := `{"jsonrpc":"2.0","method":"eth_call","params":[],"id":"2-sload-storm"}` + "\n" +
+		`{"jsonrpc":"2.0","method":"eth_call","params":[],"id":"1-div-loop"}` + "\n"
+	if err := os.WriteFile(pattern, []byte(lines), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	original := os.Stdout
+	os.Stdout = w
+	app := &cli.App{Name: "rpc_perf", Flags: perfFlags(), Action: runPerfTests, Writer: io.Discard, ErrWriter: io.Discard}
+	runErr := app.Run([]string{"rpc_perf", "--pattern-file", pattern, "--rpc-client-address", strings.TrimPrefix(server.URL, "http://"),
+		"--test-sequence", "20:1", "--repetitions", "1", "--wait-after-test-sequence", "0", "--not-verify-server-alive", "--by-id"})
+	os.Stdout = original
+	w.Close()
+	out, _ := io.ReadAll(r)
+	if runErr != nil {
+		t.Fatalf("rpc_perf --by-id: %v", runErr)
+	}
+	first, second := strings.Index(string(out), "      1-div-loop "), strings.Index(string(out), "      2-sload-storm ")
+	if first < 0 || second < first {
+		t.Errorf("want a line for 1-div-loop and then for 2-sload-storm, got:\n%s", out)
+	}
+}
