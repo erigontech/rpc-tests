@@ -185,7 +185,9 @@ Typical lists, one per kind of tx, each replayed with `rpc_perf -i` to follow ev
 | `popular_contracts.txt` | calls to the most used contracts | the p50 and p99 under a realistic rate |
 | `heavy.txt` | calls that use a lot of gas | the latency of each tx, which grows with its gas |
 
-The `.claude/skills/perf-pattern-add` skill has the steps to find and add such txs.
+The lists are kept in `perf/pattern/<network>/txs/`, with the `parent` pattern of each list next to it
+(see [`mainnet/txs/README.md`](mainnet/txs/README.md)). The `.claude/skills/perf-pattern-add` skill has the
+steps to find and add such txs.
 
 ## Converting Vegeta patterns to JSONL
 
