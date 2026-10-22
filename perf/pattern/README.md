@@ -1,8 +1,14 @@
 # Vegeta patterns and `rpc_pattern_gen`
 
-`rpc_perf` replays a Vegeta pattern: a tar file holding the JSON-RPC requests to send. This directory
-keeps the patterns of each network (`<network>/stress_test_*.tar`) and the profiles used to generate new
-ones (`<network>/config/*.profile`).
+`rpc_perf` replays a pattern: the JSON-RPC requests to send, as a [JSONL file](#jsonl-output) or a Vegeta
+tar. This directory keeps, for each network:
+
+- the historical patterns, fixed datasets for comparisons over time: `<network>/<api>_<block>.jsonl`, named
+  after their method and the full first block of their range (e.g. `eth_getLogs_24100000.jsonl`), and the
+  older `<network>/stress_test_*.tar`. A historical pattern is not changed afterwards: a new dataset goes
+  into a new file;
+- the profiles used to generate new patterns (`<network>/config/*.profile`);
+- the tx lists, with the `parent` pattern of each one (`<network>/txs/`).
 
 `rpc_pattern_gen` builds a pattern from the recent blocks of a running node, or from a range of blocks
 (see [Block range](#block-range)): it reads blocks from the head, turns their transactions, blocks or logs into requests, optionally runs each request on the node
@@ -206,6 +212,21 @@ rpc_pattern_gen eth_call --txs slow.txt --block-tag parent --verify --out slow_p
   ```bash
   ./build/bin/rpc_perf -p slow_parent.jsonl -Z -t 50:30 -r 1 -i
   ```
+
+  ```
+  [1.1] rpcdaemon: executes test qps: 50 time: 30 -> success=100.00% lat=[max= 39.04ms]
+        id                                      reqs  share   result    empty    error       p50       p99       max
+        2-5a158d08-div-loop-28M                  100   6.7%   100.0%     0.0%     0.0%   36.21ms   38.77ms   39.04ms
+        3-36e4e351-dispatch-oog-51KB             100   6.7%   100.0%     0.0%     0.0%   19.99ms   27.31ms   27.70ms
+        4-ea93481b-sload-storm                   100   6.7%   100.0%     0.0%     0.0%   16.64ms   29.96ms   30.52ms
+        ...
+        13-c0b6ab3a-storage-b9c2                 100   6.7%   100.0%     0.0%     0.0%     961µs    1.88ms    2.14ms
+        ...
+        16-52c62f26-create-selfdestruct-2c20     100   6.7%   100.0%     0.0%     0.0%    3.04ms    4.56ms    4.58ms
+  ```
+
+  The lines follow the number the names start with. Here the `max` of the whole test is the one of
+  `div-loop-28M`: without `-i` the other txs would be hidden behind it.
 - The name is a free label, unique in the file. A short summary of the bottleneck, after a sequence
   number, is easy to find in a long output: `3-sload-storm`.
 - `latest` runs the calls on the state at replay: the same code and input on the current storage, so the
@@ -217,6 +238,19 @@ rpc_pattern_gen eth_call --txs slow.txt --block-tag parent --verify --out slow_p
 - A tx that the node does not know fails the run. With `--verify`, the txs whose call fails are dropped
   and printed with their error.
 - `--counts`, `--blocks`, the block range flags and `--per-block` are rejected: the list sets the requests.
+
+Typical lists, one per kind of tx, each replayed with `rpc_perf -i` to follow every tx on its own line:
+
+| List | Txs | Look at |
+|------|-----|---------|
+| `slow_vs_<client>.txt` | calls much slower than on another client, each with a different bottleneck | the p50 of each tx, on both clients with the same `-t` and `-r` |
+| `p99_spikes.txt` | calls whose p99 is much worse than their p50 (lock contention, disk reads) | how the p99 grows from a low to a high rate, e.g. `-t 50:30,500:30 -P` |
+| `popular_contracts.txt` | calls to the most used contracts | the p50 and p99 under a realistic rate |
+| `heavy.txt` | calls that use a lot of gas | the latency of each tx, which grows with its gas |
+
+The lists are kept in `perf/pattern/<network>/txs/`, with the `parent` pattern of each list next to it
+(see [`mainnet/txs/README.md`](mainnet/txs/README.md)). The `.claude/skills/perf-pattern-add` skill has the
+steps to find and add such txs.
 
 ## Converting Vegeta patterns to JSONL
 
