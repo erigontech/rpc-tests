@@ -94,12 +94,12 @@ OPTIONS:
    -D, --testing-client <value>            Name of testing client [default: rpcdaemon]
    -n, --process-name <value>             Server process name for liveness check (default: testing-client)
    -b, --blockchain <value>               Blockchain network name [default: mainnet]
-   -y, --test-type <value>                Test type (e.g., eth_call, eth_getLogs) [default: eth_getLogs]
-   -p, --pattern-file <value>             Path to the Vegeta attack pattern file
+   -y, --test-type <value>                Test name in the reports; with a tar, also the vegeta file to replay; with a .jsonl, defaults to the method of its requests, or mixed [default: eth_getLogs]
+   -p, --pattern-file <value>             Path to the pattern file: a Vegeta tar, or a .jsonl with one JSON-RPC request per line
    -r, --repetitions <value>              Number of repetitions for each test in sequence [default: 10]
    -t, --test-sequence <value>            Test sequence as qps:duration,... [default: 50:30,1000:30,2500:20,10000:20]
    -w, --wait-after-test-sequence <value>  Wait time between test iterations in seconds [default: 5]
-   -d, --rpc-client-address <value>        Client address [default: localhost]
+   -d, --rpc-client-address <value>        Client address; with a .jsonl pattern, host or host:port (default port 8545) [default: localhost]
    -g, --client-build-dir <value>          Path to Client build folder
    -c, --run-vegeta-on-core <value>        Taskset format for Vegeta [default: -:-]
    -T, --response-timeout <value>          Vegeta response timeout [default: 300s]
@@ -113,11 +113,28 @@ OPTIONS:
 Results are written to output and, when `-R` is specified, also to a CSV file at `/tmp/<network>/<machine>/<test_type><date_time>_<additional_test>_perf.csv`.
 When `-u` is specified, the CSV file is written to `./reports/<network>/<machine>/` ready to be committed into the Git repository.
 
+### Pattern files
+
+`-p` takes either format:
+
+- **Vegeta tar** (`.tar`, `.tar.gz`, ...): holds `erigon_stress_test/vegeta_erigon_<test-type>.txt`, one Vegeta
+  target per line. `-y` selects the file in the tar, and `localhost` in the target URLs is replaced with `-d`.
+- **JSONL** (`.jsonl`): one JSON-RPC request per line, as written by `rpc_pattern_gen --out <file>.jsonl`
+  (see [`pattern/README.md`](pattern/README.md#jsonl-output)). The file is read in place; each request is
+  posted to `http://<-d>:8545`, or to the port given in `-d` as `host:port`. `-y` is optional: it names
+  the test in the reports (result files, CSV, JSON report) and defaults to the method of the requests, or
+  `mixed` when they use several methods.
+
 ### Invocation examples
 
 Run perf eth_call test with default test sequence (50:30,1000:30,2500:20,10000:20), each repeated 10 times:
 ```bash
 ./build/bin/rpc_perf -y eth_call -p pattern/mainnet/stress_test_eth_call_001_14M.tar
+```
+
+Run a JSONL pattern against a node on another host and port:
+```bash
+./build/bin/rpc_perf -p eth_call.jsonl -d 10.0.0.5:8546 -t 1000:30
 ```
 
 Run with custom test sequence and 5 repetitions:

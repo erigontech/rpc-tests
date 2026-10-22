@@ -819,3 +819,144 @@ func TestFormatAPIResultsLatencies(t *testing.T) {
 		t.Errorf("row %q, want p50 %v, p99 %v and max 100.00ms", row, p50, p99)
 	}
 }
+
+// newJSONLPerf wires a PerfTest on a JSONL pattern holding lines, replayed against clientAddress.
+func newJSONLPerf(t *testing.T, clientAddress string, lines ...string) (*PerfTest, *Config, *RunDirs) {
+	t.Helper()
+	quietStdout(t)
+	dir := t.TempDir()
+	cfg := NewConfig()
+	cfg.TestType = "eth_call"
+	cfg.VegetaPatternTarFile = filepath.Join(dir, "eth_call.jsonl")
+	if err := os.WriteFile(cfg.VegetaPatternTarFile, []byte(strings.Join(lines, "\n")+"\n"), 0644); err != nil {
+		t.Fatalf("write jsonl: %v", err)
+	}
+	cfg.ClientAddress = clientAddress
+	cfg.CheckServerAlive = false
+	cfg.Repetitions = 1
+
+	dirs := NewRunDirs()
+	dirs.RunTestDir = filepath.Join(dir, "run")
+	dirs.PatternDir = dirs.RunTestDir + "/erigon_stress_test"
+	dirs.ReportFile = dirs.RunTestDir + "/vegeta_report.hrd"
+	dirs.TarFileName = dirs.RunTestDir + "/vegeta_TAR_File"
+	dirs.PatternBase = dirs.RunTestDir + "/erigon_stress_test/vegeta_erigon_"
+
+	pt, err := NewPerfTest(cfg, NewTestReport(cfg, dirs), dirs)
+	if err != nil {
+		t.Fatalf("NewPerfTest: %v", err)
+	}
+	t.Cleanup(func() { _ = pt.Cleanup(true) })
+	return pt, cfg, dirs
+}
+
+const jsonlCall = `{"jsonrpc":"2.0","method":"eth_call","params":[{"to":"0x02"},"0x10"],"id":1}`
+
+func TestLoadTargetsJSONLPostsEachLineToTheClientAddress(t *testing.T) {
+	pt, cfg, _ := newJSONLPerf(t, "10.0.0.5", jsonlCall, "", `{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}`)
+
+	targets, err := pt.loadTargets(cfg.VegetaPatternTarFile)
+	if err != nil {
+		t.Fatalf("loadTargets: %v", err)
+	}
+	if len(targets) != 2 {
+		t.Fatalf("targets: got %d, want 2 (blank lines skipped)", len(targets))
+	}
+	tg := targets[0]
+	if tg.Method != "POST" || tg.URL != "http://10.0.0.5:8545" {
+		t.Errorf("target %s %s, want POST http://10.0.0.5:8545", tg.Method, tg.URL)
+	}
+	if got := tg.Header.Get("Content-Type"); got != "application/json" {
+		t.Errorf("Content-Type header: got %q", got)
+	}
+	if string(tg.Body) != jsonlCall {
+		t.Errorf("body %s, want the line %s", tg.Body, jsonlCall)
+	}
+}
+
+func TestLoadTargetsJSONLKeepsThePortOfTheClientAddress(t *testing.T) {
+	pt, cfg, _ := newJSONLPerf(t, "10.0.0.5:8546", jsonlCall)
+
+	targets, err := pt.loadTargets(cfg.VegetaPatternTarFile)
+	if err != nil {
+		t.Fatalf("loadTargets: %v", err)
+	}
+	if targets[0].URL != "http://10.0.0.5:8546" {
+		t.Errorf("url %s, want http://10.0.0.5:8546", targets[0].URL)
+	}
+}
+
+func TestLoadTargetsJSONLRejectsALineThatIsNotJSON(t *testing.T) {
+	pt, cfg, _ := newJSONLPerf(t, "localhost", jsonlCall, "not json")
+
+	if _, err := pt.loadTargets(cfg.VegetaPatternTarFile); err == nil {
+		t.Error("want an error for a line that is not JSON")
+	}
+}
+
+func TestExecuteReplaysAJSONLPattern(t *testing.T) {
+	var (
+		mu     sync.Mutex
+		bodies []string
+	)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		mu.Lock()
+		bodies = append(bodies, string(body))
+		mu.Unlock()
+		_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":"0x"}`))
+	}))
+	defer server.Close()
+
+	pt, _, _ := newJSONLPerf(t, strings.TrimPrefix(server.URL, "http://"), jsonlCall)
+
+	format := ResultFormat{MaxRepetitionDigits: 1, MaxQpsDigits: 2, MaxDurationDigits: 1}
+	if err := pt.Execute(context.Background(), 1, 0, "rpcdaemon", 10, 1, format); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if len(bodies) == 0 {
+		t.Fatal("the attack should have reached the server")
+	}
+	for _, b := range bodies {
+		if b != jsonlCall {
+			t.Errorf("server received %s, want %s", b, jsonlCall)
+		}
+	}
+}
+
+func TestJSONLTestType(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		lines []string
+		want  string
+	}{
+		{"one method", []string{jsonlCall, "", jsonlCall}, "eth_call"},
+		{"several methods", []string{jsonlCall, `{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}`}, "mixed"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "p.jsonl")
+			if err := os.WriteFile(path, []byte(strings.Join(tc.lines, "\n")+"\n"), 0644); err != nil {
+				t.Fatal(err)
+			}
+			got, err := JSONLTestType(path)
+			if err != nil {
+				t.Fatalf("JSONLTestType: %v", err)
+			}
+			if got != tc.want {
+				t.Errorf("got %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestJSONLTestTypeWithoutRequestsFails(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "p.jsonl")
+	if err := os.WriteFile(path, []byte("\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := JSONLTestType(path); err == nil {
+		t.Error("want an error for a pattern without requests")
+	}
+}

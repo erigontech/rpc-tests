@@ -6,7 +6,8 @@ ones (`<network>/config/*.profile`).
 
 `rpc_pattern_gen` builds a pattern from the recent blocks of a running node, or from a range of blocks
 (see [Block range](#block-range)): it reads blocks from the head, turns their transactions, blocks or logs into requests, optionally runs each request on the node
-to keep only the working ones, and writes the tar that `rpc_perf --pattern-file` reads.
+to keep only the working ones, and writes the tar that `rpc_perf --pattern-file` reads, or a
+[JSONL file](#jsonl-output) with the plain requests.
 
 ## Build
 
@@ -34,6 +35,26 @@ request. `<name>` is `--name` when set, otherwise the method for a single method
 and is the value to pass to `rpc_perf --test-type` (`-y`). Each target posts to `--target-url`
 (default `http://localhost:8545`); `rpc_perf` replaces `localhost` with its `--rpc-client-address`.
 
+## JSONL output
+
+When `--out` ends in `.jsonl`, `rpc_pattern_gen` writes the same requests, in the same order, as plain
+JSONL: one JSON-RPC request per line, with no Vegeta target, URL, header or base64. The file can be read,
+grepped and diffed as it is, and `rpc_perf -p` replays it directly (see [`../README.md`](../README.md#pattern-files)),
+as can any other load tool.
+
+```bash
+rpc_pattern_gen eth_call --counts 400000 --block-tag parent --verify --out eth_call.jsonl
+rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400000 --verify --out mixed.jsonl
+./build/bin/rpc_perf -p mixed.jsonl -t 1000:30,2000:30
+```
+
+```
+{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x...","to":"0x...","gas":"0x5208","value":"0x0"},"0x12a05f1"],"id":1}
+{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x12a05f2",false],"id":1}
+```
+
+`--target-url` and `--name` describe the Vegeta tar only, so they are rejected with a `.jsonl` output.
+
 ## Two ways to run it
 
 ### Subcommands: one method, from the head downwards
@@ -55,7 +76,7 @@ random blocks between 13M and 14M:
 
 ```bash
 rpc_pattern_gen eth_call --start-block 13000000 --end-block 13999999 --sample-blocks 1000 --per-block 1 \
-    --block-tag parent --verify --out eth_call_13000000.tar
+    --block-tag parent --verify --out eth_call_13000000.jsonl
 ```
 
 The blocks are read from the highest down and the run stops at `--counts`, so to cover the whole range
@@ -134,7 +155,7 @@ rpc_pattern_convert --in /tmp/erigon_stress_test/vegeta_erigon_eth_call.txt --ou
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--url` | `http://localhost:8545` | Node used to read the blocks and verify the requests |
-| `--target-url` | `http://localhost:8545` | URL written in each Vegeta target |
+| `--target-url` | `http://localhost:8545` | URL written in each Vegeta target (tar output only) |
 | `--counts` | | Number of requests to write (exclusive with `--blocks`) |
 | `--blocks` | | Read this many blocks from the head (subcommands only) |
 | `--max-blocks` | 3000 | With a profile, the window of recent blocks the requests are drawn from; with `--start-block`, the length of the range |
@@ -146,10 +167,10 @@ rpc_pattern_convert --in /tmp/erigon_stress_test/vegeta_erigon_eth_call.txt --ou
 | `--verify` | off | Run every request on the node and count the failures |
 | `--keep` | `ok` | With `--verify`, the requests to write: `ok` (only the working ones) or `all` |
 | `--min-count` | | Fail if fewer requests are written |
-| `--name` | method or `mixed` | Name of the Vegeta file in the tar, the `rpc_perf -y` value |
+| `--name` | method or `mixed` | Name of the Vegeta file in the tar, the `rpc_perf -y` value (tar output only) |
 | `--per-block` | all | Subcommands only: take at most this many txs (or logs for eth_getLogs) of each block, picked at random with the block number as seed |
 | `--workers` | 16 | Concurrent requests to the node |
-| `--out` | | Output tar file (required) |
+| `--out` | | Output file (required): a Vegeta tar, gzipped for `.tar.gz`/`.tgz`, or [JSONL](#jsonl-output) for `.jsonl` |
 | `-v`, `--verbose` | off | Print the verification statistics per method and error kind |
 
 With `--verify`, per-tx and per-log requests are checked one by one until each method has enough working
