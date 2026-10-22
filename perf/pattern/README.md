@@ -149,6 +149,21 @@ rpc_pattern_gen eth_call --txs slow.txt --block-tag parent --verify --out slow_p
   ```bash
   ./build/bin/rpc_perf -p slow_parent.jsonl -Z -t 50:30 -r 1 -i
   ```
+
+  ```
+  [1.1] rpcdaemon: executes test qps: 50 time: 30 -> success=100.00% lat=[max= 39.04ms]
+        id                                      reqs  share   result    empty    error       p50       p99       max
+        2-5a158d08-div-loop-28M                  100   6.7%   100.0%     0.0%     0.0%   36.21ms   38.77ms   39.04ms
+        3-36e4e351-dispatch-oog-51KB             100   6.7%   100.0%     0.0%     0.0%   19.99ms   27.31ms   27.70ms
+        4-ea93481b-sload-storm                   100   6.7%   100.0%     0.0%     0.0%   16.64ms   29.96ms   30.52ms
+        ...
+        13-c0b6ab3a-storage-b9c2                 100   6.7%   100.0%     0.0%     0.0%     961µs    1.88ms    2.14ms
+        ...
+        16-52c62f26-create-selfdestruct-2c20     100   6.7%   100.0%     0.0%     0.0%    3.04ms    4.56ms    4.58ms
+  ```
+
+  The lines follow the number the names start with. Here the `max` of the whole test is the one of
+  `div-loop-28M`: without `-i` the other txs would be hidden behind it.
 - The name is a free label, unique in the file. A short summary of the bottleneck, after a sequence
   number, is easy to find in a long output: `3-sload-storm`.
 - `latest` runs the calls on the state at replay: the same code and input on the current storage, so the
