@@ -92,6 +92,15 @@ func (n *fakeNode) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":[`+
 			`{"address":"0x0000000000000000000000000000000000000002","topics":["0x7e","0x01","0x02"],"transactionHash":"0xa","logIndex":"0x0"},`+
 			`{"address":"0x0000000000000000000000000000000000000002","topics":["0x7e","0x01","0x02"],"transactionHash":"0xb","logIndex":"0x1"}%s]}`, extra)
+	case "eth_getBlockReceipts":
+		var num string
+		_ = json.Unmarshal(req.Params[0], &num)
+		n, _ := strconv.ParseUint(strings.TrimPrefix(num, "0x"), 16, 64)
+		// The first tx uses 1000 gas per block number, the second 21000; the third failed and used the most.
+		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":[`+
+			`{"transactionHash":"0x%064x","gasUsed":"0x%x","status":"0x1"},`+
+			`{"transactionHash":"0x%064x","gasUsed":"0x5208","status":"0x1"},`+
+			`{"transactionHash":"0x%064x","gasUsed":"0x989680","status":"0x0"}]}`, n*10, n*1000, n*10+1, n*10+2)
 	case "eth_getTransactionByHash":
 		var hash string
 		_ = json.Unmarshal(req.Params[0], &hash)

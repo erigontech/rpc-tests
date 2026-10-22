@@ -12,7 +12,7 @@ import (
 )
 
 // node answers eth_blockNumber and eth_getBlockByNumber with one block holding one tx, eth_getTransactionByHash
-// with that tx, and eth_getLogs with one log.
+// with that tx, eth_getBlockReceipts with its receipt, and eth_getLogs with one log.
 func node(t *testing.T) string {
 	t.Helper()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -25,6 +25,8 @@ func node(t *testing.T) string {
 			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":{"number":"0x10","hash":"0x1","transactions":[{"hash":"0xa","from":"0x01","to":"0x02","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"}]}}`)
 		case strings.Contains(req, "eth_getTransactionByHash"):
 			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":{"hash":"0xa","blockNumber":"0x10","from":"0x01","to":"0x02","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"}}`)
+		case strings.Contains(req, "eth_getBlockReceipts"):
+			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":[{"transactionHash":"0xa","gasUsed":"0x5208","status":"0x1"}]}`)
 		case strings.Contains(req, "eth_getLogs"):
 			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":[{"address":"0x02","topics":["0x7e"],"transactionHash":"0xa","logIndex":"0x0"}]}`)
 		default:
@@ -219,6 +221,26 @@ func TestEthCallCommandWithTxsWritesOneCallPerTx(t *testing.T) {
 		cmd := append([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--block-tag", "parent", "--txs", list, "--out", out}, args...)
 		if err := newApp().Run(cmd); err == nil {
 			t.Errorf("--txs with %v: want an error", args)
+		}
+	}
+}
+
+func TestTxListCommandWritesTheHeaviestTxs(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "candidates.txt")
+	if err := newApp().Run([]string{"rpc_pattern_gen", "tx-list", "--url", node(t), "--top-gas", "1", "--blocks", "1", "--out", out}); err != nil {
+		t.Fatalf("tx-list: %v", err)
+	}
+	data, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatalf("list not written: %v", err)
+	}
+	if !strings.Contains(string(data), "\n1-0.02Mgas 0xa\n") {
+		t.Errorf("not the heaviest tx: %s", data)
+	}
+	for _, args := range [][]string{{"--blocks", "1"}, {"--top-gas", "1"}, {"--top-gas", "1", "--blocks", "1", "--start-block", "5", "--end-block", "8"}} {
+		cmd := append([]string{"rpc_pattern_gen", "tx-list", "--url", node(t), "--out", out}, args...)
+		if err := newApp().Run(cmd); err == nil {
+			t.Errorf("tx-list %v: want an error", args)
 		}
 	}
 }
