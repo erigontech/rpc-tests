@@ -62,7 +62,17 @@ func sampleMetrics(repetition int) *PerfMetrics {
 		P99:          "4.00ms",
 		MaxLatency:   "9.00ms",
 		SuccessRatio: "100.00%",
+		OK:           sampleOK(),
 	}
+}
+
+// sampleOK is 3 OK responses out of 4 requests, all at 4 ms, so that every percentile is 4 ms.
+func sampleOK() OKMetrics {
+	ok := OKMetrics{Ratio: 0.75}
+	for range 3 {
+		ok.Latencies.Add(4 * time.Millisecond)
+	}
+	return ok
 }
 
 func TestTestReportCSVLifecycle(t *testing.T) {
@@ -106,11 +116,11 @@ func TestTestReportCSVLifecycle(t *testing.T) {
 	var header []string
 	var dataRows [][]string
 	for _, row := range records {
-		if len(row) == 14 && row[0] == "ClientName" {
+		if len(row) == 20 && row[0] == "ClientName" {
 			header = row
 			continue
 		}
-		if header != nil && len(row) == 14 {
+		if header != nil && len(row) == 20 {
 			dataRows = append(dataRows, row)
 		}
 	}
@@ -434,4 +444,93 @@ func TestGetGitCommit(t *testing.T) {
 	if got := GetGitCommit(t.TempDir()); got != "" {
 		t.Errorf("a non-repository directory should yield no commit, got %q", got)
 	}
+}
+
+func TestTestReportCSVAppendsTheOKColumns(t *testing.T) {
+	dirs := reportDirs(t)
+	cfg := NewConfig()
+	cfg.TestingClient = "rpcdaemon"
+	report := NewTestReport(cfg, dirs)
+	if err := report.Open(); err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	if err := report.WriteTestReport(sampleMetrics(0)); err != nil {
+		t.Fatalf("WriteTestReport: %v", err)
+	}
+	if err := report.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+	flat := flatten(readCSV(t, csvReportPath(t, dirs, cfg.ChainName)))
+	if !strings.Contains(flat, "\nClientName,TestNo,Repetition,Qps,Time(secs),Min,Mean,50,90,95,99,Max,Ratio,Error,RpcRatio,50ok,90ok,95ok,99ok,MaxOk\n") {
+		t.Errorf("the OK columns must follow the existing ones:\n%s", flat)
+	}
+	if !strings.Contains(flat, "\nrpcdaemon,1,0,100,5,1.00ms,2.00ms,1.80ms,3.00ms,3.50ms,4.00ms,9.00ms,100.00%,,75.00%,4.00ms,4.00ms,4.00ms,4.00ms,4.00ms\n") {
+		t.Errorf("data row without the OK values:\n%s", flat)
+	}
+}
+
+func TestTestReportJSONAddsTheOKMetrics(t *testing.T) {
+	dirs := reportDirs(t)
+	cfg := NewConfig()
+	cfg.TestingClient = "rpcdaemon"
+	cfg.JSONReportFile = filepath.Join(t.TempDir(), "report.json")
+	binary := filepath.Join(dirs.RunTestDir, BinaryDir, "run.bin")
+	writeVegetaBinary(t, binary)
+	cfg.BinaryFile, cfg.BinaryFileFullPathname = "run.bin", binary
+	report := NewTestReport(cfg, dirs)
+	if err := report.Open(); err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	if err := report.WriteTestReport(sampleMetrics(0)); err != nil {
+		t.Fatalf("WriteTestReport: %v", err)
+	}
+	if err := report.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+	data, err := os.ReadFile(cfg.JSONReportFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var parsed struct {
+		Results []struct {
+			TestRepetitions []struct {
+				VegetaReport    map[string]any   `json:"vegetaReport"`
+				RPCSuccessRatio float64          `json:"rpcSuccessRatio"`
+				LatenciesOK     map[string]int64 `json:"latenciesOk"`
+			} `json:"testRepetitions"`
+		} `json:"results"`
+	}
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		t.Fatal(err)
+	}
+	rep := parsed.Results[0].TestRepetitions[0]
+	if rep.VegetaReport == nil {
+		t.Error("the vegeta report must stay")
+	}
+	if rep.RPCSuccessRatio != 0.75 {
+		t.Errorf("rpcSuccessRatio = %v, want 0.75", rep.RPCSuccessRatio)
+	}
+	want := map[string]int64{"50th": 4e6, "90th": 4e6, "95th": 4e6, "99th": 4e6, "max": 4e6}
+	for k, v := range want {
+		if rep.LatenciesOK[k] != v {
+			t.Errorf("latenciesOk[%s] = %d, want %d (ns, as in the vegeta report)", k, rep.LatenciesOK[k], v)
+		}
+	}
+}
+
+// readCSV returns all the records of a CSV report.
+func readCSV(t *testing.T, path string) [][]string {
+	t.Helper()
+	f, err := os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	r := csv.NewReader(f)
+	r.FieldsPerRecord = -1
+	records, err := r.ReadAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return records
 }

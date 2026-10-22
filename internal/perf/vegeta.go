@@ -505,6 +505,11 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 	}
 	resultRecord += formatRPCErrors(results.rpcErrors, metrics.Requests)
 	resultRecord += formatEmpty(results.empty, metrics.Requests)
+	ok := OKMetrics{Latencies: results.ok}
+	if metrics.Requests > 0 {
+		ok.Ratio = float64(results.okRequests) / float64(metrics.Requests)
+	}
+	resultRecord += formatOKResults(ok, pt.Config.MorePercentiles)
 	fmt.Println(resultRecord)
 	lines := formatAPIResults(results.apis, pt.Config.MorePercentiles)
 	if pt.Config.ByID {
@@ -538,6 +543,7 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 			MaxLatency:    maxLatency,
 			SuccessRatio:  successRatio,
 			Error:         errorMsg,
+			OK:            ok,
 			VegetaMetrics: metrics,
 		}
 
@@ -743,9 +749,11 @@ func formatRPCErrors(rpcErrors map[string]int, requests uint64) string {
 
 // attackResults are the JSON-RPC outcomes of one attack, which vegeta does not see.
 type attackResults struct {
-	rpcErrors map[string]int        // JSON-RPC error responses by kind
-	empty     int                   // results that are null or an empty list
-	apis      map[string]*apiResult // by method, or by id with ByID, for targets tagged by loadTargets
+	rpcErrors  map[string]int        // JSON-RPC error responses by kind
+	empty      int                   // results that are null or an empty list
+	apis       map[string]*apiResult // by method, or by id with ByID, for targets tagged by loadTargets
+	ok         vegeta.LatencyMetrics
+	okRequests int
 }
 
 type apiResult struct {
@@ -778,6 +786,10 @@ func (r *attackResults) add(result *vegeta.Result) {
 		kind = "request failed"
 	} else {
 		kind = fmt.Sprintf("http %d", result.Code)
+	}
+	if kind == "" {
+		r.ok.Add(result.Latency)
+		r.okRequests++
 	}
 	if !tagged {
 		return
@@ -957,4 +969,16 @@ func JSONLTestType(path string) (string, error) {
 		return "", fmt.Errorf("no JSON-RPC request in %s", path)
 	}
 	return name, nil
+}
+
+// formatOKResults returns the rate of the OK responses and their p99, or all their percentiles with morePercentiles.
+func formatOKResults(ok OKMetrics, morePercentiles bool) string {
+	ratio := fmt.Sprintf("%.2f%%", ok.Ratio*100)
+	l := &ok.Latencies
+	if morePercentiles {
+		return fmt.Sprintf(" rpc_success=%7s lat_ok=[p50=%8s  p90=%8s  p95=%8s  p99=%8s  max=%8s]", ratio,
+			formatOKDuration(okQuantile(l, 0.50)), formatOKDuration(okQuantile(l, 0.90)), formatOKDuration(okQuantile(l, 0.95)),
+			formatOKDuration(okQuantile(l, 0.99)), formatOKDuration(l.Max))
+	}
+	return fmt.Sprintf(" rpc_success=%7s p99_ok=%8s", ratio, formatOKDuration(okQuantile(l, 0.99)))
 }
