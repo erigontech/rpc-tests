@@ -11,7 +11,8 @@ import (
 	"testing"
 )
 
-// node answers eth_blockNumber and eth_getBlockByNumber with one block holding one tx, and eth_getLogs with one log.
+// node answers eth_blockNumber and eth_getBlockByNumber with one block holding one tx, eth_getTransactionByHash
+// with that tx, and eth_getLogs with one log.
 func node(t *testing.T) string {
 	t.Helper()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -22,6 +23,8 @@ func node(t *testing.T) string {
 			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x10"}`)
 		case strings.Contains(req, "eth_getBlockByNumber"):
 			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":{"number":"0x10","hash":"0x1","transactions":[{"hash":"0xa","from":"0x01","to":"0x02","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"}]}}`)
+		case strings.Contains(req, "eth_getTransactionByHash"):
+			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":{"hash":"0xa","blockNumber":"0x10","from":"0x01","to":"0x02","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x"}}`)
 		case strings.Contains(req, "eth_getLogs"):
 			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":[{"address":"0x02","topics":["0x7e"],"transactionHash":"0xa","logIndex":"0x0"}]}`)
 		default:
@@ -191,6 +194,31 @@ func TestJSONLRejectsTheVegetaFlags(t *testing.T) {
 		cmd := append([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--blocks", "1", "--out", out}, args...)
 		if err := newApp().Run(cmd); err == nil {
 			t.Errorf("%v with a .jsonl output: want an error", args)
+		}
+	}
+}
+
+func TestEthCallCommandWithTxsWritesOneCallPerTx(t *testing.T) {
+	dir := t.TempDir()
+	list := filepath.Join(dir, "slow.txt")
+	if err := os.WriteFile(list, []byte("# slow calls\n1-div-loop 0x5a158d08067feeffe06fb1930c50c9f82b0c9175a22d6d110c190fe0dd47d1aa\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := filepath.Join(dir, "slow.jsonl")
+	if err := newApp().Run([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--txs", list, "--out", out}); err != nil {
+		t.Fatalf("eth_call with --txs: %v", err)
+	}
+	data, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatalf("pattern not written: %v", err)
+	}
+	if !strings.HasSuffix(string(data), `"id":"1-div-loop"}`+"\n") {
+		t.Errorf("not the call of 1-div-loop: %s", data)
+	}
+	for _, args := range [][]string{{"--counts", "1"}, {"--blocks", "1"}, {"--start-block", "5", "--end-block", "8"}} {
+		cmd := append([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--block-tag", "parent", "--txs", list, "--out", out}, args...)
+		if err := newApp().Run(cmd); err == nil {
+			t.Errorf("--txs with %v: want an error", args)
 		}
 	}
 }

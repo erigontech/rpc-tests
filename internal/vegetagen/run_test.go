@@ -92,6 +92,19 @@ func (n *fakeNode) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":[`+
 			`{"address":"0x0000000000000000000000000000000000000002","topics":["0x7e","0x01","0x02"],"transactionHash":"0xa","logIndex":"0x0"},`+
 			`{"address":"0x0000000000000000000000000000000000000002","topics":["0x7e","0x01","0x02"],"transactionHash":"0xb","logIndex":"0x1"}%s]}`, extra)
+	case "eth_getTransactionByHash":
+		var hash string
+		_ = json.Unmarshal(req.Params[0], &hash)
+		if hash == missingTx {
+			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":null}`)
+			return
+		}
+		from := "0x0000000000000000000000000000000000000001"
+		if hash == failingTx {
+			from = n.failingFrom
+		}
+		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":{"hash":%q,"blockNumber":"0x50","from":%q,`+
+			`"to":"0x0000000000000000000000000000000000000002","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x12"}}`, hash, from)
 	case "eth_call":
 		n.calls.Add(1)
 		var args struct {

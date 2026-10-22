@@ -27,7 +27,7 @@ go build -o ./build/bin/rpc_pattern_convert ./cmd/patternconv
     --url http://localhost:8545 --counts 400000 --verify --out mixed.tar
 
 # 2. Replay it with rpc_perf: -y is the name of the vegeta file in the tar (see --name)
-./build/bin/rpc_perf -p mixed.tar -y mixed -t 1000:30,2000:30 ...
+./build/bin/rpc_perf -p mixed.tar -y mixed -Z -t 1000:30,2000:30
 ```
 
 The tar holds a single file, `erigon_stress_test/vegeta_erigon_<name>.txt`, one Vegeta target per
@@ -45,7 +45,7 @@ as can any other load tool.
 ```bash
 rpc_pattern_gen eth_call --counts 400000 --block-tag parent --verify --out eth_call.jsonl
 rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400000 --verify --out mixed.jsonl
-./build/bin/rpc_perf -p mixed.jsonl -t 1000:30,2000:30
+./build/bin/rpc_perf -p mixed.jsonl -Z -t 1000:30,2000:30
 ```
 
 ```
@@ -126,6 +126,41 @@ rpc_pattern_gen eth_call --start-block 19000000 --end-block 19999999 --sample-bl
 - `--block-tag latest` is rejected: with old transactions it would run them on the state at replay. Use
   `parent`, or `head` to pin every request to the end of the range.
 
+## Tx lists
+
+`eth_call --txs <file>` builds the requests from a list of chosen txs instead of reading blocks, e.g. the
+txs where a node is slow, so their speed can be tracked over time. The file holds one `<name> <hash>` per
+line; `#` starts a comment:
+
+```
+# eth_call slower than on other clients
+1-div-loop-28M 0x5a158d08067feeffe06fb1930c50c9f82b0c9175a22d6d110c190fe0dd47d1aa
+2-sload-storm  0xea93481b5f1faf0c45f4569755b5cd8059df3fe2e47f89bca4ef25acaa1ebd7e
+```
+
+```bash
+rpc_pattern_gen eth_call --txs slow.txt --block-tag latest --verify --out slow_latest.jsonl
+rpc_pattern_gen eth_call --txs slow.txt --block-tag parent --verify --out slow_parent.jsonl
+```
+
+- Each tx gives one `eth_call` with its call arguments, in the order of the list. The request `id` is the
+  name of the tx, so `rpc_perf -i` prints the latencies of each tx:
+
+  ```bash
+  ./build/bin/rpc_perf -p slow_parent.jsonl -Z -t 50:30 -r 1 -i
+  ```
+- The name is a free label, unique in the file. A short summary of the bottleneck, after a sequence
+  number, is easy to find in a long output: `3-sload-storm`.
+- `latest` runs the calls on the state at replay: the same code and input on the current storage, so the
+  pattern works on any node, also without archive, but some calls revert or take another branch as the
+  state moves. `parent` pins each call to the block before its tx, so the pattern never changes, but it
+  needs a node that still holds that state (an archive node for old txs). It is not the original run: the
+  call sees the state and the block (number, time, base fee) of the previous block, without the txs before
+  it in its own block, so a tx that depends on them, or on the block, can revert.
+- A tx that the node does not know fails the run. With `--verify`, the txs whose call fails are dropped
+  and printed with their error.
+- `--counts`, `--blocks`, the block range flags and `--per-block` are rejected: the list sets the requests.
+
 ## Converting Vegeta patterns to JSONL
 
 `rpc_pattern_convert` turns a Vegeta pattern into JSONL: one JSON-RPC request per line, compacted, in the
@@ -172,6 +207,18 @@ rpc_pattern_convert --in /tmp/erigon_stress_test/vegeta_erigon_eth_call.txt --ou
 | `--workers` | 16 | Concurrent requests to the node |
 | `--out` | | Output file (required): a Vegeta tar, gzipped for `.tar.gz`/`.tgz`, or [JSONL](#jsonl-output) for `.jsonl` |
 | `-v`, `--verbose` | off | Print the verification statistics per method and error kind |
+| `--profile` | | Root command only: the [profile](#profile-format) with the mix of methods to generate |
+| `--range` | 100 | `eth_getLogs` only: the widest block range of a request |
+| `--txs` | | `eth_call` only: a [tx list](#tx-lists), one request per tx instead of reading blocks |
+
+```bash
+rpc_pattern_gen eth_call --url http://localhost:8545 --blocks 100 --verify -v --out eth_call.jsonl
+rpc_pattern_gen eth_call --counts 50000 --block-tag head --keep all --workers 32 --out eth_call.jsonl
+rpc_pattern_gen eth_call --counts 50000 --fees keep --min-count 40000 --out eth_call.jsonl
+rpc_pattern_gen eth_getLogs --counts 100000 --range 1000 --verify --out eth_getLogs.jsonl
+rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400000 --max-blocks 1000 --out mixed.jsonl
+rpc_pattern_gen eth_call --counts 10000 --target-url http://localhost:8546 --name eth_call_8546 --out eth_call.tar
+```
 
 With `--verify`, per-tx and per-log requests are checked one by one until each method has enough working
 ones; an eth_getLogs request returning no log counts as a failure. For per-block and constant methods a
@@ -267,5 +314,5 @@ Example:
 ```bash
 ./build/bin/rpc_pattern_gen --profile perf/pattern/mainnet/config/eth_getLogs_or.profile \
     --counts 200000 --verify --out eth_getLogs_or.tar
-./build/bin/rpc_perf -p eth_getLogs_or.tar -y eth_getLogs -t 500:30,1000:30
+./build/bin/rpc_perf -p eth_getLogs_or.tar -y eth_getLogs -Z -t 500:30,1000:30
 ```
