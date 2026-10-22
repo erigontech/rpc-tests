@@ -33,7 +33,14 @@ type PerfMetrics struct {
 	MaxLatency    string
 	SuccessRatio  string
 	Error         string
+	OK            OKMetrics
 	VegetaMetrics *vegeta.Metrics
+}
+
+// OKMetrics are the rate and the latencies of the successful responses: HTTP 200 and no JSON-RPC error.
+type OKMetrics struct {
+	Ratio     float64
+	Latencies vegeta.LatencyMetrics
 }
 
 // JSONReport represents the structure of the JSON performance report.
@@ -80,6 +87,9 @@ type RepetitionInfo struct {
 	VegetaBinary        string         `json:"vegetaBinary"`
 	VegetaReport        map[string]any `json:"vegetaReport"`
 	VegetaReportHdrPlot string         `json:"vegetaReportHdrPlot"`
+	// The rate and the latencies (ns) of the OK responses: HTTP 200 and no JSON-RPC error.
+	RPCSuccessRatio float64          `json:"rpcSuccessRatio"`
+	LatenciesOK     map[string]int64 `json:"latenciesOk"`
 }
 
 // TestReport manages CSV and JSON report generation.
@@ -225,6 +235,7 @@ func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksu
 	headers := []string{
 		"ClientName", "TestNo", "Repetition", "Qps", "Time(secs)",
 		"Min", "Mean", "50", "90", "95", "99", "Max", "Ratio", "Error",
+		"RpcRatio", "50ok", "90ok", "95ok", "99ok", "MaxOk",
 	}
 	if err := tr.csvWriter.Write(headers); err != nil {
 		return err
@@ -266,6 +277,7 @@ func (tr *TestReport) initializeJSONReport(cpuModel, bogomips, kernelVersion, ch
 
 // WriteTestReport writes a test result to the report.
 func (tr *TestReport) WriteTestReport(metrics *PerfMetrics) error {
+	l := &metrics.OK.Latencies
 	row := []string{
 		metrics.ClientName,
 		strconv.Itoa(metrics.TestNumber),
@@ -281,6 +293,12 @@ func (tr *TestReport) WriteTestReport(metrics *PerfMetrics) error {
 		metrics.MaxLatency,
 		metrics.SuccessRatio,
 		metrics.Error,
+		fmt.Sprintf("%.2f%%", metrics.OK.Ratio*100),
+		formatOKDuration(okQuantile(l, 0.50)),
+		formatOKDuration(okQuantile(l, 0.90)),
+		formatOKDuration(okQuantile(l, 0.95)),
+		formatOKDuration(okQuantile(l, 0.99)),
+		formatOKDuration(l.Max),
 	}
 
 	if err := tr.csvWriter.Write(row); err != nil {
@@ -322,6 +340,8 @@ func (tr *TestReport) writeTestReportToJSON(metrics *PerfMetrics) error {
 		VegetaBinary:        tr.Config.BinaryFile,
 		VegetaReport:        jsonReportData,
 		VegetaReportHdrPlot: hdrPlot,
+		RPCSuccessRatio:     metrics.OK.Ratio,
+		LatenciesOK:         okLatencies(&metrics.OK.Latencies),
 	}
 
 	if tr.currentTestIdx >= 0 && tr.currentTestIdx < len(tr.jsonReport.Results) {
@@ -431,4 +451,31 @@ func (tr *TestReport) Close() error {
 	}
 
 	return nil
+}
+
+// okLatencies returns the percentiles and the max of l in ns, under the keys of the vegeta report.
+func okLatencies(l *vegeta.LatencyMetrics) map[string]int64 {
+	return map[string]int64{
+		"50th": int64(okQuantile(l, 0.50)),
+		"90th": int64(okQuantile(l, 0.90)),
+		"95th": int64(okQuantile(l, 0.95)),
+		"99th": int64(okQuantile(l, 0.99)),
+		"max":  int64(l.Max),
+	}
+}
+
+// okQuantile returns the nth quantile of l, or 0 when l has no latency: an empty estimator returns NaN.
+func okQuantile(l *vegeta.LatencyMetrics, nth float64) time.Duration {
+	if l.Max == 0 {
+		return 0
+	}
+	return l.Quantile(nth)
+}
+
+// formatOKDuration formats a latency of the OK responses, "-" when there is none.
+func formatOKDuration(d time.Duration) string {
+	if d == 0 {
+		return "-"
+	}
+	return FormatDuration(d)
 }

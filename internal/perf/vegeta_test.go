@@ -1021,3 +1021,45 @@ func TestFormatIDResultsSortsByLeadingNumberAndFitsLongNames(t *testing.T) {
 		t.Errorf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
 	}
 }
+
+func TestAttackResultsCountsTheOKLatencies(t *testing.T) {
+	results := attackResults{rpcErrors: map[string]int{}, apis: map[string]*apiResult{}}
+	for _, r := range []vegeta.Result{
+		{Code: http.StatusOK, Latency: time.Millisecond, Body: []byte(`{"jsonrpc":"2.0","id":1,"result":"0x1"}`)},
+		{Code: http.StatusOK, Latency: 2 * time.Millisecond, Body: []byte(`{"jsonrpc":"2.0","id":1,"result":[]}`)},
+		{Code: http.StatusOK, Latency: 100 * time.Millisecond, Body: []byte(`{"jsonrpc":"2.0","id":1,"error":{"code":3,"message":"execution reverted"}}`)},
+		{Code: http.StatusInternalServerError, Latency: 200 * time.Millisecond},
+		{Error: "connection refused", Latency: 300 * time.Millisecond},
+	} {
+		results.add(&r)
+	}
+	if results.okRequests != 2 {
+		t.Errorf("ok requests = %d, want 2: a result, also empty, with HTTP 200", results.okRequests)
+	}
+	if results.ok.Max != 2*time.Millisecond {
+		t.Errorf("ok max = %v, want 2ms: the failed requests are left out", results.ok.Max)
+	}
+}
+
+func TestFormatOKResults(t *testing.T) {
+	ok := OKMetrics{Ratio: 0.5}
+	for range 2 {
+		ok.Latencies.Add(2 * time.Millisecond)
+	}
+	if got, want := formatOKResults(ok, false), " rpc_success= 50.00% p99_ok=  2.00ms"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	want := " rpc_success= 50.00% lat_ok=[p50=  2.00ms  p90=  2.00ms  p95=  2.00ms  p99=  2.00ms  max=  2.00ms]"
+	if got := formatOKResults(ok, true); got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestFormatOKResultsWithoutOKResponses(t *testing.T) {
+	if got, want := formatOKResults(OKMetrics{}, false), " rpc_success=  0.00% p99_ok=       -"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	if got := okLatencies(&vegeta.LatencyMetrics{}); got["99th"] != 0 || got["max"] != 0 {
+		t.Errorf("latencies without OK responses: got %v, want 0", got)
+	}
+}
