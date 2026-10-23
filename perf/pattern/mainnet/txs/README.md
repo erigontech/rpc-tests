@@ -12,7 +12,8 @@ replayed with `rpc_perf -i`, so every tx has its own line in the results (see
 ## Format
 
 One `<name> <hash>` per line; `#` starts a comment. The name is a free label, unique in the file: a sequence
-number and a short summary of the bottleneck, e.g. `17-ecrecover-330-110KB`. Do not reuse numbers.
+number, the first 8 hex digits of the hash and a short summary of the bottleneck, e.g.
+`17-8653e244-ecrecover-330-110KB`. Do not reuse numbers.
 
 ## Add a tx
 

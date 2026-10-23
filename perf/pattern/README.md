@@ -1,19 +1,34 @@
 # Vegeta patterns and `rpc_pattern_gen`
 
 `rpc_perf` replays a pattern: the JSON-RPC requests to send, as a [JSONL file](#jsonl-output) or a Vegeta
-tar. This directory keeps, for each network:
+tar. This directory keeps the patterns and what is needed to generate new ones, one directory per network
+(only `mainnet` for now):
 
-- the historical patterns, fixed datasets for comparisons over time: `<network>/<api>_<block>.jsonl`, named
-  after their method and the full first block of their range (e.g. `eth_getLogs_24100000.jsonl`), and the
-  older `<network>/stress_test_*.tar`. A historical pattern is not changed afterwards: a new dataset goes
-  into a new file;
-- the profiles used to generate new patterns (`<network>/config/*.profile`);
-- the tx lists, with the `parent` pattern of each one (`<network>/txs/`).
+```
+perf/pattern/
+├── README.md                this file: rpc_pattern_gen, rpc_pattern_convert, the profiles
+└── mainnet/
+    ├── <api>_<block>.jsonl  historical patterns as JSONL
+    ├── stress_test_*.tar    historical patterns as Vegeta tars, the older format
+    ├── config/              the profiles of rpc_pattern_gen --profile, see Mainnet profiles
+    └── txs/                 the tx lists of rpc_pattern_gen --txs and their parent patterns
+```
 
-`rpc_pattern_gen` builds a pattern from the recent blocks of a running node, or from a range of blocks
-(see [Block range](#block-range)): it reads blocks from the head, turns their transactions, blocks or logs into requests, optionally runs each request on the node
-to keep only the working ones, and writes the tar that `rpc_perf --pattern-file` reads, or a
-[JSONL file](#jsonl-output) with the plain requests.
+- `<network>/`: the historical patterns, fixed datasets for comparisons over time, listed in
+  [Mainnet historical patterns](#mainnet-historical-patterns). A JSONL one is named
+  `<api>_<block>.jsonl`, after its method and the full first block of the range it was generated from
+  (e.g. `eth_getLogs_24100000.jsonl`); with `--block-tag parent` its requests run on the block before,
+  so the first block parameter is one less. A historical pattern is not changed afterwards: a new dataset
+  goes into a new file.
+- `<network>/config/`: the profiles used to generate new patterns (`*.profile`, see
+  [Profile format](#profile-format) and [Mainnet profiles](#mainnet-profiles)).
+- `<network>/txs/`: the tx lists, one file per kind of tx, with the `parent` pattern of each list when
+  there is one (see [`mainnet/txs/README.md`](mainnet/txs/README.md)).
+
+`rpc_pattern_gen` builds a pattern from the blocks of a running node, read from the head downwards or from
+a fixed range (see [Block range](#block-range)): it turns their transactions, blocks or logs into requests,
+optionally runs each request on the node to keep only the working ones, and writes the tar that
+`rpc_perf --pattern-file` reads, or a [JSONL file](#jsonl-output) with the plain requests.
 
 ## Build
 
@@ -140,8 +155,8 @@ line; `#` starts a comment:
 
 ```
 # eth_call slower than on other clients
-1-div-loop-28M 0x5a158d08067feeffe06fb1930c50c9f82b0c9175a22d6d110c190fe0dd47d1aa
-2-sload-storm  0xea93481b5f1faf0c45f4569755b5cd8059df3fe2e47f89bca4ef25acaa1ebd7e
+2-5a158d08-div-loop-28M 0x5a158d08067feeffe06fb1930c50c9f82b0c9175a22d6d110c190fe0dd47d1aa
+4-ea93481b-sload-storm  0xea93481b5f1faf0c45f4569755b5cd8059df3fe2e47f89bca4ef25acaa1ebd7e
 ```
 
 To start from candidates, `tx-list` writes such a list with the successful txs that use the most gas in
@@ -166,9 +181,10 @@ rpc_pattern_gen tx-list --top-gas 20 --start-block 19000000 --end-block 19999999
 ...
 ```
 
-Rename a tx after its bottleneck once it proves interesting, e.g. `5-sload-storm`. The gas is the one of
-the original run: with `--block-tag latest` a call can take a shorter branch on the current state, so to
-measure the heavy txs as they ran, generate their pattern with `parent`.
+Rename a tx after its bottleneck once it proves interesting, e.g. `5-<hash8>-sload-storm`, with the first
+8 hex digits of its hash. The gas is the one of the original run: with `--block-tag latest` a call can
+take a shorter branch on the current state, so to measure the heavy txs as they ran, generate their
+pattern with `parent`.
 
 From the heaviest txs of the last blocks to the latency of each one, at 50 requests per second for 30 s:
 
@@ -227,8 +243,8 @@ rpc_pattern_gen eth_call --txs slow.txt --block-tag parent --verify --out slow_p
 
   The lines follow the number the names start with. Here the `max` of the whole test is the one of
   `div-loop-28M`: without `-i` the other txs would be hidden behind it.
-- The name is a free label, unique in the file. A short summary of the bottleneck, after a sequence
-  number, is easy to find in a long output: `3-sload-storm`.
+- The name is a free label, unique in the file. A sequence number, the first 8 hex digits of the hash and
+  a short summary of the bottleneck are easy to find in a long output: `4-ea93481b-sload-storm`.
 - `latest` runs the calls on the state at replay: the same code and input on the current storage, so the
   pattern works on any node, also without archive, but some calls revert or take another branch as the
   state moves. `parent` pins each call to the block before its tx, so the pattern never changes, but it
@@ -249,7 +265,7 @@ Typical lists, one per kind of tx, each replayed with `rpc_perf -i` to follow ev
 | `heavy.txt` | calls that use a lot of gas | the latency of each tx, which grows with its gas |
 
 The lists are kept in `perf/pattern/<network>/txs/`, with the `parent` pattern of each list next to it
-(see [`mainnet/txs/README.md`](mainnet/txs/README.md)). The `.claude/skills/perf-pattern-add` skill has the
+when there is one (see [`mainnet/txs/README.md`](mainnet/txs/README.md)). The `.claude/skills/perf-pattern-add` skill has the
 steps to find and add such txs.
 
 ## Converting Vegeta patterns to JSONL
@@ -264,9 +280,13 @@ rpc_pattern_convert --in perf/pattern/mainnet/stress_test_eth_getLogs_15M.tar --
 # a tar holding several patterns: select one by its name
 rpc_pattern_convert --in perf/pattern/mainnet/stress_test_debug_storageRangeAt_20M.tar --name debug_storageRangeAt \
     --out debug_storageRangeAt_20000000.jsonl
-# a Vegeta target file, e.g. one written by Erigon's cmd/rpctest
+# a Vegeta target file, e.g. one written by an older Erigon's cmd/rpctest
 rpc_pattern_convert --in /tmp/erigon_stress_test/vegeta_erigon_eth_call.txt --out eth_call.jsonl
 ```
+
+The `bench*` commands of a recent Erigon's `cmd/rpctest` already write `<method>.jsonl` next to the Vegeta
+file (see [`../README.md`](../README.md#pattern-files)): the conversion is needed only for the historical
+tars and the files of older versions.
 
 - `--in` is a tar, plain, gzip or bzip2 (detected from the content, whatever the extension), or any other
   file, read as Vegeta targets.
@@ -275,6 +295,38 @@ rpc_pattern_convert --in /tmp/erigon_stress_test/vegeta_erigon_eth_call.txt --ou
   them.
 - The output is written only when the whole pattern converts; a target that is not JSON fails the run with
   its line number. The number of requests written is printed.
+
+## Mainnet historical patterns
+
+In `mainnet/`. The blocks are those of the block parameters of the requests, or, for the requests by
+hash, those of the first and last tx or block. A tar is replayed with its method as `rpc_perf -y`.
+
+| Pattern | Method | Requests | Blocks |
+|---------|--------|---------:|--------|
+| `eth_call_2000000.jsonl` | `eth_call` | 119,928 | 1,999,999 - 2,015,797: `stress_test_eth_call_20M.tar` as JSONL |
+| `stress_test_debug_storageRangeAt_20M.tar` | `debug_storageRangeAt` | 7,912 | by block hash, 20,000,001 - 20,000,003; also 4 `eth_getBlockByNumber` (`-y eth_getBlockByNumber`) |
+| `stress_test_debug_traceCall_20M.tar` | `debug_traceCall` | 31,663 | 1,999,999 - 2,003,857, not 20M |
+| `stress_test_debug_trace_transaction_21M.tar` | `debug_traceTransaction` | 180,161 | txs of 21,000,000 - 21,029,999 |
+| `stress_test_debug_trace_transaction_5M.tar` | `debug_traceTransaction` | 286,730 | txs of 5,000,000 - 5,035,676 |
+| `stress_test_eth_call_001_14M.tar` | `eth_call` | 19,724 | 13,999,999 - 14,000,096 |
+| `stress_test_eth_call_001_21M.tar` | `eth_call` | 11,983 | 20,999,999 - 21,009,997 |
+| `stress_test_eth_call_001_latest.tar` | `eth_call` | 6,835 | `latest` |
+| `stress_test_eth_call_002_latest.tar` | `eth_call` | 47,675 | `latest` |
+| `stress_test_eth_call_20M.tar` | `eth_call` | 119,928 | 1,999,999 - 2,015,797, not 20M |
+| `stress_test_eth_createAccessList_16M.tar` | `eth_createAccessList` | 24,243 | 15,999,999 - 16,000,203 |
+| `stress_test_eth_getBalance_15M.tar` | `eth_getBalance` | 117,191 | 15,000,000 - 15,000,587 |
+| `stress_test_eth_getBlockByHash_14M.tar` | `eth_getBlockByHash` | 3,095 | 14,000,000 - 14,003,094 |
+| `stress_test_eth_getBlockByNumber_13M.tar` | `eth_getBlockByNumber` | 3,370 | 13,000,000 - 13,003,369 |
+| `stress_test_eth_get_block_receipts_21M_20K.tar` | `eth_getBlockReceipts` | 20,000 | 21,000,000 - 21,019,999 |
+| `stress_test_eth_get_block_receipts_5M_40K.tar` | `eth_getBlockReceipts` | 40,000 | 5,000,000 - 5,039,999 |
+| `stress_test_eth_getLogs_15M.tar` | `eth_getLogs` | 93,029 | 15,000,000 - 15,000,600 |
+| `stress_test_eth_getProof_001_latest.tar` | `eth_getProof` | 13,336 | `latest` |
+| `stress_test_eth_getTransactionByHash_13M.tar` | `eth_getTransactionByHash` | 21,151 | txs of 13,000,000 - 13,000,159 |
+| `stress_test_eth_getTransactionReceipt_14M.tar` | `eth_getTransactionReceipt` | 29,963 | txs of 13,000,000 - 13,000,206, not 14M |
+| `stress_test_ots_getBlockTransactions_20M.tar` | `ots_getBlockTransactions` | 7,820 | 20,000,000 - 20,007,819 |
+| `stress_test_trace_transaction_21M.tar` | `trace_transaction` | 294,282 | txs of 21,000,000 - 21,049,999 |
+
+The `latest` patterns run on the state at replay, so their results change with the head.
 
 ## Common flags
 
