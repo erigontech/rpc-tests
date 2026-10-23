@@ -42,7 +42,9 @@ make rpc_pattern_gen rpc_perf
 
 ## Generate
 
-Each tx becomes one `eth_call` with its call arguments; the request `id` is its name.
+Each tx is read from the node (`eth_getTransactionByHash`) and becomes one `eth_call` with its call
+arguments; the request `id` is its name. The block parameter is `"latest"` with `--block-tag latest`, and
+the block of the tx minus one with `parent`.
 
 ```bash
 ./build/bin/rpc_pattern_gen eth_call --txs slow.txt --block-tag latest --verify --out slow_latest.jsonl

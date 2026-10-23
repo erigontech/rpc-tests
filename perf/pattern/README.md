@@ -222,8 +222,10 @@ rpc_pattern_gen eth_call --txs slow.txt --block-tag latest --verify --out slow_l
 rpc_pattern_gen eth_call --txs slow.txt --block-tag parent --verify --out slow_parent.jsonl
 ```
 
-- Each tx gives one `eth_call` with its call arguments, in the order of the list. The request `id` is the
-  name of the tx, so `rpc_perf -i` prints the latencies of each tx:
+- Each tx is read from the node (`eth_getTransactionByHash`) and gives one `eth_call` with its call
+  arguments, in the order of the list. The block parameter is `"latest"` with `--block-tag latest`, and
+  the block of the tx minus one with `parent`. The request `id` is the name of the tx, so `rpc_perf -i`
+  prints the latencies of each tx:
 
   ```bash
   ./build/bin/rpc_perf -p slow_parent.jsonl -Z -t 50:30 -r 1 -i
