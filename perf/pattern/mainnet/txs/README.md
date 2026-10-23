@@ -4,15 +4,16 @@ Lists of chosen mainnet txs for `rpc_pattern_gen eth_call --txs`, one file per k
 replayed with `rpc_perf -i`, so every tx has its own line in the results (see
 [`../../README.md`](../../README.md#tx-lists)).
 
-| List | Txs |
-|------|-----|
-| `heavy.txt` | heavy calls: the named rows of the RPC rps dataset |
-| `slow_vs_reth.txt` | calls slower than on reth, from blocks near 26.06M |
+| List | Txs | `parent` pattern |
+|------|-----|------------------|
+| `heavy.txt` | heavy calls: the named rows of the RPC rps dataset | `heavy_parent.jsonl` (15 calls) |
+| `slow_vs_reth.txt` | calls slower than on reth, from blocks near 26.06M | not yet: needs an archive node past them |
 
 ## Format
 
 One `<name> <hash>` per line; `#` starts a comment. The name is a free label, unique in the file: a sequence
-number and a short summary of the bottleneck, e.g. `17-ecrecover-330-110KB`. Do not reuse numbers.
+number, the first 8 hex digits of the hash and a short summary of the bottleneck, e.g.
+`17-8653e244-ecrecover-330-110KB`. Do not reuse numbers.
 
 ## Add a tx
 
