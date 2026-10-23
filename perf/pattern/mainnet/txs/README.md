@@ -4,10 +4,10 @@ Lists of chosen mainnet txs for `rpc_pattern_gen eth_call --txs`, one file per k
 replayed with `rpc_perf -i`, so every tx has its own line in the results (see
 [`../../README.md`](../../README.md#tx-lists)).
 
-| List | Txs |
-|------|-----|
-| `heavy.txt` | heavy calls: the named rows of the RPC rps dataset |
-| `slow_vs_reth.txt` | calls slower than on reth, from blocks near 26.06M |
+| List | Txs | `parent` pattern |
+|------|-----|------------------|
+| `heavy.txt` | heavy calls: the named rows of the RPC rps dataset | `heavy_parent.jsonl` (15 calls) |
+| `slow_vs_reth.txt` | calls slower than on reth, from blocks near 26.06M | not yet: needs an archive node past them |
 
 ## Format
 
