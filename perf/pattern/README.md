@@ -174,7 +174,7 @@ rpc_pattern_gen tx-list --top-gas 20 --start-block 19000000 --end-block 19999999
 ```
 
 ```
-# the 20 txs that use the most gas in 100 blocks between 26249958 and 26250057
+# the 20 txs that use the most gas in 100 blocks between 26249982 and 26250081
 1-13.37Mgas 0x038cd6e51bf211b225a5a594938440ef089460197adadc182b877ef73838cd7e
 2-13.37Mgas 0xb1caa7ecf91b2f464b0d4af01eb03ead8c9bf8d5777b52f2039488240ec76a72
 3-10.59Mgas 0x7b6b049de27ddd4f67bd02cf7e86026d359d7b7c5c269595d6b72e5e3287eeef
