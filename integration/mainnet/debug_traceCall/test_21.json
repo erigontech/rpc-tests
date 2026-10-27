@@ -24,8 +24,8 @@
     },
     "response": {
       "error": {
-        "code": -32000,
-        "message": "tracing failed: insufficient funds for gas * price + value: address 0x86dfc310D4CC8E2b1e1161A46C4498Db49a0F18A have 4992 want 676993"
+        "code": -32602,
+        "message": "transaction index 21 out of range for block 4417196"
       },
       "id": 1,
       "jsonrpc": "2.0"
