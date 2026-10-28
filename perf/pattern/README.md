@@ -409,6 +409,7 @@ debug_traceBlockByHash     3.91%     tracer=callTracer blocks=50
 | `eth_getBlockByHash` | each block | `full=true\|false` |
 | `eth_getBlockReceipts` | each block | |
 | `debug_traceBlockByHash` | each block | `tracer=<name>`, e.g. `callTracer` (default: the struct logger) |
+| `debug_traceBlockByNumber` | each block | `tracer=<name>`, e.g. `callTracer` (default: the struct logger) |
 | `eth_getLogs` | each log of a block | `range=N`, `filter=...`, `or=N`, see below |
 | `eth_blockNumber`, `eth_chainId`, `net_listening`, `eth_gasPrice`, `eth_maxPriorityFeePerGas` | nothing: the same request repeated | |
 

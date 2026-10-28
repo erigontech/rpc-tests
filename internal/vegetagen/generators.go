@@ -61,7 +61,8 @@ var generators = map[string]func(options map[string]string) (Generator, error){
 	"eth_getBlockByHash":        blockGenerator("eth_getBlockByHash", func(it Item) any { return it.Block.Hash }),
 	"eth_getBlockReceipts":      noOptions(simple{"eth_getBlockReceipts", PerBlock, func(it Item, _ Params) []any { return []any{hexNum(it.BlockNum)} }}),
 	"eth_getLogs":               getLogsGenerator,
-	"debug_traceBlockByHash":    traceBlockGenerator,
+	"debug_traceBlockByHash":    traceBlockGenerator("debug_traceBlockByHash", func(it Item) any { return it.Block.Hash }),
+	"debug_traceBlockByNumber":  traceBlockGenerator("debug_traceBlockByNumber", func(it Item) any { return hexNum(it.BlockNum) }),
 	"eth_blockNumber":           noOptions(simple{"eth_blockNumber", Constant, noParams}),
 	"eth_chainId":               noOptions(simple{"eth_chainId", Constant, noParams}),
 	"net_listening":             noOptions(simple{"net_listening", Constant, noParams}),
@@ -122,16 +123,18 @@ func blockGenerator(method string, blockID func(Item) any) func(map[string]strin
 	}
 }
 
-func traceBlockGenerator(options map[string]string) (Generator, error) {
-	const method = "debug_traceBlockByHash"
-	if err := checkOptions(method, options, "tracer"); err != nil {
-		return nil, err
-	}
-	tracer := options["tracer"]
-	return simple{method, PerBlock, func(it Item, _ Params) []any {
-		if tracer == "" {
-			return []any{it.Block.Hash}
+// traceBlockGenerator builds a block trace whose "tracer" option selects the tracer (default: the struct logger).
+func traceBlockGenerator(method string, blockID func(Item) any) func(map[string]string) (Generator, error) {
+	return func(options map[string]string) (Generator, error) {
+		if err := checkOptions(method, options, "tracer"); err != nil {
+			return nil, err
 		}
-		return []any{it.Block.Hash, map[string]string{"tracer": tracer}}
-	}}, nil
+		tracer := options["tracer"]
+		return simple{method, PerBlock, func(it Item, _ Params) []any {
+			if tracer == "" {
+				return []any{blockID(it)}
+			}
+			return []any{blockID(it), map[string]string{"tracer": tracer}}
+		}}, nil
+	}
 }
