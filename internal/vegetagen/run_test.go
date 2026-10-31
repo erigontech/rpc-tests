@@ -646,6 +646,34 @@ func TestRunLogsDropEmptyResults(t *testing.T) {
 	}
 }
 
+func TestRunLogsLatestKeepEmptyResults(t *testing.T) {
+	node, url := startNode(t)
+	node.noLogsAt = "0x0000000000000000000000000000000000000002"
+	cfg := baseConfig(t, url)
+	cfg.Blocks = 20
+	gen, err := NewGenerator("eth_getLogs", map[string]string{"tag": "latest", "filter": FilterAddress})
+	if err != nil {
+		t.Fatalf("NewGenerator: %v", err)
+	}
+
+	sum, err := Run(context.Background(), cfg, single(gen))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Errors["empty result"] != 0 {
+		t.Errorf("errors %v: the latest block changes before the test runs, want the empty results kept", sum.Errors)
+	}
+	empty := 0
+	for _, vt := range readTargets(t, cfg.Out, "eth_getLogs") {
+		if strings.Contains(string(vt.Body), node.noLogsAt) {
+			empty++
+		}
+	}
+	if empty == 0 {
+		t.Error("no request with an empty result written")
+	}
+}
+
 func TestRunMixVerifiesEveryLogsRequest(t *testing.T) {
 	node, url := startNode(t)
 	node.noLogsAt = "0x0000000000000000000000000000000000000002"

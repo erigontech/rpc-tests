@@ -112,6 +112,22 @@ func TestGetLogsRequest(t *testing.T) {
 	}
 }
 
+func TestGetLogsLatestRequest(t *testing.T) {
+	lg := &Log{Address: "0x02", Topics: []string{"0x7e", "0x01"}, TxHash: "0xaa", Index: "0x3"}
+	item := Item{Block: &Block{Number: "0x64"}, BlockNum: 100, Log: lg}
+	gen, err := NewGenerator("eth_getLogs", map[string]string{"tag": "latest", "filter": FilterAddress})
+	if err != nil {
+		t.Fatalf("NewGenerator: %v", err)
+	}
+	req, err := gen.Request(item, Params{Head: 100})
+	if err != nil {
+		t.Fatalf("Request: %v", err)
+	}
+	if !strings.Contains(string(req), `"fromBlock":"latest","toBlock":"latest","address":"0x02"`) {
+		t.Errorf("tag=latest: want the latest block and the log's filter, got %s", req)
+	}
+}
+
 func TestGetLogsFilterRestrictsTheShapes(t *testing.T) {
 	lg := &Log{Address: "0x02", Topics: []string{"0x7e", "0x01", "0x02"}, TxHash: "0xaa"}
 	item := Item{Block: &Block{Number: "0x64"}, BlockNum: 100, Log: lg}
@@ -285,7 +301,7 @@ func TestGetLogsOrOneKeepsSingleValues(t *testing.T) {
 }
 
 func TestGetLogsOptions(t *testing.T) {
-	for _, bad := range []map[string]string{{"range": "0"}, {"range": "x"}, {"full": "true"}, {"filter": "topic0"}, {"or": "0"}, {"or": "x"}} {
+	for _, bad := range []map[string]string{{"range": "0"}, {"range": "x"}, {"full": "true"}, {"filter": "topic0"}, {"or": "0"}, {"or": "x"}, {"tag": "head"}, {"tag": "latest", "range": "10"}} {
 		if _, err := NewGenerator("eth_getLogs", bad); err == nil {
 			t.Errorf("options %v: want an error", bad)
 		}
@@ -426,6 +442,7 @@ func TestGetLogsGeneratorOptions(t *testing.T) {
 		{map[string]string{"filter": FilterAddress}, GetLogs{Range: DefaultLogsRange, Filter: FilterAddress, Or: 1}},
 		{map[string]string{"filter": FilterAddressTopics}, GetLogs{Range: DefaultLogsRange, Filter: FilterAddressTopics, Or: 1}},
 		{map[string]string{"filter": FilterTopics, "or": "16", "range": "10"}, GetLogs{Range: 10, Filter: FilterTopics, Or: 16}},
+		{map[string]string{"tag": "latest"}, GetLogs{Range: DefaultLogsRange, Or: 1, Latest: true}},
 	}
 	for _, tt := range tests {
 		gen, err := NewGenerator("eth_getLogs", tt.options)

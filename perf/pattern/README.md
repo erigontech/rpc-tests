@@ -410,7 +410,7 @@ debug_traceBlockByHash     3.91%     tracer=callTracer blocks=50
 | `eth_getBlockReceipts` | each block | |
 | `debug_traceBlockByHash` | each block | `tracer=<name>`, e.g. `callTracer` (default: the struct logger) |
 | `debug_traceBlockByNumber` | each block | `tracer=<name>`, e.g. `callTracer` (default: the struct logger) |
-| `eth_getLogs` | each log of a block | `range=N`, `filter=...`, `or=N`, see below |
+| `eth_getLogs` | each log of a block | `range=N`, `filter=...`, `or=N`, `tag=latest`, see below |
 | `eth_blockNumber`, `eth_chainId`, `net_listening`, `eth_gasPrice`, `eth_maxPriorityFeePerGas` | nothing: the same request repeated | |
 
 ### eth_getLogs
@@ -438,6 +438,9 @@ are drawn per log with a seed taken from the log, so a pattern is reproducible o
   of the same block. With `[contracts]` the other values come only from the logs of those contracts.
   The list lengths are log-uniform between 1 and N, mostly short, a few up to N
   (fewer when the block has fewer distinct values); null topic positions stay null.
+- **`tag=latest`**: `fromBlock` and `toBlock` are `"latest"`, resolved by each node when the request
+  runs, instead of a range of block numbers; it takes no `range=`. The filter still comes from a real
+  log, but the latest block changes before the test runs, so `--verify` keeps the empty results.
 
 ## Mainnet profiles
 
@@ -454,6 +457,7 @@ for `mixed.profile`.
 | `eth_getLogs_topics.profile` | `filter=topics`, range up to 10: topic index alone, where events such as Transfer are dense |
 | `eth_getLogs_wide.profile` | `filter=address+topics`, range up to 1000: the cost of walking many blocks |
 | `eth_getLogs_head.profile` | range=1 on the 100 most recent blocks: indexers following the head |
+| `eth_getLogs_latest.profile` | `tag=latest`, `filter=address` on the `mixed.profile` contracts: bots and indexers polling the latest block |
 | `eth_getLogs_or.profile` | `or=16`: lists of addresses and topics, as indexers watching many contracts or events |
 
 Example:

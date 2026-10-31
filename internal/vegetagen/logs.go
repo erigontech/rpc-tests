@@ -30,10 +30,12 @@ const DefaultLogsRange = 100
 // Filter, when set, restricts the shapes to one family: address, address+topics or topics.
 // Or, above 1, turns the address and each topic of the filter into a list of up to Or alternatives:
 // the log's value and others of the same block at the same position.
+// Latest replaces the range with the "latest" block, resolved by each node when the request runs.
 type GetLogs struct {
 	Range  uint64
 	Filter string
 	Or     int
+	Latest bool
 }
 
 // Log filter families of the filter option; the empty one allows every shape.
@@ -68,6 +70,9 @@ func (g GetLogs) Request(it Item, p Params) ([]byte, error) {
 	}
 	before = min(before, it.BlockNum)
 	f := logFilter{FromBlock: hexNum(it.BlockNum - before), ToBlock: hexNum(it.BlockNum + after)}
+	if g.Latest {
+		f.FromBlock, f.ToBlock = "latest", "latest"
+	}
 
 	shapes := logShapes(lg.Topics, g.Filter)
 	if len(shapes) == 0 {
@@ -183,6 +188,13 @@ func logShapes(topics []string, filter string) []string {
 	return shapes
 }
 
+// rejectsEmpty tells whether a verified request of gen with an empty result is dropped: a log's
+// filter over block numbers always matches it, while the latest block changes before the test runs.
+func rejectsEmpty(gen Generator) bool {
+	g, ok := gen.(GetLogs)
+	return ok && !g.Latest
+}
+
 // usableLog tells whether gen can build a request from lg: a filter family can need topics the log lacks.
 func usableLog(gen Generator, lg Log) bool {
 	g, ok := gen.(GetLogs)
@@ -191,10 +203,19 @@ func usableLog(gen Generator, lg Log) bool {
 
 func getLogsGenerator(options map[string]string) (Generator, error) {
 	const method = "eth_getLogs"
-	if err := checkOptions(method, options, "range", "filter", "or"); err != nil {
+	if err := checkOptions(method, options, "range", "filter", "or", "tag"); err != nil {
 		return nil, err
 	}
 	g := GetLogs{Range: DefaultLogsRange, Or: 1}
+	if v, ok := options["tag"]; ok {
+		if v != string(TagLatest) {
+			return nil, fmt.Errorf("%s: invalid tag %q: want %s", method, v, TagLatest)
+		}
+		if _, ok := options["range"]; ok {
+			return nil, fmt.Errorf("%s: tag=%s queries one block, it takes no range", method, TagLatest)
+		}
+		g.Latest = true
+	}
 	if v, ok := options["range"]; ok {
 		n, err := strconv.ParseUint(v, 10, 64)
 		if err != nil || n == 0 {
