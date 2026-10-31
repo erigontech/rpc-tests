@@ -32,6 +32,8 @@ func TestGeneratorRequests(t *testing.T) {
 		{"eth_getBlockReceipts", nil, params, `{"jsonrpc":"2.0","method":"eth_getBlockReceipts","params":["0x64"],"id":1}`},
 		{"debug_traceBlockByHash", nil, params, `{"jsonrpc":"2.0","method":"debug_traceBlockByHash","params":["0xbb"],"id":1}`},
 		{"debug_traceBlockByHash", map[string]string{"tracer": "callTracer"}, params, `{"jsonrpc":"2.0","method":"debug_traceBlockByHash","params":["0xbb",{"tracer":"callTracer"}],"id":1}`},
+		{"debug_traceBlockByNumber", nil, params, `{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":["0x64"],"id":1}`},
+		{"debug_traceBlockByNumber", map[string]string{"tracer": "callTracer"}, params, `{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":["0x64",{"tracer":"callTracer"}],"id":1}`},
 		{"eth_blockNumber", nil, params, `{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}`},
 		{"eth_chainId", nil, params, `{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}`},
 		{"net_listening", nil, params, `{"jsonrpc":"2.0","method":"net_listening","params":[],"id":1}`},
@@ -58,7 +60,7 @@ func TestGeneratorRequests(t *testing.T) {
 func TestGeneratorKinds(t *testing.T) {
 	kinds := map[string]Kind{
 		"eth_call": PerTx, "eth_estimateGas": PerTx, "eth_getTransactionReceipt": PerTx, "eth_getBalance": PerTx,
-		"eth_getBlockByNumber": PerBlock, "eth_getLogs": PerLog, "debug_traceBlockByHash": PerBlock,
+		"eth_getBlockByNumber": PerBlock, "eth_getLogs": PerLog, "debug_traceBlockByHash": PerBlock, "debug_traceBlockByNumber": PerBlock,
 		"eth_blockNumber": Constant, "net_listening": Constant,
 		"eth_gasPrice": Constant, "eth_maxPriorityFeePerGas": Constant,
 	}
