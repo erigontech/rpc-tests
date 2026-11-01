@@ -47,43 +47,52 @@ func newApp() *cli.App {
 			}
 			return generate(c, specs, profile.Contracts, true)
 		},
-		Commands: []*cli.Command{{
-			Name:  "eth_call",
-			Usage: "Generate eth_call requests with the call arguments of each transaction",
-			Flags: append(commonFlags(true),
-				&cli.StringFlag{Name: "txs", Usage: "File with one \"<name> <hash>\" per line: one request per tx, in this order, with the name as its id, instead of reading blocks"},
-			),
-			Action: func(c *cli.Context) error {
-				return generate(c, []vegetagen.Spec{{Gen: vegetagen.EthCall{}, Weight: 1}}, nil, false)
-			},
-		}, {
-			Name:  "eth_getLogs",
-			Usage: "Generate eth_getLogs requests whose filters match the logs of each block, so none returns empty",
-			Flags: append(commonFlags(true),
-				&cli.Uint64Flag{Name: "range", Value: vegetagen.DefaultLogsRange, Usage: "Widest block range of a request, around the block of its log"},
-			),
-			Action: func(c *cli.Context) error {
-				if c.Uint64("range") == 0 {
-					return fmt.Errorf("invalid range 0: want a positive number of blocks")
-				}
-				return generate(c, []vegetagen.Spec{{Gen: vegetagen.GetLogs{Range: c.Uint64("range")}, Weight: 1}}, nil, false)
-			},
-		}, {
-			Name:  "tx-list",
-			Usage: "Write the txs that use the most gas in some blocks as a tx list for eth_call --txs",
-			Flags: []cli.Flag{
-				&cli.StringFlag{Name: "url", Value: "http://localhost:8545", Usage: "Node used to read the blocks and their receipts"},
-				&cli.IntFlag{Name: "top-gas", Required: true, Usage: "Number of txs to write: the successful txs that use the most gas, the heaviest first"},
-				&cli.Uint64Flag{Name: "blocks", Usage: "Read this many blocks, from the head downwards"},
-				&cli.Uint64Flag{Name: "start-block", Usage: "Read the blocks from this one up to --end-block or for --max-blocks blocks, instead of those below the head"},
-				&cli.Uint64Flag{Name: "end-block", Usage: "With --start-block, the last block of the range"},
-				&cli.Uint64Flag{Name: "max-blocks", Usage: "With --start-block, the length of the range"},
-				&cli.Uint64Flag{Name: "sample-blocks", Usage: "With --start-block, read only this many distinct blocks of the range, drawn at random with a fixed seed"},
-				&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
-				&cli.StringFlag{Name: "out", Required: true, Usage: "Output file: one \"<name> <hash>\" per line"},
-			},
-			Action: writeTxList,
-		}},
+		Commands: []*cli.Command{
+			txCallCommand(vegetagen.EthCall{}, "Generate eth_call requests with the call arguments of each transaction"),
+			txCallCommand(vegetagen.CreateAccessList{}, "Generate eth_createAccessList requests with the call arguments of each transaction"),
+			{
+				Name:  "eth_getLogs",
+				Usage: "Generate eth_getLogs requests whose filters match the logs of each block, so none returns empty",
+				Flags: append(commonFlags(true),
+					&cli.Uint64Flag{Name: "range", Value: vegetagen.DefaultLogsRange, Usage: "Widest block range of a request, around the block of its log"},
+				),
+				Action: func(c *cli.Context) error {
+					if c.Uint64("range") == 0 {
+						return fmt.Errorf("invalid range 0: want a positive number of blocks")
+					}
+					return generate(c, []vegetagen.Spec{{Gen: vegetagen.GetLogs{Range: c.Uint64("range")}, Weight: 1}}, nil, false)
+				},
+			}, {
+				Name:  "tx-list",
+				Usage: "Write the txs that use the most gas in some blocks as a tx list for eth_call or eth_createAccessList --txs",
+				Flags: []cli.Flag{
+					&cli.StringFlag{Name: "url", Value: "http://localhost:8545", Usage: "Node used to read the blocks and their receipts"},
+					&cli.IntFlag{Name: "top-gas", Required: true, Usage: "Number of txs to write: the successful txs that use the most gas, the heaviest first"},
+					&cli.Uint64Flag{Name: "blocks", Usage: "Read this many blocks, from the head downwards"},
+					&cli.Uint64Flag{Name: "start-block", Usage: "Read the blocks from this one up to --end-block or for --max-blocks blocks, instead of those below the head"},
+					&cli.Uint64Flag{Name: "end-block", Usage: "With --start-block, the last block of the range"},
+					&cli.Uint64Flag{Name: "max-blocks", Usage: "With --start-block, the length of the range"},
+					&cli.Uint64Flag{Name: "sample-blocks", Usage: "With --start-block, read only this many distinct blocks of the range, drawn at random with a fixed seed"},
+					&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
+					&cli.StringFlag{Name: "out", Required: true, Usage: "Output file: one \"<name> <hash>\" per line"},
+				},
+				Action: writeTxList,
+			}},
+	}
+}
+
+// txCallCommand is the subcommand of a per-tx method built from the call arguments of each tx: from the
+// blocks below the head, from a block range or from a tx list.
+func txCallCommand(gen vegetagen.Generator, usage string) *cli.Command {
+	return &cli.Command{
+		Name:  gen.Method(),
+		Usage: usage,
+		Flags: append(commonFlags(true),
+			&cli.StringFlag{Name: "txs", Usage: "File with one \"<name> <hash>\" per line: one request per tx, in this order, with the name as its id, instead of reading blocks"},
+		),
+		Action: func(c *cli.Context) error {
+			return generate(c, []vegetagen.Spec{{Gen: gen, Weight: 1}}, nil, false)
+		},
 	}
 }
 

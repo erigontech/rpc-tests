@@ -53,6 +53,7 @@ func NewGenerator(method string, options map[string]string) (Generator, error) {
 var generators = map[string]func(options map[string]string) (Generator, error){
 	"eth_call":                  noOptions(EthCall{}),
 	"eth_estimateGas":           noOptions(EstimateGas{}),
+	"eth_createAccessList":      noOptions(CreateAccessList{}),
 	"eth_getTransactionReceipt": noOptions(simple{"eth_getTransactionReceipt", PerTx, txHash}),
 	"eth_getTransactionByHash":  noOptions(simple{"eth_getTransactionByHash", PerTx, txHash}),
 	"eth_getBalance":            noOptions(simple{"eth_getBalance", PerTx, senderAtBlock}),

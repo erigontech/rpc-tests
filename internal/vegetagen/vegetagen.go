@@ -796,7 +796,8 @@ func (n node) check(ctx context.Context, cands []candidate, verify, rejectEmpty 
 }
 
 // verify runs every request on the node and returns, for each one, its error
-// kind, or "" when it succeeded. With rejectEmpty a null or empty list result is a failure too.
+// kind, or "" when it succeeded. A result object with an error, as eth_createAccessList returns for a reverted
+// call, is a failure. With rejectEmpty a null or empty list result is a failure too.
 // A transport failure aborts the run.
 func (n node) verify(ctx context.Context, reqs [][]byte, rejectEmpty bool, workers int) ([]string, error) {
 	failures := make([]string, len(reqs))
@@ -811,12 +812,28 @@ func (n node) verify(ctx context.Context, reqs [][]byte, rejectEmpty bool, worke
 		switch result := strings.TrimSpace(string(resp.Result)); {
 		case resp.Error != nil:
 			failures[i] = perf.RPCErrorKind(resp.Error.Message)
+		case resultError(result) != "":
+			failures[i] = perf.RPCErrorKind(resultError(result))
 		case rejectEmpty && (result == "" || result == "null" || strings.ReplaceAll(result, " ", "") == "[]"):
 			failures[i] = "empty result"
 		}
 		return nil
 	})
 	return failures, err
+}
+
+// resultError returns the "error" field of a result object, or "" when the result has none.
+func resultError(result string) string {
+	if !strings.HasPrefix(result, "{") || !strings.Contains(result, `"error"`) {
+		return ""
+	}
+	var obj struct {
+		Error string `json:"error"`
+	}
+	if json.Unmarshal([]byte(result), &obj) != nil {
+		return ""
+	}
+	return obj.Error
 }
 
 // parallel runs fn for every index in [0, n) on at most workers goroutines.

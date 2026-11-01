@@ -48,6 +48,35 @@ func TestEthCallCommandWritesThePattern(t *testing.T) {
 	}
 }
 
+func TestCreateAccessListCommandWritesThePattern(t *testing.T) {
+	dir := t.TempDir()
+	out := filepath.Join(dir, "eth_createAccessList.jsonl")
+	err := newApp().Run([]string{"rpc_pattern_gen", "eth_createAccessList", "--url", node(t), "--blocks", "1", "--block-tag", "parent", "--out", out})
+	if err != nil {
+		t.Fatalf("eth_createAccessList command: %v", err)
+	}
+	got, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatalf("pattern not written: %v", err)
+	}
+	want := `{"jsonrpc":"2.0","method":"eth_createAccessList","params":[{"from":"0x01","to":"0x02","gas":"0x5208","value":"0x0"},"0xf"],"id":1}` + "\n"
+	if string(got) != want {
+		t.Errorf("got  %s\nwant %s", got, want)
+	}
+
+	txs := filepath.Join(dir, "txs.txt")
+	if err := os.WriteFile(txs, []byte("slow 0x"+strings.Repeat("0a", 32)+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	err = newApp().Run([]string{"rpc_pattern_gen", "eth_createAccessList", "--url", node(t), "--txs", txs, "--out", out})
+	if err != nil {
+		t.Fatalf("eth_createAccessList --txs: %v", err)
+	}
+	if got, _ := os.ReadFile(out); !strings.Contains(string(got), `"method":"eth_createAccessList"`) || !strings.Contains(string(got), `"id":"slow"`) {
+		t.Errorf("tx list pattern: %s", got)
+	}
+}
+
 func TestEthGetLogsCommandWritesThePattern(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "eth_getLogs.tar")
 	err := newApp().Run([]string{"rpc_pattern_gen", "eth_getLogs", "--url", node(t), "--counts", "1", "--range", "10", "--verify", "--out", out})
