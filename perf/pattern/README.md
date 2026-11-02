@@ -81,9 +81,13 @@ rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400
 ### Subcommands: one method, from the head downwards
 
 ```bash
-rpc_pattern_gen eth_call    --counts 400000 --block-tag latest --verify --out eth_call.tar
-rpc_pattern_gen eth_getLogs --counts 400000 --range 100        --verify --out eth_getLogs.tar
+rpc_pattern_gen eth_call             --counts 400000 --block-tag latest --verify --out eth_call.tar
+rpc_pattern_gen eth_createAccessList --counts 400000 --block-tag latest --verify --out eth_createAccessList.tar
+rpc_pattern_gen eth_getLogs          --counts 400000 --range 100        --verify --out eth_getLogs.tar
 ```
+
+`eth_createAccessList` takes the same flags as `eth_call`, `--txs` included: each request has the call
+arguments of a tx, as eth_call.
 
 The blocks are read from the head downwards, each one once, until `--counts` requests are written or
 `--blocks` blocks are read. `eth_getLogs` takes `--range`, the widest block range of a request (default
@@ -149,7 +153,7 @@ rpc_pattern_gen eth_call --start-block 19000000 --end-block 19999999 --sample-bl
 
 ## Tx lists
 
-`eth_call --txs <file>` builds the requests from a list of chosen txs instead of reading blocks, e.g. the
+`eth_call --txs <file>` (or `eth_createAccessList --txs <file>`) builds the requests from a list of chosen txs instead of reading blocks, e.g. the
 txs where a node is slow, so their speed can be tracked over time. The file holds one `<name> <hash>` per
 line; `#` starts a comment:
 
@@ -343,7 +347,7 @@ The `latest` patterns run on the state at replay, so their results change with t
 | `--end-block` | | With `--start-block`, the last block of the range |
 | `--sample-blocks` | | With `--start-block`, read only this many distinct blocks of the range, drawn at random |
 | `--block-tag` | `latest` | Block parameter of the methods that take one: `latest` (resolved by the node at replay), `head` (head number pinned at generation, or the end of the block range, the same state on every node) or `parent` (the block before the transaction) |
-| `--fees` | `drop` | Gas price of eth_call/eth_estimateGas: `drop` (no fee, the node skips the base fee and balance checks) or `keep` (the tx gas price) |
+| `--fees` | `drop` | Gas price of eth_call/eth_estimateGas/eth_createAccessList: `drop` (no fee, the node skips the base fee and balance checks) or `keep` (the tx gas price) |
 | `--verify` | off | Run every request on the node and count the failures |
 | `--keep` | `ok` | With `--verify`, the requests to write: `ok` (only the working ones) or `all` |
 | `--min-count` | | Fail if fewer requests are written |
@@ -354,7 +358,7 @@ The `latest` patterns run on the state at replay, so their results change with t
 | `-v`, `--verbose` | off | Print the verification statistics per method and error kind |
 | `--profile` | | Root command only: the [profile](#profile-format) with the mix of methods to generate |
 | `--range` | 100 | `eth_getLogs` only: the widest block range of a request |
-| `--txs` | | `eth_call` only: a [tx list](#tx-lists), one request per tx instead of reading blocks |
+| `--txs` | | `eth_call` and `eth_createAccessList` only: a [tx list](#tx-lists), one request per tx instead of reading blocks |
 | `--top-gas` | | `tx-list` only, required: the number of txs to write, the heaviest first; `--out` is then the list file |
 
 ```bash
@@ -401,6 +405,7 @@ debug_traceBlockByHash     3.91%     tracer=callTracer blocks=50
 |--------|-----------|---------|
 | `eth_call` | each transaction: its from, to, gas, value, input, on `--block-tag` | |
 | `eth_estimateGas` | each transaction, as eth_call (the tx gas caps the search) | |
+| `eth_createAccessList` | each transaction, as eth_call | |
 | `eth_getTransactionReceipt` | each transaction hash | |
 | `eth_getTransactionByHash` | each transaction hash | |
 | `eth_getBalance` | each transaction sender, on `--block-tag` | |

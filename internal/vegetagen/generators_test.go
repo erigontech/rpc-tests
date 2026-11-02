@@ -22,6 +22,7 @@ func TestGeneratorRequests(t *testing.T) {
 		want    string
 	}{
 		{"eth_estimateGas", nil, params, `{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"from":"0x01","to":"0x02","gas":"0x5208","value":"0x0"},"latest"],"id":1}`},
+		{"eth_createAccessList", nil, params, `{"jsonrpc":"2.0","method":"eth_createAccessList","params":[{"from":"0x01","to":"0x02","gas":"0x5208","value":"0x0"},"latest"],"id":1}`},
 		{"eth_getTransactionReceipt", nil, params, `{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0xaa"],"id":1}`},
 		{"eth_getTransactionByHash", nil, params, `{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":["0xaa"],"id":1}`},
 		{"eth_getBalance", nil, params, `{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x01","latest"],"id":1}`},
@@ -59,7 +60,7 @@ func TestGeneratorRequests(t *testing.T) {
 
 func TestGeneratorKinds(t *testing.T) {
 	kinds := map[string]Kind{
-		"eth_call": PerTx, "eth_estimateGas": PerTx, "eth_getTransactionReceipt": PerTx, "eth_getBalance": PerTx,
+		"eth_call": PerTx, "eth_estimateGas": PerTx, "eth_createAccessList": PerTx, "eth_getTransactionReceipt": PerTx, "eth_getBalance": PerTx,
 		"eth_getBlockByNumber": PerBlock, "eth_getLogs": PerLog, "debug_traceBlockByHash": PerBlock, "debug_traceBlockByNumber": PerBlock,
 		"eth_blockNumber": Constant, "net_listening": Constant,
 		"eth_gasPrice": Constant, "eth_maxPriorityFeePerGas": Constant,

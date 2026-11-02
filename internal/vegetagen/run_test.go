@@ -22,7 +22,8 @@ import (
 )
 
 // fakeNode serves eth_blockNumber, eth_getBlockByNumber and eth_call, and answers any other method with a result.
-// Every block has two txs, plus one to extraTo when set; eth_call fails for txs sent from failingFrom.
+// Every block has two txs, plus one to extraTo when set; eth_call fails for txs sent from failingFrom, and
+// eth_createAccessList returns a result holding a revert for them.
 type fakeNode struct {
 	head           uint64
 	failingFrom    string
@@ -131,6 +132,16 @@ func (n *fakeNode) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x"}`)
+	case "eth_createAccessList":
+		var args struct {
+			From string `json:"from"`
+		}
+		_ = json.Unmarshal(req.Params[0], &args)
+		if args.From == n.failingFrom {
+			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":{"accessList":[],"error":"execution reverted","gasUsed":"0x5208"}}`)
+			return
+		}
+		fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":{"accessList":[],"gasUsed":"0x5208"}}`)
 	default:
 		fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x1"}`)
 	}
@@ -369,6 +380,24 @@ func TestRunGroupsErrorsByKind(t *testing.T) {
 	}
 	if len(sum.Errors) != 1 || sum.Errors["insufficient funds for gas * price + value"] != 3 {
 		t.Errorf("errors %v, want 3 grouped under one kind", sum.Errors)
+	}
+}
+
+func TestRunCreateAccessListDropsErrorsInTheResult(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+
+	sum, err := Run(context.Background(), cfg, single(CreateAccessList{}))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.OK != 2 || sum.Errors["execution reverted"] != 2 || sum.Written != 2 {
+		t.Errorf("ok %d, errors %v, written %d: want the reverted calls counted and not written", sum.OK, sum.Errors, sum.Written)
+	}
+	for _, vt := range readTargets(t, cfg.Out, "eth_createAccessList") {
+		if strings.Contains(string(vt.Body), failingFrom) {
+			t.Errorf("reverted request written: %s", vt.Body)
+		}
 	}
 }
 
