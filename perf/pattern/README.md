@@ -464,6 +464,8 @@ for `mixed.profile`.
 | `eth_getLogs_head.profile` | range=1 on the 100 most recent blocks: indexers following the head |
 | `eth_getLogs_latest.profile` | `tag=latest`, `filter=address` on the `mixed.profile` contracts: bots and indexers polling the latest block |
 | `eth_getLogs_or.profile` | `or=16`: lists of addresses and topics, as indexers watching many contracts or events |
+| `debug_traceBlockByNumber_callTracer.profile` | debug_traceBlockByNumber with `tracer=callTracer`; use `--max-blocks` to stay inside the recent state of full nodes |
+| `debug_traceBlockByNumber_structLog.profile` | debug_traceBlockByNumber with the default struct logger: large responses; use `--max-blocks` as above |
 
 Example:
 
