@@ -325,7 +325,7 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 			constants = append(constants, candidate{spec: i, req: req})
 		}
 	}
-	rejectEmpty := specs[0].Gen.Kind() == PerLog
+	rejectEmpty := rejectsEmpty(specs[0].Gen)
 	if err := n.check(ctx, constants, verify, rejectEmpty, workers, accept); err != nil {
 		return sum, err
 	}
@@ -582,7 +582,7 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 				reqs = append(reqs, req)
 			}
 		}
-		pool, err := n.mixPool(ctx, cfg, sp.Gen.Kind(), reqs, targets[i], workers, ms, &sum)
+		pool, err := n.mixPool(ctx, cfg, sp.Gen, reqs, targets[i], workers, ms, &sum)
 		if err != nil {
 			return sum, err
 		}
@@ -604,10 +604,11 @@ func runMix(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 
 // mixPool returns the requests a mix method draws from. Per-tx and per-log requests are verified
 // in batches until target of them are kept; for the others the first request is verified as a sample.
-func (n node) mixPool(ctx context.Context, cfg Config, kind Kind, reqs [][]byte, target, workers int, ms *MethodSummary, sum *Summary) ([][]byte, error) {
+func (n node) mixPool(ctx context.Context, cfg Config, gen Generator, reqs [][]byte, target, workers int, ms *MethodSummary, sum *Summary) ([][]byte, error) {
 	if !cfg.Verify || len(reqs) == 0 {
 		return reqs, nil
 	}
+	kind := gen.Kind()
 	if kind != PerTx && kind != PerLog {
 		kept, err := n.tally(ctx, cfg, reqs[:1], false, workers, ms, sum)
 		if err != nil || len(kept) == 0 {
@@ -618,7 +619,7 @@ func (n node) mixPool(ctx context.Context, cfg Config, kind Kind, reqs [][]byte,
 	var pool [][]byte
 	for start := 0; start < len(reqs) && len(pool) < target; {
 		end := min(len(reqs), start+max(1024, 2*(target-len(pool))))
-		kept, err := n.tally(ctx, cfg, reqs[start:end], kind == PerLog, workers, ms, sum)
+		kept, err := n.tally(ctx, cfg, reqs[start:end], rejectsEmpty(gen), workers, ms, sum)
 		if err != nil {
 			return nil, err
 		}
