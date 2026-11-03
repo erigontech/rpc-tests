@@ -111,11 +111,15 @@ func (pt *PerfTest) patternFile() string {
 // jsonlURL returns the URL the requests of a JSONL pattern are posted to: the client address, on port
 // 8545 unless it has one, as the vegeta targets of the tar patterns.
 func (pt *PerfTest) jsonlURL() string {
-	host := pt.Config.ClientAddress
-	if _, _, err := net.SplitHostPort(host); err != nil {
-		host = net.JoinHostPort(host, "8545")
+	return NodeURL(pt.Config.ClientAddress)
+}
+
+// NodeURL returns the URL of the node at a client address, host or host:port, on port 8545 unless it has one.
+func NodeURL(address string) string {
+	if _, _, err := net.SplitHostPort(address); err != nil {
+		address = net.JoinHostPort(address, "8545")
 	}
-	return "http://" + host
+	return "http://" + address
 }
 
 // CopyAndExtractPatternFile copies and extracts the vegeta pattern tar file; a JSONL pattern is read in place.
@@ -276,11 +280,21 @@ func (pt *PerfTest) loadTargets(filepath string) ([]vegeta.Target, error) {
 	scanner.Buffer(buffer, maxCapacity)
 
 	jsonl, jsonlURL := pt.isJSONL(), pt.jsonlURL()
-	for scanner.Scan() {
+	first := true
+	for lineNum := 1; scanner.Scan(); lineNum++ {
 		line := scanner.Text()
 		if line == "" {
 			continue
 		}
+		// The header of a JSONL pattern describes it and is not sent; it can only be its first line.
+		if _, ok := ParsePatternHeader(scanner.Bytes()); ok && jsonl {
+			if !first {
+				return nil, fmt.Errorf("line %d: a pattern header, only the first line can hold it", lineNum)
+			}
+			first = false
+			continue
+		}
+		first = false
 
 		var vt VegetaTarget
 		if jsonl {
@@ -954,6 +968,9 @@ func JSONLTestType(path string) (string, error) {
 	scanner.Buffer(make([]byte, 0, 1024*1024), 1024*1024)
 	for scanner.Scan() {
 		if scanner.Text() == "" {
+			continue
+		}
+		if _, ok := ParsePatternHeader(scanner.Bytes()); ok {
 			continue
 		}
 		method := jsonrpcMethod(scanner.Bytes())

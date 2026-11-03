@@ -14,6 +14,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/erigontech/rpc-tests/internal/perf"
+
 	"github.com/dsnet/compress/bzip2"
 )
 
@@ -82,7 +84,7 @@ func patternTar(t *testing.T, name, compression string, files map[string]string)
 func convertToString(t *testing.T, in, name string) (string, error) {
 	t.Helper()
 	var out bytes.Buffer
-	_, err := convert(in, name, &out)
+	_, _, _, err := convert(in, name, &out)
 	return out.String(), err
 }
 
@@ -173,8 +175,25 @@ func TestCommandWritesTheOutputOnlyOnSuccess(t *testing.T) {
 		t.Fatalf("command: %v", err)
 	}
 	data, err := os.ReadFile(out)
-	if err != nil || string(data) != call1+"\n"+call2+"\n" {
-		t.Fatalf("output %q, err %v", data, err)
+	if err != nil {
+		t.Fatal(err)
+	}
+	first, rest, _ := strings.Cut(string(data), "\n")
+	if rest != call1+"\n"+call2+"\n" {
+		t.Fatalf("requests %q", rest)
+	}
+	header, ok := perf.ParsePatternHeader([]byte(first))
+	if !ok {
+		t.Fatalf("first line is not a header: %s", first)
+	}
+	want := perf.PatternInfo{
+		Description: "eth_call requests converted from p.tar (vegeta_erigon_eth_call.txt)",
+		Generator:   "rpc_pattern_convert --in p.tar",
+		Requests:    2,
+		Created:     header.Created,
+	}
+	if *header != want || header.Created == "" {
+		t.Errorf("header %+v\nwant   %+v", *header, want)
 	}
 
 	bad := patternTar(t, "bad.tar", "", map[string]string{"results_erigon_eth_call.csv": "1, eth_call, 100\n"})
@@ -184,5 +203,21 @@ func TestCommandWritesTheOutputOnlyOnSuccess(t *testing.T) {
 	}
 	if _, err := os.Stat(missing); !os.IsNotExist(err) {
 		t.Errorf("output written on error, stat err %v", err)
+	}
+}
+
+func TestDescriptionFlagReplacesTheBuiltOne(t *testing.T) {
+	in := patternTar(t, "p.tar", "", map[string]string{"vegeta_erigon_eth_call.txt": vegetaFile(call1)})
+	out := filepath.Join(t.TempDir(), "eth_call.jsonl")
+	if err := newApp().Run([]string{"rpc_pattern_convert", "--in", in, "--out", out, "--description", "the 15M calls"}); err != nil {
+		t.Fatalf("command: %v", err)
+	}
+	data, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	first, _, _ := strings.Cut(string(data), "\n")
+	if header, ok := perf.ParsePatternHeader([]byte(first)); !ok || header.Description != "the 15M calls" {
+		t.Errorf("header %s, want the description the 15M calls", first)
 	}
 }

@@ -1334,3 +1334,47 @@ func TestRunMixWritesJSONLWithTheRequestsOfTheTar(t *testing.T) {
 
 	assertJSONLMatchesTar(t, cfg, []Spec{{Gen: mustGen(t, "eth_getBlockReceipts"), Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}}, "mixed")
 }
+
+func TestRunWritesTheHeaderFirstInAJSONL(t *testing.T) {
+	_, url := startNode(t)
+	for _, tc := range []struct {
+		name  string
+		specs []Spec
+		count int
+	}{
+		{"one method", single(EthCall{}), 0},
+		{"mix", []Spec{{Gen: mustGen(t, "eth_getBlockReceipts"), Weight: 1}, {Gen: mustGen(t, "eth_chainId"), Weight: 1}}, 20},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := baseConfig(t, url)
+			cfg.Tag = TagParent
+			if tc.count > 0 {
+				cfg.Blocks, cfg.Count, cfg.MaxBlocks = 0, tc.count, 3
+			}
+			cfg.Out = filepath.Join(t.TempDir(), "out.jsonl")
+			cfg.Header = &perf.PatternInfo{Description: "d", Network: "mainnet", Generator: "g"}
+			sum, err := Run(context.Background(), cfg, tc.specs)
+			if err != nil {
+				t.Fatalf("Run: %v", err)
+			}
+			data, err := os.ReadFile(cfg.Out)
+			if err != nil {
+				t.Fatal(err)
+			}
+			first, rest, _ := strings.Cut(string(data), "\n")
+			h, ok := perf.ParsePatternHeader([]byte(first))
+			if !ok {
+				t.Fatalf("first line is not a header: %s", first)
+			}
+			if h.Description != "d" || h.Network != "mainnet" || h.Generator != "g" || h.Requests != sum.Written || h.Created == "" {
+				t.Errorf("header %+v, want the given fields, %d requests and the time", h, sum.Written)
+			}
+			if h.FirstBlock != sum.LastBlock || h.LastBlock != sum.FirstBlock || h.FirstBlock >= h.LastBlock {
+				t.Errorf("blocks %d-%d, want the oldest then the newest of %d..%d", h.FirstBlock, h.LastBlock, sum.FirstBlock, sum.LastBlock)
+			}
+			if n := strings.Count(rest, "\n"); n != sum.Written {
+				t.Errorf("%d requests after the header, want %d", n, sum.Written)
+			}
+		})
+	}
+}

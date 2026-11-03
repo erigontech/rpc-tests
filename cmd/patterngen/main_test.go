@@ -9,9 +9,11 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/erigontech/rpc-tests/internal/perf"
 )
 
-// node answers eth_blockNumber and eth_getBlockByNumber with one block holding one tx, eth_getTransactionByHash
+// node answers eth_chainId with mainnet, eth_blockNumber and eth_getBlockByNumber with one block holding one tx, eth_getTransactionByHash
 // with that tx, eth_getBlockReceipts with its receipt, and eth_getLogs with one log.
 func node(t *testing.T) string {
 	t.Helper()
@@ -19,6 +21,8 @@ func node(t *testing.T) string {
 		body, _ := io.ReadAll(r.Body)
 		req := string(body)
 		switch {
+		case strings.Contains(req, "eth_chainId"):
+			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x1"}`)
 		case strings.Contains(req, "eth_blockNumber"):
 			fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x10"}`)
 		case strings.Contains(req, "eth_getBlockByNumber"):
@@ -55,12 +59,9 @@ func TestCreateAccessListCommandWritesThePattern(t *testing.T) {
 	if err != nil {
 		t.Fatalf("eth_createAccessList command: %v", err)
 	}
-	got, err := os.ReadFile(out)
-	if err != nil {
-		t.Fatalf("pattern not written: %v", err)
-	}
+	_, got := readJSONL(t, out)
 	want := `{"jsonrpc":"2.0","method":"eth_createAccessList","params":[{"from":"0x01","to":"0x02","gas":"0x5208","value":"0x0"},"0xf"],"id":1}` + "\n"
-	if string(got) != want {
+	if got != want {
 		t.Errorf("got  %s\nwant %s", got, want)
 	}
 
@@ -207,12 +208,85 @@ func TestEthCallCommandWritesJSONL(t *testing.T) {
 	if err := newApp().Run([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--blocks", "1", "--out", out}); err != nil {
 		t.Fatalf("eth_call command: %v", err)
 	}
-	data, err := os.ReadFile(out)
+	header, reqs := readJSONL(t, out)
+	if !strings.HasPrefix(reqs, `{"jsonrpc":"2.0","method":"eth_call"`) {
+		t.Errorf("not a JSONL pattern: %s", reqs)
+	}
+	if header == nil {
+		t.Fatal("no header")
+	}
+	want := perf.PatternInfo{
+		Description: "eth_call of the txs of the 1 most recent blocks, block tag latest, no fees",
+		Network:     "mainnet",
+		Generator:   "rpc_pattern_gen eth_call --blocks 1",
+		FirstBlock:  16,
+		LastBlock:   16,
+		Requests:    1,
+		Created:     header.Created,
+	}
+	if *header != want {
+		t.Errorf("header %+v\nwant   %+v", *header, want)
+	}
+	if header.Created == "" {
+		t.Error("no creation time in the header")
+	}
+}
+
+// readJSONL returns the header of a JSONL pattern, nil without one, and its requests.
+func readJSONL(t *testing.T, path string) (*perf.PatternInfo, string) {
+	t.Helper()
+	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("pattern not written: %v", err)
 	}
-	if !strings.HasPrefix(string(data), `{"jsonrpc":"2.0","method":"eth_call"`) {
-		t.Errorf("not a JSONL pattern: %s", data)
+	first, rest, _ := strings.Cut(string(data), "\n")
+	if header, ok := perf.ParsePatternHeader([]byte(first)); ok {
+		return header, rest
+	}
+	return nil, string(data)
+}
+
+func TestDescriptionFlagReplacesTheBuiltOne(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "eth_call.jsonl")
+	if err := newApp().Run([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--blocks", "1", "--description", "slow calls", "--out", out}); err != nil {
+		t.Fatalf("eth_call command: %v", err)
+	}
+	header, _ := readJSONL(t, out)
+	if header == nil || header.Description != "slow calls" || header.Generator != "rpc_pattern_gen eth_call --blocks 1" {
+		t.Errorf("header %+v, want the description slow calls and a generator without --description", header)
+	}
+}
+
+func TestDescriptionFlagRejectsATar(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "eth_call.tar")
+	if err := newApp().Run([]string{"rpc_pattern_gen", "eth_call", "--url", node(t), "--blocks", "1", "--description", "x", "--out", out}); err == nil {
+		t.Error("--description with a tar output: want an error")
+	}
+}
+
+func TestProfileHeaderDescribesTheProfile(t *testing.T) {
+	dir := t.TempDir()
+	profile := filepath.Join(dir, "calls.profile")
+	content := "# Calls and balances of recent txs. Usage:\n#   rpc_pattern_gen --profile calls.profile ...\n\n" +
+		"[methods]\neth_call 3\neth_getBalance 1\n"
+	if err := os.WriteFile(profile, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := filepath.Join(dir, "calls.jsonl")
+	if err := newApp().Run([]string{"rpc_pattern_gen", "--profile", profile, "--url", node(t), "--counts", "4", "--max-blocks", "1", "--out", out}); err != nil {
+		t.Fatalf("profile: %v", err)
+	}
+	header, _ := readJSONL(t, out)
+	if header == nil {
+		t.Fatal("no header")
+	}
+	wantDesc := "Calls and balances of recent txs; eth_call 75.0%, eth_getBalance 25.0%; from the 1 most recent blocks, block tag latest, no fees"
+	if header.Description != wantDesc {
+		t.Errorf("description %q\nwant        %q", header.Description, wantDesc)
+	}
+	wantGen := "rpc_pattern_gen --counts 4 --max-blocks 1 --profile " + profile
+	if header.Generator != wantGen || header.Requests != 4 {
+		t.Errorf("generator %q, requests %d; want %q, 4", header.Generator, header.Requests, wantGen)
 	}
 }
 

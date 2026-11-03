@@ -1,8 +1,9 @@
-# eth_getLogs only, as in mixed.profile: every filter shape (address, address+topics, topics), one at
-# random per log, over up to 100 blocks around a real log of the contracts below, drawn from the
-# window of recent blocks (--max-blocks, default 3000), so none returns empty. Usage:
-#   rpc_pattern_gen --profile perf/pattern/mainnet/config/eth_getLogs_mixed.profile --counts N --verify --out eth_getLogs_mixed.tar
-#   rpc_perf -p eth_getLogs_mixed.tar -y eth_getLogs ...
+# eth_getLogs only, as in mixed.profile: every filter shape (address, address and topics, topics only),
+# one at random per log, over up to 100 blocks around a real log, so none returns empty
+#
+# Usage:
+#   rpc_pattern_gen --profile perf/pattern/mainnet/config/eth_getLogs_mixed.profile --counts N --verify --out eth_getLogs_mixed.jsonl
+#   rpc_perf -p eth_getLogs_mixed.jsonl -y eth_getLogs ...
 
 [methods]
 eth_getLogs  100%  range=100
