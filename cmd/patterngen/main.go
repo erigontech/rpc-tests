@@ -23,7 +23,7 @@ func main() {
 }
 
 func newApp() *cli.App {
-	return &cli.App{
+	app := &cli.App{
 		Name:  "rpc_pattern_gen",
 		Usage: "Generate vegeta pattern files for rpc_perf from the transactions and blocks of recent blocks",
 		// The root only runs with --profile, so it checks --out itself: a required root flag would also be required by eth_call.
@@ -78,6 +78,54 @@ func newApp() *cli.App {
 				},
 				Action: writeTxList,
 			}},
+	}
+	for _, method := range vegetagen.Methods() {
+		if !slices.ContainsFunc(app.Commands, func(cmd *cli.Command) bool { return cmd.Name == method }) {
+			app.Commands = append(app.Commands, methodCommand(method))
+		}
+	}
+	return app
+}
+
+// kindUsage tells what each request of a generator kind is built from.
+var kindUsage = map[vegetagen.Kind]string{
+	vegetagen.PerTx:    "one per transaction",
+	vegetagen.PerBlock: "one per block",
+	vegetagen.PerLog:   "one per log",
+	vegetagen.Constant: "all the same, with no parameters taken from the chain",
+}
+
+// methodCommand is the subcommand of a method with no command of its own: its options are those of
+// the method in a profile, e.g. full=true.
+func methodCommand(method string) *cli.Command {
+	gen, err := vegetagen.NewGenerator(method, nil)
+	if err != nil {
+		panic(err) // a method of vegetagen.Methods() always builds with no options
+	}
+	return &cli.Command{
+		Name:  method,
+		Usage: fmt.Sprintf("Generate %s requests, %s", method, kindUsage[gen.Kind()]),
+		Flags: append(commonFlags(true),
+			&cli.StringSliceFlag{Name: "option", Usage: "Option of the method as in a profile, key=value, e.g. full=true or tag=latest (repeatable)"},
+		),
+		Action: func(c *cli.Context) error {
+			options := map[string]string{}
+			for _, opt := range c.StringSlice("option") {
+				key, value, ok := strings.Cut(opt, "=")
+				if !ok || key == "" {
+					return fmt.Errorf("invalid option %q: want key=value", opt)
+				}
+				if _, dup := options[key]; dup {
+					return fmt.Errorf("option %q set twice", key)
+				}
+				options[key] = value
+			}
+			gen, err := vegetagen.NewGenerator(method, options)
+			if err != nil {
+				return err
+			}
+			return generate(c, []vegetagen.Spec{{Gen: gen, Weight: 1}}, nil, false)
+		},
 	}
 }
 

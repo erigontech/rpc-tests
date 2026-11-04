@@ -2,6 +2,7 @@ package vegetagen
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"strconv"
 )
@@ -58,9 +59,9 @@ var generators = map[string]func(options map[string]string) (Generator, error){
 	"eth_getTransactionByHash":  noOptions(simple{"eth_getTransactionByHash", PerTx, txHash}),
 	"eth_getBalance":            noOptions(simple{"eth_getBalance", PerTx, senderAtBlock}),
 	"eth_getTransactionCount":   noOptions(simple{"eth_getTransactionCount", PerTx, senderAtBlock}),
-	"eth_getBlockByNumber":      blockGenerator("eth_getBlockByNumber", func(it Item) any { return hexNum(it.BlockNum) }),
-	"eth_getBlockByHash":        blockGenerator("eth_getBlockByHash", func(it Item) any { return it.Block.Hash }),
-	"eth_getBlockReceipts":      noOptions(simple{"eth_getBlockReceipts", PerBlock, func(it Item, _ Params) []any { return []any{hexNum(it.BlockNum)} }}),
+	"eth_getBlockByNumber":      blockGenerator("eth_getBlockByNumber", true, func(it Item) any { return hexNum(it.BlockNum) }),
+	"eth_getBlockByHash":        blockGenerator("eth_getBlockByHash", false, func(it Item) any { return it.Block.Hash }),
+	"eth_getBlockReceipts":      blockReceiptsGenerator,
 	"eth_getLogs":               getLogsGenerator,
 	"debug_traceBlockByHash":    traceBlockGenerator("debug_traceBlockByHash", func(it Item) any { return it.Block.Hash }),
 	"debug_traceBlockByNumber":  traceBlockGenerator("debug_traceBlockByNumber", func(it Item) any { return hexNum(it.BlockNum) }),
@@ -69,6 +70,11 @@ var generators = map[string]func(options map[string]string) (Generator, error){
 	"net_listening":             noOptions(simple{"net_listening", Constant, noParams}),
 	"eth_gasPrice":              noOptions(simple{"eth_gasPrice", Constant, noParams}),
 	"eth_maxPriorityFeePerGas":  noOptions(simple{"eth_maxPriorityFeePerGas", Constant, noParams}),
+}
+
+// Methods returns the methods with a generator, sorted.
+func Methods() []string {
+	return slices.Sorted(maps.Keys(generators))
 }
 
 type simple struct {
@@ -107,10 +113,15 @@ func checkOptions(method string, options map[string]string, allowed ...string) e
 	return nil
 }
 
-// blockGenerator builds a block lookup whose "full" option selects full transactions.
-func blockGenerator(method string, blockID func(Item) any) func(map[string]string) (Generator, error) {
+// blockGenerator builds a block lookup whose "full" option selects full transactions. With byNumber the
+// "tag" option replaces the block number with a tag, see blockTagOption.
+func blockGenerator(method string, byNumber bool, blockID func(Item) any) func(map[string]string) (Generator, error) {
 	return func(options map[string]string) (Generator, error) {
-		if err := checkOptions(method, options, "full"); err != nil {
+		allowed := []string{"full"}
+		if byNumber {
+			allowed = append(allowed, "tag")
+		}
+		if err := checkOptions(method, options, allowed...); err != nil {
 			return nil, err
 		}
 		full := false
@@ -120,8 +131,37 @@ func blockGenerator(method string, blockID func(Item) any) func(map[string]strin
 				return nil, fmt.Errorf("%s: invalid full %q: want true or false", method, v)
 			}
 		}
-		return simple{method, PerBlock, func(it Item, _ Params) []any { return []any{blockID(it), full} }}, nil
+		id, err := blockTagOption(method, options, blockID)
+		if err != nil {
+			return nil, err
+		}
+		return simple{method, PerBlock, func(it Item, _ Params) []any { return []any{id(it), full} }}, nil
 	}
+}
+
+func blockReceiptsGenerator(options map[string]string) (Generator, error) {
+	const method = "eth_getBlockReceipts"
+	if err := checkOptions(method, options, "tag"); err != nil {
+		return nil, err
+	}
+	id, err := blockTagOption(method, options, func(it Item) any { return hexNum(it.BlockNum) })
+	if err != nil {
+		return nil, err
+	}
+	return simple{method, PerBlock, func(it Item, _ Params) []any { return []any{id(it)} }}, nil
+}
+
+// blockTagOption returns blockID, or with tag=latest the "latest" tag, resolved by each node when the
+// request runs: every request then reads the head block, one per block read at generation.
+func blockTagOption(method string, options map[string]string, blockID func(Item) any) (func(Item) any, error) {
+	v, ok := options["tag"]
+	if !ok {
+		return blockID, nil
+	}
+	if v != string(TagLatest) {
+		return nil, fmt.Errorf("%s: invalid tag %q: want %s", method, v, TagLatest)
+	}
+	return func(Item) any { return string(TagLatest) }, nil
 }
 
 // traceBlockGenerator builds a block trace whose "tracer" option selects the tracer (default: the struct logger).

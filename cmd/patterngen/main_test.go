@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/erigontech/rpc-tests/internal/vegetagen"
 )
 
 // node answers eth_blockNumber and eth_getBlockByNumber with one block holding one tx, eth_getTransactionByHash
@@ -88,6 +90,55 @@ func TestEthGetLogsCommandWritesThePattern(t *testing.T) {
 	}
 	if err := newApp().Run([]string{"rpc_pattern_gen", "eth_getLogs", "--url", node(t), "--counts", "1", "--range", "0", "--out", out}); err == nil {
 		t.Error("range 0: want an error")
+	}
+}
+
+func TestMethodCommandsWriteThePattern(t *testing.T) {
+	tests := []struct {
+		args []string
+		want string
+	}{
+		{[]string{"eth_getBlockReceipts"}, `{"jsonrpc":"2.0","method":"eth_getBlockReceipts","params":["0x10"],"id":1}`},
+		{[]string{"eth_getBlockReceipts", "--option", "tag=latest"}, `{"jsonrpc":"2.0","method":"eth_getBlockReceipts","params":["latest"],"id":1}`},
+		{[]string{"eth_getBlockByNumber", "--option", "full=true"}, `{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x10",true],"id":1}`},
+		{[]string{"eth_getBlockByNumber", "--option", "tag=latest", "--option", "full=true"}, `{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",true],"id":1}`},
+		{[]string{"eth_getTransactionReceipt"}, `{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0xa"],"id":1}`},
+	}
+	for _, tt := range tests {
+		t.Run(strings.Join(tt.args, " "), func(t *testing.T) {
+			out := filepath.Join(t.TempDir(), "pattern.jsonl")
+			args := append([]string{"rpc_pattern_gen"}, tt.args...)
+			if err := newApp().Run(append(args, "--url", node(t), "--blocks", "1", "--out", out)); err != nil {
+				t.Fatalf("%v: %v", tt.args, err)
+			}
+			if got, _ := os.ReadFile(out); string(got) != tt.want+"\n" {
+				t.Errorf("got  %s\nwant %s", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMethodCommandRejectsInvalidOptions(t *testing.T) {
+	for _, opts := range [][]string{
+		{"--option", "tag"},
+		{"--option", "=latest"},
+		{"--option", "tag=latest", "--option", "tag=latest"},
+		{"--option", "tag=safe"},
+		{"--option", "range=10"},
+	} {
+		args := append([]string{"rpc_pattern_gen", "eth_getBlockReceipts", "--url", node(t), "--blocks", "1", "--out", filepath.Join(t.TempDir(), "p.jsonl")}, opts...)
+		if err := newApp().Run(args); err == nil {
+			t.Errorf("%v: want an error", opts)
+		}
+	}
+}
+
+func TestEveryMethodHasACommand(t *testing.T) {
+	app := newApp()
+	for _, method := range vegetagen.Methods() {
+		if app.Command(method) == nil {
+			t.Errorf("no command for %s", method)
+		}
 	}
 }
 
