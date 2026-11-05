@@ -114,6 +114,9 @@ type Config struct {
 	Workers   int
 	Out       string    // tar file path, or a JSONL file when it ends in .jsonl
 	Txs       []NamedTx // build the requests from these txs instead of reading blocks
+	// Header, when set, is written as the first line of a JSONL output, completed with the blocks read,
+	// the requests written and the time; a tar has no header.
+	Header *perf.PatternInfo
 }
 
 // BlockRange is the blocks to read instead of those below the head: from From up to the first of
@@ -660,7 +663,15 @@ func write(cfg Config, specs []Spec, sum Summary, written [][][]byte) error {
 		return fmt.Errorf("%d requests written, fewer than min-count %d", sum.Written, cfg.MinCount)
 	}
 	if strings.HasSuffix(cfg.Out, ".jsonl") {
-		return writeJSONL(cfg.Out, interleave(written))
+		var header *perf.PatternInfo
+		if cfg.Header != nil {
+			h := *cfg.Header
+			h.FirstBlock, h.LastBlock = min(sum.FirstBlock, sum.LastBlock), max(sum.FirstBlock, sum.LastBlock)
+			h.Requests = sum.Written
+			h.Created = time.Now().UTC().Format(time.RFC3339)
+			header = &h
+		}
+		return writeJSONL(cfg.Out, header, interleave(written))
 	}
 	name := cfg.Name
 	if name == "" {
@@ -885,9 +896,14 @@ func writeTarget(out *bytes.Buffer, url string, body []byte) error {
 	return nil
 }
 
-// writeJSONL writes one JSON-RPC request per line.
-func writeJSONL(path string, reqs [][]byte) error {
+// writeJSONL writes the header, when set, then one JSON-RPC request per line.
+func writeJSONL(path string, header *perf.PatternInfo, reqs [][]byte) error {
 	var out bytes.Buffer
+	if header != nil {
+		if err := perf.WritePatternHeader(&out, *header); err != nil {
+			return err
+		}
+	}
 	for _, req := range reqs {
 		out.Write(req)
 		out.WriteByte('\n')

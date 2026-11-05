@@ -74,7 +74,9 @@ skip the check.
 - **Vegeta tar** (`.tar`, `.tar.gz`, ...): holds `erigon_stress_test/vegeta_erigon_<test-type>.txt`, one Vegeta
   target per line. `-y` selects the file in the tar, and `localhost` in the target URLs is replaced with `-d`.
 - **JSONL** (`.jsonl`): one JSON-RPC request per line, as written by `rpc_pattern_gen --out <file>.jsonl`
-  (see [`pattern/README.md`](pattern/README.md#jsonl-output)). The file is read in place; each request is
+  (see [`pattern/README.md`](pattern/README.md#jsonl-output)). An optional first line `{"pattern":{...}}`,
+  the [header](pattern/README.md#pattern-header), describes the pattern: it is not sent, its description
+  is printed at the start and it goes into the JSON report. The file is read in place; each request is
   posted to `http://<-d>:8545`, or to the port given in `-d` as `host:port`. `-y` is optional: it names
   the test in the reports (result files, CSV, JSON report) and defaults to the method of the requests, or
   `mixed` when they use several methods.
@@ -172,7 +174,10 @@ A test with 0% success always stops the run.
 The CSV has one row per test: the latencies and the success ratio of all the responses, then `RpcRatio`,
 `50ok`, `90ok`, `95ok`, `99ok` and `MaxOk` of the OK responses. The JSON report has, for each repetition,
 the Vegeta report (`vegetaReport`), `rpcSuccessRatio` and `latenciesOk` (ns, with the keys of the Vegeta
-report).
+report). With a JSONL pattern that has a [header](pattern/README.md#pattern-header), `configuration.pattern`
+holds it, and `vegetaChecksum` is the checksum of the requests only, so a changed description keeps it.
+`configuration.clientVersion` is the `web3_clientVersion` of the node under test, also printed at the start
+(`Client: ...`); it is absent when the node answers with an error or does not answer.
 
 With a report, the Vegeta binary file of each test (every request with its latency, status and the
 first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/reports/bin/` with `-u`).

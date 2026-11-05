@@ -1,6 +1,7 @@
 package perf
 
 import (
+	"bytes"
 	"encoding/csv"
 	"encoding/json"
 	"os"
@@ -289,6 +290,7 @@ func TestTestReportJSONLifecycle(t *testing.T) {
 	cfg.ClientVegetaOnCore = "0-3:4-7"
 	cfg.TestSequence = "100:5"
 	cfg.Repetitions = 2
+	cfg.ClientVersion = "erigon/3.1.0/linux-amd64/go1.24.4"
 
 	binary := filepath.Join(dirs.RunTestDir, BinaryDir, "run.bin")
 	writeVegetaBinary(t, binary)
@@ -318,6 +320,9 @@ func TestTestReportJSONLifecycle(t *testing.T) {
 	if err := json.Unmarshal(data, &parsed); err != nil {
 		t.Fatalf("JSON report is malformed: %v", err)
 	}
+	if got := parsed.Configuration.ClientVersion; got != "erigon/3.1.0/linux-amd64/go1.24.4" {
+		t.Errorf("clientVersion = %q, want the version read at startup", got)
+	}
 
 	if parsed.Configuration.TestingDaemon != "rpcdaemon" {
 		t.Errorf("testingDaemon: got %q", parsed.Configuration.TestingDaemon)
@@ -336,6 +341,9 @@ func TestTestReportJSONLifecycle(t *testing.T) {
 	}
 	if parsed.Platform.GoVersion == "" {
 		t.Error("platform.goVersion should be populated")
+	}
+	if parsed.Configuration.Pattern != nil || bytes.Contains(data, []byte(`"pattern"`)) {
+		t.Error("configuration.pattern should be absent for a pattern without a header")
 	}
 
 	if len(parsed.Results) != 1 {

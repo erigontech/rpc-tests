@@ -9,7 +9,9 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ## Overview
 
 A pattern is a `.jsonl` file, one JSON-RPC request per line, that `rpc_perf` replays at fixed rates.
-`rpc_pattern_gen` builds it from a running node. There are three kinds:
+`rpc_pattern_gen` builds it from a running node. Its first line is a header, `{"pattern":{...}}`, with a
+description built from the parameters (`--description` replaces it): `rpc_perf` does not send it and
+copies it into its JSON report (see `perf/pattern/README.md`, Pattern header). There are three kinds:
 
 | Kind | Built from | Use |
 |------|-----------|-----|
