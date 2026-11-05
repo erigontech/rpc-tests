@@ -113,7 +113,14 @@ tar has no header, so `--description` is rejected with a tar output.
 rpc_pattern_gen eth_call             --counts 400000 --block-tag latest --verify --out eth_call.tar
 rpc_pattern_gen eth_createAccessList --counts 400000 --block-tag latest --verify --out eth_createAccessList.tar
 rpc_pattern_gen eth_getLogs          --counts 400000 --range 100        --verify --out eth_getLogs.tar
+rpc_pattern_gen eth_getBlockReceipts --counts 10000                     --verify --out eth_getBlockReceipts.jsonl
+rpc_pattern_gen eth_getBlockByNumber --counts 10000 --option full=true  --verify --out eth_getBlockByNumber.jsonl
 ```
+
+Every method of the [method table](#methods-and-options) has a subcommand of the same name. `eth_call`,
+`eth_createAccessList` and `eth_getLogs` have their own flags, described below; the others take the
+options of the method as in a profile, with `--option key=value`, repeated for each option, e.g.
+`--option tag=latest --option full=true`.
 
 `eth_createAccessList` takes the same flags as `eth_call`, `--txs` included: each request has the call
 arguments of a tx, as eth_call.
@@ -445,13 +452,17 @@ debug_traceBlockByHash     3.91%     tracer=callTracer blocks=50
 | `eth_getTransactionByHash` | each transaction hash | |
 | `eth_getBalance` | each transaction sender, on `--block-tag` | |
 | `eth_getTransactionCount` | each transaction sender, on `--block-tag` | |
-| `eth_getBlockByNumber` | each block | `full=true\|false` (full transactions, default false) |
+| `eth_getBlockByNumber` | each block | `full=true\|false` (full transactions, default false), `tag=latest` |
 | `eth_getBlockByHash` | each block | `full=true\|false` |
-| `eth_getBlockReceipts` | each block | |
+| `eth_getBlockReceipts` | each block | `tag=latest` |
 | `debug_traceBlockByHash` | each block | `tracer=<name>`, e.g. `callTracer` (default: the struct logger) |
 | `debug_traceBlockByNumber` | each block | `tracer=<name>`, e.g. `callTracer` (default: the struct logger) |
 | `eth_getLogs` | each log of a block | `range=N`, `filter=...`, `or=N`, `tag=latest`, see below |
 | `eth_blockNumber`, `eth_chainId`, `net_listening`, `eth_gasPrice`, `eth_maxPriorityFeePerGas` | nothing: the same request repeated | |
+
+`tag=latest` of `eth_getBlockByNumber` and `eth_getBlockReceipts` replaces the block number with
+`"latest"`, resolved by each node when the request runs, as clients polling the head do: every request
+is the same, one per block read at generation.
 
 ### eth_getLogs
 

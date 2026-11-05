@@ -30,7 +30,10 @@ func TestGeneratorRequests(t *testing.T) {
 		{"eth_getBlockByNumber", nil, params, `{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x64",false],"id":1}`},
 		{"eth_getBlockByNumber", map[string]string{"full": "true"}, params, `{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x64",true],"id":1}`},
 		{"eth_getBlockByHash", nil, params, `{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["0xbb",false],"id":1}`},
+		{"eth_getBlockByNumber", map[string]string{"tag": "latest"}, params, `{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",false],"id":1}`},
+		{"eth_getBlockByNumber", map[string]string{"tag": "latest", "full": "true"}, params, `{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",true],"id":1}`},
 		{"eth_getBlockReceipts", nil, params, `{"jsonrpc":"2.0","method":"eth_getBlockReceipts","params":["0x64"],"id":1}`},
+		{"eth_getBlockReceipts", map[string]string{"tag": "latest"}, params, `{"jsonrpc":"2.0","method":"eth_getBlockReceipts","params":["latest"],"id":1}`},
 		{"debug_traceBlockByHash", nil, params, `{"jsonrpc":"2.0","method":"debug_traceBlockByHash","params":["0xbb"],"id":1}`},
 		{"debug_traceBlockByHash", map[string]string{"tracer": "callTracer"}, params, `{"jsonrpc":"2.0","method":"debug_traceBlockByHash","params":["0xbb",{"tracer":"callTracer"}],"id":1}`},
 		{"debug_traceBlockByNumber", nil, params, `{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":["0x64"],"id":1}`},
@@ -55,6 +58,34 @@ func TestGeneratorRequests(t *testing.T) {
 				t.Errorf("got  %s\nwant %s", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestBlockTagOptionRejectsInvalidValues(t *testing.T) {
+	for _, tt := range []struct {
+		method  string
+		options map[string]string
+	}{
+		{"eth_getBlockReceipts", map[string]string{"tag": "safe"}},
+		{"eth_getBlockByNumber", map[string]string{"tag": "0x64"}},
+		{"eth_getBlockByHash", map[string]string{"tag": "latest"}}, // a hash has no tag
+		{"eth_getBlockReceipts", map[string]string{"full": "true"}},
+	} {
+		if _, err := NewGenerator(tt.method, tt.options); err == nil {
+			t.Errorf("%s %v: want an error", tt.method, tt.options)
+		}
+	}
+}
+
+func TestMethodsBuildWithNoOptions(t *testing.T) {
+	methods := Methods()
+	if !slices.IsSorted(methods) || len(methods) != len(generators) {
+		t.Fatalf("Methods() = %v: want the %d methods, sorted", methods, len(generators))
+	}
+	for _, method := range methods {
+		if _, err := NewGenerator(method, nil); err != nil {
+			t.Errorf("NewGenerator(%s): %v", method, err)
+		}
 	}
 }
 

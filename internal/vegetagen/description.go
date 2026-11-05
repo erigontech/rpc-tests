@@ -57,21 +57,26 @@ func Description(cfg Config, specs []Spec, profile *Profile, txList string) stri
 
 // commandDescription describes the pattern of a subcommand: one method read from the head, a block range or a tx list.
 func commandDescription(cfg Config, sp Spec, txList string) string {
-	method := sp.Gen.Method()
 	parts := []string{}
-	switch g := sp.Gen.(type) {
-	case GetLogs:
-		parts = append(parts, fmt.Sprintf("%s with filters built from the real logs of %s", method, blockSource(cfg)),
+	if g, ok := sp.Gen.(GetLogs); ok {
+		parts = append(parts, fmt.Sprintf("%s with filters built from the real logs of %s", sp.Gen.Method(), blockSource(cfg)),
 			filterText(g), fmt.Sprintf("ranges up to %d blocks", g.Range))
 		if cfg.PerBlock > 0 {
 			parts = append(parts, fmt.Sprintf("%d logs per block", cfg.PerBlock))
 		}
+		return strings.Join(parts, ", ")
+	}
+	switch sp.Gen.Kind() {
+	case Constant:
+		parts = append(parts, sp.name())
+	case PerBlock:
+		parts = append(parts, fmt.Sprintf("%s, one per block of %s", sp.name(), blockSource(cfg)))
 	default:
 		source := blockSource(cfg)
 		if txList != "" {
 			source = txList
 		}
-		parts = append(parts, fmt.Sprintf("%s of the txs of %s", method, source))
+		parts = append(parts, fmt.Sprintf("%s of the txs of %s", sp.name(), source))
 		if cfg.PerBlock > 0 {
 			parts = append(parts, fmt.Sprintf("%d txs per block", cfg.PerBlock))
 		}

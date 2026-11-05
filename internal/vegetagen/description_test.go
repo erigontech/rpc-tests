@@ -67,6 +67,16 @@ func TestDescription(t *testing.T) {
 			specs: []Spec{{Gen: GetLogs{Range: 100}, Weight: 1}},
 			want:  "eth_getLogs with filters built from the real logs of the most recent blocks, every filter shape (address, address and topics, topics only), ranges up to 100 blocks",
 		}, {
+			name:  "eth_getBlockByNumber with options",
+			cfg:   Config{Tag: TagLatest, Blocks: 5},
+			specs: []Spec{{Name: "eth_getBlockByNumber full=true tag=latest", Gen: mustGenerator(t, "eth_getBlockByNumber", map[string]string{"full": "true", "tag": "latest"}), Weight: 1}},
+			want:  "eth_getBlockByNumber full=true tag=latest, one per block of the 5 most recent blocks",
+		}, {
+			name:  "eth_gasPrice",
+			cfg:   Config{Tag: TagLatest, Count: 10},
+			specs: []Spec{{Gen: mustGenerator(t, "eth_gasPrice", nil), Weight: 1}},
+			want:  "eth_gasPrice",
+		}, {
 			name:    "mix with contracts",
 			cfg:     Config{Tag: TagLatest, MaxBlocks: 2500},
 			profile: mixed,
@@ -108,4 +118,13 @@ func TestDescription(t *testing.T) {
 			}
 		})
 	}
+}
+
+func mustGenerator(t *testing.T, method string, options map[string]string) Generator {
+	t.Helper()
+	gen, err := NewGenerator(method, options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return gen
 }
