@@ -102,6 +102,12 @@ func runTxs(ctx context.Context, cfg Config, specs []Spec, sum Summary) (Summary
 		if !cfg.KeepFees {
 			txn.GasPrice = ""
 		}
+		if i == 0 || blockNum > sum.FirstBlock {
+			sum.FirstBlock = blockNum
+		}
+		if i == 0 || blockNum < sum.LastBlock {
+			sum.LastBlock = blockNum
+		}
 		req, err := sp.Gen.Request(Item{BlockNum: blockNum, Txn: &txn}, Params{BlockParam: blockParam(cfg.Tag, blockNum, head), Head: head})
 		if err != nil {
 			return sum, fmt.Errorf("building %s for tx %s: %w", sp.Gen.Method(), cfg.Txs[i].Name, err)

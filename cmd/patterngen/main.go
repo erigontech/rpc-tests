@@ -7,11 +7,13 @@ import (
 	"maps"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
 	"syscall"
 
+	"github.com/erigontech/rpc-tests/internal/perf"
 	"github.com/erigontech/rpc-tests/internal/vegetagen"
 	"github.com/urfave/cli/v2"
 )
@@ -45,7 +47,7 @@ func newApp() *cli.App {
 			if err != nil {
 				return err
 			}
-			return generate(c, specs, profile.Contracts, true)
+			return generate(c, specs, &profile)
 		},
 		Commands: []*cli.Command{
 			txCallCommand(vegetagen.EthCall{}, "Generate eth_call requests with the call arguments of each transaction"),
@@ -60,7 +62,7 @@ func newApp() *cli.App {
 					if c.Uint64("range") == 0 {
 						return fmt.Errorf("invalid range 0: want a positive number of blocks")
 					}
-					return generate(c, []vegetagen.Spec{{Gen: vegetagen.GetLogs{Range: c.Uint64("range")}, Weight: 1}}, nil, false)
+					return generate(c, []vegetagen.Spec{{Gen: vegetagen.GetLogs{Range: c.Uint64("range")}, Weight: 1}}, nil)
 				},
 			}, {
 				Name:  "tx-list",
@@ -124,7 +126,11 @@ func methodCommand(method string) *cli.Command {
 			if err != nil {
 				return err
 			}
-			return generate(c, []vegetagen.Spec{{Gen: gen, Weight: 1}}, nil, false)
+			name := []string{method}
+			for _, key := range slices.Sorted(maps.Keys(options)) {
+				name = append(name, key+"="+options[key])
+			}
+			return generate(c, []vegetagen.Spec{{Name: strings.Join(name, " "), Gen: gen, Weight: 1}}, nil)
 		},
 	}
 }
@@ -139,7 +145,7 @@ func txCallCommand(gen vegetagen.Generator, usage string) *cli.Command {
 			&cli.StringFlag{Name: "txs", Usage: "File with one \"<name> <hash>\" per line: one request per tx, in this order, with the name as its id, instead of reading blocks"},
 		),
 		Action: func(c *cli.Context) error {
-			return generate(c, []vegetagen.Spec{{Gen: gen, Weight: 1}}, nil, false)
+			return generate(c, []vegetagen.Spec{{Gen: gen, Weight: 1}}, nil)
 		},
 	}
 }
@@ -187,14 +193,20 @@ func commonFlags(outRequired bool) []cli.Flag {
 		&cli.IntFlag{Name: "per-block", Usage: "Take at most this many txs (or logs for eth_getLogs) of each block, picked at random with the block number as seed (subcommands only; default: all)"},
 		&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
 		&cli.StringFlag{Name: "name", Usage: "Name of the vegeta file in the tar, the rpc_perf --test-type (default: the method, or mixed for several); tar output only"},
+		&cli.StringFlag{Name: "description", Usage: "Description written in the header of a .jsonl output, read by rpc_perf into its JSON report (default: built from the parameters); .jsonl output only"},
 		&cli.StringFlag{Name: "out", Required: outRequired, Usage: "Output file: a vegeta tar usable as rpc_perf --pattern-file, gzipped if it ends in .tar.gz or .tgz, or one JSON-RPC request per line if it ends in .jsonl"},
 		&cli.BoolFlag{Name: "verbose", Aliases: []string{"v"}, Usage: "Print the verification statistics by error kind"},
 	}
 }
 
-// generate writes the pattern of specs. With window, as for a profile, the requests are drawn from
-// the window of recent blocks even when the profile has one method.
-func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window bool) error {
+// generate writes the pattern of specs. With a profile the requests are drawn from the window of recent
+// blocks even when the profile has one method.
+func generate(c *cli.Context, specs []vegetagen.Spec, profile *vegetagen.Profile) error {
+	window := profile != nil
+	var contracts []string
+	if profile != nil {
+		contracts = profile.Contracts
+	}
 	tag, err := vegetagen.ParseBlockTag(c.String("block-tag"))
 	if err != nil {
 		return err
@@ -203,12 +215,15 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 	if keep != vegetagen.KeepOK && keep != vegetagen.KeepAll {
 		return fmt.Errorf("invalid keep %q: want ok or all", keep)
 	}
-	if strings.HasSuffix(c.String("out"), ".jsonl") {
+	jsonl := strings.HasSuffix(c.String("out"), ".jsonl")
+	if jsonl {
 		for _, name := range []string{"target-url", "name"} {
 			if c.IsSet(name) {
 				return fmt.Errorf("--%s applies to a vegeta tar only, not to a .jsonl output", name)
 			}
 		}
+	} else if c.IsSet("description") {
+		return fmt.Errorf("--description applies to a .jsonl output only: a tar has no header")
 	}
 	blockRange, err := parseBlockRange(c)
 	if err != nil {
@@ -256,6 +271,21 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	if jsonl {
+		description := c.String("description")
+		if description == "" {
+			txList := ""
+			if c.IsSet("txs") {
+				txList = filepath.Base(c.String("txs"))
+			}
+			description = vegetagen.Description(cfg, specs, profile, txList)
+		}
+		cfg.Header = &perf.PatternInfo{
+			Description: description,
+			Network:     vegetagen.Network(ctx, cfg.URL),
+			Generator:   generatorCommand(c),
+		}
+	}
 	sum, err := vegetagen.Run(ctx, cfg, specs)
 	if c.Bool("verbose") {
 		printSummary(label, cfg, specs, sum)
@@ -273,6 +303,37 @@ func generate(c *cli.Context, specs []vegetagen.Spec, contracts []string, window
 	fmt.Printf("%s: %d blocks scanned (%d..%d), %d requests written to %s\n",
 		label, sum.BlocksScanned, sum.FirstBlock, sum.LastBlock, sum.Written, cfg.Out)
 	return nil
+}
+
+// generatorCommand returns the command line of the pattern for its header, rebuilt from the flags set in
+// their order of definition, without those that depend on the machine or are in the header already: the node
+// URLs, the output file and the description.
+func generatorCommand(c *cli.Context) string {
+	skip := map[string]bool{"url": true, "target-url": true, "out": true, "description": true}
+	parts := []string{c.App.Name}
+	flags := c.App.Flags
+	if c.Command != nil && c.Command.Name != "" && c.Command.Name != c.App.Name {
+		parts = append(parts, c.Command.Name)
+		flags = c.Command.Flags
+	}
+	for _, f := range flags {
+		name := f.Names()[0]
+		if skip[name] || !c.IsSet(name) {
+			continue
+		}
+		if _, ok := f.(*cli.BoolFlag); ok {
+			parts = append(parts, "--"+name)
+			continue
+		}
+		if _, ok := f.(*cli.StringSliceFlag); ok {
+			for _, v := range c.StringSlice(name) {
+				parts = append(parts, "--"+name, v)
+			}
+			continue
+		}
+		parts = append(parts, "--"+name, fmt.Sprint(c.Value(name)))
+	}
+	return strings.Join(parts, " ")
 }
 
 // parseBlockRange returns the range of --start-block, or nil without it. It checks which flags are set, not

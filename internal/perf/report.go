@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -73,6 +74,10 @@ type ConfigurationInfo struct {
 	VegetaFile      string `json:"vegetaFile"`
 	VegetaChecksum  string `json:"vegetaChecksum"`
 	Taskset         string `json:"taskset"`
+	// The web3_clientVersion of the node under test, absent when it does not answer.
+	ClientVersion string `json:"clientVersion,omitempty"`
+	// The header of a JSONL pattern, absent when the pattern has none.
+	Pattern *PatternInfo `json:"pattern,omitempty"`
 }
 
 // JSONTestResult holds results for a single QPS/duration test.
@@ -119,7 +124,10 @@ func (tr *TestReport) Open() error {
 		return fmt.Errorf("failed to create CSV file: %w", err)
 	}
 
-	checksum := GetFileChecksum(tr.Config.VegetaPatternTarFile)
+	pattern, checksum, err := patternChecksum(tr.Config.VegetaPatternTarFile)
+	if err != nil {
+		return err
+	}
 	gccVersion := GetGCCVersion()
 	goVersion := GetGoVersion()
 	kernelVersion := GetKernelVersion()
@@ -141,9 +149,28 @@ func (tr *TestReport) Open() error {
 	if tr.Config.JSONReportFile != "" {
 		tr.initializeJSONReport(cpuModel, bogomips, kernelVersion, checksum,
 			gccVersion, goVersion, clientCommit)
+		tr.jsonReport.Configuration.Pattern = pattern
+		tr.jsonReport.Configuration.ClientVersion = tr.Config.ClientVersion
 	}
 
 	return nil
+}
+
+// patternChecksum returns the header of a JSONL pattern, nil without one, and the checksum of the pattern:
+// with a header, of its requests only.
+func patternChecksum(path string) (*PatternInfo, string, error) {
+	if !strings.HasSuffix(path, ".jsonl") {
+		return nil, GetFileChecksum(path), nil
+	}
+	pattern, offset, err := ReadPatternHeader(path)
+	if err != nil || pattern == nil {
+		return nil, GetFileChecksum(path), err
+	}
+	checksum, err := requestsChecksum(path, offset)
+	if err != nil {
+		return nil, "", fmt.Errorf("checksum of %s: %w", path, err)
+	}
+	return pattern, checksum, nil
 }
 
 // createCSVFile creates the CSV report file with appropriate naming.
@@ -478,4 +505,23 @@ func formatOKDuration(d time.Duration) string {
 		return "-"
 	}
 	return FormatDuration(d)
+}
+
+// ClientVersion returns the web3_clientVersion of the node at url, e.g. erigon/3.1.0/linux-amd64/go1.24.4,
+// or "" when the node does not answer it within 5 seconds.
+func ClientVersion(url string) string {
+	client := http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Post(url, "application/json",
+		strings.NewReader(`{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}`))
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+	var body struct {
+		Result string `json:"result"`
+	}
+	if json.NewDecoder(resp.Body).Decode(&body) != nil {
+		return ""
+	}
+	return body.Result
 }

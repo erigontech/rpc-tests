@@ -23,8 +23,12 @@ import (
 //	[contracts]
 //	0xdac17f958d2ee523a2206206994597c13d831ec7  USDT
 type Profile struct {
-	Methods   []MethodSpec
-	Contracts []string // lower case
+	Methods       []MethodSpec
+	Contracts     []string // lower case
+	ContractNames []string // the label after each address of Contracts, "" when it has none
+	// Description is the first paragraph of the comment at the top of the file, up to an empty comment
+	// line or "Usage:": the description of the patterns of the profile.
+	Description string
 }
 
 // MethodSpec is one method of a profile. The blocks=N option, common to every method,
@@ -58,8 +62,26 @@ func ParseProfile(r io.Reader) (Profile, error) {
 		section string
 		seen    = map[string]bool{}
 	)
+	var (
+		description []string
+		inHeader    = true // in the first paragraph of the leading comment
+	)
 	sc := bufio.NewScanner(r)
 	for lineNum := 1; sc.Scan(); lineNum++ {
+		if inHeader {
+			text, isComment := strings.CutPrefix(strings.TrimSpace(sc.Text()), "#")
+			text, usage := strings.CutSuffix(strings.TrimSpace(text), "Usage:")
+			text = strings.TrimSpace(text)
+			switch {
+			case !isComment:
+				inHeader = false
+			case text == "":
+				inHeader = len(description) == 0 && !usage // an empty comment line ends the paragraph
+			default:
+				description = append(description, text)
+				inHeader = !usage
+			}
+		}
 		line, _, _ := strings.Cut(sc.Text(), "#")
 		line = strings.TrimSpace(line)
 		if line == "" {
@@ -90,6 +112,7 @@ func ParseProfile(r io.Reader) (Profile, error) {
 				return p, fmt.Errorf("line %d: invalid address %q", lineNum, fields[0])
 			}
 			p.Contracts = append(p.Contracts, strings.ToLower(fields[0]))
+			p.ContractNames = append(p.ContractNames, strings.Join(fields[1:], " "))
 		default:
 			return p, fmt.Errorf("line %d: %q is outside a section", lineNum, line)
 		}
@@ -100,6 +123,7 @@ func ParseProfile(r io.Reader) (Profile, error) {
 	if len(p.Methods) == 0 {
 		return p, errors.New("no methods: the profile needs a [methods] section")
 	}
+	p.Description = strings.TrimSuffix(strings.Join(description, " "), ".")
 	return p, nil
 }
 

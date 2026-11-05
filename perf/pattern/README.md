@@ -59,7 +59,7 @@ and is the value to pass to `rpc_perf --test-type` (`-y`). Each target posts to 
 ## JSONL output
 
 When `--out` ends in `.jsonl`, `rpc_pattern_gen` writes the same requests, in the same order, as plain
-JSONL: one JSON-RPC request per line, with no Vegeta target, URL, header or base64. The file can be read,
+JSONL: a [header](#pattern-header) line, then one JSON-RPC request per line, with no Vegeta target, URL or base64. The file can be read,
 grepped and diffed as it is, and `rpc_perf -p` replays it directly (see [`../README.md`](../README.md#pattern-files)),
 as can any other load tool.
 
@@ -75,6 +75,35 @@ rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 400
 ```
 
 `--target-url` and `--name` describe the Vegeta tar only, so they are rejected with a `.jsonl` output.
+
+### Pattern header
+
+The first line of a JSONL pattern describes it. It is a JSON object, so any JSONL parser reads it, but not
+a JSON-RPC request: `rpc_perf` does not send it, and copies it into its JSON report as
+`configuration.pattern`, so that the results saved on the DB tell what the pattern holds.
+
+```
+{"pattern":{"description":"eth_call of the txs of the most recent blocks, block tag latest, no fees","network":"mainnet","generator":"rpc_pattern_gen eth_call --counts 600000 --block-tag latest --verify","firstBlock":24151021,"lastBlock":24152000,"requests":600000,"created":"2026-11-03T10:12:00Z"}}
+```
+
+| Field | Content |
+|-------|---------|
+| `description` | Built from the parameters only, so every run of the same command writes the same one whatever the head of the node; `--description` replaces it |
+| `network` | The network of the node, from `eth_chainId` |
+| `generator` | The command, rebuilt from the flags set, without `--url`, `--target-url`, `--out` and `--description` |
+| `firstBlock`, `lastBlock` | The oldest and the newest block the requests were built from: they change with the head |
+| `requests` | The requests written |
+| `created` | The generation time, UTC |
+
+The description of a subcommand names the method, the blocks (`the most recent blocks`, a block range or
+the tx list), the eth_getLogs filters and ranges, and the block tag and the fees of the methods that take
+them. The description of a profile starts with the first paragraph of the comment at the top of the
+profile, up to an empty comment line or `Usage:`, followed by the heaviest methods of a mix with their
+share, the `[contracts]` by name, the window of recent blocks (`--max-blocks`) or the block range, and the
+block tag and the fees.
+
+The header is optional: a `.jsonl` without one replays as well. Only the first line can hold it. A Vegeta
+tar has no header, so `--description` is rejected with a tar output.
 
 ## Two ways to run it
 
@@ -283,8 +312,10 @@ steps to find and add such txs.
 
 ## Converting Vegeta patterns to JSONL
 
-`rpc_pattern_convert` turns a Vegeta pattern into JSONL: one JSON-RPC request per line, compacted, in the
-order of the Vegeta targets, with no URL, header or base64. No node is needed, and the output can be read,
+`rpc_pattern_convert` turns a Vegeta pattern into JSONL: a [header](#pattern-header), then one JSON-RPC
+request per line, compacted, in the order of the Vegeta targets, with no URL or base64. The description
+of the header names the method (or `mixed`) and the source pattern, e.g. `eth_getLogs requests converted
+from stress_test_eth_getLogs_15M.tar (vegeta_erigon_eth_getLogs_15M.txt)`; `--description` replaces it. No node is needed, and the output can be read,
 grepped and compared with `diff`.
 
 ```bash
@@ -362,6 +393,7 @@ The `latest` patterns run on the state at replay, so their results change with t
 | `--per-block` | all | Subcommands only: take at most this many txs (or logs for eth_getLogs) of each block, picked at random with the block number as seed |
 | `--workers` | 16 | Concurrent requests to the node |
 | `--out` | | Output file (required): a Vegeta tar, gzipped for `.tar.gz`/`.tgz`, or [JSONL](#jsonl-output) for `.jsonl` |
+| `--description` | built from the parameters | `.jsonl` output only: the description of the [header](#pattern-header) |
 | `-v`, `--verbose` | off | Print the verification statistics per method and error kind |
 | `--profile` | | Root command only: the [profile](#profile-format) with the mix of methods to generate |
 | `--range` | 100 | `eth_getLogs` only: the widest block range of a request |
@@ -384,7 +416,10 @@ sample request is checked.
 ## Profile format
 
 ```ini
-# Comments start with #, also at the end of a line.
+# eth_call and block lookups of the most called contracts: the description of the patterns
+#
+# Comments start with #, also at the end of a line. The first paragraph of the comment at the top, up to
+# an empty comment line or "Usage:", is the description written in the header of the JSONL patterns.
 [methods]
 # <method>                 <weight>  [option=value ...]
 eth_call                   35.8%
@@ -393,8 +428,8 @@ eth_getLogs                6.42%     filter=address range=100
 debug_traceBlockByHash     3.91%     tracer=callTracer blocks=50
 
 [contracts]
-# <address>                                  free text
-0xdac17f958d2ee523a2206206994597c13d831ec7   USDT
+# <address>                                  name, written in the description
+0xdac17f958d2ee523a2206206994597c13d831ec7   USDT   # 14.4% of txs
 ```
 
 - **`[methods]`** (required): one method per line. The weight is relative (the `%` is optional and the

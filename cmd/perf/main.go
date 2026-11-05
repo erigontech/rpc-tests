@@ -120,6 +120,15 @@ func runPerfTests(c *cli.Context) error {
 
 	fmt.Printf("Test repetitions: %d on sequence: %s for pattern: %s\n",
 		cfg.Repetitions, cfg.TestSequence, cfg.VegetaPatternTarFile)
+	if strings.HasSuffix(cfg.VegetaPatternTarFile, ".jsonl") {
+		if pattern, _, err := perf.ReadPatternHeader(cfg.VegetaPatternTarFile); err == nil && pattern != nil {
+			fmt.Printf("Pattern: %s\n", pattern.Description)
+		}
+	}
+	cfg.ClientVersion = perf.ClientVersion(perf.NodeURL(cfg.ClientAddress))
+	if cfg.ClientVersion != "" {
+		fmt.Printf("Client: %s\n", cfg.ClientVersion)
+	}
 
 	if cfg.CreateTestReport {
 		if err := testReport.Open(); err != nil {

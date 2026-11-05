@@ -1,8 +1,9 @@
-# eth_getLogs on the "latest" block, as bots and indexers polling the head: each node resolves the tag
-# when the request runs. Each request filters on the address of one of the contracts below, which emit
-# in almost every block, so nearly every request returns the logs of the latest block. Usage:
-#   rpc_pattern_gen --profile perf/pattern/mainnet/config/eth_getLogs_latest.profile --counts N --verify --out eth_getLogs_latest.tar
-#   rpc_perf -p eth_getLogs_latest.tar -y eth_getLogs ...
+# eth_getLogs on the "latest" block, as bots and indexers polling the head, address filter only
+#
+# Each node resolves the tag when the request runs. The contracts below emit in almost every block, so
+# nearly every request returns the logs of the latest block. Usage:
+#   rpc_pattern_gen --profile perf/pattern/mainnet/config/eth_getLogs_latest.profile --counts N --verify --out eth_getLogs_latest.jsonl
+#   rpc_perf -p eth_getLogs_latest.jsonl -y eth_getLogs ...
 
 [methods]
 eth_getLogs  100%  tag=latest  filter=address
