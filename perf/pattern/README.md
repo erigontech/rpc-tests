@@ -115,12 +115,18 @@ rpc_pattern_gen eth_createAccessList --counts 400000 --block-tag latest --verify
 rpc_pattern_gen eth_getLogs          --counts 400000 --range 100        --verify --out eth_getLogs.tar
 rpc_pattern_gen eth_getBlockReceipts --counts 10000                     --verify --out eth_getBlockReceipts.jsonl
 rpc_pattern_gen eth_getBlockByNumber --counts 10000 --option full=true  --verify --out eth_getBlockByNumber.jsonl
+rpc_pattern_gen eth_getBlockReceipts --counts 1000 --block-tag latest   --verify --out eth_getBlockReceipts_latest.jsonl
 ```
 
 Every method of the [method table](#methods-and-options) has a subcommand of the same name. `eth_call`,
 `eth_createAccessList` and `eth_getLogs` have their own flags, described below; the others take the
 options of the method as in a profile, with `--option key=value`, repeated for each option, e.g.
 `--option tag=latest --option full=true`.
+
+`eth_getBlockByNumber` and `eth_getBlockReceipts` take the number of each block, unless `--block-tag
+latest` is given explicitly: it then replaces the number with `"latest"`, as `--option tag=latest`. The
+default `latest` does not, so without the flag each request reads its own block. In a profile only
+`tag=latest` does.
 
 `eth_createAccessList` takes the same flags as `eth_call`, `--txs` included: each request has the call
 arguments of a tx, as eth_call.
@@ -384,7 +390,7 @@ The `latest` patterns run on the state at replay, so their results change with t
 | `--start-block` | | First block of a [block range](#block-range), read instead of the blocks below the head |
 | `--end-block` | | With `--start-block`, the last block of the range |
 | `--sample-blocks` | | With `--start-block`, read only this many distinct blocks of the range, drawn at random |
-| `--block-tag` | `latest` | Block parameter of the methods that take one: `latest` (resolved by the node at replay), `head` (head number pinned at generation, or the end of the block range, the same state on every node) or `parent` (the block before the transaction) |
+| `--block-tag` | `latest` | Block parameter of the methods that take one: `latest` (resolved by the node at replay), `head` (head number pinned at generation, or the end of the block range, the same state on every node) or `parent` (the block before the transaction). Given explicitly, `latest` also replaces the block number of the `eth_getBlockByNumber` and `eth_getBlockReceipts` subcommands |
 | `--fees` | `drop` | Gas price of eth_call/eth_estimateGas/eth_createAccessList: `drop` (no fee, the node skips the base fee and balance checks) or `keep` (the tx gas price) |
 | `--verify` | off | Run every request on the node and count the failures |
 | `--keep` | `ok` | With `--verify`, the requests to write: `ok` (only the working ones) or `all` |
@@ -460,8 +466,8 @@ debug_traceBlockByHash     3.91%     tracer=callTracer blocks=50
 | `eth_getLogs` | each log of a block | `range=N`, `filter=...`, `or=N`, `tag=latest`, see below |
 | `eth_blockNumber`, `eth_chainId`, `net_listening`, `eth_gasPrice`, `eth_maxPriorityFeePerGas` | nothing: the same request repeated | |
 
-`tag=latest` of `eth_getBlockByNumber` and `eth_getBlockReceipts` replaces the block number with
-`"latest"`, resolved by each node when the request runs, as clients polling the head do: every request
+`tag=latest` of `eth_getBlockByNumber` and `eth_getBlockReceipts`, or `--block-tag latest` given to
+their subcommand, replaces the block number with `"latest"`, resolved by each node when the request runs, as clients polling the head do: every request
 is the same, one per block read at generation.
 
 ### eth_getLogs
