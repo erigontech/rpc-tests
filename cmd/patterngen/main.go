@@ -122,6 +122,11 @@ func methodCommand(method string) *cli.Command {
 				}
 				options[key] = value
 			}
+			// An explicit --block-tag latest replaces the block number of a block lookup with "latest", as
+			// tag=latest. The default does not, so without the flag each request reads its own block.
+			if c.IsSet("block-tag") && c.String("block-tag") == string(vegetagen.TagLatest) && vegetagen.TakesTagOption(method) {
+				options["tag"] = string(vegetagen.TagLatest)
+			}
 			gen, err := vegetagen.NewGenerator(method, options)
 			if err != nil {
 				return err
@@ -180,7 +185,7 @@ func commonFlags(outRequired bool) []cli.Flag {
 		&cli.StringFlag{Name: "url", Value: "http://localhost:8545", Usage: "Node used to read blocks and verify requests"},
 		&cli.StringFlag{Name: "target-url", Value: "http://localhost:8545", Usage: "URL written in each vegeta target (rpc_perf replaces localhost with --rpc-client-address); tar output only"},
 		&cli.Uint64Flag{Name: "blocks", Usage: "Read this many blocks, from the head downwards (alternative to --counts, one method only)"},
-		&cli.StringFlag{Name: "block-tag", Value: string(vegetagen.TagLatest), Usage: "State of each request: latest, head (head number pinned at generation) or parent (block before the transaction)"},
+		&cli.StringFlag{Name: "block-tag", Value: string(vegetagen.TagLatest), Usage: "State of each request: latest, head (head number pinned at generation) or parent (block before the transaction); given explicitly, latest also replaces the block number of the eth_getBlockByNumber and eth_getBlockReceipts subcommands"},
 		&cli.BoolFlag{Name: "verify", Usage: "Run each request on the node and count the failures"},
 		&cli.StringFlag{Name: "keep", Value: string(vegetagen.KeepOK), Usage: "With --verify, the requests to write: ok or all"},
 		&cli.StringFlag{Name: "fees", Value: "drop", Usage: "Gas price of each request: drop (no fee, the node skips the base fee and balance checks) or keep (the tx gas price)"},
