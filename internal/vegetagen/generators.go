@@ -151,6 +151,12 @@ func blockReceiptsGenerator(options map[string]string) (Generator, error) {
 	return simple{method, PerBlock, func(it Item, _ Params) []any { return []any{id(it)} }}, nil
 }
 
+// TakesTagOption reports whether method takes the tag=latest option of a block lookup.
+func TakesTagOption(method string) bool {
+	_, err := NewGenerator(method, map[string]string{"tag": string(TagLatest)})
+	return err == nil
+}
+
 // blockTagOption returns blockID, or with tag=latest the "latest" tag, resolved by each node when the
 // request runs: every request then reads the head block, one per block read at generation.
 func blockTagOption(method string, options map[string]string, blockID func(Item) any) (func(Item) any, error) {
