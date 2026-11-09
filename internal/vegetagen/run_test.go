@@ -17,6 +17,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/erigontech/rpc-tests/internal/perf"
 )
@@ -30,6 +31,7 @@ type fakeNode struct {
 	extraTo        string
 	detailedErrors bool   // append the block number to each error, as real nodes add addresses and amounts
 	noLogsAt       string // eth_getLogs filtering on this address returns no logs
+	hangFrom       string // eth_call from this address never answers
 	calls          atomic.Int64
 	mu             sync.Mutex
 	requests       map[string]int // by method
@@ -117,6 +119,10 @@ func (n *fakeNode) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			`"to":"0x0000000000000000000000000000000000000002","gas":"0x5208","gasPrice":"0x1","value":"0x0","input":"0x12"}}`, hash, from)
 	case "eth_call":
 		n.calls.Add(1)
+		if n.hangFrom != "" && strings.Contains(string(req.Params[0]), n.hangFrom) {
+			<-r.Context().Done()
+			return
+		}
 		var args struct {
 			From string `json:"from"`
 		}
@@ -1376,5 +1382,24 @@ func TestRunWritesTheHeaderFirstInAJSONL(t *testing.T) {
 				t.Errorf("%d requests after the header, want %d", n, sum.Written)
 			}
 		})
+	}
+}
+
+func TestRunVerifyTimeoutDropsTheRequest(t *testing.T) {
+	node, url := startNode(t)
+	node.hangFrom = "0x0000000000000000000000000000000000000001"
+	defer func(d time.Duration) { verifyTimeout = d }(verifyTimeout)
+	verifyTimeout = 100 * time.Millisecond
+	cfg := baseConfig(t, url)
+
+	sum, err := Run(context.Background(), cfg, single(EthCall{}))
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Errors["timeout"] != 2 {
+		t.Errorf("errors %v, want 2 timeouts", sum.Errors)
+	}
+	if sum.Written != 0 {
+		t.Errorf("written %d, want 0: both other txs fail and both hung ones time out", sum.Written)
 	}
 }
