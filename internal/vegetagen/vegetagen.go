@@ -807,10 +807,13 @@ func (n node) check(ctx context.Context, cands []candidate, verify, rejectEmpty 
 	return nil
 }
 
+// verifyTimeout matches the HTTP client timeout of internal/rpc.
+var verifyTimeout = 300 * time.Second
+
 // verify runs every request on the node and returns, for each one, its error
 // kind, or "" when it succeeded. A result object with an error, as eth_createAccessList returns for a reverted
 // call, is a failure. With rejectEmpty a null or empty list result is a failure too.
-// A transport failure aborts the run.
+// A request that times out is a failure; any other transport failure aborts the run.
 func (n node) verify(ctx context.Context, reqs [][]byte, rejectEmpty bool, workers int) ([]string, error) {
 	failures := make([]string, len(reqs))
 	err := parallel(len(reqs), workers, func(i int) error {
@@ -818,7 +821,13 @@ func (n node) verify(ctx context.Context, reqs [][]byte, rejectEmpty bool, worke
 			Result json.RawMessage `json:"result"`
 			Error  *rpcError       `json:"error"`
 		}
-		if _, err := n.client.Call(ctx, n.target, reqs[i], &resp); err != nil {
+		callCtx, cancel := context.WithTimeout(ctx, verifyTimeout)
+		defer cancel()
+		if _, err := n.client.Call(callCtx, n.target, reqs[i], &resp); err != nil {
+			if callCtx.Err() != nil && ctx.Err() == nil {
+				failures[i] = "timeout"
+				return nil
+			}
 			return fmt.Errorf("verifying request: %w", err)
 		}
 		switch result := strings.TrimSpace(string(resp.Result)); {
