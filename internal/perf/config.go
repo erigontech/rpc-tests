@@ -12,7 +12,6 @@ const (
 	DefaultTestSequence          = "50:30,1000:30,2500:20,10000:20"
 	DefaultRepetitions           = 10
 	DefaultVegetaPatternTarFile  = ""
-	DefaultClientVegetaOnCore    = "-:-"
 	DefaultServerAddress         = "localhost"
 	DefaultWaitingTime           = 5
 	DefaultMaxConn               = "9000"
@@ -28,7 +27,6 @@ const (
 // Config holds all configuration for the performance test.
 type Config struct {
 	VegetaPatternTarFile   string
-	ClientVegetaOnCore     string
 	ClientBuildDir         string
 	Repetitions            int
 	TestSequence           string
@@ -63,7 +61,6 @@ type Config struct {
 func NewConfig() *Config {
 	return &Config{
 		VegetaPatternTarFile:   DefaultVegetaPatternTarFile,
-		ClientVegetaOnCore:     DefaultClientVegetaOnCore,
 		ClientBuildDir:         DefaultClientBuildDir,
 		Repetitions:            DefaultRepetitions,
 		TestSequence:           DefaultTestSequence,
