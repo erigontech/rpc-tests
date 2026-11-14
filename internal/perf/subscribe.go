@@ -42,11 +42,13 @@ const (
 type subscriptionLine struct {
 	typ    string
 	filter map[string]any // the filter of a logs subscription
+	group  int            // the first line with the same params: the fan-out compares the subscriptions of a group
 }
 
 // subscriptionLines returns the type, and the filter of a logs subscription, of each eth_subscribe request.
 func subscriptionLines(reqs [][]byte) ([]subscriptionLine, error) {
 	lines := make([]subscriptionLine, len(reqs))
+	groups := map[string]int{} // params, re-encoded with sorted keys -> first line
 	for i, req := range reqs {
 		var r struct {
 			Method string            `json:"method"`
@@ -58,6 +60,22 @@ func subscriptionLines(reqs [][]byte) ([]subscriptionLine, error) {
 		if err := json.Unmarshal(r.Params[0], &lines[i].typ); err != nil {
 			return nil, fmt.Errorf("eth_subscribe without a type: %.100s", req)
 		}
+		var params any
+		if err := json.Unmarshal(req, &struct {
+			Params *any `json:"params"`
+		}{&params}); err != nil {
+			return nil, err
+		}
+		key, err := json.Marshal(params)
+		if err != nil {
+			return nil, err
+		}
+		group, ok := groups[string(key)]
+		if !ok {
+			group = i
+			groups[string(key)] = i
+		}
+		lines[i].group = group
 		switch lines[i].typ {
 		case subNewHeads:
 		case subLogs:
@@ -398,7 +416,7 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 }
 
 func eventKey(n notification, lines []subscriptionLine) string {
-	return strconv.Itoa(n.sub%len(lines)) + "/" + n.key
+	return strconv.Itoa(lines[n.sub%len(lines)].group) + "/" + n.key
 }
 
 // expectedLogs reads over HTTP, for each logs line and each block from lo to hi, the logs eth_getLogs
