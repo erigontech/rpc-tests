@@ -28,6 +28,7 @@ type fakeHead struct {
 	hash      string
 	timestamp time.Time
 	logs      int // logs of the block, each matching every logs subscription
+	txs       int // transactions of the block, each with a receipt holding one log
 }
 
 // wsNode is a WebSocket node that, once conns connections have subscribed, sends heads to every
@@ -43,6 +44,9 @@ type wsNode struct {
 	skipLog    func(conn int, h fakeHead, index int) bool
 	noLogTime  bool // logs are sent without blockTimestamp
 	lines      int  // subscriptions per connection, the lines of the pattern; 0 = 1
+	// receipts returns the receipts of h sent to conn, as the notifications that carry them; nil = all
+	// the receipts of h in one notification.
+	receipts func(conn int, h fakeHead) [][]int
 
 	mu       sync.Mutex
 	accepted int
@@ -110,8 +114,29 @@ type fakeSub struct{ id, typ string }
 
 // results returns the notification results of h for a subscription of typ on conn.
 func (n *wsNode) results(conn int, typ string, h fakeHead) []string {
-	if typ == "newHeads" {
+	switch typ {
+	case "newHeads":
 		return []string{fmt.Sprintf(`{"number":"0x%x","hash":%q,"timestamp":"0x%x"}`, h.number, h.hash, h.timestamp.Unix())}
+	case "transactionReceipts":
+		var groups [][]int
+		if n.receipts != nil {
+			groups = n.receipts(conn, h)
+		} else if h.txs > 0 {
+			groups = [][]int{make([]int, h.txs)}
+			for i := range groups[0] {
+				groups[0][i] = i
+			}
+		}
+		var out []string
+		for _, group := range groups {
+			receipts := make([]string, len(group))
+			for i, tx := range group {
+				receipts[i] = fmt.Sprintf(`{"blockNumber":"0x%x","blockHash":%q,"transactionHash":"0x%064x","transactionIndex":"0x%x","logs":[%s]}`,
+					h.number, h.hash, tx, tx, n.log(h, tx))
+			}
+			out = append(out, "["+strings.Join(receipts, ",")+"]")
+		}
+		return out
 	}
 	var out []string
 	for i := range h.logs {
@@ -139,6 +164,18 @@ func (n *wsNode) serveHTTP(t *testing.T, w http.ResponseWriter, r *http.Request)
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || len(req.Params) == 0 {
 		t.Errorf("bad HTTP request: %v", err)
+		return
+	}
+	if req.Method == "eth_getBlockTransactionCountByNumber" {
+		var number string
+		json.Unmarshal(req.Params[0], &number) //nolint:errcheck
+		result := "null"
+		for _, h := range n.heads {
+			if fmt.Sprintf("0x%x", h.number) == number {
+				result = fmt.Sprintf(`"0x%x"`, h.txs)
+			}
+		}
+		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":%s}`, result)
 		return
 	}
 	if req.Method != "eth_getLogs" {
@@ -266,9 +303,18 @@ func TestRunSubscriptionsCountsMissingAndDuplicateNotifications(t *testing.T) {
 }
 
 func TestRunSubscriptionsRejectsUnsupportedTypes(t *testing.T) {
-	receipts := []byte(`{"jsonrpc":"2.0","method":"eth_subscribe","params":["transactionReceipts"],"id":1}`)
-	if _, _, err := runSubscriptions(context.Background(), "ws://localhost:1", "http://localhost:1", [][]byte{receipts}, 1, time.Second, filepath.Join(t.TempDir(), "run.bin")); err == nil {
-		t.Error("transactionReceipts subscription: want an error, it is not measured yet")
+	for _, req := range []string{
+		`{"jsonrpc":"2.0","method":"eth_subscribe","params":["newPendingTransactions"],"id":1}`,
+		`{"jsonrpc":"2.0","method":"eth_subscribe","params":["transactionReceipts",{"transactionHashes":["0x01"]}],"id":1}`,
+	} {
+		if _, err := subscriptionLines([][]byte{[]byte(req)}); err == nil {
+			t.Errorf("%s: want an error, it is not measured", req)
+		}
+	}
+	for _, req := range []string{newHeadsRequest, logsRequest, receiptsRequest} {
+		if _, err := subscriptionLines([][]byte{[]byte(req)}); err != nil {
+			t.Errorf("%s: %v", req, err)
+		}
 	}
 }
 
@@ -482,5 +528,75 @@ func TestRunSubscriptionsKeepsLogsFiltersApartInTheFanOut(t *testing.T) {
 	}
 	if row := results.apis["logs fan-out"]; row != nil {
 		t.Errorf("fan-out row %+v: two different filters receive different logs, they are not compared", row)
+	}
+}
+
+const receiptsRequest = `{"jsonrpc":"2.0","method":"eth_subscribe","params":["transactionReceipts"],"id":1}`
+
+func headsWithTxs(count, txs int) []fakeHead {
+	hs := heads(count)
+	for i := range hs {
+		hs[i].txs = txs
+	}
+	return hs
+}
+
+func TestRunSubscriptionsMeasuresReceiptsAgainstTheirHead(t *testing.T) {
+	node := &wsNode{conns: 2, lines: 2, heads: headsWithTxs(2, 3), delay: func(conn int) time.Duration { return time.Duration(conn) * 100 * time.Millisecond }}
+	addr := startWSNode(t, node)
+
+	_, results, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(newHeadsRequest), []byte(receiptsRequest)}, 2, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	for row, want := range map[string]int{
+		"transactionReceipts latency":     4, // 2 connections x 2 blocks, one notification per block
+		"transactionReceipts fan-out":     2,
+		"transactionReceipts vs newHeads": 4,
+	} {
+		if got := results.apis[row]; got == nil || got.requests != want || len(got.errors) > 0 {
+			t.Errorf("%s row %+v: want %d requests and no error", row, got, want)
+		}
+	}
+	if got := results.apis["transactionReceipts fan-out"].latencies.Max; got < 100*time.Millisecond {
+		t.Errorf("fan-out max %v: want the 100 ms delay of the second connection", got)
+	}
+}
+
+func TestRunSubscriptionsChecksOneReceiptsNotificationPerBlock(t *testing.T) {
+	node := &wsNode{conns: 1, heads: headsWithTxs(2, 3), receipts: func(int, fakeHead) [][]int { return [][]int{{0}, {1}, {2}} }}
+	addr := startWSNode(t, node)
+
+	_, results, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(receiptsRequest)}, 1, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	row := results.apis["transactionReceipts latency"]
+	if row == nil || row.requests != 6 || fmt.Sprint(row.errors) != fmt.Sprint(map[string]int{errGranularity: 4}) {
+		t.Errorf("row %+v: want one notification per receipt as 2 extra notifications per block", row)
+	}
+}
+
+func TestRunSubscriptionsCountsMissingAndIncompleteReceipts(t *testing.T) {
+	hs := headsWithTxs(3, 3)
+	hs[2].txs = 0 // an empty block has no receipts notification
+	node := &wsNode{conns: 2, heads: hs, receipts: func(conn int, h fakeHead) [][]int {
+		switch {
+		case h.txs == 0, conn == 1 && h.number == hs[0].number:
+			return nil
+		case conn == 0 && h.number == hs[1].number:
+			return [][]int{{0, 1}}
+		}
+		return [][]int{{0, 1, 2}}
+	}}
+	addr := startWSNode(t, node)
+
+	_, results, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(receiptsRequest)}, 2, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	row := results.apis["transactionReceipts latency"]
+	if row == nil || fmt.Sprint(row.errors) != fmt.Sprint(map[string]int{errMissing: 1, errReceiptCount: 1}) {
+		t.Errorf("row %+v: want block 0 missing on connection 1 and block 1 incomplete on connection 0", row)
 	}
 }

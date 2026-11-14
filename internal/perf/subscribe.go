@@ -23,10 +23,12 @@ import (
 )
 
 const (
-	errMissing     = "missing notification"
-	errDuplicate   = "duplicate notification"
-	errClosed      = "connection closed"
-	errNoTimestamp = "no block timestamp"
+	errMissing      = "missing notification"
+	errDuplicate    = "duplicate notification"
+	errClosed       = "connection closed"
+	errNoTimestamp  = "no block timestamp"
+	errGranularity  = "more than one notification per block"
+	errReceiptCount = "wrong receipt count"
 
 	// notificationDrain is how long the notifications of a block first seen before the end of a test are
 	// still awaited, so that a slow subscription is not counted as missing.
@@ -36,6 +38,7 @@ const (
 const (
 	subNewHeads = "newHeads"
 	subLogs     = "logs"
+	subReceipts = "transactionReceipts"
 )
 
 // subscriptionLine is one eth_subscribe request of a pattern.
@@ -85,8 +88,15 @@ func subscriptionLines(reqs [][]byte) ([]subscriptionLine, error) {
 					return nil, fmt.Errorf("eth_subscribe logs with an invalid filter: %.100s", req)
 				}
 			}
+		case subReceipts:
+			var filter struct {
+				TransactionHashes []string `json:"transactionHashes"`
+			}
+			if len(r.Params) > 1 && (json.Unmarshal(r.Params[1], &filter) != nil || len(filter.TransactionHashes) > 0) {
+				return nil, fmt.Errorf("eth_subscribe transactionReceipts with a transactionHashes filter is not measured: %.100s", req)
+			}
 		default:
-			return nil, fmt.Errorf("eth_subscribe %s: only newHeads and logs are measured", lines[i].typ)
+			return nil, fmt.Errorf("eth_subscribe %s: only newHeads, logs and transactionReceipts are measured", lines[i].typ)
 		}
 	}
 	return lines, nil
@@ -119,6 +129,7 @@ type notification struct {
 	blockHash string
 	key       string    // the event: the block hash of a head, the block hash and the index of a log
 	timestamp time.Time // the block timestamp, zero when the notification has none
+	receipts  int       // the receipts of a transactionReceipts notification
 }
 
 // connection is what one WebSocket connection of a test received.
@@ -243,17 +254,8 @@ func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, dea
 		arrival := time.Now()
 		var n struct {
 			Params struct {
-				Subscription string `json:"subscription"`
-				Result       struct {
-					Number         string `json:"number"`
-					Hash           string `json:"hash"`
-					Timestamp      string `json:"timestamp"`
-					BlockNumber    string `json:"blockNumber"`
-					BlockHash      string `json:"blockHash"`
-					BlockTimestamp string `json:"blockTimestamp"`
-					LogIndex       string `json:"logIndex"`
-					Removed        bool   `json:"removed"`
-				} `json:"result"`
+				Subscription string          `json:"subscription"`
+				Result       json.RawMessage `json:"result"`
 			} `json:"params"`
 		}
 		if json.Unmarshal(msg, &n) != nil {
@@ -263,18 +265,11 @@ func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, dea
 		if !ok {
 			continue
 		}
-		res := n.Params.Result
-		note := notification{sub: sub, arrival: arrival}
-		var number, stamp string
-		switch lines[sub%len(lines)].typ {
-		case subNewHeads:
-			number, stamp, note.blockHash, note.key = res.Number, res.Timestamp, res.Hash, res.Hash
-		case subLogs:
-			if res.Removed {
-				continue
-			}
-			number, stamp, note.blockHash, note.key = res.BlockNumber, res.BlockTimestamp, res.BlockHash, res.BlockHash+"/"+res.LogIndex
+		note, number, stamp, ok := parseNotification(lines[sub%len(lines)].typ, n.Params.Result)
+		if !ok {
+			continue
 		}
+		note.sub, note.arrival = sub, arrival
 		if note.number, err = parseHex(number); err != nil {
 			continue
 		}
@@ -287,6 +282,61 @@ func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, dea
 		}
 		notes = append(notes, note)
 	}
+}
+
+type notifiedLog struct {
+	BlockNumber    string `json:"blockNumber"`
+	BlockHash      string `json:"blockHash"`
+	BlockTimestamp string `json:"blockTimestamp"`
+	LogIndex       string `json:"logIndex"`
+	Removed        bool   `json:"removed"`
+}
+
+// parseNotification returns the notification of a result of a subscription of typ, with its block number and
+// block timestamp in hex, and false for a result that is not counted: a removed log, an empty list of receipts.
+func parseNotification(typ string, result json.RawMessage) (note notification, number, stamp string, ok bool) {
+	switch typ {
+	case subNewHeads:
+		var h struct {
+			Number    string `json:"number"`
+			Hash      string `json:"hash"`
+			Timestamp string `json:"timestamp"`
+		}
+		if json.Unmarshal(result, &h) != nil {
+			return note, "", "", false
+		}
+		note.blockHash, note.key = h.Hash, h.Hash
+		return note, h.Number, h.Timestamp, true
+	case subLogs:
+		var lg notifiedLog
+		if json.Unmarshal(result, &lg) != nil || lg.Removed {
+			return note, "", "", false
+		}
+		note.blockHash, note.key = lg.BlockHash, lg.BlockHash+"/"+lg.LogIndex
+		return note, lg.BlockNumber, lg.BlockTimestamp, true
+	case subReceipts:
+		var receipts []struct {
+			BlockNumber    string        `json:"blockNumber"`
+			BlockHash      string        `json:"blockHash"`
+			BlockTimestamp string        `json:"blockTimestamp"`
+			Logs           []notifiedLog `json:"logs"`
+		}
+		if json.Unmarshal(result, &receipts) != nil || len(receipts) == 0 {
+			return note, "", "", false
+		}
+		// A receipt has no block timestamp of its own on every client: take the one of a log when it lacks it.
+		for _, r := range receipts {
+			if stamp = r.BlockTimestamp; stamp == "" && len(r.Logs) > 0 {
+				stamp = r.Logs[0].BlockTimestamp
+			}
+			if stamp != "" {
+				break
+			}
+		}
+		note.blockHash, note.key, note.receipts = receipts[0].BlockHash, receipts[0].BlockHash, len(receipts)
+		return note, receipts[0].BlockNumber, stamp, true
+	}
+	return note, "", "", false
 }
 
 func parseHex(s string) (uint64, error) {
@@ -326,6 +376,10 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 	if err != nil {
 		return nil, attackResults{}, err
 	}
+	txCounts, err := expectedTxCounts(ctx, httpURL, lines, lo, hi)
+	if err != nil {
+		return nil, attackResults{}, err
+	}
 
 	out, err := os.Create(outputFile)
 	if err != nil {
@@ -355,7 +409,8 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 
 	for i, conn := range conns {
 		seen := map[int]map[string]bool{}    // by subscription, the events received
-		numbers := map[int]map[uint64]bool{} // by subscription, the block numbers of the heads received
+		numbers := map[int]map[uint64]bool{} // by subscription, the block numbers received
+		receipts := map[int]map[uint64]int{} // by subscription and block number, the receipts received
 		heads := map[string]time.Time{}      // by block hash, the arrival of the head on this connection
 		for _, n := range conn.notes {
 			if lines[n.sub%len(lines)].typ == subNewHeads {
@@ -369,10 +424,13 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 				continue
 			}
 			if seen[n.sub] == nil {
-				seen[n.sub], numbers[n.sub] = map[string]bool{}, map[uint64]bool{}
+				seen[n.sub], numbers[n.sub], receipts[n.sub] = map[string]bool{}, map[uint64]bool{}, map[uint64]int{}
 			}
 			r := &vegeta.Result{Code: 200, Timestamp: n.arrival, Latency: n.arrival.Sub(n.timestamp)}
+			receipts[n.sub][n.number] += n.receipts
 			switch {
+			case seen[n.sub][n.key] && n.receipts > 0:
+				r.Code, r.Error = 0, errGranularity
 			case seen[n.sub][n.key]:
 				r.Code, r.Error = 0, errDuplicate
 			case n.timestamp.IsZero():
@@ -400,8 +458,14 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 				add(sub, &vegeta.Result{Error: errClosed})
 			}
 			for number := lo; number <= hi; number++ {
-				if line.typ == subNewHeads && !numbers[sub][number] {
+				switch {
+				case line.typ == subNewHeads && !numbers[sub][number]:
 					add(sub, &vegeta.Result{Error: errMissing})
+				case line.typ != subReceipts || txCounts[number] == 0:
+				case !numbers[sub][number]:
+					add(sub, &vegeta.Result{Error: errMissing})
+				case receipts[sub][number] != txCounts[number]:
+					add(sub, &vegeta.Result{Error: errReceiptCount})
 				}
 				for _, key := range expected[j][number] {
 					if !seen[sub][key] {
@@ -444,6 +508,27 @@ func expectedLogs(ctx context.Context, url string, lines []subscriptionLine, lo,
 		}
 	}
 	return expected, nil
+}
+
+// expectedTxCounts reads over HTTP the number of transactions of each block from lo to hi, the receipts a
+// transactionReceipts subscription must receive, when lines have one.
+func expectedTxCounts(ctx context.Context, url string, lines []subscriptionLine, lo, hi uint64) (map[uint64]int, error) {
+	counts := map[uint64]int{}
+	if !slices.ContainsFunc(lines, func(l subscriptionLine) bool { return l.typ == subReceipts }) {
+		return counts, nil
+	}
+	for number := lo; number <= hi && lo <= hi; number++ {
+		var count string
+		if err := httpCall(ctx, url, "eth_getBlockTransactionCountByNumber", []any{fmt.Sprintf("0x%x", number)}, &count); err != nil {
+			return nil, err
+		}
+		n, err := parseHex(count)
+		if err != nil {
+			return nil, fmt.Errorf("eth_getBlockTransactionCountByNumber 0x%x: %w", number, err)
+		}
+		counts[number] = int(n)
+	}
+	return counts, nil
 }
 
 // httpCall posts a JSON-RPC request to url and decodes its result into result.
