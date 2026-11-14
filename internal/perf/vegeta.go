@@ -208,8 +208,12 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 	maxRepDigits := strconv.Itoa(format.MaxRepetitionDigits)
 	maxQpsDigits := strconv.Itoa(format.MaxQpsDigits)
 	maxDurDigits := strconv.Itoa(format.MaxDurationDigits)
-	fmt.Printf("[%d.%"+maxRepDigits+"d] %s: executes test qps: %"+maxQpsDigits+"d time: %"+maxDurDigits+"d -> ",
-		testNumber, repetition+1, pt.Config.TestingClient, qps, duration)
+	load := "qps"
+	if pt.isSubscription() {
+		load = "conn"
+	}
+	fmt.Printf("[%d.%"+maxRepDigits+"d] %s: executes test %s: %"+maxQpsDigits+"d time: %"+maxDurDigits+"d -> ",
+		testNumber, repetition+1, pt.Config.TestingClient, load, qps, duration)
 
 	targets, err := pt.loadTargets(pattern)
 	if err != nil {

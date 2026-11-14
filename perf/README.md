@@ -2,7 +2,8 @@
 
 `rpc_perf` replays a pattern file, a list of JSON-RPC requests, against a node at fixed rates with
 [Vegeta](https://github.com/tsenart/vegeta/), and reports the latencies and the errors of each run.
-The patterns are generated with `rpc_pattern_gen` (see [`pattern/README.md`](pattern/README.md)), or by
+A pattern of `eth_subscribe` requests runs instead over WebSocket connections and measures the
+notifications (see [Subscription tests](#subscription-tests)). The patterns are generated with `rpc_pattern_gen` (see [`pattern/README.md`](pattern/README.md)), or by
 the `bench*` commands of Erigon's `cmd/rpctest` (e.g. `benchEthCall`), which also write the requests they
 send as `<method>.jsonl` (see [Pattern files](#pattern-files)).
 
@@ -111,7 +112,7 @@ The patterns come from:
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `-t`, `--test-sequence` | `50:30,1000:30,2500:20,10000:20` | The tests to run, in order, as `qps:seconds,...` |
+| `-t`, `--test-sequence` | `50:30,1000:30,2500:20,10000:20` | The tests to run, in order, as `qps:seconds,...`, or `conn:seconds,...` with an `eth_subscribe` pattern |
 | `-r`, `--repetitions` | `10` | How many times each test of the sequence runs |
 | `-w`, `--wait-after-test-sequence` | `5` | Seconds to wait between two tests |
 | `-C`, `--max-connections` | `9000` | Maximum HTTP connections to the node |
@@ -217,7 +218,8 @@ there is no `node` object. The CSV report does not change.
 
 A `.jsonl` pattern of `eth_subscribe` requests runs over WebSocket connections instead of Vegeta. In
 `-t`, the first number of each test is the number of connections, not a rate: `-t 10:600,100:600` opens
-10, then 100 connections, for 600 s each. Each connection sends every line of the pattern once, when it
+10, then 100 connections, for 600 s each. The console line of a test prints `conn:` instead of `qps:`; the
+JSON and CSV reports keep the `qps` field. Each connection sends every line of the pattern once, when it
 opens, then only listens. The connections go to port 8546 of the `-d` host, the default WebSocket port of
 Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). The
 `newHeads`, `logs` and `transactionReceipts` subscriptions are measured; a `transactionReceipts`

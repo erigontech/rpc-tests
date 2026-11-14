@@ -331,8 +331,21 @@ func TestExecuteRunsASubscriptionPatternOnTheConnections(t *testing.T) {
 	cfg.WSAddress = addr
 
 	format := ResultFormat{MaxRepetitionDigits: 1, MaxQpsDigits: 1, MaxDurationDigits: 1}
-	if err := pt.Execute(context.Background(), 1, 0, "rpcdaemon", 3, 1, format); err != nil {
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	stdout := os.Stdout
+	os.Stdout = w
+	err = pt.Execute(context.Background(), 1, 0, "rpcdaemon", 3, 1, format)
+	os.Stdout = stdout
+	w.Close()
+	out, _ := io.ReadAll(r)
+	if err != nil {
 		t.Fatalf("Execute: %v", err)
+	}
+	if !strings.Contains(string(out), "[1.1] rpcdaemon: executes test conn: 3 time: 1 -> ") {
+		t.Errorf("output %q: want the number of connections labelled conn", out)
 	}
 	node.mu.Lock()
 	defer node.mu.Unlock()

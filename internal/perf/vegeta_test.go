@@ -340,9 +340,21 @@ func TestExecuteRunsAnAttack(t *testing.T) {
 	cfg.CreateTestReport = false
 
 	format := ResultFormat{MaxRepetitionDigits: 1, MaxQpsDigits: 2, MaxDurationDigits: 1}
-	err := pt.Execute(context.Background(), 1, 0, "rpcdaemon", 10, 1, format)
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	stdout := os.Stdout
+	os.Stdout = w
+	err = pt.Execute(context.Background(), 1, 0, "rpcdaemon", 10, 1, format)
+	os.Stdout = stdout
+	w.Close()
+	out, _ := io.ReadAll(r)
 	if err != nil {
 		t.Fatalf("Execute: %v", err)
+	}
+	if !strings.Contains(string(out), "[1.1] rpcdaemon: executes test qps: 10 time: 1 -> ") {
+		t.Errorf("output %q: want the rate labelled qps", out)
 	}
 	if requests == 0 {
 		t.Error("the attack should have reached the server")

@@ -88,7 +88,7 @@ match the logs of recent blocks (`--logs-filter address|address+topics|topics|al
   process name fails with `server is Dead`.
 - `-t qps:seconds,...` and `-r` set the load; the default sequence runs up to 10000 qps, 10 times.
 - With an `eth_subscribe` pattern the first number of `-t` is the number of WebSocket connections (port
-  8546 of `-d`, or `-W`), and each test should last minutes: `-t 10:600 -r 1 -P`. See "Subscription
+  8546 of `-d`, or `-W`; printed as `conn:`), and each test should last minutes: `-t 10:600 -r 1 -P`. See "Subscription
   tests" in `perf/README.md`.
 
 ## Use cases

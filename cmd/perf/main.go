@@ -41,7 +41,7 @@ func perfFlags() []cli.Flag {
 		&cli.StringFlag{Name: "test-type", Aliases: []string{"y"}, Value: perf.DefaultTestType, Usage: "Test name in the reports (e.g., eth_call, eth_getLogs); with a tar, also the vegeta file to replay; with a .jsonl, defaults to the method of its requests, or mixed"},
 		&cli.StringFlag{Name: "pattern-file", Aliases: []string{"p"}, Value: perf.DefaultVegetaPatternTarFile, Usage: "Path to the pattern file: a Vegeta tar, or a .jsonl with one JSON-RPC request per line"},
 		&cli.IntFlag{Name: "repetitions", Aliases: []string{"r"}, Value: perf.DefaultRepetitions, Usage: "Number of repetitions for each test in sequence"},
-		&cli.StringFlag{Name: "test-sequence", Aliases: []string{"t"}, Value: perf.DefaultTestSequence, Usage: "Test sequence as qps:duration,..."},
+		&cli.StringFlag{Name: "test-sequence", Aliases: []string{"t"}, Value: perf.DefaultTestSequence, Usage: "Test sequence as qps:duration,..., or conn:duration,... with an eth_subscribe pattern"},
 		&cli.IntFlag{Name: "wait-after-test-sequence", Aliases: []string{"w"}, Value: perf.DefaultWaitingTime, Usage: "Wait time between test iterations in seconds"},
 		&cli.StringFlag{Name: "rpc-client-address", Aliases: []string{"d"}, Value: perf.DefaultServerAddress, Usage: "Client address; with a .jsonl pattern, host or host:port (default port 8545)"},
 		&cli.StringFlag{Name: "ws-address", Aliases: []string{"W"}, Usage: "WebSocket node of an eth_subscribe pattern, host or host:port (default: the host of --rpc-client-address on port " + perf.DefaultWSPort + ")"},
