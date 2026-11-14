@@ -249,7 +249,11 @@ func (pt *PerfTest) ExecuteSequence(ctx context.Context, sequence TestSequence, 
 	pattern := pt.patternFile()
 
 	if pt.isJSONL() {
-		fmt.Printf("Test on port: %s\n", pt.jsonlURL())
+		url := pt.jsonlURL()
+		if pt.isSubscription() {
+			url = WSURL(pt.Config.ClientAddress, pt.Config.WSAddress)
+		}
+		fmt.Printf("Test on port: %s\n", url)
 	} else if file, err := os.Open(pattern); err == nil {
 		scanner := bufio.NewScanner(file)
 		if scanner.Scan() {

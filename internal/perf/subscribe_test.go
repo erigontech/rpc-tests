@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -259,5 +261,26 @@ func TestWSURL(t *testing.T) {
 		if got := WSURL(tt.client, tt.ws); got != tt.want {
 			t.Errorf("WSURL(%q, %q) = %q, want %q", tt.client, tt.ws, got, tt.want)
 		}
+	}
+}
+
+func TestExecuteSequencePrintsTheWebSocketAddressOfASubscriptionTest(t *testing.T) {
+	pt, cfg, _ := newJSONLPerf(t, "127.0.0.1", newHeadsRequest)
+	cfg.WSAddress, cfg.WaitingTime = "127.0.0.1:9000", 0
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	stdout := os.Stdout
+	os.Stdout = w
+	err = pt.ExecuteSequence(context.Background(), TestSequence{{QPS: 0, Duration: 0}}, "erigon")
+	os.Stdout = stdout
+	w.Close()
+	out, _ := io.ReadAll(r)
+	if err != nil {
+		t.Fatalf("ExecuteSequence: %v", err)
+	}
+	if !strings.Contains(string(out), "Test on port: ws://127.0.0.1:9000\n") {
+		t.Errorf("output %q: want the WebSocket address the connections open on", out)
 	}
 }
