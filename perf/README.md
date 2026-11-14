@@ -134,7 +134,7 @@ sudo ./build/bin/rpc_perf -p eth_call.jsonl -Z -t 500:30 -e                  # c
 | Option | Default | Description |
 |--------|---------|-------------|
 | `-Z`, `--not-verify-server-alive` | off | Skip the check that the server process is still running after each test |
-| `-n`, `--process-name` | the value of `-D` | Process looked up with `pgrep -x` for the check |
+| `-n`, `--process-name` | the value of `-D` | Process looked up with `pgrep -x` for the check, and whose [resources](#node-resources) are measured |
 | `-H`, `--halt-on-vegeta-error` | off | Stop at the first test where Vegeta reports a failed request |
 
 A test with 0% success always stops the run.
@@ -181,6 +181,31 @@ holds it, and `vegetaChecksum` is the checksum of the requests only, so a change
 
 With a report, the Vegeta binary file of each test (every request with its latency, status and the
 first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/reports/bin/` with `-u`).
+
+### Node resources
+
+When a process named `-n` (default: the value of `-D`) runs on the same machine, `rpc_perf` reads its
+`/proc/<pid>` every second during each repetition, with any pattern. The console prints one more line:
+
+```
+      node cpu=441.2s (73.3%) rss max=32.80GiB (+137MiB) write syscalls=693079 (1151/s)
+```
+
+and the JSON report has a `node` object in each repetition, next to `latenciesOk`:
+
+```json
+"node": {
+  "process": "erigon", "pid": 622063, "seconds": 601.9, "cpuSeconds": 441.2,
+  "rssStartBytes": 34938818560, "rssEndBytes": 35082473472, "rssMaxBytes": 35218075648,
+  "writeSyscalls": 693079, "samplesFile": "20261114_mainnet_erigon_eth_subscribe_10_600_1.proc.csv"
+}
+```
+
+`cpuSeconds` is user + system CPU time (`stat`), the RSS values come from `VmRSS` (`status`) and
+`writeSyscalls` from `syscw` (`io`), all for the whole process. `samplesFile` is the series of the
+samples (`ms,cpuTicks,rssBytes,writeSyscalls`), written next to the Vegeta binary file. When the process
+is not found or its `/proc` files cannot be read (another host, another user), nothing is printed and
+there is no `node` object. The CSV report does not change.
 
 ```bash
 ./build/bin/rpc_perf -p eth_call.jsonl -Z -t 500:30 -r 3 -R -j eth_call.json -D erigon -g /path/to/erigon

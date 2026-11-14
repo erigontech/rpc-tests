@@ -52,6 +52,10 @@ a block with transactions), `wrong receipt count`, `more than one notification p
 `duplicate notification`, `no block timestamp`, `rejected subscribe: <message>` and `connection closed`.
 See "Subscription tests" in `perf/README.md`.
 
+When the `-n` process (default: the `-D` name) runs on the same machine, each repetition also prints a
+`node cpu=... rss max=... write syscalls=...` line and the JSON report gets a `node` object: pass
+`-D erigon` (or `-n <process name>`) to measure the node. See "Node resources" in `perf/README.md`.
+
 ## Reading the results
 
 ```

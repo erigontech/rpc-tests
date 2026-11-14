@@ -269,7 +269,7 @@ func TestProcessResultsSuccess(t *testing.T) {
 	cfg.InstantReport = true
 
 	metrics := syntheticMetrics(okResult(10*time.Millisecond), okResult(20*time.Millisecond))
-	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{}); err != nil {
+	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{}, nil); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
@@ -278,7 +278,7 @@ func TestProcessResultsAllFailedIsAnError(t *testing.T) {
 	pt, _, _ := newTestPerf(t, "http://localhost:8545")
 
 	metrics := syntheticMetrics(errResult("connection refused"), errResult("connection refused"))
-	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{})
+	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{}, nil)
 	if err == nil {
 		t.Fatal("expected an error when the success ratio is 0")
 	}
@@ -292,7 +292,7 @@ func TestProcessResultsHaltOnVegetaError(t *testing.T) {
 	cfg.HaltOnVegetaError = true
 
 	metrics := syntheticMetrics(okResult(time.Millisecond), errResult("timeout"))
-	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{})
+	err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{}, nil)
 	if err == nil {
 		t.Fatal("expected an error when halt-on-error is set and errors occurred")
 	}
@@ -312,7 +312,7 @@ func TestProcessResultsSummarisesManyErrors(t *testing.T) {
 		errResult("connection refused"),
 		errResult("EOF"),
 	)
-	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{}); err != nil {
+	if err := pt.processResults(1, 0, "rpcdaemon", 100, 5, metrics, attackResults{}, nil); err != nil {
 		t.Errorf("errors alone should not fail the test: %v", err)
 	}
 }
@@ -1061,5 +1061,86 @@ func TestFormatOKResultsWithoutOKResponses(t *testing.T) {
 	}
 	if got := okLatencies(&vegeta.LatencyMetrics{}); got["99th"] != 0 || got["max"] != 0 {
 		t.Errorf("latencies without OK responses: got %v, want 0", got)
+	}
+}
+
+func TestExecuteReportsTheNodeResources(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":[]}`))
+	}))
+	defer server.Close()
+
+	pt, cfg, dirs := newTestPerf(t, server.URL)
+	pt.procDir = t.TempDir()
+	writeFakeProc(t, pt.procDir, 4242, "erigon", 1000, 2048, 10)
+	cfg.TestingClient = "erigon"
+	cfg.CreateTestReport = true
+	cfg.JSONReportFile = filepath.Join(t.TempDir(), "report.json")
+	if err := pt.Report.Open(); err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+
+	format := ResultFormat{MaxRepetitionDigits: 1, MaxQpsDigits: 2, MaxDurationDigits: 1}
+	if err := pt.Execute(context.Background(), 1, 0, "erigon", 10, 1, format); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	if err := pt.Report.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+
+	data, err := os.ReadFile(cfg.JSONReportFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var parsed struct {
+		Results []struct {
+			TestRepetitions []struct {
+				Node *NodeInfo `json:"node"`
+			} `json:"testRepetitions"`
+		} `json:"results"`
+	}
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		t.Fatal(err)
+	}
+	node := parsed.Results[0].TestRepetitions[0].Node
+	if node == nil || node.PID != 4242 || node.Process != "erigon" {
+		t.Fatalf("node = %+v, want the resources of erigon pid 4242", node)
+	}
+	want := strings.TrimSuffix(cfg.BinaryFile, ".bin") + ".proc.csv"
+	if node.SamplesFile != want {
+		t.Errorf("samplesFile = %q, want %q next to the vegeta binary", node.SamplesFile, want)
+	}
+	if _, err := os.Stat(filepath.Join(dirs.RunTestDir, BinaryDir, want)); err != nil {
+		t.Errorf("series not written: %v", err)
+	}
+}
+
+func TestProcessResultsPrintsTheNodeResources(t *testing.T) {
+	pt, _, _ := newTestPerf(t, "http://localhost:8545")
+	node := &NodeInfo{Seconds: 2, CPUSeconds: 1, RSSStartBytes: 1 << 30, RSSEndBytes: 1 << 30, RSSMaxBytes: 1 << 30, WriteSyscalls: 10}
+	metrics := syntheticMetrics(okResult(10 * time.Millisecond))
+
+	print := func(node *NodeInfo) string {
+		r, w, err := os.Pipe()
+		if err != nil {
+			t.Fatal(err)
+		}
+		stdout := os.Stdout
+		os.Stdout = w
+		err = pt.processResults(1, 0, "erigon", 100, 5, metrics, attackResults{}, node)
+		os.Stdout = stdout
+		w.Close()
+		out, _ := io.ReadAll(r)
+		if err != nil {
+			t.Fatalf("processResults: %v", err)
+		}
+		return string(out)
+	}
+
+	if out := print(node); !strings.Contains(out, formatNode(node)+"\n") {
+		t.Errorf("output %q: want the node line", out)
+	}
+	if out := print(nil); strings.Contains(out, "node cpu=") {
+		t.Errorf("output %q: want nothing about the node when it was not found", out)
 	}
 }
