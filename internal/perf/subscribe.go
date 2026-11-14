@@ -1,6 +1,7 @@
 package perf
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -9,6 +10,7 @@ import (
 	"maps"
 	"math"
 	"net"
+	"net/http"
 	"os"
 	"slices"
 	"strconv"
@@ -21,18 +23,30 @@ import (
 )
 
 const (
-	errMissing   = "missing notification"
-	errDuplicate = "duplicate notification"
-	errClosed    = "connection closed"
+	errMissing     = "missing notification"
+	errDuplicate   = "duplicate notification"
+	errClosed      = "connection closed"
+	errNoTimestamp = "no block timestamp"
 
-	// notificationDrain is how long the notifications of a head first seen before the end of a test are
+	// notificationDrain is how long the notifications of a block first seen before the end of a test are
 	// still awaited, so that a slow subscription is not counted as missing.
 	notificationDrain = 2 * time.Second
 )
 
-// subscriptionTypes returns the subscription type of each eth_subscribe request.
-func subscriptionTypes(reqs [][]byte) ([]string, error) {
-	types := make([]string, len(reqs))
+const (
+	subNewHeads = "newHeads"
+	subLogs     = "logs"
+)
+
+// subscriptionLine is one eth_subscribe request of a pattern.
+type subscriptionLine struct {
+	typ    string
+	filter map[string]any // the filter of a logs subscription
+}
+
+// subscriptionLines returns the type, and the filter of a logs subscription, of each eth_subscribe request.
+func subscriptionLines(reqs [][]byte) ([]subscriptionLine, error) {
+	lines := make([]subscriptionLine, len(reqs))
 	for i, req := range reqs {
 		var r struct {
 			Method string            `json:"method"`
@@ -41,14 +55,23 @@ func subscriptionTypes(reqs [][]byte) ([]string, error) {
 		if err := json.Unmarshal(req, &r); err != nil || r.Method != "eth_subscribe" || len(r.Params) == 0 {
 			return nil, fmt.Errorf("not an eth_subscribe request: %.100s", req)
 		}
-		if err := json.Unmarshal(r.Params[0], &types[i]); err != nil {
+		if err := json.Unmarshal(r.Params[0], &lines[i].typ); err != nil {
 			return nil, fmt.Errorf("eth_subscribe without a type: %.100s", req)
 		}
-		if types[i] != "newHeads" {
-			return nil, fmt.Errorf("eth_subscribe %s: only newHeads is measured", types[i])
+		switch lines[i].typ {
+		case subNewHeads:
+		case subLogs:
+			lines[i].filter = map[string]any{}
+			if len(r.Params) > 1 {
+				if err := json.Unmarshal(r.Params[1], &lines[i].filter); err != nil {
+					return nil, fmt.Errorf("eth_subscribe logs with an invalid filter: %.100s", req)
+				}
+			}
+		default:
+			return nil, fmt.Errorf("eth_subscribe %s: only newHeads and logs are measured", lines[i].typ)
 		}
 	}
-	return types, nil
+	return lines, nil
 }
 
 // DefaultWSPort is the WebSocket port of a subscription test when its address has none: the default of
@@ -75,8 +98,9 @@ type notification struct {
 	sub       int // index of the subscription among all those of the test
 	arrival   time.Time
 	number    uint64
-	hash      string
-	timestamp time.Time
+	blockHash string
+	key       string    // the event: the block hash of a head, the block hash and the index of a log
+	timestamp time.Time // the block timestamp, zero when the notification has none
 }
 
 // connection is what one WebSocket connection of a test received.
@@ -89,9 +113,10 @@ type connection struct {
 // runSubscriptions opens conns WebSocket connections, sends the eth_subscribe requests of reqs on each one,
 // listens for duration and returns one result per notification, missing notification and duplicate:
 // its latency is the arrival time minus the block timestamp. The results of each type are also split into
-// a latency row and a fan-out row, the arrival time minus the first arrival of the same head.
-func runSubscriptions(ctx context.Context, url string, reqs [][]byte, conns int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
-	types, err := subscriptionTypes(reqs)
+// a latency row, a fan-out row, the arrival time minus the first arrival of the same event on the same
+// pattern line, and for logs a row of the arrival time minus that of the head on the same connection.
+func runSubscriptions(ctx context.Context, url, httpURL string, reqs [][]byte, conns int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
+	lines, err := subscriptionLines(reqs)
 	if err != nil {
 		return nil, attackResults{}, err
 	}
@@ -131,14 +156,14 @@ func runSubscriptions(ctx context.Context, url string, reqs [][]byte, conns int,
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			received[i].notes, received[i].closed = listen(c, subIDs[i], end.Add(notificationDrain))
+			received[i].notes, received[i].closed = listen(c, subIDs[i], lines, end.Add(notificationDrain))
 		}()
 	}
 	wg.Wait()
 	if ctx.Err() != nil {
 		return nil, attackResults{}, ctx.Err()
 	}
-	return measure(received, types, url, start, end, outputFile)
+	return measure(ctx, received, lines, url, httpURL, start, end, outputFile)
 }
 
 // subscribe dials url and sends reqs, waiting for the answer of each, and returns the subscription ids and
@@ -188,7 +213,7 @@ type rpcError struct {
 }
 
 // listen reads the notifications of c until deadline, and tells whether the node closed c before.
-func listen(c *websocket.Conn, ids map[string]int, deadline time.Time) ([]notification, bool) {
+func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, deadline time.Time) ([]notification, bool) {
 	c.SetReadDeadline(deadline) //nolint:errcheck
 	var notes []notification
 	for {
@@ -202,9 +227,14 @@ func listen(c *websocket.Conn, ids map[string]int, deadline time.Time) ([]notifi
 			Params struct {
 				Subscription string `json:"subscription"`
 				Result       struct {
-					Number    string `json:"number"`
-					Hash      string `json:"hash"`
-					Timestamp string `json:"timestamp"`
+					Number         string `json:"number"`
+					Hash           string `json:"hash"`
+					Timestamp      string `json:"timestamp"`
+					BlockNumber    string `json:"blockNumber"`
+					BlockHash      string `json:"blockHash"`
+					BlockTimestamp string `json:"blockTimestamp"`
+					LogIndex       string `json:"logIndex"`
+					Removed        bool   `json:"removed"`
 				} `json:"result"`
 			} `json:"params"`
 		}
@@ -215,38 +245,68 @@ func listen(c *websocket.Conn, ids map[string]int, deadline time.Time) ([]notifi
 		if !ok {
 			continue
 		}
-		seconds, err := strconv.ParseUint(strings.TrimPrefix(n.Params.Result.Timestamp, "0x"), 16, 64)
-		if err != nil {
+		res := n.Params.Result
+		note := notification{sub: sub, arrival: arrival}
+		var number, stamp string
+		switch lines[sub%len(lines)].typ {
+		case subNewHeads:
+			number, stamp, note.blockHash, note.key = res.Number, res.Timestamp, res.Hash, res.Hash
+		case subLogs:
+			if res.Removed {
+				continue
+			}
+			number, stamp, note.blockHash, note.key = res.BlockNumber, res.BlockTimestamp, res.BlockHash, res.BlockHash+"/"+res.LogIndex
+		}
+		if note.number, err = parseHex(number); err != nil {
 			continue
 		}
-		number, err := strconv.ParseUint(strings.TrimPrefix(n.Params.Result.Number, "0x"), 16, 64)
-		if err != nil {
-			continue
+		if stamp != "" {
+			seconds, err := parseHex(stamp)
+			if err != nil {
+				continue
+			}
+			note.timestamp = time.Unix(int64(seconds), 0)
 		}
-		notes = append(notes, notification{sub: sub, arrival: arrival, number: number, hash: n.Params.Result.Hash, timestamp: time.Unix(int64(seconds), 0)})
+		notes = append(notes, note)
 	}
 }
 
-// measure turns the notifications of the heads first seen between start and end into results. Every
-// subscription is expected to receive every block number from the lowest to the highest of those heads.
-func measure(conns []connection, types []string, url string, start, end time.Time, outputFile string) (*vegeta.Metrics, attackResults, error) {
-	first := map[string]time.Time{}
+func parseHex(s string) (uint64, error) {
+	return strconv.ParseUint(strings.TrimPrefix(s, "0x"), 16, 64)
+}
+
+// measure turns the notifications of the blocks first seen between start and end into results. Every
+// subscription is expected to receive every block number from the lowest to the highest of those blocks:
+// a newHeads subscription its head, a logs subscription the logs eth_getLogs returns for its filter.
+func measure(ctx context.Context, conns []connection, lines []subscriptionLine, url, httpURL string, start, end time.Time, outputFile string) (*vegeta.Metrics, attackResults, error) {
+	blockFirst := map[string]time.Time{}
+	eventFirst := map[string]time.Time{} // by pattern line and event
 	for _, conn := range conns {
 		for _, n := range conn.notes {
-			if t, ok := first[n.hash]; !ok || n.arrival.Before(t) {
-				first[n.hash] = n.arrival
+			if t, ok := blockFirst[n.blockHash]; !ok || n.arrival.Before(t) {
+				blockFirst[n.blockHash] = n.arrival
+			}
+			event := eventKey(n, lines)
+			if t, ok := eventFirst[event]; !ok || n.arrival.Before(t) {
+				eventFirst[event] = n.arrival
 			}
 		}
+	}
+	inWindow := func(n notification) bool {
+		t := blockFirst[n.blockHash]
+		return !t.Before(start) && !t.After(end)
 	}
 	lo, hi := uint64(math.MaxUint64), uint64(0)
 	for _, conn := range conns {
 		for _, n := range conn.notes {
-			if t := first[n.hash]; t.Before(start) || t.After(end) {
-				delete(first, n.hash)
-				continue
+			if inWindow(n) {
+				lo, hi = min(lo, n.number), max(hi, n.number)
 			}
-			lo, hi = min(lo, n.number), max(hi, n.number)
 		}
+	}
+	expected, err := expectedLogs(ctx, httpURL, lines, lo, hi)
+	if err != nil {
+		return nil, attackResults{}, err
 	}
 
 	out, err := os.Create(outputFile)
@@ -257,8 +317,8 @@ func measure(conns []connection, types []string, url string, start, end time.Tim
 	encoder := vegeta.NewEncoder(out)
 	var metrics vegeta.Metrics
 	results := attackResults{rpcErrors: map[string]int{}, apis: map[string]*apiResult{}}
-	add := func(sub int, r *vegeta.Result, fanOut time.Duration, fastest bool) {
-		typ := types[sub%len(types)]
+	add := func(sub int, r *vegeta.Result) (row string) {
+		typ := lines[sub%len(lines)].typ
 		r.Attack, r.URL, r.Method = "eth_subscribe", url, "WS"
 		if r.Timestamp.IsZero() {
 			r.Timestamp = end
@@ -267,58 +327,134 @@ func measure(conns []connection, types []string, url string, start, end time.Tim
 		if err := encoder.Encode(r); err != nil {
 			log.Printf("Warning: failed to encode result: %v", err)
 		}
-		row := results.row(typ + " latency")
-		row.requests++
-		row.latencies.Add(r.Latency)
-		if r.Error != "" {
-			row.errors[r.Error]++
-			return
+		results.row(typ+" latency").add(r.Latency, r.Error)
+		if r.Error == "" {
+			results.ok.Add(r.Latency)
+			results.okRequests++
 		}
-		results.ok.Add(r.Latency)
-		results.okRequests++
-		if !fastest {
-			row := results.row(typ + " fan-out")
-			row.requests++
-			row.latencies.Add(fanOut)
-		}
+		return typ
 	}
 
 	for i, conn := range conns {
-		seen := map[int]map[string]bool{}
-		numbers := map[int]map[uint64]bool{}
+		seen := map[int]map[string]bool{}    // by subscription, the events received
+		numbers := map[int]map[uint64]bool{} // by subscription, the block numbers of the heads received
+		heads := map[string]time.Time{}      // by block hash, the arrival of the head on this connection
 		for _, n := range conn.notes {
-			t, ok := first[n.hash]
-			if !ok {
+			if lines[n.sub%len(lines)].typ == subNewHeads {
+				if t, ok := heads[n.blockHash]; !ok || n.arrival.Before(t) {
+					heads[n.blockHash] = n.arrival
+				}
+			}
+		}
+		for _, n := range conn.notes {
+			if !inWindow(n) {
 				continue
 			}
 			if seen[n.sub] == nil {
 				seen[n.sub], numbers[n.sub] = map[string]bool{}, map[uint64]bool{}
 			}
 			r := &vegeta.Result{Code: 200, Timestamp: n.arrival, Latency: n.arrival.Sub(n.timestamp)}
-			if seen[n.sub][n.hash] {
+			switch {
+			case seen[n.sub][n.key]:
 				r.Code, r.Error = 0, errDuplicate
+			case n.timestamp.IsZero():
+				r.Code, r.Error, r.Latency = 0, errNoTimestamp, 0
 			}
-			seen[n.sub][n.hash], numbers[n.sub][n.number] = true, true
-			add(n.sub, r, n.arrival.Sub(t), n.arrival.Equal(t))
+			seen[n.sub][n.key], numbers[n.sub][n.number] = true, true
+			typ := add(n.sub, r)
+			if r.Code != 200 {
+				continue
+			}
+			if first := eventFirst[eventKey(n, lines)]; !n.arrival.Equal(first) {
+				results.row(typ+" fan-out").add(n.arrival.Sub(first), "")
+			}
+			if head, ok := heads[n.blockHash]; ok && typ != subNewHeads {
+				results.row(typ+" vs newHeads").add(n.arrival.Sub(head), "")
+			}
 		}
-		for j := range types {
-			sub := i*len(types) + j
+		for j, line := range lines {
+			sub := i*len(lines) + j
 			if msg, ok := conn.rejected[sub]; ok {
-				add(sub, &vegeta.Result{Error: "rejected subscribe: " + RPCErrorKind(msg)}, 0, false)
+				add(sub, &vegeta.Result{Error: "rejected subscribe: " + RPCErrorKind(msg)})
 				continue
 			}
 			if conn.closed {
-				add(sub, &vegeta.Result{Error: errClosed}, 0, false)
+				add(sub, &vegeta.Result{Error: errClosed})
 			}
-			for number := lo; number <= hi && len(first) > 0; number++ {
-				if !numbers[sub][number] {
-					add(sub, &vegeta.Result{Error: errMissing}, 0, false)
+			for number := lo; number <= hi; number++ {
+				if line.typ == subNewHeads && !numbers[sub][number] {
+					add(sub, &vegeta.Result{Error: errMissing})
+				}
+				for _, key := range expected[j][number] {
+					if !seen[sub][key] {
+						add(sub, &vegeta.Result{Error: errMissing})
+					}
 				}
 			}
 		}
 	}
 	metrics.Close()
 	return &metrics, results, nil
+}
+
+func eventKey(n notification, lines []subscriptionLine) string {
+	return strconv.Itoa(n.sub%len(lines)) + "/" + n.key
+}
+
+// expectedLogs reads over HTTP, for each logs line and each block from lo to hi, the logs eth_getLogs
+// returns for the filter of the line, as the events a subscription of the line must receive.
+func expectedLogs(ctx context.Context, url string, lines []subscriptionLine, lo, hi uint64) (map[int]map[uint64][]string, error) {
+	expected := map[int]map[uint64][]string{}
+	for j, line := range lines {
+		if line.typ != subLogs {
+			continue
+		}
+		expected[j] = map[uint64][]string{}
+		for number := lo; number <= hi && lo <= hi; number++ {
+			filter := maps.Clone(line.filter)
+			filter["fromBlock"], filter["toBlock"] = fmt.Sprintf("0x%x", number), fmt.Sprintf("0x%x", number)
+			var logs []struct {
+				BlockHash string `json:"blockHash"`
+				LogIndex  string `json:"logIndex"`
+			}
+			if err := httpCall(ctx, url, "eth_getLogs", []any{filter}, &logs); err != nil {
+				return nil, err
+			}
+			for _, lg := range logs {
+				expected[j][number] = append(expected[j][number], lg.BlockHash+"/"+lg.LogIndex)
+			}
+		}
+	}
+	return expected, nil
+}
+
+// httpCall posts a JSON-RPC request to url and decodes its result into result.
+func httpCall(ctx context.Context, url, method string, params []any, result any) error {
+	body, err := json.Marshal(map[string]any{"jsonrpc": "2.0", "id": 1, "method": method, "params": params})
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("%s: %w", method, err)
+	}
+	defer resp.Body.Close()
+	var r struct {
+		Result json.RawMessage `json:"result"`
+		Error  *rpcError       `json:"error"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+		return fmt.Errorf("%s: %w", method, err)
+	}
+	if r.Error != nil {
+		return fmt.Errorf("%s: %s", method, r.Error.Message)
+	}
+	return json.Unmarshal(r.Result, result)
 }
 
 // row returns the result row of key, created on first use.
@@ -347,4 +483,13 @@ func formatSubscriptionResults(rows map[string]*apiResult, morePercentiles bool)
 		}
 		return fmt.Sprintf("%5.1f%%", 100*float64(rows[name].requests)/float64(notifications))
 	})
+}
+
+// add counts one result of the row: its latency and its error, if any.
+func (a *apiResult) add(latency time.Duration, err string) {
+	a.requests++
+	a.latencies.Add(latency)
+	if err != "" {
+		a.errors[err]++
+	}
 }
