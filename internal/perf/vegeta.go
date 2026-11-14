@@ -40,6 +40,7 @@ type PerfTest struct {
 	Config  *Config
 	Report  *TestReport
 	RunDirs *RunDirs
+	procDir string
 }
 
 // NewPerfTest creates a new performance test instance.
@@ -48,6 +49,7 @@ func NewPerfTest(config *Config, report *TestReport, dirs *RunDirs) (*PerfTest, 
 		Config:  config,
 		Report:  report,
 		RunDirs: dirs,
+		procDir: "/proc",
 	}
 
 	if err := pt.Cleanup(true); err != nil {
@@ -206,8 +208,12 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 	maxRepDigits := strconv.Itoa(format.MaxRepetitionDigits)
 	maxQpsDigits := strconv.Itoa(format.MaxQpsDigits)
 	maxDurDigits := strconv.Itoa(format.MaxDurationDigits)
-	fmt.Printf("[%d.%"+maxRepDigits+"d] %s: executes test qps: %"+maxQpsDigits+"d time: %"+maxDurDigits+"d -> ",
-		testNumber, repetition+1, pt.Config.TestingClient, qps, duration)
+	load := "qps"
+	if pt.isSubscription() {
+		load = "conn"
+	}
+	fmt.Printf("[%d.%"+maxRepDigits+"d] %s: executes test %s: %"+maxQpsDigits+"d time: %"+maxDurDigits+"d -> ",
+		testNumber, repetition+1, pt.Config.TestingClient, load, qps, duration)
 
 	targets, err := pt.loadTargets(pattern)
 	if err != nil {
@@ -218,18 +224,29 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		metrics *vegeta.Metrics
 		results attackResults
 	)
+	sampler := pt.startNodeSampler()
 	if pt.isSubscription() {
 		// With subscriptions the qps column is the number of WebSocket connections.
 		reqs := make([][]byte, len(targets))
 		for i, target := range targets {
 			reqs[i] = target.Body
 		}
-		metrics, results, err = runSubscriptions(ctx, WSURL(pt.Config.ClientAddress, pt.Config.WSAddress), reqs, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
+		metrics, results, err = runSubscriptions(ctx, WSURL(pt.Config.ClientAddress, pt.Config.WSAddress), NodeURL(pt.Config.ClientAddress), reqs, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
 		if err != nil {
-			return fmt.Errorf("subscription test failed: %w", err)
+			err = fmt.Errorf("subscription test failed: %w", err)
 		}
-	} else if metrics, results, err = pt.runVegetaAttack(ctx, targets, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname); err != nil {
-		return fmt.Errorf("vegeta attack failed: %w", err)
+	} else {
+		metrics, results, err = pt.runVegetaAttack(ctx, targets, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
+		if err != nil {
+			err = fmt.Errorf("vegeta attack failed: %w", err)
+		}
+	}
+	var node *NodeInfo
+	if sampler != nil {
+		node = sampler.stop()
+	}
+	if err != nil {
+		return err
 	}
 
 	if pt.Config.CheckServerAlive {
@@ -239,7 +256,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		}
 	}
 
-	return pt.processResults(testNumber, repetition, name, qps, duration, metrics, results)
+	return pt.processResults(testNumber, repetition, name, qps, duration, metrics, results, node)
 }
 
 // ExecuteSequence executes a sequence of performance tests.
@@ -498,7 +515,7 @@ func formatEmpty(empty int, requests uint64) string {
 }
 
 // processResults processes the vegeta metrics and generates reports.
-func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps, duration int, metrics *vegeta.Metrics, results attackResults) error {
+func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps, duration int, metrics *vegeta.Metrics, results attackResults, node *NodeInfo) error {
 	minLatency := FormatDuration(metrics.Latencies.Min)
 	mean := FormatDuration(metrics.Latencies.Mean)
 	p50 := FormatDuration(metrics.Latencies.P50)
@@ -561,6 +578,9 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 	for _, line := range lines {
 		fmt.Println(line)
 	}
+	if node != nil {
+		fmt.Println(formatNode(node))
+	}
 
 	if errorMsg != "" && pt.Config.HaltOnVegetaError {
 		return fmt.Errorf("test failed: %s", errorMsg)
@@ -588,6 +608,7 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 			Error:         errorMsg,
 			OK:            ok,
 			VegetaMetrics: metrics,
+			Node:          node,
 		}
 
 		if err := pt.Report.WriteTestReport(testMetrics); err != nil {

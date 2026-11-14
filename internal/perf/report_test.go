@@ -538,3 +538,61 @@ func readCSV(t *testing.T, path string) [][]string {
 	}
 	return records
 }
+
+// writeOneRepetitionJSON writes metrics as the only repetition of a JSON report and returns that repetition.
+func writeOneRepetitionJSON(t *testing.T, metrics *PerfMetrics) map[string]json.RawMessage {
+	t.Helper()
+	dirs := reportDirs(t)
+	cfg := NewConfig()
+	cfg.TestingClient = "rpcdaemon"
+	cfg.JSONReportFile = filepath.Join(t.TempDir(), "report.json")
+	binary := filepath.Join(dirs.RunTestDir, BinaryDir, "run.bin")
+	writeVegetaBinary(t, binary)
+	cfg.BinaryFile, cfg.BinaryFileFullPathname = "run.bin", binary
+	report := NewTestReport(cfg, dirs)
+	if err := report.Open(); err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	if err := report.WriteTestReport(metrics); err != nil {
+		t.Fatalf("WriteTestReport: %v", err)
+	}
+	if err := report.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+	data, err := os.ReadFile(cfg.JSONReportFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var parsed struct {
+		Results []struct {
+			TestRepetitions []map[string]json.RawMessage `json:"testRepetitions"`
+		} `json:"results"`
+	}
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		t.Fatal(err)
+	}
+	return parsed.Results[0].TestRepetitions[0]
+}
+
+func TestTestReportJSONAddsTheNodeResources(t *testing.T) {
+	metrics := sampleMetrics(0)
+	metrics.Node = &NodeInfo{Process: "erigon", PID: 7, Seconds: 2, CPUSeconds: 1.5, RSSStartBytes: 500, RSSEndBytes: 700, RSSMaxBytes: 900, WriteSyscalls: 60, SamplesFile: "run.proc.csv"}
+
+	rep := writeOneRepetitionJSON(t, metrics)
+
+	var node NodeInfo
+	if err := json.Unmarshal(rep["node"], &node); err != nil {
+		t.Fatalf("node = %s: %v", rep["node"], err)
+	}
+	if node != *metrics.Node {
+		t.Errorf("node = %+v, want %+v", node, *metrics.Node)
+	}
+}
+
+func TestTestReportJSONWithoutTheNodeProcess(t *testing.T) {
+	rep := writeOneRepetitionJSON(t, sampleMetrics(0))
+
+	if _, ok := rep["node"]; ok {
+		t.Errorf("node = %s, want no node section when the process was not found", rep["node"])
+	}
+}
