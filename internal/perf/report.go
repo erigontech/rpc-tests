@@ -73,7 +73,6 @@ type ConfigurationInfo struct {
 	TestRepetitions int    `json:"testRepetitions"`
 	VegetaFile      string `json:"vegetaFile"`
 	VegetaChecksum  string `json:"vegetaChecksum"`
-	Taskset         string `json:"taskset"`
 	// The web3_clientVersion of the node under test, absent when it does not answer.
 	ClientVersion string `json:"clientVersion,omitempty"`
 	// The header of a JSONL pattern, absent when the pattern has none.
@@ -240,7 +239,6 @@ func (tr *TestReport) writeTestHeader(cpuModel, bogomips, kernelVersion, checksu
 		{"cpu", cpuModel},
 		{"bogomips", bogomips},
 		{"kernel", kernelVersion},
-		{"taskset", tr.Config.ClientVegetaOnCore},
 		{"vegetaFile", tr.Config.VegetaPatternTarFile},
 		{"vegetaChecksum", checksum},
 		{"gccVersion", gccVersion},
@@ -296,7 +294,6 @@ func (tr *TestReport) initializeJSONReport(cpuModel, bogomips, kernelVersion, ch
 			TestRepetitions: tr.Config.Repetitions,
 			VegetaFile:      tr.Config.VegetaPatternTarFile,
 			VegetaChecksum:  checksum,
-			Taskset:         tr.Config.ClientVegetaOnCore,
 		},
 		Results: []JSONTestResult{},
 	}
