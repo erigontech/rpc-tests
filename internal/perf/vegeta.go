@@ -552,7 +552,10 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 	resultRecord += formatOKResults(ok, pt.Config.MorePercentiles)
 	fmt.Println(resultRecord)
 	lines := formatAPIResults(results.apis, pt.Config.MorePercentiles)
-	if pt.Config.ByID {
+	switch {
+	case pt.isSubscription():
+		lines = formatSubscriptionResults(results.apis, pt.Config.MorePercentiles)
+	case pt.Config.ByID:
 		lines = formatIDResults(results.apis, pt.Config.MorePercentiles)
 	}
 	for _, line := range lines {
@@ -929,12 +932,22 @@ func leadingNumber(name string) (int, bool) {
 
 // formatResults returns the table of the results of names, in this order, under the column title.
 func formatResults(title string, names []string, results map[string]*apiResult, morePercentiles bool) []string {
+	total := 0
+	for _, name := range names {
+		total += results[name].requests
+	}
+	return formatShares(title, names, results, morePercentiles, func(name string) string {
+		return fmt.Sprintf("%5.1f%%", 100*float64(results[name].requests)/float64(total))
+	})
+}
+
+// formatShares returns the table of formatResults with the share column of each row given by share.
+func formatShares(title string, names []string, results map[string]*apiResult, morePercentiles bool, share func(name string) string) []string {
 	if len(names) == 0 {
 		return nil
 	}
-	total, width := 0, 30
+	width := 30
 	for _, name := range names {
-		total += results[name].requests
 		width = max(width, len(name))
 	}
 	quantiles := []float64{0.50, 0.99}
@@ -952,7 +965,7 @@ func formatResults(title string, names []string, results map[string]*apiResult, 
 		}
 		pct := func(n int) float64 { return 100 * float64(n) / float64(a.requests) }
 		var line strings.Builder
-		fmt.Fprintf(&line, "      %-*s %7d %5.1f%% %7.1f%% %7.1f%% %7.1f%%", width, name, a.requests, 100*float64(a.requests)/float64(total), pct(a.requests-failed), pct(a.empty), pct(failed))
+		fmt.Fprintf(&line, "      %-*s %7d %6s %7.1f%% %7.1f%% %7.1f%%", width, name, a.requests, share(name), pct(a.requests-failed), pct(a.empty), pct(failed))
 		for _, q := range quantiles {
 			fmt.Fprintf(&line, " %9s", FormatDuration(a.latencies.Quantile(q)))
 		}

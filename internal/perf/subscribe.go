@@ -6,9 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"maps"
 	"math"
 	"net"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -327,4 +329,22 @@ func (r *attackResults) row(key string) *apiResult {
 		r.apis[key] = a
 	}
 	return a
+}
+
+// formatSubscriptionResults returns the table of the rows of a subscription test, by name. Only the latency
+// rows have a share, of all the notifications: the other rows count the same notifications again.
+func formatSubscriptionResults(rows map[string]*apiResult, morePercentiles bool) []string {
+	names := slices.Sorted(maps.Keys(rows))
+	notifications := 0
+	for _, name := range names {
+		if strings.HasSuffix(name, " latency") {
+			notifications += rows[name].requests
+		}
+	}
+	return formatShares("api", names, rows, morePercentiles, func(name string) string {
+		if !strings.HasSuffix(name, " latency") {
+			return "-"
+		}
+		return fmt.Sprintf("%5.1f%%", 100*float64(rows[name].requests)/float64(notifications))
+	})
 }

@@ -220,8 +220,10 @@ Each notification is one result:
   - `connection closed`: the node closed the connection before the end of the test; the heads after it
     are also missing.
 
-  A late notification is not an error: it only raises the latency. The `share` column has no meaning for
-  these rows.
+  A late notification is not an error: it only raises the latency.
+- The rows are sorted by name. The `share` column of a `<type> latency` row is its part of all the
+  notifications, e.g. how much of the main latency series comes from logs; the other rows count the same
+  notifications again, so their share is `-`.
 
 Only the heads first received during the test are counted; their notifications are awaited for 2 s more.
 A connection that cannot be opened stops the test.

@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -282,5 +283,36 @@ func TestExecuteSequencePrintsTheWebSocketAddressOfASubscriptionTest(t *testing.
 	}
 	if !strings.Contains(string(out), "Test on port: ws://127.0.0.1:9000\n") {
 		t.Errorf("output %q: want the WebSocket address the connections open on", out)
+	}
+}
+
+func TestFormatSubscriptionResultsSharesTheNotificationsByType(t *testing.T) {
+	row := func(requests int) *apiResult {
+		a := &apiResult{requests: requests, errors: map[string]int{}}
+		for range requests {
+			a.latencies.Add(time.Second)
+		}
+		return a
+	}
+	lines := formatSubscriptionResults(map[string]*apiResult{
+		"newHeads latency": row(1),
+		"logs latency":     row(3),
+		"logs vs newHeads": row(3),
+		"logs fan-out":     row(2),
+	}, false)
+	if len(lines) != 5 {
+		t.Fatalf("lines %q: want a header and 4 rows", lines)
+	}
+	share := map[string]string{}
+	for _, line := range lines[1:] {
+		m := regexp.MustCompile(`^\s+(.+?)\s+\d+\s+(\S+)`).FindStringSubmatch(line)
+		if m == nil {
+			t.Fatalf("row %q: want name, reqs and share", line)
+		}
+		share[m[1]] = m[2]
+	}
+	want := map[string]string{"newHeads latency": "25.0%", "logs latency": "75.0%", "logs vs newHeads": "-", "logs fan-out": "-"}
+	if fmt.Sprint(share) != fmt.Sprint(want) {
+		t.Errorf("share %v, want %v: the latency rows share the notifications, the other rows count them again", share, want)
 	}
 }
