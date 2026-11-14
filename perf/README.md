@@ -99,6 +99,7 @@ The patterns come from:
 | `-p`, `--pattern-file` | | The pattern to replay: a Vegeta tar or a `.jsonl`. Required |
 | `-y`, `--test-type` | `eth_getLogs`; for a `.jsonl`, its method or `mixed` | Test name in the output and the reports; with a tar, also the Vegeta file to replay |
 | `-d`, `--rpc-client-address` | `localhost` | Node to load: `host`, or `host:port` for a `.jsonl` (port 8545 otherwise) |
+| `-W`, `--ws-address` | the host of `-d`, port 8546 | WebSocket node of an `eth_subscribe` pattern: `host` or `host:port` (port 8546 otherwise) |
 | `-b`, `--blockchain` | `mainnet` | Network name, used in the report paths and file names |
 
 ```bash
@@ -186,6 +187,46 @@ first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/
 ./build/bin/rpc_perf -p perf/pattern/mainnet/stress_test_eth_call_001_14M.tar -y eth_call -Z -g /path/to/erigon \
     -r 3 -u -b mainnet -t 50:30,1000:30,2500:20,5000:20
 ```
+
+## Subscription tests
+
+A `.jsonl` pattern of `eth_subscribe` requests runs over WebSocket connections instead of Vegeta. In
+`-t`, the first number of each test is the number of connections, not a rate: `-t 10:600,100:600` opens
+10, then 100 connections, for 600 s each. Each connection sends every line of the pattern once, when it
+opens, then only listens. The connections go to port 8546 of the `-d` host, the default WebSocket port of
+Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). Only
+`newHeads` is measured for now.
+
+```bash
+./build/bin/rpc_perf -p eth_subscribe.jsonl -d localhost -Z -t 10:600,100:600 -r 1 -P              # ws://localhost:8546
+./build/bin/rpc_perf -p eth_subscribe.jsonl -d localhost -W localhost:8545 -Z -t 10:600 -r 1 -P  # another WebSocket port
+```
+
+Each notification is one result:
+
+- latency: the arrival time minus the block timestamp, the start of the slot, the same reference for every
+  client. It covers the whole path: block propagation, consensus client, execution, forkchoiceUpdated and
+  the notification itself. The arrival time is read right after the WebSocket frame.
+- `newHeads latency` row: these latencies. `newHeads fan-out` row: the arrival time minus the first arrival
+  of the same head among all the subscriptions, the fastest left out: the time the node takes to notify
+  every subscriber.
+- Errors, one per subscription:
+  - `missing notification`: a block number between the lowest and the highest head of the test that the
+    subscription did not receive, whether other subscriptions received it or not;
+  - `duplicate notification`: the same head received twice on one subscription;
+  - `rejected subscribe: <message>`: the node answered the `eth_subscribe` with an error, e.g. a limit
+    of subscriptions per connection; the subscription is not expected to receive anything;
+  - `connection closed`: the node closed the connection before the end of the test; the heads after it
+    are also missing.
+
+  A late notification is not an error: it only raises the latency.
+- The rows are sorted by name. The `share` column of a `<type> latency` row is its part of all the
+  notifications, e.g. how much of the main latency series comes from logs; the other rows count the same
+  notifications again, so their share is `-`.
+
+Only the heads first received during the test are counted; their notifications are awaited for 2 s more.
+A connection that cannot be opened stops the test.
+The latency depends on the clock of the machine: keep it synchronized (`chronyc tracking`).
 
 ## Reading the output
 
