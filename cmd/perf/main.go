@@ -46,7 +46,6 @@ func perfFlags() []cli.Flag {
 		&cli.StringFlag{Name: "rpc-client-address", Aliases: []string{"d"}, Value: perf.DefaultServerAddress, Usage: "Client address; with a .jsonl pattern, host or host:port (default port 8545)"},
 		&cli.StringFlag{Name: "ws-address", Aliases: []string{"W"}, Usage: "WebSocket node of an eth_subscribe pattern, host or host:port (default: the host of --rpc-client-address on port " + perf.DefaultWSPort + ")"},
 		&cli.StringFlag{Name: "client-build-dir", Aliases: []string{"g"}, Value: perf.DefaultClientBuildDir, Usage: "Path to Client build folder"},
-		&cli.StringFlag{Name: "run-vegeta-on-core", Aliases: []string{"c"}, Value: perf.DefaultClientVegetaOnCore, Usage: "Taskset format for Vegeta"},
 		&cli.StringFlag{Name: "response-timeout", Aliases: []string{"T"}, Value: perf.DefaultVegetaResponseTimeout, Usage: "Vegeta response timeout"},
 		&cli.StringFlag{Name: "max-body-rsp", Aliases: []string{"M"}, Value: perf.DefaultMaxBodyRsp, Usage: "Max bytes of each response body written to the vegeta binary file (-1 = the whole body)"},
 		&cli.StringFlag{Name: "json-report", Aliases: []string{"j"}, Usage: "Generate JSON report at specified path"},
@@ -82,7 +81,6 @@ func runPerfTests(c *cli.Context) error {
 	cfg.ClientAddress = c.String("rpc-client-address")
 	cfg.WSAddress = c.String("ws-address")
 	cfg.ClientBuildDir = c.String("client-build-dir")
-	cfg.ClientVegetaOnCore = c.String("run-vegeta-on-core")
 	cfg.VegetaResponseTimeout = c.String("response-timeout")
 	cfg.MaxBodyRsp = c.String("max-body-rsp")
 	cfg.JSONReportFile = c.String("json-report")

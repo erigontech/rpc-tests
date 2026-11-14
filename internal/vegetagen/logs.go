@@ -57,9 +57,7 @@ type logFilter struct {
 
 func (g GetLogs) Request(it Item, p Params) ([]byte, error) {
 	lg := it.Log
-	h := fnv.New64a()
-	fmt.Fprintf(h, "%d/%s/%s", it.BlockNum, lg.TxHash, lg.Index)
-	rng := rand.New(rand.NewSource(int64(h.Sum64()))) //nolint:gosec
+	rng := logRand(it.BlockNum, lg)
 
 	// Log-uniform width: mostly narrow ranges, some up to Range blocks.
 	width := logUniform(rng, max(g.Range, 1))
@@ -74,23 +72,9 @@ func (g GetLogs) Request(it Item, p Params) ([]byte, error) {
 		f.FromBlock, f.ToBlock = "latest", "latest"
 	}
 
-	shapes := logShapes(lg.Topics, g.Filter)
-	if len(shapes) == 0 {
-		return nil, fmt.Errorf("log %s/%s has too few topics for filter %s", lg.TxHash, lg.Index, g.Filter)
-	}
-	switch shapes[rng.Intn(len(shapes))] {
-	case "address":
-		f.Address = lg.Address
-	case "address+topic0":
-		f.Address, f.Topics = lg.Address, []any{lg.Topics[0]}
-	case "address+topic0+topic1":
-		f.Address, f.Topics = lg.Address, []any{lg.Topics[0], lg.Topics[1]}
-	case "address+topic0+topic2":
-		f.Address, f.Topics = lg.Address, []any{lg.Topics[0], nil, lg.Topics[2]}
-	case "topic0+topic1":
-		f.Topics = []any{lg.Topics[0], lg.Topics[1]}
-	case "topic0+topic2":
-		f.Topics = []any{lg.Topics[0], nil, lg.Topics[2]}
+	var err error
+	if f.Address, f.Topics, err = matchLog(rng, lg, g.Filter); err != nil {
+		return nil, err
 	}
 	if g.Or > 1 {
 		if f.Address != nil {
@@ -103,6 +87,37 @@ func (g GetLogs) Request(it Item, p Params) ([]byte, error) {
 		}
 	}
 	return marshalRequest("eth_getLogs", f)
+}
+
+// matchLog returns the address and topics of a filter that matches lg, of a shape of the family filter
+// drawn with rng.
+func matchLog(rng *rand.Rand, lg *Log, filter string) (address any, topics []any, err error) {
+	shapes := logShapes(lg.Topics, filter)
+	if len(shapes) == 0 {
+		return nil, nil, fmt.Errorf("log %s/%s has too few topics for filter %s", lg.TxHash, lg.Index, filter)
+	}
+	switch shapes[rng.Intn(len(shapes))] {
+	case "address":
+		address = lg.Address
+	case "address+topic0":
+		address, topics = lg.Address, []any{lg.Topics[0]}
+	case "address+topic0+topic1":
+		address, topics = lg.Address, []any{lg.Topics[0], lg.Topics[1]}
+	case "address+topic0+topic2":
+		address, topics = lg.Address, []any{lg.Topics[0], nil, lg.Topics[2]}
+	case "topic0+topic1":
+		topics = []any{lg.Topics[0], lg.Topics[1]}
+	case "topic0+topic2":
+		topics = []any{lg.Topics[0], nil, lg.Topics[2]}
+	}
+	return address, topics, nil
+}
+
+// logRand returns the random source of the requests built from the log lg of block blockNum.
+func logRand(blockNum uint64, lg *Log) *rand.Rand {
+	h := fnv.New64a()
+	fmt.Fprintf(h, "%d/%s/%s", blockNum, lg.TxHash, lg.Index)
+	return rand.New(rand.NewSource(int64(h.Sum64()))) //nolint:gosec
 }
 
 // logUniform returns a number in [1, n], mostly small, a few up to n.
@@ -197,8 +212,13 @@ func rejectsEmpty(gen Generator) bool {
 
 // usableLog tells whether gen can build a request from lg: a filter family can need topics the log lacks.
 func usableLog(gen Generator, lg Log) bool {
-	g, ok := gen.(GetLogs)
-	return !ok || len(logShapes(lg.Topics, g.Filter)) > 0
+	switch g := gen.(type) {
+	case GetLogs:
+		return len(logShapes(lg.Topics, g.Filter)) > 0
+	case SubscribeLogs:
+		return len(logShapes(lg.Topics, g.Filter)) > 0
+	}
+	return true
 }
 
 func getLogsGenerator(options map[string]string) (Generator, error) {

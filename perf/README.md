@@ -169,7 +169,6 @@ A test with 0% success always stops the run.
 | `-j`, `--json-report` | | Also write a JSON report to this path. Needs `-R` or `-u`: without them it is not written |
 | `-D`, `--testing-client` | `rpcdaemon` | Client name in the output, the report file names and the JSON report |
 | `-g`, `--client-build-dir` | | Client source folder: its git commit goes into the report |
-| `-c`, `--run-vegeta-on-core` | `-:-` | Taskset written in the report; `rpc_perf` does not pin itself, run it under `taskset` to do so |
 | `-M`, `--max-body-rsp` | `1500` | Bytes of each response body kept in the Vegeta binary file of the report (`-1`: the whole body) |
 
 The CSV has one row per test: the latencies and the success ratio of all the responses, then `RpcRatio`,

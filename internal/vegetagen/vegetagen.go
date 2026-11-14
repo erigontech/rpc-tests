@@ -233,6 +233,9 @@ func Run(ctx context.Context, cfg Config, specs []Spec) (Summary, error) {
 	if len(specs) == 0 {
 		return sum, errors.New("no methods")
 	}
+	if err := checkSubscriptions(cfg, specs); err != nil {
+		return sum, err
+	}
 	if len(cfg.Txs) > 0 {
 		for _, sp := range specs {
 			sum.Methods[sp.name()] = &MethodSummary{Errors: map[string]int{}}

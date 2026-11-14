@@ -140,7 +140,7 @@ func TestTestReportCSVLifecycle(t *testing.T) {
 
 	// The preamble carries the platform/configuration key-value rows.
 	flat := flatten(records)
-	for _, key := range []string{"vendor", "cpu", "kernel", "taskset", "vegetaFile", "goVersion", "clientVersion"} {
+	for _, key := range []string{"vendor", "cpu", "kernel", "vegetaFile", "goVersion", "clientVersion"} {
 		if !strings.Contains(flat, key) {
 			t.Errorf("preamble is missing the %q row", key)
 		}
@@ -287,7 +287,6 @@ func TestTestReportJSONLifecycle(t *testing.T) {
 	cfg.TestType = "eth_getLogs"
 	cfg.TestingClient = "rpcdaemon"
 	cfg.JSONReportFile = jsonPath
-	cfg.ClientVegetaOnCore = "0-3:4-7"
 	cfg.TestSequence = "100:5"
 	cfg.Repetitions = 2
 	cfg.ClientVersion = "erigon/3.1.0/linux-amd64/go1.24.4"
@@ -335,9 +334,6 @@ func TestTestReportJSONLifecycle(t *testing.T) {
 	}
 	if parsed.Configuration.TestRepetitions != 2 {
 		t.Errorf("testRepetitions: got %d", parsed.Configuration.TestRepetitions)
-	}
-	if parsed.Configuration.Taskset != "0-3:4-7" {
-		t.Errorf("taskset: got %q", parsed.Configuration.Taskset)
 	}
 	if parsed.Platform.GoVersion == "" {
 		t.Error("platform.goVersion should be populated")
