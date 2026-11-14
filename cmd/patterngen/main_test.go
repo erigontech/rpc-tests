@@ -419,3 +419,61 @@ func TestTxListCommandWritesTheHeaviestTxs(t *testing.T) {
 		}
 	}
 }
+
+func TestSubscribeCommandWritesTheSubscriptions(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "subscribe.jsonl")
+	err := newApp().Run([]string{"rpc_pattern_gen", "eth_subscribe", "--url", node(t),
+		"--newHeads", "1", "--logs", "2", "--transactionReceipts", "1", "--logs-filter", "address", "--out", out})
+	if err != nil {
+		t.Fatalf("eth_subscribe command: %v", err)
+	}
+	header, got := readJSONL(t, out)
+	if header == nil || header.Requests != 4 {
+		t.Fatalf("header %+v: want 4 requests", header)
+	}
+	if want := "eth_subscribe on each WebSocket connection: 1 newHeads, 2 logs filter=address, 1 transactionReceipts; logs filters from the 3000 most recent blocks"; header.Description != want {
+		t.Errorf("description %q\nwant        %q", header.Description, want)
+	}
+	counts := map[string]int{}
+	for line := range strings.Lines(got) {
+		counts[strings.TrimSpace(line)]++
+	}
+	want := map[string]int{
+		`{"jsonrpc":"2.0","method":"eth_subscribe","params":["newHeads"],"id":1}`:                1,
+		`{"jsonrpc":"2.0","method":"eth_subscribe","params":["logs",{"address":"0x02"}],"id":1}`: 2,
+		`{"jsonrpc":"2.0","method":"eth_subscribe","params":["transactionReceipts"],"id":1}`:     1,
+	}
+	if fmt.Sprint(counts) != fmt.Sprint(want) {
+		t.Errorf("got  %v\nwant %v", counts, want)
+	}
+}
+
+func TestSubscribeCommandRejectsInvalidSettings(t *testing.T) {
+	dir := t.TempDir()
+	for name, args := range map[string][]string{
+		"no subscription": {"--out", filepath.Join(dir, "a.jsonl")},
+		"tar output":      {"--newHeads", "1", "--out", filepath.Join(dir, "a.tar")},
+		"invalid filter":  {"--logs", "1", "--logs-filter", "topic0", "--out", filepath.Join(dir, "a.jsonl")},
+	} {
+		err := newApp().Run(append([]string{"rpc_pattern_gen", "eth_subscribe", "--url", node(t)}, args...))
+		if err == nil {
+			t.Errorf("%s: want an error", name)
+		}
+	}
+}
+
+func TestSubscribeCommandWithoutLogFiltersReadsOnlyTheHead(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "subscribe.jsonl")
+	err := newApp().Run([]string{"rpc_pattern_gen", "eth_subscribe", "--url", node(t),
+		"--newHeads", "2", "--logs", "1", "--logs-filter", "all", "--out", out})
+	if err != nil {
+		t.Fatalf("eth_subscribe command: %v", err)
+	}
+	header, _ := readJSONL(t, out)
+	if want := "eth_subscribe on each WebSocket connection: 2 newHeads, 1 logs filter=all"; header.Description != want {
+		t.Errorf("description %q\nwant        %q", header.Description, want)
+	}
+	if header.FirstBlock != header.LastBlock {
+		t.Errorf("blocks %d..%d: want the head only", header.FirstBlock, header.LastBlock)
+	}
+}
