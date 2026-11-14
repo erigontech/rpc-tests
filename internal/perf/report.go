@@ -36,6 +36,7 @@ type PerfMetrics struct {
 	Error         string
 	OK            OKMetrics
 	VegetaMetrics *vegeta.Metrics
+	Node          *NodeInfo // nil when the node process was not found
 }
 
 // OKMetrics are the rate and the latencies of the successful responses: HTTP 200 and no JSON-RPC error.
@@ -94,6 +95,7 @@ type RepetitionInfo struct {
 	// The rate and the latencies (ns) of the OK responses: HTTP 200 and no JSON-RPC error.
 	RPCSuccessRatio float64          `json:"rpcSuccessRatio"`
 	LatenciesOK     map[string]int64 `json:"latenciesOk"`
+	Node            *NodeInfo        `json:"node,omitempty"`
 }
 
 // TestReport manages CSV and JSON report generation.
@@ -366,6 +368,7 @@ func (tr *TestReport) writeTestReportToJSON(metrics *PerfMetrics) error {
 		VegetaReportHdrPlot: hdrPlot,
 		RPCSuccessRatio:     metrics.OK.Ratio,
 		LatenciesOK:         okLatencies(&metrics.OK.Latencies),
+		Node:                metrics.Node,
 	}
 
 	if tr.currentTestIdx >= 0 && tr.currentTestIdx < len(tr.jsonReport.Results) {

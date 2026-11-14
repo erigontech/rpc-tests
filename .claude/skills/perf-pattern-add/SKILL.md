@@ -1,6 +1,6 @@
 ---
 name: perf-pattern-add
-description: Use to add a performance pattern for rpc_perf, e.g. "I found a tx where the node is slow, where do I save it?", or to build a pattern from a block range or a profile, and to replay it with rpc_perf. Covers the tx lists of rpc_pattern_gen --txs, the per-tx results of rpc_perf -i, and where the files go.
+description: Use to add a performance pattern for rpc_perf, e.g. "I found a tx where the node is slow, where do I save it?", or to build a pattern from a block range, a profile or eth_subscribe subscriptions, and to replay it with rpc_perf. Covers the tx lists of rpc_pattern_gen --txs, the per-tx results of rpc_perf -i, and where the files go.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 
@@ -11,13 +11,14 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 A pattern is a `.jsonl` file, one JSON-RPC request per line, that `rpc_perf` replays at fixed rates.
 `rpc_pattern_gen` builds it from a running node. Its first line is a header, `{"pattern":{...}}`, with a
 description built from the parameters (`--description` replaces it): `rpc_perf` does not send it and
-copies it into its JSON report (see `perf/pattern/README.md`, Pattern header). There are three kinds:
+copies it into its JSON report (see `perf/pattern/README.md`, Pattern header). There are four kinds:
 
 | Kind | Built from | Use |
 |------|-----------|-----|
 | Tx list | chosen txs, `name hash` per line (`--txs`) | track a few txs where a node is slow, heavy or behaves oddly |
 | Historical | a fixed block range (`--start-block`) | a reference dataset that never changes, for comparisons over time |
 | Mix | a profile with methods and weights (`--profile`) | a realistic load on recent blocks |
+| Subscriptions | `eth_subscribe` lines (`newHeads`, `logs`, `transactionReceipts`) | notification latency, fan-out and completeness over WebSocket |
 
 Full option list: `perf/pattern/README.md` (rpc_pattern_gen) and `perf/README.md` (rpc_perf).
 
@@ -68,6 +69,13 @@ Historical and mix patterns:
 ./build/bin/rpc_pattern_gen --profile perf/pattern/mainnet/config/mixed.profile --counts 10000 --verify --out mixed.jsonl
 ```
 
+Subscription patterns: the lines each WebSocket connection of `rpc_perf` sends once; the `logs` filters
+match the logs of recent blocks (`--logs-filter address|address+topics|topics|all`, `--max-blocks`).
+
+```bash
+./build/bin/rpc_pattern_gen eth_subscribe --newHeads 1 --logs 3 --transactionReceipts 1 --out eth_subscribe.jsonl
+```
+
 ## Replay
 
 ```bash
@@ -79,6 +87,9 @@ Historical and mix patterns:
 - `-Z` skips the check that a process named `rpcdaemon` is running; without it a node with another
   process name fails with `server is Dead`.
 - `-t qps:seconds,...` and `-r` set the load; the default sequence runs up to 10000 qps, 10 times.
+- With an `eth_subscribe` pattern the first number of `-t` is the number of WebSocket connections (port
+  8546 of `-d`, or `-W`), and each test should last minutes: `-t 10:600 -r 1 -P`. See "Subscription
+  tests" in `perf/README.md`.
 
 ## Use cases
 

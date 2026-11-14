@@ -134,7 +134,7 @@ sudo ./build/bin/rpc_perf -p eth_call.jsonl -Z -t 500:30 -e                  # c
 | Option | Default | Description |
 |--------|---------|-------------|
 | `-Z`, `--not-verify-server-alive` | off | Skip the check that the server process is still running after each test |
-| `-n`, `--process-name` | the value of `-D` | Process looked up with `pgrep -x` for the check |
+| `-n`, `--process-name` | the value of `-D` | Process looked up with `pgrep -x` for the check, and whose [resources](#node-resources) are measured |
 | `-H`, `--halt-on-vegeta-error` | off | Stop at the first test where Vegeta reports a failed request |
 
 A test with 0% success always stops the run.
@@ -182,6 +182,31 @@ holds it, and `vegetaChecksum` is the checksum of the requests only, so a change
 With a report, the Vegeta binary file of each test (every request with its latency, status and the
 first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/reports/bin/` with `-u`).
 
+### Node resources
+
+When a process named `-n` (default: the value of `-D`) runs on the same machine, `rpc_perf` reads its
+`/proc/<pid>` every second during each repetition, with any pattern. The console prints one more line:
+
+```
+      node cpu=441.2s (73.3%) rss max=32.80GiB (+137MiB) write syscalls=693079 (1151/s)
+```
+
+and the JSON report has a `node` object in each repetition, next to `latenciesOk`:
+
+```json
+"node": {
+  "process": "erigon", "pid": 622063, "seconds": 601.9, "cpuSeconds": 441.2,
+  "rssStartBytes": 34938818560, "rssEndBytes": 35082473472, "rssMaxBytes": 35218075648,
+  "writeSyscalls": 693079, "samplesFile": "20261114_mainnet_erigon_eth_subscribe_10_600_1.proc.csv"
+}
+```
+
+`cpuSeconds` is user + system CPU time (`stat`), the RSS values come from `VmRSS` (`status`) and
+`writeSyscalls` from `syscw` (`io`), all for the whole process. `samplesFile` is the series of the
+samples (`ms,cpuTicks,rssBytes,writeSyscalls`), written next to the Vegeta binary file. When the process
+is not found or its `/proc` files cannot be read (another host, another user), nothing is printed and
+there is no `node` object. The CSV report does not change.
+
 ```bash
 ./build/bin/rpc_perf -p eth_call.jsonl -Z -t 500:30 -r 3 -R -j eth_call.json -D erigon -g /path/to/erigon
 ./build/bin/rpc_perf -p perf/pattern/mainnet/stress_test_eth_call_001_14M.tar -y eth_call -Z -g /path/to/erigon \
@@ -194,8 +219,9 @@ A `.jsonl` pattern of `eth_subscribe` requests runs over WebSocket connections i
 `-t`, the first number of each test is the number of connections, not a rate: `-t 10:600,100:600` opens
 10, then 100 connections, for 600 s each. Each connection sends every line of the pattern once, when it
 opens, then only listens. The connections go to port 8546 of the `-d` host, the default WebSocket port of
-Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). Only
-`newHeads` is measured for now.
+Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). The
+`newHeads`, `logs` and `transactionReceipts` subscriptions are measured; a `transactionReceipts`
+subscription with a `transactionHashes` filter is not.
 
 ```bash
 ./build/bin/rpc_perf -p eth_subscribe.jsonl -d localhost -Z -t 10:600,100:600 -r 1 -P              # ws://localhost:8546
@@ -204,16 +230,34 @@ Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebS
 
 Each notification is one result:
 
-- latency: the arrival time minus the block timestamp, the start of the slot, the same reference for every
-  client. It covers the whole path: block propagation, consensus client, execution, forkchoiceUpdated and
-  the notification itself. The arrival time is read right after the WebSocket frame.
-- `newHeads latency` row: these latencies. `newHeads fan-out` row: the arrival time minus the first arrival
-  of the same head among all the subscriptions, the fastest left out: the time the node takes to notify
-  every subscriber.
+- latency: the arrival time minus the block timestamp (`timestamp` of a head, `blockTimestamp` of a log;
+  for receipts, the `blockTimestamp` of a receipt or, when it has none, of one of its logs),
+  the start of the slot, the same reference for every client. It covers the whole path: block
+  propagation, consensus client, execution, forkchoiceUpdated and the notification itself. The arrival
+  time is read right after the WebSocket frame. A log is one notification, so the logs at the end of a
+  block arrive later; the receipts of a block are one notification.
+- `<type> latency` row: these latencies, e.g. `newHeads latency`, `logs latency`,
+  `transactionReceipts latency`.
+- `<type> fan-out` row: the arrival time minus the first arrival of the same event (a head or the
+  receipts of a block by block hash, a log by block hash and log index) among the subscriptions with the
+  same params, on the same connection or on others, the fastest left out: the time the node takes to
+  notify every subscriber. Two `logs` lines with different filters receive different logs, so they are
+  not compared.
+- `logs vs newHeads`, `transactionReceipts vs newHeads` rows: the arrival time of a log or of the receipts
+  minus the arrival of their head on the same connection, when the pattern also has a `newHeads` line.
+  They leave out the execution of the block: the time to filter, encode and send.
 - Errors, one per subscription:
-  - `missing notification`: a block number between the lowest and the highest head of the test that the
-    subscription did not receive, whether other subscriptions received it or not;
-  - `duplicate notification`: the same head received twice on one subscription;
+  - `missing notification`: for a `newHeads` subscription, a block number between the lowest and the
+    highest block of the test that it did not receive, whether other subscriptions received it or not;
+    for a `logs` subscription, a log that `eth_getLogs` with its filter returns for one of those blocks,
+    over HTTP on the `-d` address (port 8545 by default) after the test, and that it did not receive; for a
+    `transactionReceipts` subscription, a block with transactions whose receipts it did not receive;
+  - `wrong receipt count`: the receipts received for a block are not as many as its transactions
+    (`eth_getBlockTransactionCountByNumber` over HTTP after the test);
+  - `more than one notification per block`: the receipts of a block sent in several notifications
+    instead of one;
+  - `duplicate notification`: the same event received twice on one subscription;
+  - `no block timestamp`: a notification without the block timestamp, whose latency is unknown;
   - `rejected subscribe: <message>`: the node answered the `eth_subscribe` with an error, e.g. a limit
     of subscriptions per connection; the subscription is not expected to receive anything;
   - `connection closed`: the node closed the connection before the end of the test; the heads after it
@@ -224,7 +268,8 @@ Each notification is one result:
   notifications, e.g. how much of the main latency series comes from logs; the other rows count the same
   notifications again, so their share is `-`.
 
-Only the heads first received during the test are counted; their notifications are awaited for 2 s more.
+Only the blocks first notified during the test are counted; their notifications are awaited for 2 s
+more. Logs removed by a reorg are not counted.
 A connection that cannot be opened stops the test.
 The latency depends on the clock of the machine: keep it synchronized (`chronyc tracking`).
 
