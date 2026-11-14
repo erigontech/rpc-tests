@@ -426,7 +426,10 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 			if seen[n.sub] == nil {
 				seen[n.sub], numbers[n.sub], receipts[n.sub] = map[string]bool{}, map[uint64]bool{}, map[uint64]int{}
 			}
-			r := &vegeta.Result{Code: 200, Timestamp: n.arrival, Latency: n.arrival.Sub(n.timestamp)}
+			r := &vegeta.Result{Code: 200, Timestamp: n.arrival}
+			if !n.timestamp.IsZero() {
+				r.Latency = n.arrival.Sub(n.timestamp)
+			}
 			receipts[n.sub][n.number] += n.receipts
 			switch {
 			case seen[n.sub][n.key] && n.receipts > 0:
@@ -434,7 +437,7 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 			case seen[n.sub][n.key]:
 				r.Code, r.Error = 0, errDuplicate
 			case n.timestamp.IsZero():
-				r.Code, r.Error, r.Latency = 0, errNoTimestamp, 0
+				r.Code, r.Error = 0, errNoTimestamp
 			}
 			seen[n.sub][n.key], numbers[n.sub][n.number] = true, true
 			typ := add(n.sub, r)

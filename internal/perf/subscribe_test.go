@@ -47,6 +47,8 @@ type wsNode struct {
 	// receipts returns the receipts of h sent to conn, as the notifications that carry them; nil = all
 	// the receipts of h in one notification.
 	receipts func(conn int, h fakeHead) [][]int
+	// noReceiptLogs sends the receipts without logs, so without a block timestamp.
+	noReceiptLogs bool
 
 	mu       sync.Mutex
 	accepted int
@@ -131,8 +133,12 @@ func (n *wsNode) results(conn int, typ string, h fakeHead) []string {
 		for _, group := range groups {
 			receipts := make([]string, len(group))
 			for i, tx := range group {
+				logs := n.log(h, tx)
+				if n.noReceiptLogs {
+					logs = ""
+				}
 				receipts[i] = fmt.Sprintf(`{"blockNumber":"0x%x","blockHash":%q,"transactionHash":"0x%064x","transactionIndex":"0x%x","logs":[%s]}`,
-					h.number, h.hash, tx, tx, n.log(h, tx))
+					h.number, h.hash, tx, tx, logs)
 			}
 			out = append(out, "["+strings.Join(receipts, ",")+"]")
 		}
@@ -598,5 +604,22 @@ func TestRunSubscriptionsCountsMissingAndIncompleteReceipts(t *testing.T) {
 	row := results.apis["transactionReceipts latency"]
 	if row == nil || fmt.Sprint(row.errors) != fmt.Sprint(map[string]int{errMissing: 1, errReceiptCount: 1}) {
 		t.Errorf("row %+v: want block 0 missing on connection 1 and block 1 incomplete on connection 0", row)
+	}
+}
+
+func TestRunSubscriptionsGivesNoLatencyToANotificationWithoutTimestamp(t *testing.T) {
+	node := &wsNode{conns: 1, heads: headsWithTxs(1, 2), noReceiptLogs: true, receipts: func(int, fakeHead) [][]int { return [][]int{{0}, {1}} }}
+	addr := startWSNode(t, node)
+
+	metrics, results, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(receiptsRequest)}, 1, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	row := results.apis["transactionReceipts latency"]
+	if row == nil || row.requests != 2 {
+		t.Fatalf("row %+v: want the 2 notifications of the block", row)
+	}
+	if metrics.Latencies.Max > time.Minute || metrics.Latencies.Min < 0 || row.latencies.Max > time.Minute {
+		t.Errorf("latencies %v..%v: a notification without block timestamp has no latency", metrics.Latencies.Min, metrics.Latencies.Max)
 	}
 }
