@@ -100,6 +100,15 @@ func (pt *PerfTest) isJSONL() bool {
 	return strings.HasSuffix(pt.Config.VegetaPatternTarFile, ".jsonl")
 }
 
+// isSubscription reports whether the pattern holds eth_subscribe requests, run over WebSocket connections.
+func (pt *PerfTest) isSubscription() bool {
+	if !pt.isJSONL() {
+		return false
+	}
+	method, err := JSONLTestType(pt.Config.VegetaPatternTarFile)
+	return err == nil && method == "eth_subscribe"
+}
+
 // patternFile returns the file the targets are read from.
 func (pt *PerfTest) patternFile() string {
 	if pt.isJSONL() {
@@ -205,8 +214,21 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		return fmt.Errorf("failed to load targets: %w", err)
 	}
 
-	metrics, results, err := pt.runVegetaAttack(ctx, targets, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
-	if err != nil {
+	var (
+		metrics *vegeta.Metrics
+		results attackResults
+	)
+	if pt.isSubscription() {
+		// With subscriptions the qps column is the number of WebSocket connections.
+		reqs := make([][]byte, len(targets))
+		for i, target := range targets {
+			reqs[i] = target.Body
+		}
+		metrics, results, err = runSubscriptions(ctx, pt.Config.ClientAddress, reqs, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
+		if err != nil {
+			return fmt.Errorf("subscription test failed: %w", err)
+		}
+	} else if metrics, results, err = pt.runVegetaAttack(ctx, targets, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname); err != nil {
 		return fmt.Errorf("vegeta attack failed: %w", err)
 	}
 

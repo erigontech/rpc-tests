@@ -188,6 +188,42 @@ first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/
     -r 3 -u -b mainnet -t 50:30,1000:30,2500:20,5000:20
 ```
 
+## Subscription tests
+
+A `.jsonl` pattern of `eth_subscribe` requests runs over WebSocket connections instead of Vegeta. In
+`-t`, the first number of each test is the number of connections, not a rate: `-t 10:600,100:600` opens
+10, then 100 connections, for 600 s each. Each connection sends every line of the pattern once, when it
+opens, then only listens; the node must serve WebSocket on the `-d` address (Erigon: `--ws`). Only
+`newHeads` is measured for now.
+
+```bash
+./build/bin/rpc_perf -p eth_subscribe.jsonl -d localhost:8545 -Z -t 10:600,100:600 -r 1 -P
+```
+
+Each notification is one result:
+
+- latency: the arrival time minus the block timestamp, the start of the slot, the same reference for every
+  client. It covers the whole path: block propagation, consensus client, execution, forkchoiceUpdated and
+  the notification itself. The arrival time is read right after the WebSocket frame.
+- `newHeads latency` row: these latencies. `newHeads fan-out` row: the arrival time minus the first arrival
+  of the same head among all the subscriptions, the fastest left out: the time the node takes to notify
+  every subscriber.
+- Errors, one per subscription:
+  - `missing notification`: a block number between the lowest and the highest head of the test that the
+    subscription did not receive, whether other subscriptions received it or not;
+  - `duplicate notification`: the same head received twice on one subscription;
+  - `rejected subscribe: <message>`: the node answered the `eth_subscribe` with an error, e.g. a limit
+    of subscriptions per connection; the subscription is not expected to receive anything;
+  - `connection closed`: the node closed the connection before the end of the test; the heads after it
+    are also missing.
+
+  A late notification is not an error: it only raises the latency. The `share` column has no meaning for
+  these rows.
+
+Only the heads first received during the test are counted; their notifications are awaited for 2 s more.
+A connection that cannot be opened stops the test.
+The latency depends on the clock of the machine: keep it synchronized (`chronyc tracking`).
+
 ## Reading the output
 
 An example test at 500 qps for 30 s, with `-v`:
