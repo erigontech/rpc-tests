@@ -33,6 +33,7 @@ type Config struct {
 	Repetitions            int
 	TestSequence           string
 	ClientAddress          string
+	WSAddress              string // WebSocket node of a subscription test; "" = the host of ClientAddress on DefaultWSPort
 	ClientVersion          string // web3_clientVersion of the node under test, read at startup; "" when it does not answer
 	TestType               string
 	TestingClient          string

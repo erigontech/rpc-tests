@@ -49,9 +49,24 @@ func subscriptionTypes(reqs [][]byte) ([]string, error) {
 	return types, nil
 }
 
-// wsURL returns the WebSocket URL of the node at a client address, host or host:port, on port 8545 unless it has one.
-func wsURL(address string) string {
-	return "ws" + strings.TrimPrefix(NodeURL(address), "http")
+// DefaultWSPort is the WebSocket port of a subscription test when its address has none: the default of
+// Erigon, Geth and Reth.
+const DefaultWSPort = "8546"
+
+// WSURL returns the WebSocket URL of a subscription test: wsAddress, host or host:port, or else the host of
+// the client address, on port 8546 unless it has one.
+func WSURL(clientAddress, wsAddress string) string {
+	address := wsAddress
+	if address == "" {
+		address = clientAddress
+		if host, _, err := net.SplitHostPort(clientAddress); err == nil {
+			address = host
+		}
+	}
+	if _, _, err := net.SplitHostPort(address); err != nil {
+		address = net.JoinHostPort(address, DefaultWSPort)
+	}
+	return "ws://" + address
 }
 
 type notification struct {
@@ -73,12 +88,11 @@ type connection struct {
 // listens for duration and returns one result per notification, missing notification and duplicate:
 // its latency is the arrival time minus the block timestamp. The results of each type are also split into
 // a latency row and a fan-out row, the arrival time minus the first arrival of the same head.
-func runSubscriptions(ctx context.Context, address string, reqs [][]byte, conns int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
+func runSubscriptions(ctx context.Context, url string, reqs [][]byte, conns int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
 	types, err := subscriptionTypes(reqs)
 	if err != nil {
 		return nil, attackResults{}, err
 	}
-	url := wsURL(address)
 	sockets := make([]*websocket.Conn, conns)
 	subIDs := make([]map[string]int, conns) // subscription id -> index of the subscription
 	received := make([]connection, conns)

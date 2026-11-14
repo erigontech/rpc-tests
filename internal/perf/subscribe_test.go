@@ -145,7 +145,7 @@ func TestRunSubscriptionsMeasuresNotificationLatencyAndFanOut(t *testing.T) {
 	node := &wsNode{conns: 2, heads: heads(2), delay: func(conn int) time.Duration { return time.Duration(conn) * 100 * time.Millisecond }}
 	addr := startWSNode(t, node)
 
-	metrics, results, err := runSubscriptions(context.Background(), addr, [][]byte{[]byte(newHeadsRequest)}, 2, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	metrics, results, err := runSubscriptions(context.Background(), "ws://"+addr, [][]byte{[]byte(newHeadsRequest)}, 2, time.Second, filepath.Join(t.TempDir(), "run.bin"))
 	if err != nil {
 		t.Fatalf("runSubscriptions: %v", err)
 	}
@@ -176,7 +176,7 @@ func TestRunSubscriptionsCountsMissingAndDuplicateNotifications(t *testing.T) {
 	}
 	addr := startWSNode(t, node)
 
-	metrics, results, err := runSubscriptions(context.Background(), addr, [][]byte{[]byte(newHeadsRequest)}, 2, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	metrics, results, err := runSubscriptions(context.Background(), "ws://"+addr, [][]byte{[]byte(newHeadsRequest)}, 2, time.Second, filepath.Join(t.TempDir(), "run.bin"))
 	if err != nil {
 		t.Fatalf("runSubscriptions: %v", err)
 	}
@@ -199,7 +199,8 @@ func TestRunSubscriptionsRejectsUnsupportedTypes(t *testing.T) {
 func TestExecuteRunsASubscriptionPatternOnTheConnections(t *testing.T) {
 	node := &wsNode{conns: 3, heads: heads(1)}
 	addr := startWSNode(t, node)
-	pt, _, _ := newJSONLPerf(t, addr, newHeadsRequest)
+	pt, cfg, _ := newJSONLPerf(t, "127.0.0.1:1", newHeadsRequest)
+	cfg.WSAddress = addr
 
 	format := ResultFormat{MaxRepetitionDigits: 1, MaxQpsDigits: 1, MaxDurationDigits: 1}
 	if err := pt.Execute(context.Background(), 1, 0, "rpcdaemon", 3, 1, format); err != nil {
@@ -217,7 +218,7 @@ func TestRunSubscriptionsCountsTheHeadsNoSubscriptionReceived(t *testing.T) {
 	node := &wsNode{conns: 2, heads: []fakeHead{hs[0], hs[2]}} // no subscription receives hs[1]
 	addr := startWSNode(t, node)
 
-	_, results, err := runSubscriptions(context.Background(), addr, [][]byte{[]byte(newHeadsRequest)}, 2, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	_, results, err := runSubscriptions(context.Background(), "ws://"+addr, [][]byte{[]byte(newHeadsRequest)}, 2, time.Second, filepath.Join(t.TempDir(), "run.bin"))
 	if err != nil {
 		t.Fatalf("runSubscriptions: %v", err)
 	}
@@ -234,7 +235,7 @@ func TestRunSubscriptionsCountsRejectedSubscribesAndClosedConnections(t *testing
 	}
 	addr := startWSNode(t, node)
 
-	_, results, err := runSubscriptions(context.Background(), addr, [][]byte{[]byte(newHeadsRequest)}, 3, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	_, results, err := runSubscriptions(context.Background(), "ws://"+addr, [][]byte{[]byte(newHeadsRequest)}, 3, time.Second, filepath.Join(t.TempDir(), "run.bin"))
 	if err != nil {
 		t.Fatalf("runSubscriptions: a rejected subscribe is a result, not a failure of the test: %v", err)
 	}
@@ -245,5 +246,18 @@ func TestRunSubscriptionsCountsRejectedSubscribesAndClosedConnections(t *testing
 	want := map[string]int{"rejected subscribe: too many subscriptions": 1, errClosed: 1, errMissing: 2}
 	if fmt.Sprint(row.errors) != fmt.Sprint(want) {
 		t.Errorf("errors %v, want %v: the closed connection misses the last 2 heads, the rejected one is not expected to receive any", row.errors, want)
+	}
+}
+
+func TestWSURL(t *testing.T) {
+	for _, tt := range []struct{ client, ws, want string }{
+		{"localhost", "", "ws://localhost:8546"},
+		{"127.0.0.1:8545", "", "ws://127.0.0.1:8546"},
+		{"127.0.0.1:8545", "127.0.0.1:9000", "ws://127.0.0.1:9000"},
+		{"127.0.0.1:8545", "node", "ws://node:8546"},
+	} {
+		if got := WSURL(tt.client, tt.ws); got != tt.want {
+			t.Errorf("WSURL(%q, %q) = %q, want %q", tt.client, tt.ws, got, tt.want)
+		}
 	}
 }

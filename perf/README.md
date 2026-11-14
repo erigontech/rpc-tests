@@ -99,6 +99,7 @@ The patterns come from:
 | `-p`, `--pattern-file` | | The pattern to replay: a Vegeta tar or a `.jsonl`. Required |
 | `-y`, `--test-type` | `eth_getLogs`; for a `.jsonl`, its method or `mixed` | Test name in the output and the reports; with a tar, also the Vegeta file to replay |
 | `-d`, `--rpc-client-address` | `localhost` | Node to load: `host`, or `host:port` for a `.jsonl` (port 8545 otherwise) |
+| `-W`, `--ws-address` | the host of `-d`, port 8546 | WebSocket node of an `eth_subscribe` pattern: `host` or `host:port` (port 8546 otherwise) |
 | `-b`, `--blockchain` | `mainnet` | Network name, used in the report paths and file names |
 
 ```bash
@@ -193,11 +194,13 @@ first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/
 A `.jsonl` pattern of `eth_subscribe` requests runs over WebSocket connections instead of Vegeta. In
 `-t`, the first number of each test is the number of connections, not a rate: `-t 10:600,100:600` opens
 10, then 100 connections, for 600 s each. Each connection sends every line of the pattern once, when it
-opens, then only listens; the node must serve WebSocket on the `-d` address (Erigon: `--ws`). Only
+opens, then only listens. The connections go to port 8546 of the `-d` host, the default WebSocket port of
+Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). Only
 `newHeads` is measured for now.
 
 ```bash
-./build/bin/rpc_perf -p eth_subscribe.jsonl -d localhost:8545 -Z -t 10:600,100:600 -r 1 -P
+./build/bin/rpc_perf -p eth_subscribe.jsonl -d localhost -Z -t 10:600,100:600 -r 1 -P              # ws://localhost:8546
+./build/bin/rpc_perf -p eth_subscribe.jsonl -d localhost -W localhost:8545 -Z -t 10:600 -r 1 -P  # another WebSocket port
 ```
 
 Each notification is one result:

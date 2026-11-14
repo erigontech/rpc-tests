@@ -42,8 +42,8 @@ make rpc_perf
 ./build/bin/rpc_perf -p eth_subscribe.jsonl -Z -t 10:600,100:600 -r 1 -P         # eth_subscribe: 10 then 100 WebSocket connections
 ```
 
-With an `eth_subscribe` pattern the first number of `-t` is the number of WebSocket connections, not a
-rate, and each test should last minutes (one block every 12 s). The latency of a notification is its
+With an `eth_subscribe` pattern the connections go to port 8546 of the `-d` host (`-W host[:port]` for
+another one), and the first number of `-t` is the number of WebSocket connections, not a rate, and each test should last minutes (one block every 12 s). The latency of a notification is its
 arrival time minus the block timestamp; the `newHeads fan-out` row is the delay after the fastest
 subscription for the same head. Errors are per subscription: `missing notification` (a block number not
 received), `duplicate notification`, `rejected subscribe: <message>` and `connection closed`. See
