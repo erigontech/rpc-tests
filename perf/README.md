@@ -195,7 +195,8 @@ A `.jsonl` pattern of `eth_subscribe` requests runs over WebSocket connections i
 10, then 100 connections, for 600 s each. Each connection sends every line of the pattern once, when it
 opens, then only listens. The connections go to port 8546 of the `-d` host, the default WebSocket port of
 Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). The
-`newHeads` and `logs` subscriptions are measured; `transactionReceipts` is not yet.
+`newHeads`, `logs` and `transactionReceipts` subscriptions are measured; a `transactionReceipts`
+subscription with a `transactionHashes` filter is not.
 
 ```bash
 ./build/bin/rpc_perf -p eth_subscribe.jsonl -d localhost -Z -t 10:600,100:600 -r 1 -P              # ws://localhost:8546
@@ -204,24 +205,32 @@ Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebS
 
 Each notification is one result:
 
-- latency: the arrival time minus the block timestamp (`timestamp` of a head, `blockTimestamp` of a log),
+- latency: the arrival time minus the block timestamp (`timestamp` of a head, `blockTimestamp` of a log;
+  for receipts, the `blockTimestamp` of a receipt or, when it has none, of one of its logs),
   the start of the slot, the same reference for every client. It covers the whole path: block
   propagation, consensus client, execution, forkchoiceUpdated and the notification itself. The arrival
   time is read right after the WebSocket frame. A log is one notification, so the logs at the end of a
-  block arrive later.
-- `<type> latency` row: these latencies, e.g. `newHeads latency`, `logs latency`.
-- `<type> fan-out` row: the arrival time minus the first arrival of the same event (a head, or a log by
-  block hash and log index) among the subscriptions with the same params, on the same connection or on
-  others, the fastest left out: the time the node takes to notify every subscriber. Two `logs` lines with
-  different filters receive different logs, so they are not compared.
-- `logs vs newHeads` row: the arrival time of a log minus the arrival of its head on the same connection,
-  when the pattern also has a `newHeads` line. It leaves out the execution of the block: the time to
-  filter and send the logs.
+  block arrive later; the receipts of a block are one notification.
+- `<type> latency` row: these latencies, e.g. `newHeads latency`, `logs latency`,
+  `transactionReceipts latency`.
+- `<type> fan-out` row: the arrival time minus the first arrival of the same event (a head or the
+  receipts of a block by block hash, a log by block hash and log index) among the subscriptions with the
+  same params, on the same connection or on others, the fastest left out: the time the node takes to
+  notify every subscriber. Two `logs` lines with different filters receive different logs, so they are
+  not compared.
+- `logs vs newHeads`, `transactionReceipts vs newHeads` rows: the arrival time of a log or of the receipts
+  minus the arrival of their head on the same connection, when the pattern also has a `newHeads` line.
+  They leave out the execution of the block: the time to filter, encode and send.
 - Errors, one per subscription:
   - `missing notification`: for a `newHeads` subscription, a block number between the lowest and the
     highest block of the test that it did not receive, whether other subscriptions received it or not;
     for a `logs` subscription, a log that `eth_getLogs` with its filter returns for one of those blocks,
-    over HTTP on the `-d` address (port 8545 by default) after the test, and that it did not receive;
+    over HTTP on the `-d` address (port 8545 by default) after the test, and that it did not receive; for a
+    `transactionReceipts` subscription, a block with transactions whose receipts it did not receive;
+  - `wrong receipt count`: the receipts received for a block are not as many as its transactions
+    (`eth_getBlockTransactionCountByNumber` over HTTP after the test);
+  - `more than one notification per block`: the receipts of a block sent in several notifications
+    instead of one;
   - `duplicate notification`: the same event received twice on one subscription;
   - `no block timestamp`: a notification without the block timestamp, whose latency is unknown;
   - `rejected subscribe: <message>`: the node answered the `eth_subscribe` with an error, e.g. a limit
