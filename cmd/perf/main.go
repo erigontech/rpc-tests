@@ -36,7 +36,7 @@ func perfFlags() []cli.Flag {
 		&cli.BoolFlag{Name: "empty-cache", Aliases: []string{"e"}, Usage: "Empty OS cache before each test"},
 		&cli.StringFlag{Name: "max-connections", Aliases: []string{"C"}, Value: perf.DefaultMaxConn, Usage: "Maximum number of connections"},
 		&cli.StringFlag{Name: "testing-client", Aliases: []string{"D"}, Value: perf.DefaultClientName, Usage: "Name of testing client"},
-		&cli.StringFlag{Name: "process-name", Aliases: []string{"n"}, Usage: "Server process name for liveness check (default: testing-client)"},
+		&cli.StringFlag{Name: "process-name", Aliases: []string{"n"}, Usage: "Server process name for the liveness check and the node resources (default: testing-client)"},
 		&cli.StringFlag{Name: "blockchain", Aliases: []string{"b"}, Value: "mainnet", Usage: "Blockchain network name"},
 		&cli.StringFlag{Name: "test-type", Aliases: []string{"y"}, Value: perf.DefaultTestType, Usage: "Test name in the reports (e.g., eth_call, eth_getLogs); with a tar, also the vegeta file to replay; with a .jsonl, defaults to the method of its requests, or mixed"},
 		&cli.StringFlag{Name: "pattern-file", Aliases: []string{"p"}, Value: perf.DefaultVegetaPatternTarFile, Usage: "Path to the pattern file: a Vegeta tar, or a .jsonl with one JSON-RPC request per line"},
