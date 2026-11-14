@@ -194,8 +194,8 @@ A `.jsonl` pattern of `eth_subscribe` requests runs over WebSocket connections i
 `-t`, the first number of each test is the number of connections, not a rate: `-t 10:600,100:600` opens
 10, then 100 connections, for 600 s each. Each connection sends every line of the pattern once, when it
 opens, then only listens. The connections go to port 8546 of the `-d` host, the default WebSocket port of
-Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). Only
-`newHeads` is measured for now.
+Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). The
+`newHeads` and `logs` subscriptions are measured; `transactionReceipts` is not yet.
 
 ```bash
 ./build/bin/rpc_perf -p eth_subscribe.jsonl -d localhost -Z -t 10:600,100:600 -r 1 -P              # ws://localhost:8546
@@ -204,16 +204,25 @@ Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebS
 
 Each notification is one result:
 
-- latency: the arrival time minus the block timestamp, the start of the slot, the same reference for every
-  client. It covers the whole path: block propagation, consensus client, execution, forkchoiceUpdated and
-  the notification itself. The arrival time is read right after the WebSocket frame.
-- `newHeads latency` row: these latencies. `newHeads fan-out` row: the arrival time minus the first arrival
-  of the same head among all the subscriptions, the fastest left out: the time the node takes to notify
-  every subscriber.
+- latency: the arrival time minus the block timestamp (`timestamp` of a head, `blockTimestamp` of a log),
+  the start of the slot, the same reference for every client. It covers the whole path: block
+  propagation, consensus client, execution, forkchoiceUpdated and the notification itself. The arrival
+  time is read right after the WebSocket frame. A log is one notification, so the logs at the end of a
+  block arrive later.
+- `<type> latency` row: these latencies, e.g. `newHeads latency`, `logs latency`.
+- `<type> fan-out` row: the arrival time minus the first arrival of the same event (a head, or a log by
+  block hash and log index) on the same pattern line among all the connections, the fastest left out: the
+  time the node takes to notify every subscriber.
+- `logs vs newHeads` row: the arrival time of a log minus the arrival of its head on the same connection,
+  when the pattern also has a `newHeads` line. It leaves out the execution of the block: the time to
+  filter and send the logs.
 - Errors, one per subscription:
-  - `missing notification`: a block number between the lowest and the highest head of the test that the
-    subscription did not receive, whether other subscriptions received it or not;
-  - `duplicate notification`: the same head received twice on one subscription;
+  - `missing notification`: for a `newHeads` subscription, a block number between the lowest and the
+    highest block of the test that it did not receive, whether other subscriptions received it or not;
+    for a `logs` subscription, a log that `eth_getLogs` with its filter returns for one of those blocks,
+    over HTTP on the `-d` address (port 8545 by default) after the test, and that it did not receive;
+  - `duplicate notification`: the same event received twice on one subscription;
+  - `no block timestamp`: a notification without the block timestamp, whose latency is unknown;
   - `rejected subscribe: <message>`: the node answered the `eth_subscribe` with an error, e.g. a limit
     of subscriptions per connection; the subscription is not expected to receive anything;
   - `connection closed`: the node closed the connection before the end of the test; the heads after it
@@ -224,7 +233,8 @@ Each notification is one result:
   notifications, e.g. how much of the main latency series comes from logs; the other rows count the same
   notifications again, so their share is `-`.
 
-Only the heads first received during the test are counted; their notifications are awaited for 2 s more.
+Only the blocks first notified during the test are counted; their notifications are awaited for 2 s
+more. Logs removed by a reorg are not counted.
 A connection that cannot be opened stops the test.
 The latency depends on the clock of the machine: keep it synchronized (`chronyc tracking`).
 

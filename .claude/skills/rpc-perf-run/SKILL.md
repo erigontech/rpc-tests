@@ -44,10 +44,11 @@ make rpc_perf
 
 With an `eth_subscribe` pattern the connections go to port 8546 of the `-d` host (`-W host[:port]` for
 another one), and the first number of `-t` is the number of WebSocket connections, not a rate, and each test should last minutes (one block every 12 s). The latency of a notification is its
-arrival time minus the block timestamp; the `newHeads fan-out` row is the delay after the fastest
-subscription for the same head. Errors are per subscription: `missing notification` (a block number not
-received), `duplicate notification`, `rejected subscribe: <message>` and `connection closed`. See
-"Subscription tests" in `perf/README.md`.
+arrival time minus the block timestamp; `newHeads` and `logs` are measured. The `<type> fan-out` rows are
+the delay after the fastest subscription for the same event, and `logs vs newHeads` the delay of a log
+after its head on the same connection. Errors are per subscription: `missing notification` (a head not
+received, or a log that `eth_getLogs` returns), `duplicate notification`, `no block timestamp`,
+`rejected subscribe: <message>` and `connection closed`. See "Subscription tests" in `perf/README.md`.
 
 ## Reading the results
 

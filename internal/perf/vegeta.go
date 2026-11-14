@@ -224,7 +224,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		for i, target := range targets {
 			reqs[i] = target.Body
 		}
-		metrics, results, err = runSubscriptions(ctx, WSURL(pt.Config.ClientAddress, pt.Config.WSAddress), reqs, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
+		metrics, results, err = runSubscriptions(ctx, WSURL(pt.Config.ClientAddress, pt.Config.WSAddress), NodeURL(pt.Config.ClientAddress), reqs, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
 		if err != nil {
 			return fmt.Errorf("subscription test failed: %w", err)
 		}
