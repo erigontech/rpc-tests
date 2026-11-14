@@ -65,6 +65,21 @@ func newApp() *cli.App {
 					return generate(c, []vegetagen.Spec{{Gen: vegetagen.GetLogs{Range: c.Uint64("range")}, Weight: 1}}, nil)
 				},
 			}, {
+				Name:  "eth_subscribe",
+				Usage: "Generate the eth_subscribe requests each WebSocket connection of rpc_perf sends, logs filters matching the logs of recent blocks",
+				Flags: []cli.Flag{
+					&cli.StringFlag{Name: "url", Value: "http://localhost:8545", Usage: "Node used to read the logs of recent blocks"},
+					&cli.IntFlag{Name: vegetagen.SubscribeNewHeads, Usage: "Number of newHeads subscriptions"},
+					&cli.IntFlag{Name: vegetagen.SubscribeLogsType, Usage: "Number of logs subscriptions, each with the filter of a log of a recent block"},
+					&cli.IntFlag{Name: vegetagen.SubscribeTransactionReceipts, Usage: "Number of transactionReceipts subscriptions"},
+					&cli.StringFlag{Name: "logs-filter", Usage: "Filter family of the logs subscriptions: address, address+topics, topics, or all for every log (default: any shape)"},
+					&cli.Uint64Flag{Name: "max-blocks", Value: vegetagen.DefaultMaxBlocks, Usage: "Window of recent blocks the logs filters are drawn from"},
+					&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
+					&cli.StringFlag{Name: "description", Usage: "Description written in the header (default: built from the parameters)"},
+					&cli.StringFlag{Name: "out", Required: true, Usage: "Output .jsonl file: one eth_subscribe request per line"},
+				},
+				Action: writeSubscriptions,
+			}, {
 				Name:  "tx-list",
 				Usage: "Write the txs that use the most gas in some blocks as a tx list for eth_call or eth_createAccessList --txs",
 				Flags: []cli.Flag{
@@ -153,6 +168,73 @@ func txCallCommand(gen vegetagen.Generator, usage string) *cli.Command {
 			return generate(c, []vegetagen.Spec{{Gen: gen, Weight: 1}}, nil)
 		},
 	}
+}
+
+// writeSubscriptions writes the subscriptions of the counts of each type, interleaved.
+func writeSubscriptions(c *cli.Context) error {
+	var (
+		specs   []vegetagen.Spec
+		parts   []string
+		total   int
+		fromLog bool // a logs filter is drawn from a log of the window
+	)
+	for _, typ := range []string{vegetagen.SubscribeNewHeads, vegetagen.SubscribeLogsType, vegetagen.SubscribeTransactionReceipts} {
+		n := c.Int(typ)
+		if n < 0 {
+			return fmt.Errorf("invalid --%s %d: want a count", typ, n)
+		}
+		if n == 0 {
+			continue
+		}
+		options := map[string]string{"type": typ}
+		if typ == vegetagen.SubscribeLogsType && c.IsSet("logs-filter") {
+			options["filter"] = c.String("logs-filter")
+		}
+		gen, err := vegetagen.NewGenerator("eth_subscribe", options)
+		if err != nil {
+			return err
+		}
+		name := typ
+		if f := options["filter"]; f != "" {
+			name += " filter=" + f
+		}
+		specs = append(specs, vegetagen.Spec{Name: "eth_subscribe " + name, Gen: gen, Weight: float64(n)})
+		parts = append(parts, fmt.Sprintf("%d %s", n, name))
+		total += n
+		fromLog = fromLog || gen.Kind() == vegetagen.PerLog
+	}
+	if total == 0 {
+		return fmt.Errorf("set at least one of --%s, --%s or --%s", vegetagen.SubscribeNewHeads, vegetagen.SubscribeLogsType, vegetagen.SubscribeTransactionReceipts)
+	}
+	cfg := vegetagen.Config{
+		URL:       c.String("url"),
+		Count:     total,
+		MaxBlocks: 1,
+		Window:    true,
+		Workers:   c.Int("workers"),
+		Out:       c.String("out"),
+	}
+	description := "eth_subscribe on each WebSocket connection: " + strings.Join(parts, ", ")
+	if fromLog {
+		cfg.MaxBlocks = c.Uint64("max-blocks")
+		description += fmt.Sprintf("; logs filters from the %d most recent blocks", cfg.MaxBlocks)
+	}
+	if c.IsSet("description") {
+		description = c.String("description")
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	cfg.Header = &perf.PatternInfo{
+		Description: description,
+		Network:     vegetagen.Network(ctx, cfg.URL),
+		Generator:   generatorCommand(c),
+	}
+	sum, err := vegetagen.Run(ctx, cfg, specs)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("eth_subscribe: %d subscriptions written to %s\n", sum.Written, cfg.Out)
+	return nil
 }
 
 // writeTxList writes the heaviest txs of the blocks as a tx list.

@@ -1403,3 +1403,58 @@ func TestRunVerifyTimeoutDropsTheRequest(t *testing.T) {
 		t.Errorf("written %d, want 0: both other txs fail and both hung ones time out", sum.Written)
 	}
 }
+
+func TestRunWritesSubscriptionsToJSONL(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.Verify = 0, 4, false
+	cfg.Out = filepath.Join(t.TempDir(), "out.jsonl")
+	specs := []Spec{
+		{Gen: mustGenerator(t, "eth_subscribe", nil), Weight: 1},
+		{Gen: mustGenerator(t, "eth_subscribe", map[string]string{"type": "logs"}), Weight: 3},
+	}
+
+	sum, err := Run(context.Background(), cfg, specs)
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if sum.Written != 4 {
+		t.Errorf("written %d, want 4", sum.Written)
+	}
+	var heads, logs int
+	for _, line := range readJSONL(t, cfg.Out) {
+		switch {
+		case strings.Contains(line, `"params":["newHeads"]`):
+			heads++
+		case strings.Contains(line, `"params":["logs",{"address"`), strings.Contains(line, `"params":["logs",{"topics"`):
+			logs++
+		default:
+			t.Errorf("unexpected request %s", line)
+		}
+	}
+	if heads != 1 || logs != 3 {
+		t.Errorf("got %d newHeads and %d logs, want 1 and 3", heads, logs)
+	}
+}
+
+func TestRunRejectsSubscriptionsItCannotWriteOrVerify(t *testing.T) {
+	_, url := startNode(t)
+	newHeads := Spec{Gen: mustGenerator(t, "eth_subscribe", nil), Weight: 1}
+	for name, tt := range map[string]struct {
+		jsonl, verify bool
+		specs         []Spec
+	}{
+		"tar output":         {jsonl: false, specs: []Spec{newHeads}},
+		"verify":             {jsonl: true, verify: true, specs: []Spec{newHeads}},
+		"mixed with a query": {jsonl: true, specs: []Spec{newHeads, {Gen: mustGen(t, "eth_chainId"), Weight: 1}}},
+	} {
+		cfg := baseConfig(t, url)
+		cfg.Blocks, cfg.Count, cfg.Verify = 0, 2, tt.verify
+		if tt.jsonl {
+			cfg.Out = filepath.Join(t.TempDir(), "out.jsonl")
+		}
+		if _, err := Run(context.Background(), cfg, tt.specs); err == nil {
+			t.Errorf("%s: want an error", name)
+		}
+	}
+}

@@ -119,7 +119,7 @@ rpc_pattern_gen eth_getBlockReceipts --counts 1000 --block-tag latest   --verify
 ```
 
 Every method of the [method table](#methods-and-options) has a subcommand of the same name. `eth_call`,
-`eth_createAccessList` and `eth_getLogs` have their own flags, described below; the others take the
+`eth_createAccessList`, `eth_getLogs` and `eth_subscribe` have their own flags, described below; the others take the
 options of the method as in a profile, with `--option key=value`, repeated for each option, e.g.
 `--option tag=latest --option full=true`.
 
@@ -192,6 +192,24 @@ rpc_pattern_gen eth_call --start-block 19000000 --end-block 19999999 --sample-bl
   size of the range. K must not exceed the range.
 - `--block-tag latest` is rejected: with old transactions it would run them on the state at replay. Use
   `parent`, or `head` to pin every request to the end of the range.
+
+## Subscriptions
+
+`eth_subscribe` writes the subscriptions that each WebSocket connection of a subscription test sends once,
+when it opens. The counts of each type set the lines of the pattern; the lines are interleaved:
+
+```bash
+# 1 newHeads, 3 logs and 1 transactionReceipts subscription on each connection
+rpc_pattern_gen eth_subscribe --newHeads 1 --logs 3 --transactionReceipts 1 --out eth_subscribe.jsonl
+# logs subscriptions filtered by address only, or receiving every log
+rpc_pattern_gen eth_subscribe --logs 10 --logs-filter address --out eth_subscribe_logs.jsonl
+rpc_pattern_gen eth_subscribe --logs 1 --logs-filter all --out eth_subscribe_all_logs.jsonl
+```
+
+Each logs filter matches a log of the `--max-blocks` most recent blocks (default 3000), with a shape of
+`--logs-filter` (`address`, `address+topics` or `topics`, as the eth_getLogs `filter` option; default: any
+shape) and no block range. With `--logs-filter all`, or with no logs subscription, only the head block is
+read. The output must be a `.jsonl`, and `--verify` does not apply: a subscription needs a WebSocket.
 
 ## Tx lists
 
@@ -465,6 +483,7 @@ debug_traceBlockByHash     3.91%     tracer=callTracer blocks=50
 | `debug_traceBlockByNumber` | each block | `tracer=<name>`, e.g. `callTracer` (default: the struct logger) |
 | `eth_getLogs` | each log of a block | `range=N`, `filter=...`, `or=N`, `tag=latest`, see below |
 | `eth_blockNumber`, `eth_chainId`, `net_listening`, `eth_gasPrice`, `eth_maxPriorityFeePerGas` | nothing: the same request repeated | |
+| `eth_subscribe` | nothing, or each log of a block for `type=logs` | `type=newHeads\|logs\|transactionReceipts` (default newHeads); with `type=logs`, `filter=address\|address+topics\|topics\|all`. `.jsonl` output only, no `--verify`, not mixed with other methods; see [Subscriptions](#subscriptions) |
 
 `tag=latest` of `eth_getBlockByNumber` and `eth_getBlockReceipts`, or `--block-tag latest` given to
 their subcommand, replaces the block number with `"latest"`, resolved by each node when the request runs, as clients polling the head do: every request

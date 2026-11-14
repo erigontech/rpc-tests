@@ -43,6 +43,10 @@ func TestGeneratorRequests(t *testing.T) {
 		{"net_listening", nil, params, `{"jsonrpc":"2.0","method":"net_listening","params":[],"id":1}`},
 		{"eth_gasPrice", nil, params, `{"jsonrpc":"2.0","method":"eth_gasPrice","params":[],"id":1}`},
 		{"eth_maxPriorityFeePerGas", nil, params, `{"jsonrpc":"2.0","method":"eth_maxPriorityFeePerGas","params":[],"id":1}`},
+		{"eth_subscribe", nil, params, `{"jsonrpc":"2.0","method":"eth_subscribe","params":["newHeads"],"id":1}`},
+		{"eth_subscribe", map[string]string{"type": "newHeads"}, params, `{"jsonrpc":"2.0","method":"eth_subscribe","params":["newHeads"],"id":1}`},
+		{"eth_subscribe", map[string]string{"type": "transactionReceipts"}, params, `{"jsonrpc":"2.0","method":"eth_subscribe","params":["transactionReceipts"],"id":1}`},
+		{"eth_subscribe", map[string]string{"type": "logs", "filter": "all"}, params, `{"jsonrpc":"2.0","method":"eth_subscribe","params":["logs",{}],"id":1}`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.method, func(t *testing.T) {
@@ -94,7 +98,7 @@ func TestGeneratorKinds(t *testing.T) {
 		"eth_call": PerTx, "eth_estimateGas": PerTx, "eth_createAccessList": PerTx, "eth_getTransactionReceipt": PerTx, "eth_getBalance": PerTx,
 		"eth_getBlockByNumber": PerBlock, "eth_getLogs": PerLog, "debug_traceBlockByHash": PerBlock, "debug_traceBlockByNumber": PerBlock,
 		"eth_blockNumber": Constant, "net_listening": Constant,
-		"eth_gasPrice": Constant, "eth_maxPriorityFeePerGas": Constant,
+		"eth_gasPrice": Constant, "eth_maxPriorityFeePerGas": Constant, "eth_subscribe": Constant,
 	}
 	for method, want := range kinds {
 		gen, err := NewGenerator(method, nil)
@@ -507,5 +511,55 @@ func TestGetLogsRequestFailsWithoutAShape(t *testing.T) {
 	lg := &Log{Address: "0xa1", Topics: []string{"0x10"}, TxHash: "0xaa", Index: "0x0"}
 	if _, err := (GetLogs{Range: 1, Filter: FilterTopics, Or: 1}).Request(Item{BlockNum: 1, Log: lg}, Params{Head: 1}); err == nil {
 		t.Error("filter=topics on a log with topic0 only: want an error")
+	}
+}
+
+func TestSubscribeLogsMatchesTheLog(t *testing.T) {
+	lg := &Log{Address: "0x02", Topics: []string{"0x7e", "0x01", "0x02"}, TxHash: "0xaa", Index: "0x3"}
+	item := Item{Block: &Block{Number: "0x64"}, BlockNum: 100, Log: lg}
+	gen, err := NewGenerator("eth_subscribe", map[string]string{"type": "logs", "filter": FilterAddress})
+	if err != nil {
+		t.Fatalf("NewGenerator: %v", err)
+	}
+	if gen.Kind() != PerLog {
+		t.Errorf("kind %v, want %v", gen.Kind(), PerLog)
+	}
+	req, err := gen.Request(item, Params{Head: 100})
+	if err != nil {
+		t.Fatalf("Request: %v", err)
+	}
+	if want := `{"jsonrpc":"2.0","method":"eth_subscribe","params":["logs",{"address":"0x02"}],"id":1}`; string(req) != want {
+		t.Errorf("got  %s\nwant %s", req, want)
+	}
+
+	gen = mustGenerator(t, "eth_subscribe", map[string]string{"type": "logs"})
+	shapes := map[string]bool{}
+	for i := range 200 {
+		lg.Index = fmt.Sprintf("0x%x", i)
+		req, err := gen.Request(item, Params{Head: 100})
+		if err != nil {
+			t.Fatalf("Request: %v", err)
+		}
+		if strings.Contains(string(req), "Block") {
+			t.Errorf("a subscription has no block range: %s", req)
+		}
+		shapes[string(req)] = true
+	}
+	if len(shapes) != len(logShapes(lg.Topics, "")) {
+		t.Errorf("got %d filter shapes, want %d: %v", len(shapes), len(logShapes(lg.Topics, "")), shapes)
+	}
+}
+
+func TestSubscribeOptions(t *testing.T) {
+	for _, options := range []map[string]string{
+		{"type": "newPendingTransactions"},
+		{"type": "newHeads", "filter": FilterAddress},
+		{"type": "transactionReceipts", "filter": "all"},
+		{"type": "logs", "filter": "topic0"},
+		{"type": "logs", "range": "10"},
+	} {
+		if _, err := NewGenerator("eth_subscribe", options); err == nil {
+			t.Errorf("%v: want an error", options)
+		}
 	}
 }

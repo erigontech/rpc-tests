@@ -70,6 +70,7 @@ var generators = map[string]func(options map[string]string) (Generator, error){
 	"net_listening":             noOptions(simple{"net_listening", Constant, noParams}),
 	"eth_gasPrice":              noOptions(simple{"eth_gasPrice", Constant, noParams}),
 	"eth_maxPriorityFeePerGas":  noOptions(simple{"eth_maxPriorityFeePerGas", Constant, noParams}),
+	"eth_subscribe":             subscribeGenerator,
 }
 
 // Methods returns the methods with a generator, sorted.
