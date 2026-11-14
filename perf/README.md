@@ -212,8 +212,9 @@ Each notification is one result:
   block arrive later.
 - `<type> latency` row: these latencies, e.g. `newHeads latency`, `logs latency`.
 - `<type> fan-out` row: the arrival time minus the first arrival of the same event (a head, or a log by
-  block hash and log index) on the same pattern line among all the connections, the fastest left out: the
-  time the node takes to notify every subscriber.
+  block hash and log index) among the subscriptions with the same params, on the same connection or on
+  others, the fastest left out: the time the node takes to notify every subscriber. Two `logs` lines with
+  different filters receive different logs, so they are not compared.
 - `logs vs newHeads` row: the arrival time of a log minus the arrival of its head on the same connection,
   when the pattern also has a `newHeads` line. It leaves out the execution of the block: the time to
   filter and send the logs.

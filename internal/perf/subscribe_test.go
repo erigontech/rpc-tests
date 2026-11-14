@@ -456,3 +456,31 @@ func TestFormatSubscriptionResultsSharesTheNotificationsByType(t *testing.T) {
 		t.Errorf("share %v, want %v: the latency rows share the notifications, the other rows count them again", share, want)
 	}
 }
+
+func TestRunSubscriptionsComparesIdenticalSubscriptionsOfOneConnection(t *testing.T) {
+	node := &wsNode{conns: 1, lines: 3, heads: heads(2)}
+	addr := startWSNode(t, node)
+	reqs := [][]byte{[]byte(newHeadsRequest), []byte(newHeadsRequest), []byte(`{"jsonrpc":"2.0","method":"eth_subscribe","params":["newHeads"],"id":7}`)}
+
+	_, results, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, reqs, 1, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	if row := results.apis["newHeads fan-out"]; row == nil || row.requests != 4 {
+		t.Errorf("fan-out row %+v: want the 2 slower of the 3 identical subscriptions, for each of the 2 heads", row)
+	}
+}
+
+func TestRunSubscriptionsKeepsLogsFiltersApartInTheFanOut(t *testing.T) {
+	node := &wsNode{conns: 1, lines: 2, heads: headsWithLogs(1, 2)}
+	addr := startWSNode(t, node)
+	other := `{"jsonrpc":"2.0","method":"eth_subscribe","params":["logs",{"address":"0x02","topics":["0x7e"]}],"id":1}`
+
+	_, results, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(logsRequest), []byte(other)}, 1, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	if row := results.apis["logs fan-out"]; row != nil {
+		t.Errorf("fan-out row %+v: two different filters receive different logs, they are not compared", row)
+	}
+}
