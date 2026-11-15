@@ -180,6 +180,20 @@ holds it, and `vegetaChecksum` is the checksum of the requests only, so a change
 `configuration.clientVersion` is the `web3_clientVersion` of the node under test, also printed at the start
 (`Client: ...`); it is absent when the node answers with an error or does not answer.
 
+With `-v`, and always with an `eth_subscribe` pattern, each repetition also has an `apis` object with the
+rows of the console table, by method or by subscription measure (`newHeads latency`, `logs fan-out`, ...):
+
+```json
+"apis": {
+  "eth_call": { "requests": 7784, "errors": 27, "empty": 0,
+                "latencies": { "50th": 215000, "90th": 263000, "95th": 287000, "99th": 422000, "max": 8000000 } }
+}
+```
+
+`errors` is the sum of all the error kinds of the row, `latencies` are in ns with the keys of `latenciesOk`,
+over all the requests of the row. With `-i` the rows are by request id and are not written; without `-v`
+there is no `apis` object.
+
 With a report, the Vegeta binary file of each test (every request with its latency, status and the
 first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/reports/bin/` with `-u`).
 

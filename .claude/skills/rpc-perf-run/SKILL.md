@@ -39,6 +39,7 @@ make rpc_perf
 ./build/bin/rpc_perf -p mixed.jsonl -Z -t 100:30,500:30,1000:30 -r 3 -w 10 -v -P # a ramp, 3 times each, more percentiles
 ./build/bin/rpc_perf -p perf/pattern/mainnet/stress_test_eth_call_001_14M.tar -y eth_call -Z -t 1000:30 -r 1
 ./build/bin/rpc_perf -p eth_call_13000000.jsonl -Z -t 500:30 -r 3 -R -j eth_call.json -D erigon   # CSV and JSON report
+./build/bin/rpc_perf -p mixed.jsonl -Z -t 1000:30 -r 3 -v -R -j mixed.json -D erigon   # JSON report with the rows by method (apis)
 ./build/bin/rpc_perf -p eth_subscribe.jsonl -Z -t 10:600,100:600 -r 1 -P         # eth_subscribe: 10 then 100 WebSocket connections
 ```
 

@@ -1127,6 +1127,99 @@ func TestExecuteReportsTheNodeResources(t *testing.T) {
 	}
 }
 
+// executeOneRepetition runs one repetition at 10 qps for 1 s against a node that answers every request
+// with an empty list, after setup has changed the config, and returns the repetition of the JSON report.
+func executeOneRepetition(t *testing.T, setup func(cfg *Config)) map[string]json.RawMessage {
+	t.Helper()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":[]}`))
+	}))
+	defer server.Close()
+
+	pt, cfg, _ := newTestPerf(t, server.URL)
+	pt.procDir = t.TempDir()
+	cfg.CreateTestReport = true
+	cfg.JSONReportFile = filepath.Join(t.TempDir(), "report.json")
+	setup(cfg)
+	if err := pt.Report.Open(); err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	format := ResultFormat{MaxRepetitionDigits: 1, MaxQpsDigits: 2, MaxDurationDigits: 1}
+	if err := pt.Execute(context.Background(), 1, 0, "erigon", 10, 1, format); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	if err := pt.Report.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+	data, err := os.ReadFile(cfg.JSONReportFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var parsed struct {
+		Results []struct {
+			TestRepetitions []map[string]json.RawMessage `json:"testRepetitions"`
+		} `json:"results"`
+	}
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		t.Fatal(err)
+	}
+	return parsed.Results[0].TestRepetitions[0]
+}
+
+func TestExecuteReportsTheRowsByMethodWithVerbose(t *testing.T) {
+	rep := executeOneRepetition(t, func(cfg *Config) { cfg.Verbose = true })
+
+	var apis map[string]struct {
+		Requests  int              `json:"requests"`
+		Errors    int              `json:"errors"`
+		Empty     int              `json:"empty"`
+		Latencies map[string]int64 `json:"latencies"`
+	}
+	if err := json.Unmarshal(rep["apis"], &apis); err != nil {
+		t.Fatalf("apis = %s: %v", rep["apis"], err)
+	}
+	row, ok := apis["eth_getLogs"]
+	if !ok || len(apis) != 1 {
+		t.Fatalf("apis = %s, want one row for eth_getLogs", rep["apis"])
+	}
+	if row.Requests != 10 || row.Errors != 0 || row.Empty != 10 {
+		t.Errorf("eth_getLogs = %+v, want 10 requests, no error, 10 empty results", row)
+	}
+	for _, key := range []string{"50th", "90th", "95th", "99th", "max"} {
+		if row.Latencies[key] <= 0 {
+			t.Errorf("latencies = %v, want %s > 0, the keys of latenciesOk", row.Latencies, key)
+		}
+	}
+}
+
+func TestExecuteWritesNoRowsWithoutVerbose(t *testing.T) {
+	rep := executeOneRepetition(t, func(*Config) {})
+
+	if _, ok := rep["apis"]; ok {
+		t.Errorf("apis = %s, want no rows when the results are not split", rep["apis"])
+	}
+}
+
+func TestExecuteWritesNoRowsByID(t *testing.T) {
+	rep := executeOneRepetition(t, func(cfg *Config) { cfg.ByID = true })
+
+	if _, ok := rep["apis"]; ok {
+		t.Errorf("apis = %s, want no rows by id: a tx list has one per tx", rep["apis"])
+	}
+}
+
+func TestAPIInfosSumTheErrorsOfARow(t *testing.T) {
+	if infos := apiInfos(map[string]*apiResult{}); infos != nil {
+		t.Errorf("apiInfos = %v, want nil without rows", infos)
+	}
+	row := &apiResult{requests: 5, empty: 1, errors: map[string]int{"execution reverted": 2, "request failed": 1}}
+	row.latencies.Add(time.Millisecond)
+	info := apiInfos(map[string]*apiResult{"eth_call": row})["eth_call"]
+	if info.Requests != 5 || info.Errors != 3 || info.Empty != 1 || info.Latencies["max"] != int64(time.Millisecond) {
+		t.Errorf("eth_call = %+v, want 5 requests, 3 errors, 1 empty, max 1 ms", info)
+	}
+}
+
 func TestProcessResultsPrintsTheNodeResources(t *testing.T) {
 	pt, _, _ := newTestPerf(t, "http://localhost:8545")
 	node := &NodeInfo{Seconds: 2, CPUSeconds: 1, RSSStartBytes: 1 << 30, RSSEndBytes: 1 << 30, RSSMaxBytes: 1 << 30, WriteSyscalls: 10}
