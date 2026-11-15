@@ -130,6 +130,10 @@ type notification struct {
 	key       string    // the event: the block hash of a head, the block hash and the index of a log
 	timestamp time.Time // the block timestamp, zero when the notification has none
 	receipts  int       // the receipts of a transactionReceipts notification
+	// perReceipt is a transactionReceipts notification with one receipt object instead of a list; spread is,
+	// once the receipts of a block are merged, the time from the first to the last one.
+	perReceipt bool
+	spread     time.Duration
 }
 
 // connection is what one WebSocket connection of a test received.
@@ -315,13 +319,14 @@ func parseNotification(typ string, result json.RawMessage) (note notification, n
 		note.blockHash, note.key = lg.BlockHash, lg.BlockHash+"/"+lg.LogIndex
 		return note, lg.BlockNumber, lg.BlockTimestamp, true
 	case subReceipts:
-		var receipts []struct {
-			BlockNumber    string        `json:"blockNumber"`
-			BlockHash      string        `json:"blockHash"`
-			BlockTimestamp string        `json:"blockTimestamp"`
-			Logs           []notifiedLog `json:"logs"`
-		}
-		if json.Unmarshal(result, &receipts) != nil || len(receipts) == 0 {
+		var receipts []notifiedReceipt
+		if trimmed := bytes.TrimSpace(result); len(trimmed) > 0 && trimmed[0] == '{' {
+			var receipt notifiedReceipt
+			if json.Unmarshal(result, &receipt) != nil {
+				return note, "", "", false
+			}
+			receipts, note.perReceipt = []notifiedReceipt{receipt}, true
+		} else if json.Unmarshal(result, &receipts) != nil || len(receipts) == 0 {
 			return note, "", "", false
 		}
 		// A receipt has no block timestamp of its own on every client: take the one of a log when it lacks it.
@@ -339,6 +344,45 @@ func parseNotification(typ string, result json.RawMessage) (note notification, n
 	return note, "", "", false
 }
 
+type notifiedReceipt struct {
+	BlockNumber    string        `json:"blockNumber"`
+	BlockHash      string        `json:"blockHash"`
+	BlockTimestamp string        `json:"blockTimestamp"`
+	Logs           []notifiedLog `json:"logs"`
+}
+
+// mergeReceiptObjects turns the receipts that a subscription received one per notification into one
+// notification per block, as the list the other clients send: it arrives with the last receipt of the block.
+func mergeReceiptObjects(notes []notification) []notification {
+	merged := make([]notification, 0, len(notes))
+	type block struct {
+		sub  int
+		hash string
+	}
+	blocks := map[block]int{} // the index of the merged notification
+	for _, n := range notes {
+		if !n.perReceipt {
+			merged = append(merged, n)
+			continue
+		}
+		key := block{n.sub, n.blockHash}
+		i, ok := blocks[key]
+		if !ok {
+			blocks[key] = len(merged)
+			merged = append(merged, n)
+			continue
+		}
+		m := &merged[i]
+		m.receipts++
+		m.spread += n.arrival.Sub(m.arrival)
+		m.arrival = n.arrival
+		if m.timestamp.IsZero() {
+			m.timestamp = n.timestamp
+		}
+	}
+	return merged
+}
+
 func parseHex(s string) (uint64, error) {
 	return strconv.ParseUint(strings.TrimPrefix(s, "0x"), 16, 64)
 }
@@ -347,6 +391,9 @@ func parseHex(s string) (uint64, error) {
 // subscription is expected to receive every block number from the lowest to the highest of those blocks:
 // a newHeads subscription its head, a logs subscription the logs eth_getLogs returns for its filter.
 func measure(ctx context.Context, conns []connection, lines []subscriptionLine, url, httpURL string, start, end time.Time, outputFile string) (*vegeta.Metrics, attackResults, error) {
+	for i := range conns {
+		conns[i].notes = mergeReceiptObjects(conns[i].notes)
+	}
 	blockFirst := map[string]time.Time{}
 	eventFirst := map[string]time.Time{} // by pattern line and event
 	for _, conn := range conns {
@@ -449,6 +496,9 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 			}
 			if head, ok := heads[n.blockHash]; ok && typ != subNewHeads {
 				results.row(typ+" vs newHeads").add(n.arrival.Sub(head), "")
+			}
+			if n.perReceipt {
+				results.row(typ+" per receipt").add(n.spread, "")
 			}
 		}
 		for j, line := range lines {

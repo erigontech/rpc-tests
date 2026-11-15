@@ -49,6 +49,8 @@ type wsNode struct {
 	receipts func(conn int, h fakeHead) [][]int
 	// noReceiptLogs sends the receipts without logs, so without a block timestamp.
 	noReceiptLogs bool
+	// receiptObjects sends each receipt as its own notification, an object instead of a list.
+	receiptObjects bool
 
 	mu       sync.Mutex
 	accepted int
@@ -139,6 +141,10 @@ func (n *wsNode) results(conn int, typ string, h fakeHead) []string {
 				}
 				receipts[i] = fmt.Sprintf(`{"blockNumber":"0x%x","blockHash":%q,"transactionHash":"0x%064x","transactionIndex":"0x%x","logs":[%s]}`,
 					h.number, h.hash, tx, tx, logs)
+			}
+			if n.receiptObjects {
+				out = append(out, receipts...)
+				continue
 			}
 			out = append(out, "["+strings.Join(receipts, ",")+"]")
 		}
@@ -593,6 +599,44 @@ func TestRunSubscriptionsChecksOneReceiptsNotificationPerBlock(t *testing.T) {
 	row := results.apis["transactionReceipts latency"]
 	if row == nil || row.requests != 6 || fmt.Sprint(row.errors) != fmt.Sprint(map[string]int{errGranularity: 4}) {
 		t.Errorf("row %+v: want one notification per receipt as 2 extra notifications per block", row)
+	}
+}
+
+func TestRunSubscriptionsMeasuresReceiptsSentOneObjectPerReceipt(t *testing.T) {
+	node := &wsNode{conns: 2, heads: headsWithTxs(2, 3), receiptObjects: true}
+	addr := startWSNode(t, node)
+
+	_, results, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(receiptsRequest)}, 2, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	for row, want := range map[string]int{
+		"transactionReceipts latency":     4, // 2 connections x 2 blocks, the receipts of a block counted once
+		"transactionReceipts per receipt": 4,
+	} {
+		if got := results.apis[row]; got == nil || got.requests != want || len(got.errors) > 0 {
+			t.Errorf("%s row %+v: want %d requests and no error", row, got, want)
+		}
+	}
+}
+
+func TestRunSubscriptionsCountsAReceiptObjectThatDidNotArrive(t *testing.T) {
+	hs := headsWithTxs(2, 3)
+	node := &wsNode{conns: 1, heads: hs, receiptObjects: true, receipts: func(_ int, h fakeHead) [][]int {
+		if h.number == hs[1].number {
+			return [][]int{{0, 2}}
+		}
+		return [][]int{{0, 1, 2}}
+	}}
+	addr := startWSNode(t, node)
+
+	_, results, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(receiptsRequest)}, 1, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	row := results.apis["transactionReceipts latency"]
+	if row == nil || fmt.Sprint(row.errors) != fmt.Sprint(map[string]int{errReceiptCount: 1}) {
+		t.Errorf("row %+v: want the block with 2 of its 3 receipts counted as a wrong receipt count", row)
 	}
 }
 
