@@ -1,8 +1,10 @@
 package perf
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -57,6 +59,67 @@ func TestReadProcSampleOfAMissingProcess(t *testing.T) {
 	}
 }
 
+func uint64Ptr(n uint64) *uint64 { return &n }
+
+// removeIO drops the io file of pid, as /proc shows it to another user than the owner of the process.
+func removeIO(t *testing.T, procDir string, pid int) {
+	t.Helper()
+	if err := os.Remove(filepath.Join(procDir, strconv.Itoa(pid), "io")); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestReadProcSampleWithoutIOKeepsCPUAndRSS(t *testing.T) {
+	procDir := t.TempDir()
+	writeFakeProc(t, procDir, 42, "reth", 250, 1024, 77)
+	removeIO(t, procDir, 42)
+
+	s, err := readProcSample(procDir, 42)
+	if err != nil {
+		t.Fatalf("readProcSample: %v, want a sample without the write syscalls", err)
+	}
+	if s.cpuTicks != 250 || s.rssBytes != 1024*1024 {
+		t.Errorf("sample = %+v, want 250 CPU ticks and 1 MiB RSS", s)
+	}
+}
+
+func TestNodeSamplerWithoutIOReportsCPUAndRSSOnly(t *testing.T) {
+	procDir := t.TempDir()
+	writeFakeProc(t, procDir, 42, "reth", 1000, 2048, 10)
+	removeIO(t, procDir, 42)
+	csvPath := filepath.Join(t.TempDir(), "run.proc.csv")
+
+	sampler, err := startNodeSampler(procDir, "reth", 42, time.Hour, csvPath)
+	if err != nil {
+		t.Fatalf("startNodeSampler: %v, want a sampler without the write syscalls", err)
+	}
+	writeFakeProc(t, procDir, 42, "reth", 1200, 4096, 25)
+	removeIO(t, procDir, 42)
+	node := sampler.stop()
+
+	if node.CPUSeconds != 2 || node.RSSMaxBytes != 4096*1024 {
+		t.Errorf("node = %+v, want 2 CPU seconds and 4 MiB max RSS", *node)
+	}
+	data, err := json.Marshal(node)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), "writeSyscalls") {
+		t.Errorf("node = %s, want no writeSyscalls when io cannot be read", data)
+	}
+	if line := formatNode(node); strings.Contains(line, "write syscalls") {
+		t.Errorf("formatNode = %q, want no write syscalls when io cannot be read", line)
+	}
+	series, err := os.ReadFile(csvPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(series)), "\n")
+	if !strings.HasSuffix(lines[len(lines)-1], ",1200,4194304,") {
+		t.Errorf("last sample = %q, want an empty writeSyscalls", lines[len(lines)-1])
+	}
+}
+
 func TestFindPIDTakesTheOldestProcessWithThatName(t *testing.T) {
 	procDir := t.TempDir()
 	writeFakeProc(t, procDir, 900, "erigon", 1, 1, 1)
@@ -77,9 +140,9 @@ func TestFindPIDTakesTheOldestProcessWithThatName(t *testing.T) {
 func TestSummarizeNodeSamples(t *testing.T) {
 	start := time.Unix(1000, 0)
 	samples := []procSample{
-		{at: start, cpuTicks: 1000, rssBytes: 500, writeSyscalls: 10},
-		{at: start.Add(time.Second), cpuTicks: 1100, rssBytes: 900, writeSyscalls: 40},
-		{at: start.Add(2 * time.Second), cpuTicks: 1150, rssBytes: 700, writeSyscalls: 70},
+		{at: start, cpuTicks: 1000, rssBytes: 500, writeSyscalls: 10, hasIO: true},
+		{at: start.Add(time.Second), cpuTicks: 1100, rssBytes: 900, writeSyscalls: 40, hasIO: true},
+		{at: start.Add(2 * time.Second), cpuTicks: 1150, rssBytes: 700, writeSyscalls: 70, hasIO: true},
 	}
 
 	node := summarizeNode("erigon", 7, samples, "x.proc.csv")
@@ -92,10 +155,10 @@ func TestSummarizeNodeSamples(t *testing.T) {
 		RSSStartBytes: 500,
 		RSSEndBytes:   700,
 		RSSMaxBytes:   900,
-		WriteSyscalls: 60,
+		WriteSyscalls: uint64Ptr(60),
 		SamplesFile:   "x.proc.csv",
 	}
-	if *node != want {
+	if !reflect.DeepEqual(*node, want) {
 		t.Errorf("summarizeNode = %+v, want %+v", *node, want)
 	}
 }
@@ -112,7 +175,7 @@ func TestNodeSamplerWritesTheSeriesAndTheSummary(t *testing.T) {
 	writeFakeProc(t, procDir, 42, "erigon", 1200, 4096, 25)
 	node := sampler.stop()
 
-	if node.CPUSeconds != 2 || node.WriteSyscalls != 15 || node.RSSMaxBytes != 4096*1024 {
+	if node.CPUSeconds != 2 || node.WriteSyscalls == nil || *node.WriteSyscalls != 15 || node.RSSMaxBytes != 4096*1024 {
 		t.Errorf("node = %+v, want 2 CPU seconds, 15 write syscalls, 4 MiB max RSS", *node)
 	}
 	if node.SamplesFile != "run.proc.csv" {
@@ -138,7 +201,7 @@ func TestNodeSamplerOfAMissingProcess(t *testing.T) {
 }
 
 func TestFormatNode(t *testing.T) {
-	node := &NodeInfo{Seconds: 2, CPUSeconds: 1.5, RSSStartBytes: 3 << 30, RSSEndBytes: 3<<30 - 5<<20, RSSMaxBytes: 7 << 29, WriteSyscalls: 2001}
+	node := &NodeInfo{Seconds: 2, CPUSeconds: 1.5, RSSStartBytes: 3 << 30, RSSEndBytes: 3<<30 - 5<<20, RSSMaxBytes: 7 << 29, WriteSyscalls: uint64Ptr(2001)}
 
 	want := "      node cpu=1.5s (75.0%) rss max=3.50GiB (-5MiB) write syscalls=2001 (1000/s)"
 	if got := formatNode(node); got != want {
