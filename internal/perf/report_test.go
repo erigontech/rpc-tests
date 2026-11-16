@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -577,7 +578,7 @@ func writeOneRepetitionJSON(t *testing.T, metrics *PerfMetrics) map[string]json.
 
 func TestTestReportJSONAddsTheNodeResources(t *testing.T) {
 	metrics := sampleMetrics(0)
-	metrics.Node = &NodeInfo{Process: "erigon", PID: 7, Seconds: 2, CPUSeconds: 1.5, RSSStartBytes: 500, RSSEndBytes: 700, RSSMaxBytes: 900, WriteSyscalls: 60, SamplesFile: "run.proc.csv"}
+	metrics.Node = &NodeInfo{Process: "erigon", PID: 7, Seconds: 2, CPUSeconds: 1.5, RSSStartBytes: 500, RSSEndBytes: 700, RSSMaxBytes: 900, WriteSyscalls: uint64Ptr(60), SamplesFile: "run.proc.csv"}
 
 	rep := writeOneRepetitionJSON(t, metrics)
 
@@ -585,7 +586,7 @@ func TestTestReportJSONAddsTheNodeResources(t *testing.T) {
 	if err := json.Unmarshal(rep["node"], &node); err != nil {
 		t.Fatalf("node = %s: %v", rep["node"], err)
 	}
-	if node != *metrics.Node {
+	if !reflect.DeepEqual(node, *metrics.Node) {
 		t.Errorf("node = %+v, want %+v", node, *metrics.Node)
 	}
 }

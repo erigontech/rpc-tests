@@ -207,9 +207,11 @@ and the JSON report has a `node` object in each repetition, next to `latenciesOk
 
 `cpuSeconds` is user + system CPU time (`stat`), the RSS values come from `VmRSS` (`status`) and
 `writeSyscalls` from `syscw` (`io`), all for the whole process. `samplesFile` is the series of the
-samples (`ms,cpuTicks,rssBytes,writeSyscalls`), written next to the Vegeta binary file. When the process
-is not found or its `/proc` files cannot be read (another host, another user), nothing is printed and
-there is no `node` object. The CSV report does not change.
+samples (`ms,cpuTicks,rssBytes,writeSyscalls`), written next to the Vegeta binary file. `io` is readable
+only by the owner of the process (or root): for a node run by another user, e.g. a service run by root,
+the line and the `node` object have no write syscalls and the `writeSyscalls` column of the series is
+empty. When the process is not found or its `stat` and `status` cannot be read (another host), nothing
+is printed and there is no `node` object. The CSV report does not change.
 
 ```bash
 ./build/bin/rpc_perf -p eth_call.jsonl -Z -t 500:30 -r 3 -R -j eth_call.json -D erigon -g /path/to/erigon

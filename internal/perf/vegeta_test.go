@@ -1129,7 +1129,7 @@ func TestExecuteReportsTheNodeResources(t *testing.T) {
 
 func TestProcessResultsPrintsTheNodeResources(t *testing.T) {
 	pt, _, _ := newTestPerf(t, "http://localhost:8545")
-	node := &NodeInfo{Seconds: 2, CPUSeconds: 1, RSSStartBytes: 1 << 30, RSSEndBytes: 1 << 30, RSSMaxBytes: 1 << 30, WriteSyscalls: 10}
+	node := &NodeInfo{Seconds: 2, CPUSeconds: 1, RSSStartBytes: 1 << 30, RSSEndBytes: 1 << 30, RSSMaxBytes: 1 << 30, WriteSyscalls: uint64Ptr(10)}
 	metrics := syntheticMetrics(okResult(10 * time.Millisecond))
 
 	print := func(node *NodeInfo) string {

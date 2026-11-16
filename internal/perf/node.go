@@ -26,7 +26,7 @@ type NodeInfo struct {
 	RSSStartBytes uint64  `json:"rssStartBytes"`
 	RSSEndBytes   uint64  `json:"rssEndBytes"`
 	RSSMaxBytes   uint64  `json:"rssMaxBytes"`
-	WriteSyscalls uint64  `json:"writeSyscalls"`
+	WriteSyscalls *uint64 `json:"writeSyscalls,omitempty"`
 	SamplesFile   string  `json:"samplesFile"`
 }
 
@@ -35,6 +35,8 @@ type procSample struct {
 	cpuTicks      uint64
 	rssBytes      uint64
 	writeSyscalls uint64
+	// hasIO is false when io cannot be read: it is readable only by the owner of the process.
+	hasIO bool
 }
 
 // findPID returns the lowest pid whose comm is name: the process name as pgrep -x matches it.
@@ -84,7 +86,8 @@ func readProcSample(procDir string, pid int) (procSample, error) {
 	s.rssBytes = rssKB * 1024
 
 	s.writeSyscalls, err = procField(filepath.Join(dir, "io"), "syscw:")
-	return s, err
+	s.hasIO = err == nil
+	return s, nil
 }
 
 // procField returns the first number after key in a "key value [unit]" /proc file.
@@ -113,8 +116,11 @@ func summarizeNode(process string, pid int, samples []procSample, samplesFile st
 		CPUSeconds:    float64(last.cpuTicks-first.cpuTicks) / userHZ,
 		RSSStartBytes: first.rssBytes,
 		RSSEndBytes:   last.rssBytes,
-		WriteSyscalls: last.writeSyscalls - first.writeSyscalls,
 		SamplesFile:   samplesFile,
+	}
+	if first.hasIO && last.hasIO {
+		writeSyscalls := last.writeSyscalls - first.writeSyscalls
+		node.WriteSyscalls = &writeSyscalls
 	}
 	for _, s := range samples {
 		node.RSSMaxBytes = max(node.RSSMaxBytes, s.rssBytes)
@@ -172,7 +178,11 @@ func (s *nodeSampler) add(sample procSample) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.samples = append(s.samples, sample)
-	fmt.Fprintf(s.csv, "%d,%d,%d,%d\n", sample.at.UnixMilli(), sample.cpuTicks, sample.rssBytes, sample.writeSyscalls)
+	writeSyscalls := ""
+	if sample.hasIO {
+		writeSyscalls = strconv.FormatUint(sample.writeSyscalls, 10)
+	}
+	fmt.Fprintf(s.csv, "%d,%d,%d,%s\n", sample.at.UnixMilli(), sample.cpuTicks, sample.rssBytes, writeSyscalls)
 }
 
 // stop takes the last sample and returns the summary of the repetition.
@@ -204,7 +214,10 @@ func (pt *PerfTest) startNodeSampler() *nodeSampler {
 // formatNode is the console line of the node resources of a repetition.
 func formatNode(node *NodeInfo) string {
 	rssDeltaMiB := (int64(node.RSSEndBytes) - int64(node.RSSStartBytes)) >> 20
-	return fmt.Sprintf("      node cpu=%.1fs (%.1f%%) rss max=%.2fGiB (%+dMiB) write syscalls=%d (%.0f/s)",
-		node.CPUSeconds, 100*node.CPUSeconds/node.Seconds, float64(node.RSSMaxBytes)/(1<<30), rssDeltaMiB,
-		node.WriteSyscalls, float64(node.WriteSyscalls)/node.Seconds)
+	line := fmt.Sprintf("      node cpu=%.1fs (%.1f%%) rss max=%.2fGiB (%+dMiB)",
+		node.CPUSeconds, 100*node.CPUSeconds/node.Seconds, float64(node.RSSMaxBytes)/(1<<30), rssDeltaMiB)
+	if node.WriteSyscalls != nil {
+		line += fmt.Sprintf(" write syscalls=%d (%.0f/s)", *node.WriteSyscalls, float64(*node.WriteSyscalls)/node.Seconds)
+	}
+	return line
 }
