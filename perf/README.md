@@ -267,6 +267,10 @@ Each notification is one result:
 - `logs vs newHeads`, `transactionReceipts vs newHeads` rows: the arrival time of a log or of the receipts
   minus the arrival of their head on the same connection, when the pattern also has a `newHeads` line.
   They leave out the execution of the block: the time to filter, encode and send.
+- `transactionReceipts per receipt` row: a node that sends each receipt as its own notification, an object
+  instead of the list of `eth_subscribe` in execution-apis (e.g. Nethermind), has its receipts merged by
+  block, as one notification that arrives with the last receipt; the row is the time from the first to the
+  last receipt of each block. It is absent for a node that sends lists.
 - Errors, one per subscription:
   - `missing notification`: for a `newHeads` subscription, a block number between the lowest and the
     highest block of the test that it did not receive, whether other subscriptions received it or not;
@@ -275,8 +279,8 @@ Each notification is one result:
     `transactionReceipts` subscription, a block with transactions whose receipts it did not receive;
   - `wrong receipt count`: the receipts received for a block are not as many as its transactions
     (`eth_getBlockTransactionCountByNumber` over HTTP after the test);
-  - `more than one notification per block`: the receipts of a block sent in several notifications
-    instead of one;
+  - `more than one notification per block`: the receipts of a block sent in several lists instead of
+    one (receipts sent one object per notification are merged instead, see `per receipt` above);
   - `duplicate notification`: the same event received twice on one subscription;
   - `no block timestamp`: a notification without the block timestamp, whose latency is unknown;
   - `rejected subscribe: <message>`: the node answered the `eth_subscribe` with an error, e.g. a limit
