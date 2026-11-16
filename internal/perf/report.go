@@ -36,7 +36,8 @@ type PerfMetrics struct {
 	Error         string
 	OK            OKMetrics
 	VegetaMetrics *vegeta.Metrics
-	Node          *NodeInfo // nil when the node process was not found
+	Node          *NodeInfo          // nil when the node process was not found
+	APIs          map[string]APIInfo // nil when the results are not split by method or subscription
 }
 
 // OKMetrics are the rate and the latencies of the successful responses: HTTP 200 and no JSON-RPC error.
@@ -97,6 +98,16 @@ type RepetitionInfo struct {
 	RPCSuccessRatio float64          `json:"rpcSuccessRatio"`
 	LatenciesOK     map[string]int64 `json:"latenciesOk"`
 	Node            *NodeInfo        `json:"node,omitempty"`
+	// The rows by method (--verbose) or by subscription measure (eth_subscribe), as printed on the console.
+	APIs map[string]APIInfo `json:"apis,omitempty"`
+}
+
+// APIInfo holds the results of one row of a repetition; its latencies have the keys of latenciesOk.
+type APIInfo struct {
+	Requests  int              `json:"requests"`
+	Errors    int              `json:"errors"`
+	Empty     int              `json:"empty"`
+	Latencies map[string]int64 `json:"latencies"`
 }
 
 // TestReport manages CSV and JSON report generation.
@@ -385,6 +396,7 @@ func (tr *TestReport) writeTestReportToJSON(metrics *PerfMetrics) error {
 		RPCSuccessRatio:     metrics.OK.Ratio,
 		LatenciesOK:         okLatencies(&metrics.OK.Latencies),
 		Node:                metrics.Node,
+		APIs:                metrics.APIs,
 	}
 
 	tr.openLevel(metrics.QPS, metrics.Duration, metrics.Repetition)

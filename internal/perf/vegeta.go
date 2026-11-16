@@ -613,6 +613,9 @@ func (pt *PerfTest) processResults(testNumber, repetition int, name string, qps,
 			VegetaMetrics: metrics,
 			Node:          node,
 		}
+		if !pt.Config.ByID {
+			testMetrics.APIs = apiInfos(results.apis)
+		}
 
 		if err := pt.Report.WriteTestReport(testMetrics); err != nil {
 			return fmt.Errorf("failed to write test report: %w", err)
@@ -821,6 +824,22 @@ type attackResults struct {
 	apis       map[string]*apiResult // by method, or by id with ByID, for targets tagged by loadTargets
 	ok         vegeta.LatencyMetrics
 	okRequests int
+}
+
+// apiInfos returns the rows of the JSON report, nil when there is none.
+func apiInfos(apis map[string]*apiResult) map[string]APIInfo {
+	if len(apis) == 0 {
+		return nil
+	}
+	infos := make(map[string]APIInfo, len(apis))
+	for key, a := range apis {
+		errors := 0
+		for _, n := range a.errors {
+			errors += n
+		}
+		infos[key] = APIInfo{Requests: a.requests, Errors: errors, Empty: a.empty, Latencies: okLatencies(&a.latencies)}
+	}
+	return infos
 }
 
 type apiResult struct {

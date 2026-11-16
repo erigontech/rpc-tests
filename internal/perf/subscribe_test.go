@@ -354,6 +354,44 @@ func TestExecuteRunsASubscriptionPatternOnTheConnections(t *testing.T) {
 	}
 }
 
+func TestExecuteReportsTheRowsOfASubscriptionPattern(t *testing.T) {
+	node := &wsNode{conns: 3, heads: heads(1)}
+	addr := startWSNode(t, node)
+	pt, cfg, _ := newJSONLPerf(t, "127.0.0.1:1", newHeadsRequest)
+	cfg.WSAddress = addr
+	cfg.CreateTestReport = true
+	cfg.JSONReportFile = filepath.Join(t.TempDir(), "report.json")
+	quietStdout(t)
+	if err := pt.Report.Open(); err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	format := ResultFormat{MaxRepetitionDigits: 1, MaxQpsDigits: 1, MaxDurationDigits: 1}
+	if err := pt.Execute(context.Background(), 1, 0, "rpcdaemon", 3, 1, format); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	if err := pt.Report.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+	data, err := os.ReadFile(cfg.JSONReportFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var parsed struct {
+		Results []struct {
+			TestRepetitions []struct {
+				APIs map[string]APIInfo `json:"apis"`
+			} `json:"testRepetitions"`
+		} `json:"results"`
+	}
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		t.Fatal(err)
+	}
+	row, ok := parsed.Results[0].TestRepetitions[0].APIs["newHeads latency"]
+	if !ok || row.Requests != 3 || row.Errors != 0 {
+		t.Errorf("apis = %+v, want a newHeads latency row with the head of each of the 3 connections", parsed.Results[0].TestRepetitions[0].APIs)
+	}
+}
+
 func TestRunSubscriptionsCountsTheHeadsNoSubscriptionReceived(t *testing.T) {
 	hs := heads(3)
 	node := &wsNode{conns: 2, heads: []fakeHead{hs[0], hs[2]}} // no subscription receives hs[1]
