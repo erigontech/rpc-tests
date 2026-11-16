@@ -1156,3 +1156,41 @@ func TestProcessResultsPrintsTheNodeResources(t *testing.T) {
 		t.Errorf("output %q: want nothing about the node when it was not found", out)
 	}
 }
+
+// TestExecuteSequenceRecordsADeadServerInTheJSONReport pins that a level whose server dies is still in the
+// JSON report, with the error, although none of its repetitions completed.
+func TestExecuteSequenceRecordsADeadServerInTheJSONReport(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":[]}`))
+	}))
+	defer server.Close()
+
+	pt, cfg, _ := newTestPerf(t, server.URL)
+	cfg.CheckServerAlive = true
+	cfg.TestingClient = "no_such_process_12345"
+	cfg.Repetitions = 2
+	cfg.WaitingTime = 0
+	cfg.CreateTestReport = true
+	cfg.JSONReportFile = filepath.Join(t.TempDir(), "report.json")
+	if err := pt.Report.Open(); err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+
+	err := pt.ExecuteSequence(context.Background(), TestSequence{{QPS: 10, Duration: 1}, {QPS: 20, Duration: 1}}, "rpcdaemon")
+	if err == nil {
+		t.Fatal("expected a dead-server error")
+	}
+	if err := pt.Report.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+
+	levels := readLevels(t, cfg.JSONReportFile)
+	if len(levels) != 1 {
+		t.Fatalf("got %d levels, want only the one that failed", len(levels))
+	}
+	got := levels[0]
+	if got.QPS != "10" || got.Duration != "1" || len(got.TestRepetitions) != 0 || got.Error != "server died during test" {
+		t.Errorf("level qps=%s duration=%s repetitions=%d error=%q, want qps 10, duration 1, no repetition and the dead-server error",
+			got.QPS, got.Duration, len(got.TestRepetitions), got.Error)
+	}
+}

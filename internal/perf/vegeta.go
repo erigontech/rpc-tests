@@ -293,6 +293,9 @@ func (pt *PerfTest) ExecuteSequence(ctx context.Context, sequence TestSequence, 
 		for rep := range pt.Config.Repetitions {
 			if test.QPS > 0 {
 				if err := pt.Execute(ctx, testNumber, rep, tag, test.QPS, test.Duration, resultFormat); err != nil {
+					if pt.Config.CreateTestReport {
+						pt.Report.WriteTestFailure(test.QPS, test.Duration, rep, err)
+					}
 					return err
 				}
 			} else {
