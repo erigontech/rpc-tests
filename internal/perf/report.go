@@ -36,7 +36,8 @@ type PerfMetrics struct {
 	Error         string
 	OK            OKMetrics
 	VegetaMetrics *vegeta.Metrics
-	Node          *NodeInfo // nil when the node process was not found
+	Node          *NodeInfo          // nil when the node process was not found
+	APIs          map[string]APIInfo // nil when the results are not split by method or subscription
 }
 
 // OKMetrics are the rate and the latencies of the successful responses: HTTP 200 and no JSON-RPC error.
@@ -85,6 +86,7 @@ type JSONTestResult struct {
 	QPS             string           `json:"qps"`
 	Duration        string           `json:"duration"`
 	TestRepetitions []RepetitionInfo `json:"testRepetitions"`
+	Error           string           `json:"error,omitempty"`
 }
 
 // RepetitionInfo holds information for a single test repetition.
@@ -96,6 +98,16 @@ type RepetitionInfo struct {
 	RPCSuccessRatio float64          `json:"rpcSuccessRatio"`
 	LatenciesOK     map[string]int64 `json:"latenciesOk"`
 	Node            *NodeInfo        `json:"node,omitempty"`
+	// The rows by method (--verbose) or by subscription measure (eth_subscribe), as printed on the console.
+	APIs map[string]APIInfo `json:"apis,omitempty"`
+}
+
+// APIInfo holds the results of one row of a repetition; its latencies have the keys of latenciesOk.
+type APIInfo struct {
+	Requests  int              `json:"requests"`
+	Errors    int              `json:"errors"`
+	Empty     int              `json:"empty"`
+	Latencies map[string]int64 `json:"latencies"`
 }
 
 // TestReport manages CSV and JSON report generation.
@@ -341,17 +353,32 @@ func (tr *TestReport) WriteTestReport(metrics *PerfMetrics) error {
 	return nil
 }
 
+// WriteTestFailure records in the JSON report the error that stopped a repetition, on its level.
+func (tr *TestReport) WriteTestFailure(qps, duration, repetition int, err error) {
+	if tr.Config.JSONReportFile == "" || tr.jsonReport == nil {
+		return
+	}
+	tr.openLevel(qps, duration, repetition)
+	if tr.currentTestIdx >= 0 && tr.currentTestIdx < len(tr.jsonReport.Results) {
+		tr.jsonReport.Results[tr.currentTestIdx].Error = err.Error()
+	}
+}
+
+// openLevel adds the level of a qps/duration test on its first repetition.
+func (tr *TestReport) openLevel(qps, duration, repetition int) {
+	if repetition != 0 {
+		return
+	}
+	tr.currentTestIdx++
+	tr.jsonReport.Results = append(tr.jsonReport.Results, JSONTestResult{
+		QPS:             strconv.Itoa(qps),
+		Duration:        strconv.Itoa(duration),
+		TestRepetitions: []RepetitionInfo{},
+	})
+}
+
 // writeTestReportToJSON writes a test result to the JSON report.
 func (tr *TestReport) writeTestReportToJSON(metrics *PerfMetrics) error {
-	if metrics.Repetition == 0 {
-		tr.currentTestIdx++
-		tr.jsonReport.Results = append(tr.jsonReport.Results, JSONTestResult{
-			QPS:             strconv.Itoa(metrics.QPS),
-			Duration:        strconv.Itoa(metrics.Duration),
-			TestRepetitions: []RepetitionInfo{},
-		})
-	}
-
 	jsonReportData, err := generateJSONReport(tr.Config.BinaryFileFullPathname)
 	if err != nil {
 		return fmt.Errorf("failed to generate JSON report: %w", err)
@@ -369,8 +396,10 @@ func (tr *TestReport) writeTestReportToJSON(metrics *PerfMetrics) error {
 		RPCSuccessRatio:     metrics.OK.Ratio,
 		LatenciesOK:         okLatencies(&metrics.OK.Latencies),
 		Node:                metrics.Node,
+		APIs:                metrics.APIs,
 	}
 
+	tr.openLevel(metrics.QPS, metrics.Duration, metrics.Repetition)
 	if tr.currentTestIdx >= 0 && tr.currentTestIdx < len(tr.jsonReport.Results) {
 		tr.jsonReport.Results[tr.currentTestIdx].TestRepetitions = append(
 			tr.jsonReport.Results[tr.currentTestIdx].TestRepetitions,

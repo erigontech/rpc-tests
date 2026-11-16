@@ -179,6 +179,23 @@ report). With a JSONL pattern that has a [header](pattern/README.md#pattern-head
 holds it, and `vegetaChecksum` is the checksum of the requests only, so a changed description keeps it.
 `configuration.clientVersion` is the `web3_clientVersion` of the node under test, also printed at the start
 (`Client: ...`); it is absent when the node answers with an error or does not answer.
+When a repetition fails and stops the run, for example because the server died, its level is still in
+`results`, with the error in `error` and only the repetitions completed before it in `testRepetitions`
+(none when the first one failed). A level that completed has no `error`.
+
+With `-v`, and always with an `eth_subscribe` pattern, each repetition also has an `apis` object with the
+rows of the console table, by method or by subscription measure (`newHeads latency`, `logs fan-out`, ...):
+
+```json
+"apis": {
+  "eth_call": { "requests": 7784, "errors": 27, "empty": 0,
+                "latencies": { "50th": 215000, "90th": 263000, "95th": 287000, "99th": 422000, "max": 8000000 } }
+}
+```
+
+`errors` is the sum of all the error kinds of the row, `latencies` are in ns with the keys of `latenciesOk`,
+over all the requests of the row. With `-i` the rows are by request id and are not written; without `-v`
+there is no `apis` object.
 
 With a report, the Vegeta binary file of each test (every request with its latency, status and the
 first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/reports/bin/` with `-u`).
@@ -204,9 +221,11 @@ and the JSON report has a `node` object in each repetition, next to `latenciesOk
 
 `cpuSeconds` is user + system CPU time (`stat`), the RSS values come from `VmRSS` (`status`) and
 `writeSyscalls` from `syscw` (`io`), all for the whole process. `samplesFile` is the series of the
-samples (`ms,cpuTicks,rssBytes,writeSyscalls`), written next to the Vegeta binary file. When the process
-is not found or its `/proc` files cannot be read (another host, another user), nothing is printed and
-there is no `node` object. The CSV report does not change.
+samples (`ms,cpuTicks,rssBytes,writeSyscalls`), written next to the Vegeta binary file. `io` is readable
+only by the owner of the process (or root): for a node run by another user, e.g. a service run by root,
+the line and the `node` object have no write syscalls and the `writeSyscalls` column of the series is
+empty. When the process is not found or its `stat` and `status` cannot be read (another host), nothing
+is printed and there is no `node` object. The CSV report does not change.
 
 ```bash
 ./build/bin/rpc_perf -p eth_call.jsonl -Z -t 500:30 -r 3 -R -j eth_call.json -D erigon -g /path/to/erigon

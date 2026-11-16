@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -576,7 +578,7 @@ func writeOneRepetitionJSON(t *testing.T, metrics *PerfMetrics) map[string]json.
 
 func TestTestReportJSONAddsTheNodeResources(t *testing.T) {
 	metrics := sampleMetrics(0)
-	metrics.Node = &NodeInfo{Process: "erigon", PID: 7, Seconds: 2, CPUSeconds: 1.5, RSSStartBytes: 500, RSSEndBytes: 700, RSSMaxBytes: 900, WriteSyscalls: 60, SamplesFile: "run.proc.csv"}
+	metrics.Node = &NodeInfo{Process: "erigon", PID: 7, Seconds: 2, CPUSeconds: 1.5, RSSStartBytes: 500, RSSEndBytes: 700, RSSMaxBytes: 900, WriteSyscalls: uint64Ptr(60), SamplesFile: "run.proc.csv"}
 
 	rep := writeOneRepetitionJSON(t, metrics)
 
@@ -584,7 +586,7 @@ func TestTestReportJSONAddsTheNodeResources(t *testing.T) {
 	if err := json.Unmarshal(rep["node"], &node); err != nil {
 		t.Fatalf("node = %s: %v", rep["node"], err)
 	}
-	if node != *metrics.Node {
+	if !reflect.DeepEqual(node, *metrics.Node) {
 		t.Errorf("node = %+v, want %+v", node, *metrics.Node)
 	}
 }
@@ -594,5 +596,58 @@ func TestTestReportJSONWithoutTheNodeProcess(t *testing.T) {
 
 	if _, ok := rep["node"]; ok {
 		t.Errorf("node = %s, want no node section when the process was not found", rep["node"])
+	}
+}
+
+// failedLevel is a level of the JSON report as written by a run that stopped on it.
+type failedLevel struct {
+	QPS             string            `json:"qps"`
+	Duration        string            `json:"duration"`
+	TestRepetitions []json.RawMessage `json:"testRepetitions"`
+	Error           string            `json:"error"`
+}
+
+func readLevels(t *testing.T, path string) []failedLevel {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var parsed struct {
+		Results []failedLevel `json:"results"`
+	}
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		t.Fatal(err)
+	}
+	return parsed.Results
+}
+
+func TestTestReportJSONRecordsTheFailureOfALaterRepetition(t *testing.T) {
+	dirs := reportDirs(t)
+	cfg := NewConfig()
+	cfg.TestingClient = "rpcdaemon"
+	cfg.JSONReportFile = filepath.Join(t.TempDir(), "report.json")
+	binary := filepath.Join(dirs.RunTestDir, BinaryDir, "run.bin")
+	writeVegetaBinary(t, binary)
+	cfg.BinaryFile, cfg.BinaryFileFullPathname = "run.bin", binary
+	report := NewTestReport(cfg, dirs)
+	if err := report.Open(); err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	if err := report.WriteTestReport(sampleMetrics(0)); err != nil {
+		t.Fatalf("WriteTestReport: %v", err)
+	}
+	report.WriteTestFailure(100, 5, 1, errors.New("server died during test"))
+	if err := report.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+
+	levels := readLevels(t, cfg.JSONReportFile)
+	if len(levels) != 1 {
+		t.Fatalf("got %d levels, want the failure on the level of its first repetition", len(levels))
+	}
+	if len(levels[0].TestRepetitions) != 1 || levels[0].Error != "server died during test" {
+		t.Errorf("got %d repetitions and error %q, want the completed repetition and the error",
+			len(levels[0].TestRepetitions), levels[0].Error)
 	}
 }
