@@ -170,7 +170,7 @@ A test with 0% success always stops the run.
 | `-j`, `--json-report` | | Also write a JSON report to this path. Needs `-R` or `-u`: without them it is not written |
 | `-D`, `--testing-client` | `rpcdaemon` | Client name in the output, the report file names and the JSON report |
 | `-g`, `--client-build-dir` | | Client source folder: its git commit goes into the report |
-| `-M`, `--max-body-rsp` | `1500` | Bytes of each response body kept in the Vegeta binary file of the report (`-1`: the whole body) |
+| `-M`, `--max-body-rsp` | `1500` | Bytes of each response body kept in the Vegeta binary file of the report (`-1`: the whole body). Each body is read to the end, but only its first 64 KiB (or `-M` bytes, if more) stay in memory, so a large response such as a struct-log trace does not exhaust the RAM; `-1` keeps it whole |
 
 The CSV has one row per test: the latencies and the success ratio of all the responses, then `RpcRatio`,
 `50ok`, `90ok`, `95ok`, `99ok` and `MaxOk` of the OK responses. The JSON report has, for each repetition,

@@ -488,8 +488,51 @@ func TestRPCErrorMessage(t *testing.T) {
 	}
 }
 
+func TestHeadTransportKeepsTheHeadAndCountsTheWholeBody(t *testing.T) {
+	body := strings.Repeat("a", 1<<20)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(body))
+	}))
+	defer server.Close()
+
+	client := &http.Client{Transport: headTransport{base: http.DefaultTransport, keep: 100}}
+	resp, err := client.Get(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	head, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("ReadAll: %v", err)
+	}
+	if string(head) != body[:100] {
+		t.Errorf("read %d bytes, want the first 100", len(head))
+	}
+	if got := resp.Header.Get(bodySizeHeader); got != fmt.Sprint(len(body)) {
+		t.Errorf("%s = %q, want %d", bodySizeHeader, got, len(body))
+	}
+}
+
+func TestHeadTransportFailsOnABodyCutAfterTheHead(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Length", "1000")
+		_, _ = w.Write([]byte(strings.Repeat("a", 500)))
+	}))
+	defer server.Close()
+
+	client := &http.Client{Transport: headTransport{base: http.DefaultTransport, keep: 100}}
+	resp, err := client.Get(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if _, err := io.ReadAll(resp.Body); err == nil {
+		t.Error("a body cut after the head must fail the read")
+	}
+}
+
 func TestRunVegetaAttackTruncatesBodiesInTheBinaryFile(t *testing.T) {
-	body := `{"jsonrpc":"2.0","id":1,"result":["` + strings.Repeat("a", 10000) + `"]}`
+	body := `{"jsonrpc":"2.0","id":1,"result":["` + strings.Repeat("a", 2*bodyHeadBytes) + `"]}`
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(body))
 	}))
@@ -506,6 +549,9 @@ func TestRunVegetaAttackTruncatesBodiesInTheBinaryFile(t *testing.T) {
 	if metrics.Requests == 0 || metrics.Success != 1 {
 		t.Fatalf("requests %d success %v: want every full body read as a success", metrics.Requests, metrics.Success)
 	}
+	if metrics.BytesIn.Mean != float64(len(body)) {
+		t.Errorf("bytes in per request = %v, want the whole body (%d)", metrics.BytesIn.Mean, len(body))
+	}
 	f, err := os.Open(out)
 	if err != nil {
 		t.Fatal(err)
@@ -521,6 +567,9 @@ func TestRunVegetaAttackTruncatesBodiesInTheBinaryFile(t *testing.T) {
 		decoded++
 		if len(r.Body) != 100 {
 			t.Fatalf("body of %d bytes in the binary file, want the first 100", len(r.Body))
+		}
+		if r.Headers.Get(bodySizeHeader) != "" {
+			t.Fatalf("%s written to the binary file", bodySizeHeader)
 		}
 	}
 	if uint64(decoded) != metrics.Requests {

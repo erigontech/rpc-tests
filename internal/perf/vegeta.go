@@ -384,6 +384,55 @@ func (pt *PerfTest) loadTargets(filepath string) ([]vegeta.Target, error) {
 	return targets, nil
 }
 
+// bodyHeadBytes is the part of each response body kept in memory: enough for any JSON-RPC error,
+// while a full body (about 1 GB for a struct-log trace) times the requests in flight exhausts the RAM.
+const bodyHeadBytes = 64 << 10
+
+// bodySizeHeader carries the full body size from headTransport to the attack loop, which removes it.
+const bodySizeHeader = "X-Rpc-Perf-Body-Size"
+
+// headTransport keeps only the first keep bytes of each response body and discards the rest,
+// still reading it to the end so that a body cut by the server fails the request.
+type headTransport struct {
+	base http.RoundTripper
+	keep int64
+}
+
+func (t headTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp, err := t.base.RoundTrip(req)
+	if err != nil {
+		return nil, err
+	}
+	resp.Body = &headBody{ReadCloser: resp.Body, header: resp.Header, left: t.keep}
+	return resp, nil
+}
+
+type headBody struct {
+	io.ReadCloser
+	header http.Header
+	left   int64
+	size   int64
+}
+
+func (b *headBody) Read(p []byte) (int, error) {
+	if b.left <= 0 {
+		rest, err := io.Copy(io.Discard, b.ReadCloser)
+		b.size += rest
+		if err != nil {
+			return 0, err
+		}
+		b.header.Set(bodySizeHeader, strconv.FormatInt(b.size, 10))
+		return 0, io.EOF
+	}
+	n, err := b.ReadCloser.Read(p[:min(int64(len(p)), b.left)])
+	b.left -= int64(n)
+	b.size += int64(n)
+	if err == io.EOF {
+		b.header.Set(bodySizeHeader, strconv.FormatInt(b.size, 10))
+	}
+	return n, err
+}
+
 // runVegetaAttack executes a Vegeta attack using the library.
 // It also returns the JSON-RPC error responses by message and the empty results: they come with HTTP 200,
 // so vegeta counts them as successes.
@@ -406,6 +455,9 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 	customClient := &http.Client{
 		Transport: tr,
 	}
+	if maxBody >= 0 {
+		customClient.Transport = headTransport{base: tr, keep: int64(max(maxBody, bodyHeadBytes))}
+	}
 
 	// Vegeta v12 reads MaxBody bytes then drains the remainder with
 	// io.Copy(io.Discard, r.Body). If the drain fails (e.g. server RST on a
@@ -415,10 +467,11 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 	// (0 bytes remaining), res.Code is always set correctly, and success
 	// counting matches Python/vegeta-CLI behaviour.
 	//
-	// The whole body is still read, but only its first MaxBodyRsp bytes are written to the
-	// binary file, as vegeta's -max-body did: full bodies made the file grow by the response
-	// size (tens of GB per test for eth_getLogs), and its single writer fell behind the attack,
-	// piling up results in memory and draining them for minutes after the attack ended.
+	// The whole body is still read, by headTransport, but only its head is kept in memory and only
+	// its first MaxBodyRsp bytes are written to the binary file, as vegeta's -max-body did: full
+	// bodies made the file grow by the response size (tens of GB per test for eth_getLogs), and its
+	// single writer fell behind the attack, piling up results in memory and draining them for
+	// minutes after the attack ended.
 	//
 	// High workers() counts can saturate server resources.
 	//
@@ -427,7 +480,6 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 		vegeta.Timeout(timeout),
 		vegeta.Workers(vegeta.DefaultWorkers),
 		vegeta.MaxBody(-1),
-		vegeta.KeepAlive(true),
 	)
 
 	out, err := os.Create(outputFile)
@@ -448,6 +500,10 @@ func (pt *PerfTest) runVegetaAttack(ctx context.Context, targets []vegeta.Target
 				metrics.Close()
 				tr.CloseIdleConnections()
 				return &metrics, results, nil
+			}
+			if size := result.Headers.Get(bodySizeHeader); size != "" {
+				result.BytesIn, _ = strconv.ParseUint(size, 10, 64)
+				result.Headers.Del(bodySizeHeader)
 			}
 			results.add(result)
 			metrics.Add(result)
