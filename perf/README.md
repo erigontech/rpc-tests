@@ -179,6 +179,9 @@ report). With a JSONL pattern that has a [header](pattern/README.md#pattern-head
 holds it, and `vegetaChecksum` is the checksum of the requests only, so a changed description keeps it.
 `configuration.clientVersion` is the `web3_clientVersion` of the node under test, also printed at the start
 (`Client: ...`); it is absent when the node answers with an error or does not answer.
+When a repetition fails and stops the run, for example because the server died, its level is still in
+`results`, with the error in `error` and only the repetitions completed before it in `testRepetitions`
+(none when the first one failed). A level that completed has no `error`.
 
 With a report, the Vegeta binary file of each test (every request with its latency, status and the
 first `-M` bytes of the response) is kept in `/tmp/run_tests_<n>/bin/` (`./perf/reports/bin/` with `-u`).
