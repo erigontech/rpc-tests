@@ -755,11 +755,41 @@ func TestListenTakesTheArrivalOfANotificationWhileTheOneBeforeIsParsed(t *testin
 	defer func() { parseResult = parse }()
 
 	lines := []subscriptionLine{{typ: "transactionReceipts"}, {typ: "newHeads", group: 1}}
-	notes, _ := listen(c, map[string]int{"0x1": 0, "0x2": 1}, lines, time.Now().Add(parseTime+time.Second))
+	notes, _ := listen(c, map[string]int{"0x1": 0, "0x2": 1}, lines, time.Now().Add(parseTime+time.Second), make(chan struct{}, 1))
 	if len(notes) != 2 {
 		t.Fatalf("notifications %d: want the receipts and the head", len(notes))
 	}
 	if gap := notes[1].arrival.Sub(notes[0].arrival); gap >= parseTime/2 {
 		t.Errorf("the head arrived %v after the receipts: want its read time, not the end of the parsing of the receipts", gap)
+	}
+}
+
+func TestRunSubscriptionsParsesOnFewerGoroutinesThanTheReaders(t *testing.T) {
+	node := &wsNode{conns: 4, heads: heads(3)}
+	addr := startWSNode(t, node)
+
+	workers, parse := parseWorkers, parseResult
+	defer func() { parseWorkers, parseResult = workers, parse }()
+	parseWorkers = 2
+	var mu sync.Mutex
+	running, most := 0, 0
+	parseResult = func(typ string, result json.RawMessage) (notification, string, string, bool) {
+		mu.Lock()
+		running++
+		most = max(most, running)
+		mu.Unlock()
+		time.Sleep(50 * time.Millisecond)
+		mu.Lock()
+		running--
+		mu.Unlock()
+		return parse(typ, result)
+	}
+
+	_, _, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(newHeadsRequest)}, 4, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	if most != 2 {
+		t.Errorf("notifications parsed at once %d: want at most the 2 parse workers, and all of them used", most)
 	}
 }
