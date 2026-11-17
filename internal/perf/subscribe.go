@@ -246,16 +246,31 @@ type rpcError struct {
 }
 
 // listen reads the notifications of c until deadline, and tells whether the node closed c before.
+// A notification is parsed apart from the reads, so its arrival does not wait for the parsing of
+// the ones before: a large notification would otherwise delay the arrival of the next.
 func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, deadline time.Time) ([]notification, bool) {
-	c.SetReadDeadline(deadline) //nolint:errcheck
-	var notes []notification
-	for {
-		_, msg, err := c.ReadMessage()
-		if err != nil {
-			var netErr net.Error
-			return notes, !errors.As(err, &netErr) || !netErr.Timeout()
+	type frame struct {
+		msg     []byte
+		arrival time.Time
+	}
+	frames := make(chan frame, 1024)
+	var closed bool
+	go func() {
+		defer close(frames)
+		c.SetReadDeadline(deadline) //nolint:errcheck
+		for {
+			_, msg, err := c.ReadMessage()
+			if err != nil {
+				var netErr net.Error
+				closed = !errors.As(err, &netErr) || !netErr.Timeout()
+				return
+			}
+			frames <- frame{msg, time.Now()}
 		}
-		arrival := time.Now()
+	}()
+	var notes []notification
+	for f := range frames {
+		msg, arrival := f.msg, f.arrival
 		var n struct {
 			Params struct {
 				Subscription string          `json:"subscription"`
@@ -269,11 +284,12 @@ func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, dea
 		if !ok {
 			continue
 		}
-		note, number, stamp, ok := parseNotification(lines[sub%len(lines)].typ, n.Params.Result)
+		note, number, stamp, ok := parseResult(lines[sub%len(lines)].typ, n.Params.Result)
 		if !ok {
 			continue
 		}
 		note.sub, note.arrival = sub, arrival
+		var err error
 		if note.number, err = parseHex(number); err != nil {
 			continue
 		}
@@ -286,6 +302,7 @@ func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, dea
 		}
 		notes = append(notes, note)
 	}
+	return notes, closed
 }
 
 type notifiedLog struct {
@@ -295,6 +312,9 @@ type notifiedLog struct {
 	LogIndex       string `json:"logIndex"`
 	Removed        bool   `json:"removed"`
 }
+
+// parseResult parses the result of a notification; a test can make it slow.
+var parseResult = parseNotification
 
 // parseNotification returns the notification of a result of a subscription of typ, with its block number and
 // block timestamp in hex, and false for a result that is not counted: a removed log, an empty list of receipts.
