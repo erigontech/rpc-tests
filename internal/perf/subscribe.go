@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"runtime"
 	"slices"
 	"strconv"
 	"strings"
@@ -185,11 +186,12 @@ func runSubscriptions(ctx context.Context, url, httpURL string, reqs [][]byte, c
 		}
 	})
 	defer stop()
+	parsing := make(chan struct{}, parseWorkers)
 	for i, c := range sockets {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			received[i].notes, received[i].closed = listen(c, subIDs[i], lines, end.Add(notificationDrain))
+			received[i].notes, received[i].closed = listen(c, subIDs[i], lines, end.Add(notificationDrain), parsing)
 		}()
 	}
 	wg.Wait()
@@ -246,46 +248,75 @@ type rpcError struct {
 }
 
 // listen reads the notifications of c until deadline, and tells whether the node closed c before.
-func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, deadline time.Time) ([]notification, bool) {
-	c.SetReadDeadline(deadline) //nolint:errcheck
-	var notes []notification
-	for {
-		_, msg, err := c.ReadMessage()
-		if err != nil {
-			var netErr net.Error
-			return notes, !errors.As(err, &netErr) || !netErr.Timeout()
-		}
-		arrival := time.Now()
-		var n struct {
-			Params struct {
-				Subscription string          `json:"subscription"`
-				Result       json.RawMessage `json:"result"`
-			} `json:"params"`
-		}
-		if json.Unmarshal(msg, &n) != nil {
-			continue
-		}
-		sub, ok := ids[n.Params.Subscription]
-		if !ok {
-			continue
-		}
-		note, number, stamp, ok := parseNotification(lines[sub%len(lines)].typ, n.Params.Result)
-		if !ok {
-			continue
-		}
-		note.sub, note.arrival = sub, arrival
-		if note.number, err = parseHex(number); err != nil {
-			continue
-		}
-		if stamp != "" {
-			seconds, err := parseHex(stamp)
-			if err != nil {
-				continue
-			}
-			note.timestamp = time.Unix(int64(seconds), 0)
-		}
-		notes = append(notes, note)
+// A notification is parsed apart from the reads, so its arrival does not wait for the parsing of
+// the ones before: a large notification would otherwise delay the arrival of the next. parsing bounds
+// the notifications parsed at once over all the connections.
+func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, deadline time.Time, parsing chan struct{}) ([]notification, bool) {
+	type frame struct {
+		msg     []byte
+		arrival time.Time
 	}
+	frames := make(chan frame, 1024)
+	var closed bool
+	go func() {
+		defer close(frames)
+		c.SetReadDeadline(deadline) //nolint:errcheck
+		for {
+			_, msg, err := c.ReadMessage()
+			if err != nil {
+				var netErr net.Error
+				closed = !errors.As(err, &netErr) || !netErr.Timeout()
+				return
+			}
+			frames <- frame{msg, time.Now()}
+		}
+	}()
+	var notes []notification
+	for f := range frames {
+		parsing <- struct{}{}
+		note, ok := parseFrame(f.msg, ids, lines)
+		<-parsing
+		if ok {
+			note.arrival = f.arrival
+			notes = append(notes, note)
+		}
+	}
+	return notes, closed
+}
+
+// parseFrame returns the notification of a frame, and false for a frame that is not a counted
+// notification of one of ids.
+func parseFrame(msg []byte, ids map[string]int, lines []subscriptionLine) (notification, bool) {
+	var n struct {
+		Params struct {
+			Subscription string          `json:"subscription"`
+			Result       json.RawMessage `json:"result"`
+		} `json:"params"`
+	}
+	if json.Unmarshal(msg, &n) != nil {
+		return notification{}, false
+	}
+	sub, ok := ids[n.Params.Subscription]
+	if !ok {
+		return notification{}, false
+	}
+	note, number, stamp, ok := parseResult(lines[sub%len(lines)].typ, n.Params.Result)
+	if !ok {
+		return notification{}, false
+	}
+	note.sub = sub
+	var err error
+	if note.number, err = parseHex(number); err != nil {
+		return notification{}, false
+	}
+	if stamp != "" {
+		seconds, err := parseHex(stamp)
+		if err != nil {
+			return notification{}, false
+		}
+		note.timestamp = time.Unix(int64(seconds), 0)
+	}
+	return note, true
 }
 
 type notifiedLog struct {
@@ -295,6 +326,14 @@ type notifiedLog struct {
 	LogIndex       string `json:"logIndex"`
 	Removed        bool   `json:"removed"`
 }
+
+// parseResult parses the result of a notification; a test can make it slow.
+var parseResult = parseNotification
+
+// parseWorkers is how many notifications are parsed at once over all the connections: one core fewer
+// than rpc_perf has, so a read always finds one and takes the arrival of a notification on time while the
+// receipts of a block are parsed. A test can change it.
+var parseWorkers = max(1, runtime.GOMAXPROCS(0)-1)
 
 // parseNotification returns the notification of a result of a subscription of typ, with its block number and
 // block timestamp in hex, and false for a result that is not counted: a removed log, an empty list of receipts.

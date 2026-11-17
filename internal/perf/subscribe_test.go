@@ -718,3 +718,78 @@ func TestRunSubscriptionsGivesNoLatencyToANotificationWithoutTimestamp(t *testin
 		t.Errorf("latencies %v..%v: a notification without block timestamp has no latency", metrics.Latencies.Min, metrics.Latencies.Max)
 	}
 }
+
+func TestListenTakesTheArrivalOfANotificationWhileTheOneBeforeIsParsed(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c, err := (&websocket.Upgrader{}).Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+		defer c.Close()
+		for _, note := range []string{
+			`{"jsonrpc":"2.0","method":"eth_subscription","params":{"subscription":"0x1","result":[{"blockNumber":"0x64","blockHash":"0x01","logs":[]}]}}`,
+			`{"jsonrpc":"2.0","method":"eth_subscription","params":{"subscription":"0x2","result":{"number":"0x64","hash":"0x01","timestamp":"0x0"}}}`,
+		} {
+			if c.WriteMessage(websocket.TextMessage, []byte(note)) != nil {
+				return
+			}
+		}
+		_, _, _ = c.ReadMessage()
+	}))
+	defer srv.Close()
+	c, resp, err := websocket.DefaultDialer.Dial("ws"+strings.TrimPrefix(srv.URL, "http"), nil)
+	if err != nil {
+		t.Fatalf("dial: %v", err)
+	}
+	resp.Body.Close()
+	defer c.Close()
+
+	const parseTime = 300 * time.Millisecond
+	parse := parseResult
+	parseResult = func(typ string, result json.RawMessage) (notification, string, string, bool) {
+		if typ == "transactionReceipts" {
+			time.Sleep(parseTime)
+		}
+		return parse(typ, result)
+	}
+	defer func() { parseResult = parse }()
+
+	lines := []subscriptionLine{{typ: "transactionReceipts"}, {typ: "newHeads", group: 1}}
+	notes, _ := listen(c, map[string]int{"0x1": 0, "0x2": 1}, lines, time.Now().Add(parseTime+time.Second), make(chan struct{}, 1))
+	if len(notes) != 2 {
+		t.Fatalf("notifications %d: want the receipts and the head", len(notes))
+	}
+	if gap := notes[1].arrival.Sub(notes[0].arrival); gap >= parseTime/2 {
+		t.Errorf("the head arrived %v after the receipts: want its read time, not the end of the parsing of the receipts", gap)
+	}
+}
+
+func TestRunSubscriptionsParsesOnFewerGoroutinesThanTheReaders(t *testing.T) {
+	node := &wsNode{conns: 4, heads: heads(3)}
+	addr := startWSNode(t, node)
+
+	workers, parse := parseWorkers, parseResult
+	defer func() { parseWorkers, parseResult = workers, parse }()
+	parseWorkers = 2
+	var mu sync.Mutex
+	running, most := 0, 0
+	parseResult = func(typ string, result json.RawMessage) (notification, string, string, bool) {
+		mu.Lock()
+		running++
+		most = max(most, running)
+		mu.Unlock()
+		time.Sleep(50 * time.Millisecond)
+		mu.Lock()
+		running--
+		mu.Unlock()
+		return parse(typ, result)
+	}
+
+	_, _, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(newHeadsRequest)}, 4, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	if most != 2 {
+		t.Errorf("notifications parsed at once %d: want at most the 2 parse workers, and all of them used", most)
+	}
+}
