@@ -6,7 +6,6 @@
       "method": "trace_block",
       "params": [
         "0x1048427",
-        null,
         {
           "IncludeWithdrawals": true
         }
