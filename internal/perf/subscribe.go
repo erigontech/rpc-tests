@@ -313,31 +313,28 @@ type rpcError struct {
 }
 
 // listen reads the notifications of c until deadline, and tells whether the node closed c before.
-// A notification is parsed apart from the reads, so its arrival does not wait for the parsing of
-// the ones before: a large notification would otherwise delay the arrival of the next. parsing bounds
+// A frame keeps the time it was read and is parsed only once the reads are over, so that parsing takes
+// no CPU from the reads of the other connections, which would take their arrival late. parsing bounds
 // the notifications parsed at once over all the connections.
 func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, deadline time.Time, parsing chan struct{}) ([]notification, bool) {
 	type frame struct {
 		msg     []byte
 		arrival time.Time
 	}
-	frames := make(chan frame, 1024)
+	var frames []frame
 	var closed bool
-	go func() {
-		defer close(frames)
-		c.SetReadDeadline(deadline) //nolint:errcheck
-		for {
-			_, msg, err := c.ReadMessage()
-			if err != nil {
-				var netErr net.Error
-				closed = !errors.As(err, &netErr) || !netErr.Timeout()
-				return
-			}
-			frames <- frame{msg, time.Now()}
+	c.SetReadDeadline(deadline) //nolint:errcheck
+	for {
+		_, msg, err := c.ReadMessage()
+		if err != nil {
+			var netErr net.Error
+			closed = !errors.As(err, &netErr) || !netErr.Timeout()
+			break
 		}
-	}()
+		frames = append(frames, frame{msg, time.Now()})
+	}
 	var notes []notification
-	for f := range frames {
+	for _, f := range frames {
 		parsing <- struct{}{}
 		note, ok := parseFrame(f.msg, ids, lines)
 		<-parsing
@@ -395,10 +392,9 @@ type notifiedLog struct {
 // parseResult parses the result of a notification; a test can make it slow.
 var parseResult = parseNotification
 
-// parseWorkers is how many notifications are parsed at once over all the connections: one core fewer
-// than rpc_perf has, so a read always finds one and takes the arrival of a notification on time while the
-// receipts of a block are parsed. A test can change it.
-var parseWorkers = max(1, runtime.GOMAXPROCS(0)-1)
+// parseWorkers is how many notifications are parsed at once over all the connections, once the reads are
+// over: one per core. A test can change it.
+var parseWorkers = runtime.GOMAXPROCS(0)
 
 // parseNotification returns the notification of a result of a subscription of typ, with its block number and
 // block timestamp in hex, and false for a result that is not counted: a removed log, an empty list of receipts.
