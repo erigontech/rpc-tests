@@ -10,6 +10,7 @@ import (
 	"maps"
 	"os"
 	"path/filepath"
+	"reflect"
 	"slices"
 	"strings"
 	"testing"
@@ -192,7 +193,7 @@ func TestCommandWritesTheOutputOnlyOnSuccess(t *testing.T) {
 		Requests:    2,
 		Created:     header.Created,
 	}
-	if *header != want || header.Created == "" {
+	if !reflect.DeepEqual(*header, want) || header.Created == "" {
 		t.Errorf("header %+v\nwant   %+v", *header, want)
 	}
 

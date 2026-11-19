@@ -231,7 +231,11 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		for i, target := range targets {
 			reqs[i] = target.Body
 		}
-		metrics, results, err = runSubscriptions(ctx, WSURL(pt.Config.ClientAddress, pt.Config.WSAddress), NodeURL(pt.Config.ClientAddress), reqs, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
+		var clients []ClientClass
+		if pattern, _, err := ReadPatternHeader(pt.Config.VegetaPatternTarFile); err == nil && pattern != nil {
+			clients = pattern.Clients
+		}
+		metrics, results, err = runClientSubscriptions(ctx, WSURL(pt.Config.ClientAddress, pt.Config.WSAddress), NodeURL(pt.Config.ClientAddress), reqs, clients, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
 		if err != nil {
 			err = fmt.Errorf("subscription test failed: %w", err)
 		}

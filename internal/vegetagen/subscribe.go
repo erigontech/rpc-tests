@@ -3,7 +3,10 @@ package vegetagen
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
+
+	"github.com/erigontech/rpc-tests/internal/perf"
 )
 
 // Subscription types of the type option of eth_subscribe.
@@ -85,6 +88,26 @@ func checkSubscriptions(cfg Config, specs []Spec) error {
 		return errors.New("eth_subscribe needs a .jsonl output: a vegeta tar holds HTTP requests")
 	case cfg.Verify:
 		return errors.New("eth_subscribe cannot be verified: it needs a WebSocket, verify runs over HTTP")
+	}
+	if cfg.Header != nil && len(cfg.Header.Clients) > 0 {
+		return checkClasses(cfg.Header.Clients, specs)
+	}
+	return nil
+}
+
+// checkClasses requires every spec in one of the client classes and every class with a spec.
+func checkClasses(clients []perf.ClientClass, specs []Spec) error {
+	used := map[string]bool{}
+	for _, sp := range specs {
+		if !slices.ContainsFunc(clients, func(c perf.ClientClass) bool { return c.Name == sp.Class }) {
+			return fmt.Errorf("%s: client class %q is not in the header", sp.name(), sp.Class)
+		}
+		used[sp.Class] = true
+	}
+	for _, c := range clients {
+		if !used[c.Name] {
+			return fmt.Errorf("client class %q has no subscription", c.Name)
+		}
 	}
 	return nil
 }

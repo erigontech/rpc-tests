@@ -51,6 +51,7 @@ type Spec struct {
 	Gen    Generator
 	Weight float64
 	Blocks uint64 // in a mix, draw only from this many most recent blocks of the window; 0 = the whole window
+	Class  string // the client class of Config.Header.Clients the eth_subscribe requests belong to
 }
 
 func (s Spec) name() string {
@@ -674,7 +675,11 @@ func write(cfg Config, specs []Spec, sum Summary, written [][][]byte) error {
 			h.Created = time.Now().UTC().Format(time.RFC3339)
 			header = &h
 		}
-		return writeJSONL(cfg.Out, header, interleave(written))
+		reqs := interleave(written)
+		if header != nil && len(header.Clients) > 0 {
+			header.Clients, reqs = groupByClass(header.Clients, specs, written)
+		}
+		return writeJSONL(cfg.Out, header, reqs)
 	}
 	name := cfg.Name
 	if name == "" {
@@ -723,6 +728,29 @@ func shares(count int, specs []Spec) []int {
 		out[i]++
 	}
 	return out
+}
+
+// groupByClass writes the requests of each client class in turn, interleaved within the class, and
+// returns the classes with the lines they hold.
+func groupByClass(clients []perf.ClientClass, specs []Spec, written [][][]byte) ([]perf.ClientClass, [][]byte) {
+	clients = slices.Clone(clients)
+	total := 0
+	for _, reqs := range written {
+		total += len(reqs)
+	}
+	out := make([][]byte, 0, total)
+	for k := range clients {
+		var own [][][]byte
+		for i, sp := range specs {
+			if sp.Class == clients[k].Name {
+				own = append(own, written[i])
+			}
+		}
+		clients[k].First = len(out)
+		out = append(out, interleave(own)...)
+		clients[k].Count = len(out) - clients[k].First
+	}
+	return clients, out
 }
 
 // interleave mixes the requests of every spec at random, with a fixed seed, keeping the order

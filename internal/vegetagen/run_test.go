@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -1454,6 +1455,62 @@ func TestRunRejectsSubscriptionsItCannotWriteOrVerify(t *testing.T) {
 			cfg.Out = filepath.Join(t.TempDir(), "out.jsonl")
 		}
 		if _, err := Run(context.Background(), cfg, tt.specs); err == nil {
+			t.Errorf("%s: want an error", name)
+		}
+	}
+}
+
+func TestRunGroupsSubscriptionsByClientClass(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.Verify = 0, 4, false
+	cfg.Out = filepath.Join(t.TempDir(), "out.jsonl")
+	cfg.Header = &perf.PatternInfo{Clients: []perf.ClientClass{{Name: "wallet", Share: 90}, {Name: "indexer", Share: 1, Pick: 1}}}
+	specs := []Spec{
+		{Name: "indexer receipts", Class: "indexer", Gen: mustGenerator(t, "eth_subscribe", map[string]string{"type": "transactionReceipts"}), Weight: 1},
+		{Name: "wallet heads", Class: "wallet", Gen: mustGenerator(t, "eth_subscribe", nil), Weight: 2},
+		{Name: "indexer heads", Class: "indexer", Gen: mustGenerator(t, "eth_subscribe", nil), Weight: 1},
+	}
+
+	if _, err := Run(context.Background(), cfg, specs); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	data, err := os.ReadFile(cfg.Out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	lines := strings.Split(strings.TrimSuffix(string(data), "\n"), "\n")
+	header, ok := perf.ParsePatternHeader([]byte(lines[0]))
+	if !ok {
+		t.Fatalf("no header: %s", lines[0])
+	}
+	want := []perf.ClientClass{{Name: "wallet", Share: 90, First: 0, Count: 2}, {Name: "indexer", Share: 1, First: 2, Count: 2, Pick: 1}}
+	if !reflect.DeepEqual(header.Clients, want) {
+		t.Errorf("clients %+v\nwant    %+v", header.Clients, want)
+	}
+	reqs := lines[1:]
+	for _, line := range reqs[:2] {
+		if !strings.Contains(line, `"params":["newHeads"]`) {
+			t.Errorf("wallet line %s, want newHeads", line)
+		}
+	}
+	if receipts := strings.Count(strings.Join(reqs[2:], "\n"), `"params":["transactionReceipts"]`); receipts != 1 {
+		t.Errorf("indexer lines %v, want one transactionReceipts", reqs[2:])
+	}
+}
+
+func TestRunRejectsASubscriptionOutsideTheClientClasses(t *testing.T) {
+	_, url := startNode(t)
+	cfg := baseConfig(t, url)
+	cfg.Blocks, cfg.Count, cfg.Verify = 0, 2, false
+	cfg.Out = filepath.Join(t.TempDir(), "out.jsonl")
+	cfg.Header = &perf.PatternInfo{Clients: []perf.ClientClass{{Name: "wallet", Share: 1}, {Name: "dapp", Share: 1}}}
+	for name, specs := range map[string][]Spec{
+		"unknown class":   {{Class: "indexer", Gen: mustGenerator(t, "eth_subscribe", nil), Weight: 1}},
+		"empty class":     {{Class: "wallet", Gen: mustGenerator(t, "eth_subscribe", nil), Weight: 1}},
+		"no class at all": {{Gen: mustGenerator(t, "eth_subscribe", nil), Weight: 1}},
+	} {
+		if _, err := Run(context.Background(), cfg, specs); err == nil {
 			t.Errorf("%s: want an error", name)
 		}
 	}

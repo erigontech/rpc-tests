@@ -74,6 +74,9 @@ match the logs of recent blocks (`--logs-filter address|address+topics|topics|al
 
 ```bash
 ./build/bin/rpc_pattern_gen eth_subscribe --newHeads 1 --logs 3 --transactionReceipts 1 --out eth_subscribe.jsonl
+# client classes instead of the counts: each connection sends only the lines of its class
+./build/bin/rpc_pattern_gen eth_subscribe --logs-filter address --client wallet:90:newHeads=1 \
+  --client dapp:9:newHeads=1,logs=50,pick=1 --client indexer:1:logs-all=1,transactionReceipts=1 --out eth_subscribe_clients.jsonl
 ```
 
 ## Replay

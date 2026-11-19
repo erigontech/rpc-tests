@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -52,10 +53,16 @@ type wsNode struct {
 	// receiptObjects sends each receipt as its own notification, an object instead of a list.
 	receiptObjects bool
 
+	// linesOf, when set, is the subscriptions of a connection whose first one is of typ, for connections
+	// that hold different numbers of them; lines is then unused and total is the sum over the connections.
+	linesOf func(typ string) int
+	total   int
+
 	mu       sync.Mutex
 	accepted int
 	ready    chan struct{}
 	subs     int
+	types    map[int][]string // by connection, the types subscribed on it
 }
 
 func startWSNode(t *testing.T, n *wsNode) string {
@@ -239,17 +246,27 @@ func (n *wsNode) subscribe(t *testing.T, c *websocket.Conn, conn int) []fakeSub 
 			resp = fmt.Appendf(nil, `{"jsonrpc":"2.0","id":%s,"error":{"code":-32000,"message":"too many subscriptions"}}`, req.ID)
 		} else {
 			subs = append(subs, fakeSub{id: id, typ: fmt.Sprint(req.Params[0])})
+			n.mu.Lock()
+			if n.types == nil {
+				n.types = map[int][]string{}
+			}
+			n.types[conn] = append(n.types[conn], fmt.Sprint(req.Params[0]))
+			n.mu.Unlock()
 		}
 		if err := c.WriteMessage(websocket.TextMessage, resp); err != nil {
 			return subs
 		}
 		n.mu.Lock()
 		n.subs++
-		if n.subs == n.conns*n.perConn() {
+		want := n.perConn()
+		if n.linesOf != nil && len(subs) > 0 {
+			want = n.linesOf(subs[0].typ)
+		}
+		if n.subs == n.conns*n.perConn() && n.linesOf == nil || n.subs == n.total && n.linesOf != nil {
 			close(n.ready)
 		}
 		n.mu.Unlock()
-		if answered == n.perConn() {
+		if answered == want {
 			return subs
 		}
 	}
@@ -791,5 +808,57 @@ func TestRunSubscriptionsParsesOnFewerGoroutinesThanTheReaders(t *testing.T) {
 	}
 	if most != 2 {
 		t.Errorf("notifications parsed at once %d: want at most the 2 parse workers, and all of them used", most)
+	}
+}
+
+func TestRunSubscriptionsSendsTheLinesOfItsClassOnEachConnection(t *testing.T) {
+	node := &wsNode{conns: 4, total: 4, linesOf: func(string) int { return 1 }, heads: headsWithTxs(2, 3)}
+	addr := startWSNode(t, node)
+	clients := []ClientClass{{Name: "wallet", Share: 3, First: 0, Count: 1}, {Name: "indexer", Share: 1, First: 1, Count: 1}}
+
+	_, results, err := runClientSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(newHeadsRequest), []byte(receiptsRequest)}, clients, 4, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runClientSubscriptions: %v", err)
+	}
+	byTypes := map[string]int{}
+	for _, types := range node.types {
+		byTypes[strings.Join(types, ",")]++
+	}
+	if want := map[string]int{"newHeads": 3, "transactionReceipts": 1}; !maps.Equal(byTypes, want) {
+		t.Errorf("connections by subscribed types %v, want %v", byTypes, want)
+	}
+	for row, want := range map[string]int{
+		"newHeads latency":                    6, // 3 connections x 2 blocks
+		"newHeads fan-out":                    4,
+		"transactionReceipts latency":         2,
+		"newHeads latency wallet":             6,
+		"newHeads fan-out wallet":             4,
+		"transactionReceipts latency indexer": 2,
+	} {
+		if got := results.apis[row]; got == nil || got.requests != want || len(got.errors) > 0 {
+			t.Errorf("%s row %+v: want %d requests and no error", row, got, want)
+		}
+	}
+}
+
+func TestExecuteSplitsTheConnectionsByTheClientClassesOfThePattern(t *testing.T) {
+	node := &wsNode{conns: 4, total: 4, linesOf: func(string) int { return 1 }, heads: headsWithTxs(1, 2)}
+	addr := startWSNode(t, node)
+	header := `{"pattern":{"description":"classes","clients":[{"name":"wallet","share":3,"first":0,"count":1},{"name":"indexer","share":1,"first":1,"count":1}]}}`
+	pt, cfg, _ := newJSONLPerf(t, addr, header, newHeadsRequest, receiptsRequest)
+	cfg.WSAddress = addr
+
+	format := ResultFormat{MaxRepetitionDigits: 1, MaxQpsDigits: 1, MaxDurationDigits: 1}
+	if err := pt.Execute(context.Background(), 1, 0, "rpcdaemon", 4, 1, format); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	node.mu.Lock()
+	defer node.mu.Unlock()
+	byTypes := map[string]int{}
+	for _, types := range node.types {
+		byTypes[strings.Join(types, ",")]++
+	}
+	if want := map[string]int{"newHeads": 3, "transactionReceipts": 1}; !maps.Equal(byTypes, want) {
+		t.Errorf("connections by subscribed types %v, want %v", byTypes, want)
 	}
 }

@@ -2,6 +2,7 @@ package perf
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
@@ -139,6 +140,8 @@ type notification struct {
 
 // connection is what one WebSocket connection of a test received.
 type connection struct {
+	class    string // the client class, empty without classes
+	lines    []int  // the lines the connection sends
 	notes    []notification
 	rejected map[int]string // subscription index -> error message of its eth_subscribe
 	closed   bool           // closed by the node before the end of the test
@@ -150,13 +153,27 @@ type connection struct {
 // a latency row, a fan-out row, the arrival time minus the first arrival of the same event on the same
 // pattern line, and for logs a row of the arrival time minus that of the head on the same connection.
 func runSubscriptions(ctx context.Context, url, httpURL string, reqs [][]byte, conns int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
+	return runClientSubscriptions(ctx, url, httpURL, reqs, nil, conns, duration, outputFile)
+}
+
+// runClientSubscriptions is runSubscriptions with the connections split into the client classes of
+// clients, each connection sending the requests of its class; the results of a class are also in rows
+// named after it.
+func runClientSubscriptions(ctx context.Context, url, httpURL string, reqs [][]byte, clients []ClientClass, conns int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
 	lines, err := subscriptionLines(reqs)
+	if err != nil {
+		return nil, attackResults{}, err
+	}
+	plan, err := clientConnections(conns, lines, clients)
 	if err != nil {
 		return nil, attackResults{}, err
 	}
 	sockets := make([]*websocket.Conn, conns)
 	subIDs := make([]map[string]int, conns) // subscription id -> index of the subscription
 	received := make([]connection, conns)
+	for i, p := range plan {
+		received[i].class, received[i].lines = p.class, p.lines
+	}
 	defer func() {
 		for _, c := range sockets {
 			if c != nil {
@@ -170,7 +187,11 @@ func runSubscriptions(ctx context.Context, url, httpURL string, reqs [][]byte, c
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			sockets[i], subIDs[i], received[i].rejected, errs[i] = subscribe(ctx, url, reqs, i*len(reqs))
+			subs := make([]int, len(plan[i].lines))
+			for k, j := range plan[i].lines {
+				subs[k] = i*len(reqs) + j
+			}
+			sockets[i], subIDs[i], received[i].rejected, errs[i] = subscribe(ctx, url, reqs, subs)
 		}()
 	}
 	wg.Wait()
@@ -201,9 +222,10 @@ func runSubscriptions(ctx context.Context, url, httpURL string, reqs [][]byte, c
 	return measure(ctx, received, lines, url, httpURL, start, end, outputFile)
 }
 
-// subscribe dials url and sends reqs, waiting for the answer of each, and returns the subscription ids and
-// the error messages of the rejected ones, by subscription index, numbered from first.
-func subscribe(ctx context.Context, url string, reqs [][]byte, first int) (*websocket.Conn, map[string]int, map[int]string, error) {
+// subscribe dials url and sends the request of each subscription of subs, the request of a subscription
+// being its index modulo len(reqs), waiting for the answer of each, and returns the subscription ids and
+// the error messages of the rejected ones, by subscription index.
+func subscribe(ctx context.Context, url string, reqs [][]byte, subs []int) (*websocket.Conn, map[string]int, map[int]string, error) {
 	c, resp, err := websocket.DefaultDialer.DialContext(ctx, url, nil)
 	if resp != nil {
 		resp.Body.Close()
@@ -212,8 +234,8 @@ func subscribe(ctx context.Context, url string, reqs [][]byte, first int) (*webs
 		return nil, nil, nil, fmt.Errorf("websocket dial %s: %w", url, err)
 	}
 	ids, rejected := map[string]int{}, map[int]string{}
-	for i, req := range reqs {
-		if err := c.WriteMessage(websocket.TextMessage, req); err != nil {
+	for _, sub := range subs {
+		if err := c.WriteMessage(websocket.TextMessage, reqs[sub%len(reqs)]); err != nil {
 			return c, nil, nil, fmt.Errorf("eth_subscribe: %w", err)
 		}
 		for {
@@ -233,9 +255,9 @@ func subscribe(ctx context.Context, url string, reqs [][]byte, first int) (*webs
 				continue // a notification of an earlier subscription, before the test starts
 			}
 			if resp.Error != nil {
-				rejected[first+i] = resp.Error.Message
+				rejected[sub] = resp.Error.Message
 			} else {
-				ids[resp.Result] = first + i
+				ids[resp.Result] = sub
 			}
 			break
 		}
@@ -475,6 +497,13 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 	encoder := vegeta.NewEncoder(out)
 	var metrics vegeta.Metrics
 	results := attackResults{rpcErrors: map[string]int{}, apis: map[string]*apiResult{}}
+	class := ""
+	rowsOf := func(name string) []*apiResult {
+		if class == "" {
+			return []*apiResult{results.row(name)}
+		}
+		return []*apiResult{results.row(name), results.row(name + " " + class)}
+	}
 	add := func(sub int, r *vegeta.Result) (row string) {
 		typ := lines[sub%len(lines)].typ
 		r.Attack, r.URL, r.Method = "eth_subscribe", url, "WS"
@@ -485,7 +514,9 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 		if err := encoder.Encode(r); err != nil {
 			log.Printf("Warning: failed to encode result: %v", err)
 		}
-		results.row(typ+" latency").add(r.Latency, r.Error)
+		for _, a := range rowsOf(typ + " latency") {
+			a.add(r.Latency, r.Error)
+		}
 		if r.Error == "" {
 			results.ok.Add(r.Latency)
 			results.okRequests++
@@ -494,6 +525,7 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 	}
 
 	for i, conn := range conns {
+		class = conn.class
 		seen := map[int]map[string]bool{}    // by subscription, the events received
 		numbers := map[int]map[uint64]bool{} // by subscription, the block numbers received
 		receipts := map[int]map[uint64]int{} // by subscription and block number, the receipts received
@@ -531,16 +563,23 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 				continue
 			}
 			if first := eventFirst[eventKey(n, lines)]; !n.arrival.Equal(first) {
-				results.row(typ+" fan-out").add(n.arrival.Sub(first), "")
+				for _, a := range rowsOf(typ + " fan-out") {
+					a.add(n.arrival.Sub(first), "")
+				}
 			}
 			if head, ok := heads[n.blockHash]; ok && typ != subNewHeads {
-				results.row(typ+" vs newHeads").add(n.arrival.Sub(head), "")
+				for _, a := range rowsOf(typ + " vs newHeads") {
+					a.add(n.arrival.Sub(head), "")
+				}
 			}
 			if n.perReceipt {
-				results.row(typ+" per receipt").add(n.spread, "")
+				for _, a := range rowsOf(typ + " per receipt") {
+					a.add(n.spread, "")
+				}
 			}
 		}
-		for j, line := range lines {
+		for _, j := range conn.lines {
+			line := lines[j]
 			sub := i*len(lines) + j
 			if msg, ok := conn.rejected[sub]; ok {
 				add(sub, &vegeta.Result{Error: "rejected subscribe: " + RPCErrorKind(msg)})
@@ -687,4 +726,85 @@ func (a *apiResult) add(latency time.Duration, err string) {
 	if err != "" {
 		a.errors[err]++
 	}
+}
+
+// clientConnection is the class of a connection and the lines it sends.
+type clientConnection struct {
+	class string
+	lines []int
+}
+
+// clientConnections returns, for each of conns connections, its class and the lines it sends: every line
+// without classes. The connections are split by share, the rest going to the largest remainders, and each
+// class gets at least one, taken from the class with the most.
+func clientConnections(conns int, lines []subscriptionLine, clients []ClientClass) ([]clientConnection, error) {
+	out := make([]clientConnection, conns)
+	if len(clients) == 0 {
+		all := make([]int, len(lines))
+		for j := range all {
+			all[j] = j
+		}
+		for i := range out {
+			out[i].lines = all
+		}
+		return out, nil
+	}
+	if conns < len(clients) {
+		return nil, fmt.Errorf("%d connections for %d client classes: want at least one each", conns, len(clients))
+	}
+	covered, total := 0, 0.0
+	for _, c := range clients {
+		if c.Share <= 0 || c.Count <= 0 || c.First != covered || c.First+c.Count > len(lines) {
+			return nil, fmt.Errorf("client class %q: want a positive share and the lines right after the previous class, within the %d requests", c.Name, len(lines))
+		}
+		covered += c.Count
+		total += c.Share
+	}
+	if covered != len(lines) {
+		return nil, fmt.Errorf("client classes cover %d of the %d requests", covered, len(lines))
+	}
+	counts := make([]int, len(clients))
+	rest := make([]float64, len(clients))
+	assigned := 0
+	for k, c := range clients {
+		exact := float64(conns) * c.Share / total
+		counts[k] = int(exact)
+		rest[k] = exact - float64(counts[k])
+		assigned += counts[k]
+	}
+	order := make([]int, len(clients))
+	for k := range order {
+		order[k] = k
+	}
+	slices.SortStableFunc(order, func(a, b int) int { return cmp.Compare(rest[b], rest[a]) })
+	for _, k := range order[:conns-assigned] {
+		counts[k]++
+	}
+	for k := range counts {
+		if counts[k] == 0 {
+			counts[slices.Index(counts, slices.Max(counts))]--
+			counts[k] = 1
+		}
+	}
+	i := 0
+	for k, c := range clients {
+		var logs, others []int
+		for j := c.First; j < c.First+c.Count; j++ {
+			if c.Pick > 0 && lines[j].typ == subLogs {
+				logs = append(logs, j)
+			} else {
+				others = append(others, j)
+			}
+		}
+		for n := range counts[k] {
+			sent := slices.Clone(others)
+			for t := range min(c.Pick, len(logs)) {
+				sent = append(sent, logs[(n*c.Pick+t)%len(logs)])
+			}
+			slices.Sort(sent)
+			out[i] = clientConnection{class: c.Name, lines: sent}
+			i++
+		}
+	}
+	return out, nil
 }
