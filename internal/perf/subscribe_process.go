@@ -4,11 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 // SubscribeWorkerEnv, when set, makes rpc_perf a worker process that reads some connections of a
@@ -47,7 +50,7 @@ func collectSplit(ctx context.Context, url string, reqs [][]byte, lines []subscr
 		return time.Time{}, time.Time{}, err
 	}
 	defer w.stop()
-	sockets, ids, rejected, err := subscribeAll(ctx, url, reqs, pick(subs, near))
+	sockets, ids, rejected, err := subscribeInterleaved(ctx, url, reqs, pick(subs, near), w, len(far))
 	defer closeAll(sockets)
 	if err != nil {
 		return time.Time{}, time.Time{}, err
@@ -85,6 +88,36 @@ func collectSplit(ctx context.Context, url string, reqs [][]byte, lines []subscr
 	return start, end, nil
 }
 
+// subscribeInterleaved subscribes the connections of this process in len(far)+1 chunks and lets the worker
+// subscribe one of its connections between two chunks, so a server that serves subscriptions in the order
+// they were made does not find the worker's connections next to each other.
+func subscribeInterleaved(ctx context.Context, url string, reqs [][]byte, subs [][]int, w *worker, far int) ([]*websocket.Conn, []map[string]int, []map[int]string, error) {
+	sockets := make([]*websocket.Conn, len(subs))
+	ids := make([]map[string]int, len(subs))
+	rejected := make([]map[int]string, len(subs))
+	var errs []error
+	from := 0
+	for k := 0; k <= far; k++ {
+		to := len(subs) * (k + 1) / (far + 1)
+		s, i, r, err := subscribeAll(ctx, url, reqs, subs[from:to])
+		copy(sockets[from:to], s)
+		copy(ids[from:to], i)
+		copy(rejected[from:to], r)
+		errs = append(errs, err)
+		from = to
+		if k < far {
+			if err := w.enc.Encode(workerNext{}); err != nil {
+				return sockets, ids, rejected, fmt.Errorf("subscribe worker: %w", err)
+			}
+			var done workerNext
+			if err := w.receive(&done); err != nil {
+				return sockets, ids, rejected, err
+			}
+		}
+	}
+	return sockets, ids, rejected, errors.Join(errs...)
+}
+
 func pick[T any](items []T, indexes []int) []T {
 	out := make([]T, len(indexes))
 	for k, i := range indexes {
@@ -100,6 +133,9 @@ type workerSpec struct {
 	Reqs [][]byte `json:"reqs"`
 	Subs [][]int  `json:"subs"` // the subscriptions of each connection
 }
+
+// workerNext asks the worker to subscribe its next connection, and is its answer once done.
+type workerNext struct{}
 
 type workerReady struct {
 	Rejected []map[int]string `json:"rejected"`
@@ -207,10 +243,25 @@ func RunSubscribeWorker(in io.Reader, out io.Writer) error {
 		return err
 	}
 	ctx := context.Background()
-	sockets, ids, rejected, err := subscribeAll(ctx, spec.URL, spec.Reqs, spec.Subs)
+	sockets := make([]*websocket.Conn, len(spec.Subs))
+	ids := make([]map[string]int, len(spec.Subs))
+	rejected := make([]map[int]string, len(spec.Subs))
 	defer closeAll(sockets)
+	var errs []error
+	for k := range spec.Subs {
+		var next workerNext
+		if err := dec.Decode(&next); err != nil {
+			return fmt.Errorf("subscribe worker next: %w", err)
+		}
+		var err error
+		sockets[k], ids[k], rejected[k], err = subscribe(ctx, spec.URL, spec.Reqs, spec.Subs[k])
+		errs = append(errs, err)
+		if err := enc.Encode(workerNext{}); err != nil {
+			return err
+		}
+	}
 	ready := workerReady{Rejected: rejected}
-	if err != nil {
+	if err := errors.Join(errs...); err != nil {
 		ready.Error = err.Error()
 	}
 	if err := enc.Encode(ready); err != nil || ready.Error != "" {
