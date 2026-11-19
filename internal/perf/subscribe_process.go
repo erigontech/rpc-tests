@@ -36,6 +36,16 @@ func splitCPUs(cpus []int) (light, heavy []int) {
 	if len(cpus) < 2 {
 		return nil, nil
 	}
+	switch os.Getenv("RPC_PERF_LIGHT_SHARE") { // investigation only
+	case "shared":
+		return cpus, cpus
+	case "quarter":
+		n := max(1, len(cpus)/4)
+		return cpus[:n], cpus[n:]
+	case "three-quarters":
+		n := min(len(cpus)-1, len(cpus)*3/4)
+		return cpus[:n], cpus[n:]
+	}
 	n := len(cpus) / 2
 	return cpus[:n], cpus[n:]
 }
