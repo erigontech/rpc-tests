@@ -149,6 +149,7 @@ type workerConn struct {
 type wireNote struct {
 	Sub        int    `json:"s"`
 	Arrival    int64  `json:"a"`
+	Kernel     int64  `json:"kt,omitempty"`
 	Number     uint64 `json:"n"`
 	BlockHash  string `json:"h"`
 	Key        string `json:"k"`
@@ -162,6 +163,9 @@ func newWireNote(n notification) wireNote {
 	if !n.timestamp.IsZero() {
 		w.Timestamp = n.timestamp.UnixNano()
 	}
+	if !n.kernel.IsZero() {
+		w.Kernel = n.kernel.UnixNano()
+	}
 	return w
 }
 
@@ -169,6 +173,9 @@ func (w wireNote) notification() notification {
 	n := notification{sub: w.Sub, arrival: time.Unix(0, w.Arrival), number: w.Number, blockHash: w.BlockHash, key: w.Key, receipts: w.Receipts, perReceipt: w.PerReceipt}
 	if w.Timestamp != 0 {
 		n.timestamp = time.Unix(0, w.Timestamp)
+	}
+	if w.Kernel != 0 {
+		n.kernel = time.Unix(0, w.Kernel)
 	}
 	return n
 }

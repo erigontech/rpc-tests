@@ -127,6 +127,7 @@ func WSURL(clientAddress, wsAddress string) string {
 type notification struct {
 	sub       int // index of the subscription among all those of the test
 	arrival   time.Time
+	kernel    time.Time // when the kernel received the last data of the frame, zero when unknown
 	number    uint64
 	blockHash string
 	key       string    // the event: the block hash of a head, the block hash and the index of a log
@@ -269,7 +270,9 @@ func listenAll(ctx context.Context, sockets []*websocket.Conn, ids []map[string]
 // being its index modulo len(reqs), waiting for the answer of each, and returns the subscription ids and
 // the error messages of the rejected ones, by subscription index.
 func subscribe(ctx context.Context, url string, reqs [][]byte, subs []int) (*websocket.Conn, map[string]int, map[int]string, error) {
-	c, resp, err := websocket.DefaultDialer.DialContext(ctx, url, nil)
+	dialer := *websocket.DefaultDialer
+	dialer.NetDialContext = dialKernelTime
+	c, resp, err := dialer.DialContext(ctx, url, nil)
 	if resp != nil {
 		resp.Body.Close()
 	}
@@ -320,6 +323,7 @@ func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, dea
 	type frame struct {
 		msg     []byte
 		arrival time.Time
+		kernel  int64
 	}
 	var frames []frame
 	var closed bool
@@ -331,7 +335,7 @@ func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, dea
 			closed = !errors.As(err, &netErr) || !netErr.Timeout()
 			break
 		}
-		frames = append(frames, frame{msg, time.Now()})
+		frames = append(frames, frame{msg, time.Now(), kernelTime(c.UnderlyingConn())})
 	}
 	var notes []notification
 	for _, f := range frames {
@@ -340,6 +344,9 @@ func listen(c *websocket.Conn, ids map[string]int, lines []subscriptionLine, dea
 		<-parsing
 		if ok {
 			note.arrival = f.arrival
+			if f.kernel != 0 {
+				note.kernel = time.Unix(0, f.kernel)
+			}
 			notes = append(notes, note)
 		}
 	}
@@ -476,6 +483,7 @@ func mergeReceiptObjects(notes []notification) []notification {
 		m.receipts++
 		m.spread += n.arrival.Sub(m.arrival)
 		m.arrival = n.arrival
+		m.kernel = n.kernel
 		if m.timestamp.IsZero() {
 			m.timestamp = n.timestamp
 		}
@@ -495,9 +503,15 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 		conns[i].notes = mergeReceiptObjects(conns[i].notes)
 	}
 	blockFirst := map[string]time.Time{}
-	eventFirst := map[string]time.Time{} // by pattern line and event
+	eventFirst := map[string]time.Time{}  // by pattern line and event
+	kernelFirst := map[string]time.Time{} // by pattern line and event, the first kernel receive time
 	for _, conn := range conns {
 		for _, n := range conn.notes {
+			if !n.kernel.IsZero() {
+				if t, ok := kernelFirst[eventKey(n, lines)]; !ok || n.kernel.Before(t) {
+					kernelFirst[eventKey(n, lines)] = n.kernel
+				}
+			}
 			if t, ok := blockFirst[n.blockHash]; !ok || n.arrival.Before(t) {
 				blockFirst[n.blockHash] = n.arrival
 			}
@@ -604,6 +618,16 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 			if first := eventFirst[eventKey(n, lines)]; !n.arrival.Equal(first) {
 				for _, a := range rowsOf(typ + " fan-out") {
 					a.add(n.arrival.Sub(first), "")
+				}
+			}
+			if first, ok := kernelFirst[eventKey(n, lines)]; ok && !n.kernel.IsZero() {
+				if !n.kernel.Equal(first) {
+					for _, a := range rowsOf(typ + " fan-out kernel") {
+						a.add(n.kernel.Sub(first), "")
+					}
+				}
+				for _, a := range rowsOf(typ + " client delay") {
+					a.add(n.arrival.Sub(n.kernel), "")
 				}
 			}
 			if head, ok := heads[n.blockHash]; ok && typ != subNewHeads {
