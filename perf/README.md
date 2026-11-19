@@ -263,9 +263,9 @@ Each notification is one result:
   for receipts, the `blockTimestamp` of a receipt or, when it has none, of one of its logs),
   the start of the slot, the same reference for every client. It covers the whole path: block
   propagation, consensus client, execution, forkchoiceUpdated and the notification itself. The arrival
-  time is read right after the WebSocket frame, and the notification is parsed apart from the reads, on one
-  core fewer than rpc_perf has, so a large notification (the receipts of a block) does not delay the arrival
-  of the next one, even while the receipts of a block take every other core. A log is one notification, so the logs at the end of a
+  time is read right after the WebSocket frame, and the notifications are parsed only once the reads are
+  over, so parsing (the receipts of a block above all) takes no CPU from the reads and does not delay the
+  arrival of the next notifications. A log is one notification, so the logs at the end of a
   block arrive later; the receipts of a block are one notification.
 - `<type> latency` row: these latencies, e.g. `newHeads latency`, `logs latency`,
   `transactionReceipts latency`.

@@ -781,6 +781,45 @@ func TestListenTakesTheArrivalOfANotificationWhileTheOneBeforeIsParsed(t *testin
 	}
 }
 
+func TestListenParsesNoNotificationBeforeTheDeadline(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c, err := (&websocket.Upgrader{}).Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+		defer c.Close()
+		_ = c.WriteMessage(websocket.TextMessage, []byte(`{"jsonrpc":"2.0","method":"eth_subscription","params":{"subscription":"0x1","result":{"number":"0x64","hash":"0x01","timestamp":"0x0"}}}`))
+		_, _, _ = c.ReadMessage()
+	}))
+	defer srv.Close()
+	c, resp, err := websocket.DefaultDialer.Dial("ws"+strings.TrimPrefix(srv.URL, "http"), nil)
+	if err != nil {
+		t.Fatalf("dial: %v", err)
+	}
+	resp.Body.Close()
+	defer c.Close()
+
+	var mu sync.Mutex
+	var parsed []time.Time
+	parse := parseResult
+	parseResult = func(typ string, result json.RawMessage) (notification, string, string, bool) {
+		mu.Lock()
+		parsed = append(parsed, time.Now())
+		mu.Unlock()
+		return parse(typ, result)
+	}
+	defer func() { parseResult = parse }()
+
+	deadline := time.Now().Add(300 * time.Millisecond)
+	notes, _ := listen(c, map[string]int{"0x1": 0}, []subscriptionLine{{typ: "newHeads"}}, deadline, make(chan struct{}, 1))
+	if len(notes) != 1 || len(parsed) != 1 {
+		t.Fatalf("notifications %d, parsed %d: want the head", len(notes), len(parsed))
+	}
+	if parsed[0].Before(deadline) {
+		t.Errorf("the head was parsed %v before the deadline: want the parsing after the reads, so that it takes no CPU from them", deadline.Sub(parsed[0]))
+	}
+}
+
 func TestRunSubscriptionsParsesOnFewerGoroutinesThanTheReaders(t *testing.T) {
 	node := &wsNode{conns: 4, heads: heads(3)}
 	addr := startWSNode(t, node)

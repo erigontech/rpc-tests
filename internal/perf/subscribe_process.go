@@ -39,12 +39,12 @@ func splitCPUs(cpus []int) (light, heavy []int) {
 	return cpus[:n], cpus[n:]
 }
 
-// parseWorkersOn is the parse workers of a process pinned to cpus: one core fewer, as parseWorkers.
+// parseWorkersOn is the parse workers of a process pinned to cpus: one per core, as parseWorkers.
 func parseWorkersOn(cpus []int) int {
 	if len(cpus) == 0 {
 		return parseWorkers
 	}
-	return max(1, len(cpus)-1)
+	return len(cpus)
 }
 
 // collectSplit is collect with the heavy connections read by a worker process pinned to cpus of their
