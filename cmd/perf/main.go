@@ -12,6 +12,12 @@ import (
 )
 
 func main() {
+	if os.Getenv(perf.SubscribeWorkerEnv) != "" {
+		if err := perf.RunSubscribeWorker(os.Stdin, os.Stdout); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
 	app := &cli.App{
 		Name:   "rpc_perf",
 		Usage:  "Launch an automated sequence of RPC performance tests on target blockchain node(s)",

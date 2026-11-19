@@ -243,7 +243,11 @@ JSON and CSV reports keep the `qps` field. Each connection sends every line of t
 opens, then only listens. With the `clients` field in the pattern header (`rpc_pattern_gen eth_subscribe
 --client`), the connections are split among the client classes by share, at least one each, and each sends
 only the lines of its class; every row also has a copy per class, named after it, e.g.
-`newHeads fan-out wallet`. The connections go to port 8546 of the `-d` host, the default WebSocket port of
+`newHeads fan-out wallet`. On Linux, when some classes subscribe to large notifications
+(`transactionReceipts`, or `logs` without a filter) and others do not, a second `rpc_perf` process reads
+the connections of the heavy classes on three quarters of the CPUs `rpc_perf` may use, and the first one
+reads the others on the remaining quarter: parsing the receipts of a block then no longer delays the
+arrival of the heads. Pin `rpc_perf` with `taskset` to choose the CPUs. The connections go to port 8546 of the `-d` host, the default WebSocket port of
 Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). The
 `newHeads`, `logs` and `transactionReceipts` subscriptions are measured; a `transactionReceipts`
 subscription with a `transactionHashes` filter is not.
