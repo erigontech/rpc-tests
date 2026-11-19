@@ -29,13 +29,14 @@ func heavyConnections(plan []clientConnection, lines []subscriptionLine) []bool 
 	return heavy
 }
 
-// splitCPUs gives a quarter of cpus, at least one, to the light connections and the rest to the heavy
-// ones, or nothing when there are fewer than two.
+// splitCPUs gives half of cpus, rounded down, to the light connections and the rest to the heavy ones, or
+// nothing when there are fewer than two. The light connections are many and their notifications arrive
+// in a burst at each head, so their reads need as many cores as the few heavy connections need to parse.
 func splitCPUs(cpus []int) (light, heavy []int) {
 	if len(cpus) < 2 {
 		return nil, nil
 	}
-	n := max(1, len(cpus)/4)
+	n := len(cpus) / 2
 	return cpus[:n], cpus[n:]
 }
 
