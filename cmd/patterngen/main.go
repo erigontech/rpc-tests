@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -28,6 +29,8 @@ func newApp() *cli.App {
 	app := &cli.App{
 		Name:  "rpc_pattern_gen",
 		Usage: "Generate vegeta pattern files for rpc_perf from the transactions and blocks of recent blocks",
+		// --client values hold commas; every slice flag is repeated instead.
+		DisableSliceFlagSeparator: true,
 		// The root only runs with --profile, so it checks --out itself: a required root flag would also be required by eth_call.
 		Flags: append(commonFlags(false),
 			&cli.StringFlag{Name: "profile", Usage: "Profile file with the [methods] and their weights, and an optional [contracts] filter"},
@@ -73,6 +76,8 @@ func newApp() *cli.App {
 					&cli.IntFlag{Name: vegetagen.SubscribeLogsType, Usage: "Number of logs subscriptions, each with the filter of a log of a recent block"},
 					&cli.IntFlag{Name: vegetagen.SubscribeTransactionReceipts, Usage: "Number of transactionReceipts subscriptions"},
 					&cli.StringFlag{Name: "logs-filter", Usage: "Filter family of the logs subscriptions: address, address+topics, topics, or all for every log (default: any shape)"},
+					&cli.StringSliceFlag{Name: "client", Usage: "Client class instead of the counts, name:share:type=count,...,pick=n (repeatable): its share of the connections and the subscriptions each sends, " +
+						"types newHeads, logs, logs-all and transactionReceipts; with pick, each connection sends n of the logs subscriptions of the class, in turn"},
 					&cli.Uint64Flag{Name: "max-blocks", Value: vegetagen.DefaultMaxBlocks, Usage: "Window of recent blocks the logs filters are drawn from"},
 					&cli.IntFlag{Name: "workers", Value: 16, Usage: "Concurrent requests to the node"},
 					&cli.StringFlag{Name: "description", Usage: "Description written in the header (default: built from the parameters)"},
@@ -170,41 +175,58 @@ func txCallCommand(gen vegetagen.Generator, usage string) *cli.Command {
 	}
 }
 
-// writeSubscriptions writes the subscriptions of the counts of each type, interleaved.
+// writeSubscriptions writes the subscriptions of the counts of each type, interleaved, or those of each
+// client class in turn.
 func writeSubscriptions(c *cli.Context) error {
 	var (
 		specs   []vegetagen.Spec
+		clients []perf.ClientClass
 		parts   []string
-		total   int
-		fromLog bool // a logs filter is drawn from a log of the window
 	)
-	for _, typ := range []string{vegetagen.SubscribeNewHeads, vegetagen.SubscribeLogsType, vegetagen.SubscribeTransactionReceipts} {
-		n := c.Int(typ)
-		if n < 0 {
-			return fmt.Errorf("invalid --%s %d: want a count", typ, n)
+	if c.IsSet("client") {
+		for _, typ := range []string{vegetagen.SubscribeNewHeads, vegetagen.SubscribeLogsType, vegetagen.SubscribeTransactionReceipts} {
+			if c.IsSet(typ) {
+				return fmt.Errorf("--%s and --client both set the subscriptions: set one", typ)
+			}
 		}
-		if n == 0 {
-			continue
+		for _, arg := range c.StringSlice("client") {
+			class, counts, err := parseClient(arg)
+			if err != nil {
+				return err
+			}
+			if slices.ContainsFunc(clients, func(cc perf.ClientClass) bool { return cc.Name == class.Name }) {
+				return fmt.Errorf("--client %s: duplicate class %q", arg, class.Name)
+			}
+			own, names, err := subscriptionSpecs(class.Name, counts, c.String("logs-filter"))
+			if err != nil {
+				return err
+			}
+			label := fmt.Sprintf("%s share %g", class.Name, class.Share)
+			if class.Pick > 0 {
+				label += fmt.Sprintf(", pick %d", class.Pick)
+			}
+			clients = append(clients, class)
+			specs = append(specs, own...)
+			parts = append(parts, label+": "+strings.Join(names, ", "))
 		}
-		options := map[string]string{"type": typ}
-		if typ == vegetagen.SubscribeLogsType && c.IsSet("logs-filter") {
-			options["filter"] = c.String("logs-filter")
+	} else {
+		counts := map[string]int{}
+		for _, typ := range []string{vegetagen.SubscribeNewHeads, vegetagen.SubscribeLogsType, vegetagen.SubscribeTransactionReceipts} {
+			counts[typ] = c.Int(typ)
 		}
-		gen, err := vegetagen.NewGenerator("eth_subscribe", options)
+		own, names, err := subscriptionSpecs("", counts, c.String("logs-filter"))
 		if err != nil {
 			return err
 		}
-		name := typ
-		if f := options["filter"]; f != "" {
-			name += " filter=" + f
-		}
-		specs = append(specs, vegetagen.Spec{Name: "eth_subscribe " + name, Gen: gen, Weight: float64(n)})
-		parts = append(parts, fmt.Sprintf("%d %s", n, name))
-		total += n
-		fromLog = fromLog || gen.Kind() == vegetagen.PerLog
+		specs, parts = own, names
 	}
-	if total == 0 {
-		return fmt.Errorf("set at least one of --%s, --%s or --%s", vegetagen.SubscribeNewHeads, vegetagen.SubscribeLogsType, vegetagen.SubscribeTransactionReceipts)
+	if len(specs) == 0 {
+		return fmt.Errorf("set at least one of --%s, --%s or --%s, or --client", vegetagen.SubscribeNewHeads, vegetagen.SubscribeLogsType, vegetagen.SubscribeTransactionReceipts)
+	}
+	total, fromLog := 0, false // fromLog: a logs filter is drawn from a log of the window
+	for _, sp := range specs {
+		total += int(sp.Weight)
+		fromLog = fromLog || sp.Gen.Kind() == vegetagen.PerLog
 	}
 	cfg := vegetagen.Config{
 		URL:       c.String("url"),
@@ -215,6 +237,9 @@ func writeSubscriptions(c *cli.Context) error {
 		Out:       c.String("out"),
 	}
 	description := "eth_subscribe on each WebSocket connection: " + strings.Join(parts, ", ")
+	if len(clients) > 0 {
+		description = "eth_subscribe by client class: " + strings.Join(parts, "; ")
+	}
 	if fromLog {
 		cfg.MaxBlocks = c.Uint64("max-blocks")
 		description += fmt.Sprintf("; logs filters from the %d most recent blocks", cfg.MaxBlocks)
@@ -228,6 +253,7 @@ func writeSubscriptions(c *cli.Context) error {
 		Description: description,
 		Network:     vegetagen.Network(ctx, cfg.URL),
 		Generator:   generatorCommand(c),
+		Clients:     clients,
 	}
 	sum, err := vegetagen.Run(ctx, cfg, specs)
 	if err != nil {
@@ -235,6 +261,96 @@ func writeSubscriptions(c *cli.Context) error {
 	}
 	fmt.Printf("eth_subscribe: %d subscriptions written to %s\n", sum.Written, cfg.Out)
 	return nil
+}
+
+// logsAll is the --client key of the logs subscriptions with no filter.
+const logsAll = "logs-all"
+
+// subscriptionSpecs returns the specs of the counts by type of the subscriptions of a client class, empty
+// without classes, and their names.
+func subscriptionSpecs(class string, counts map[string]int, logsFilter string) ([]vegetagen.Spec, []string, error) {
+	var (
+		specs []vegetagen.Spec
+		names []string
+	)
+	for _, key := range []string{vegetagen.SubscribeNewHeads, vegetagen.SubscribeLogsType, logsAll, vegetagen.SubscribeTransactionReceipts} {
+		n := counts[key]
+		if n < 0 {
+			return nil, nil, fmt.Errorf("invalid %s count %d: want a count", key, n)
+		}
+		if n == 0 {
+			continue
+		}
+		options := map[string]string{"type": key}
+		switch {
+		case key == logsAll:
+			options = map[string]string{"type": vegetagen.SubscribeLogsType, "filter": vegetagen.FilterAll}
+		case key == vegetagen.SubscribeLogsType && logsFilter != "":
+			options["filter"] = logsFilter
+		}
+		gen, err := vegetagen.NewGenerator("eth_subscribe", options)
+		if err != nil {
+			return nil, nil, err
+		}
+		name := options["type"]
+		if f := options["filter"]; f != "" {
+			name += " filter=" + f
+		}
+		specName := "eth_subscribe " + name
+		if class != "" {
+			specName += " " + class
+		}
+		specs = append(specs, vegetagen.Spec{Name: specName, Class: class, Gen: gen, Weight: float64(n)})
+		names = append(names, fmt.Sprintf("%d %s", n, name))
+	}
+	return specs, names, nil
+}
+
+// parseClient parses a --client value, name:share:type=count,...,pick=n, into its class and its counts by type.
+func parseClient(arg string) (perf.ClientClass, map[string]int, error) {
+	fields := strings.SplitN(arg, ":", 3)
+	if len(fields) != 3 || fields[0] == "" {
+		return perf.ClientClass{}, nil, fmt.Errorf("--client %s: want name:share:type=count[,type=count]", arg)
+	}
+	class := perf.ClientClass{Name: fields[0]}
+	var err error
+	if class.Share, err = strconv.ParseFloat(fields[1], 64); err != nil || class.Share <= 0 {
+		return class, nil, fmt.Errorf("--client %s: invalid share %q, want a positive number", arg, fields[1])
+	}
+	counts, logs, total := map[string]int{}, 0, 0
+	for item := range strings.SplitSeq(fields[2], ",") {
+		key, value, ok := strings.Cut(item, "=")
+		n, err := strconv.Atoi(value)
+		if !ok || err != nil || n < 0 {
+			return class, nil, fmt.Errorf("--client %s: invalid %q, want type=count", arg, item)
+		}
+		switch key {
+		case "pick":
+			if class.Pick != 0 {
+				return class, nil, fmt.Errorf("--client %s: pick set twice", arg)
+			}
+			class.Pick = n
+			continue
+		case vegetagen.SubscribeLogsType, logsAll:
+			logs += n
+		case vegetagen.SubscribeNewHeads, vegetagen.SubscribeTransactionReceipts:
+		default:
+			return class, nil, fmt.Errorf("--client %s: unknown type %q, want %s, %s, %s or %s", arg, key,
+				vegetagen.SubscribeNewHeads, vegetagen.SubscribeLogsType, logsAll, vegetagen.SubscribeTransactionReceipts)
+		}
+		if _, dup := counts[key]; dup {
+			return class, nil, fmt.Errorf("--client %s: %s set twice", arg, key)
+		}
+		counts[key] = n
+		total += n
+	}
+	switch {
+	case total == 0:
+		return class, nil, fmt.Errorf("--client %s: no subscription", arg)
+	case class.Pick > logs:
+		return class, nil, fmt.Errorf("--client %s: pick %d of %d logs subscriptions", arg, class.Pick, logs)
+	}
+	return class, counts, nil
 }
 
 // writeTxList writes the heaviest txs of the blocks as a tx list.

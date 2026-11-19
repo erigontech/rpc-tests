@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -51,7 +52,7 @@ func TestWritePatternHeaderIsReadBack(t *testing.T) {
 		t.Fatalf("not one line: %q", buf.String())
 	}
 	got, ok := ParsePatternHeader(buf.Bytes())
-	if !ok || *got != want {
+	if !ok || !reflect.DeepEqual(*got, want) {
 		t.Errorf("got %+v, want %+v", got, want)
 	}
 }
@@ -193,7 +194,7 @@ func TestJSONReportHoldsThePatternHeader(t *testing.T) {
 	}
 	want, _ := ParsePatternHeader([]byte(jsonlHeader))
 	var got PatternInfo
-	if err := json.Unmarshal(parsed.Configuration.Pattern, &got); err != nil || got != *want {
+	if err := json.Unmarshal(parsed.Configuration.Pattern, &got); err != nil || !reflect.DeepEqual(got, *want) {
 		t.Errorf("configuration.pattern %s, want %+v", parsed.Configuration.Pattern, *want)
 	}
 }

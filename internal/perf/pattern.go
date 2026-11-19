@@ -19,6 +19,20 @@ type PatternInfo struct {
 	LastBlock   uint64 `json:"lastBlock,omitempty"`  // the newest block the requests were built from
 	Requests    int    `json:"requests,omitempty"`   // the requests of the pattern
 	Created     string `json:"created,omitempty"`    // generation time, RFC 3339 UTC
+	// Clients splits the connections of an eth_subscribe pattern into classes, each sending its own requests;
+	// without it every connection sends every request.
+	Clients []ClientClass `json:"clients,omitempty"`
+}
+
+// ClientClass is a class of the connections of an eth_subscribe pattern: its share of the connections and
+// the requests each of them sends, the lines First to First+Count-1 after the header. With Pick, a
+// connection sends Pick of the logs requests of the class, in turn, and every other request of the class.
+type ClientClass struct {
+	Name  string  `json:"name"`
+	Share float64 `json:"share"`
+	First int     `json:"first"`
+	Count int     `json:"count"`
+	Pick  int     `json:"pick,omitempty"`
 }
 
 // ParsePatternHeader returns the pattern info of a JSONL line, or false when the line is not a header:

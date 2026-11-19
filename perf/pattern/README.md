@@ -94,6 +94,7 @@ a JSON-RPC request: `rpc_perf` does not send it, and copies it into its JSON rep
 | `firstBlock`, `lastBlock` | The oldest and the newest block the requests were built from: they change with the head |
 | `requests` | The requests written |
 | `created` | The generation time, UTC |
+| `clients` | `eth_subscribe` only, with `--client`: the client classes, each with its `name`, its `share` of the connections, the lines it sends (`first`, from 0 after the header, and `count`) and `pick`; see [Subscriptions](#subscriptions) |
 
 The description of a subcommand names the method, the blocks (`the most recent blocks`, a block range or
 the tx list), the eth_getLogs filters and ranges, and the block tag and the fees of the methods that take
@@ -210,6 +211,19 @@ Each logs filter matches a log of the `--max-blocks` most recent blocks (default
 `--logs-filter` (`address`, `address+topics` or `topics`, as the eth_getLogs `filter` option; default: any
 shape) and no block range. With `--logs-filter all`, or with no logs subscription, only the head block is
 read. The output must be a `.jsonl`, and `--verify` does not apply: a subscription needs a WebSocket.
+
+`--client name:share:type=count[,type=count]`, repeated, replaces the counts with client classes: the
+connections of a test are split among the classes by share, and each connection sends only the lines of
+its class. The types are `newHeads`, `logs` (filtered as `--logs-filter`), `logs-all` (no filter) and
+`transactionReceipts`; `pick=n` makes each connection of the class send only `n` of its logs lines, taken
+in turn, so that the connections of a class have different filters. The lines of each class follow each
+other, and the `clients` field of the [header](#pattern-header) tells where each class starts:
+
+```bash
+# 90% wallets on newHeads, 9% dapps on newHeads and one of 50 log filters, 1% indexers on every log and every receipt
+rpc_pattern_gen eth_subscribe --logs-filter address --client wallet:90:newHeads=1 \
+  --client dapp:9:newHeads=1,logs=50,pick=1 --client indexer:1:logs-all=1,transactionReceipts=1 --out eth_subscribe_clients.jsonl
+```
 
 ## Tx lists
 

@@ -184,7 +184,8 @@ When a repetition fails and stops the run, for example because the server died, 
 (none when the first one failed). A level that completed has no `error`.
 
 With `-v`, and always with an `eth_subscribe` pattern, each repetition also has an `apis` object with the
-rows of the console table, by method or by subscription measure (`newHeads latency`, `logs fan-out`, ...):
+rows of the console table, by method or by subscription measure (`newHeads latency`, `logs fan-out`, ...,
+and with client classes also one per class, e.g. `newHeads fan-out wallet`):
 
 ```json
 "apis": {
@@ -239,7 +240,10 @@ A `.jsonl` pattern of `eth_subscribe` requests runs over WebSocket connections i
 `-t`, the first number of each test is the number of connections, not a rate: `-t 10:600,100:600` opens
 10, then 100 connections, for 600 s each. The console line of a test prints `conn:` instead of `qps:`; the
 JSON and CSV reports keep the `qps` field. Each connection sends every line of the pattern once, when it
-opens, then only listens. The connections go to port 8546 of the `-d` host, the default WebSocket port of
+opens, then only listens. With the `clients` field in the pattern header (`rpc_pattern_gen eth_subscribe
+--client`), the connections are split among the client classes by share, at least one each, and each sends
+only the lines of its class; every row also has a copy per class, named after it, e.g.
+`newHeads fan-out wallet`. The connections go to port 8546 of the `-d` host, the default WebSocket port of
 Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). The
 `newHeads`, `logs` and `transactionReceipts` subscriptions are measured; a `transactionReceipts`
 subscription with a `transactionHashes` filter is not.

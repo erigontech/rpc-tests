@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -296,7 +297,7 @@ func TestEthCallCommandWritesJSONL(t *testing.T) {
 		Requests:    1,
 		Created:     header.Created,
 	}
-	if *header != want {
+	if !reflect.DeepEqual(*header, want) {
 		t.Errorf("header %+v\nwant   %+v", *header, want)
 	}
 	if header.Created == "" {
@@ -475,5 +476,58 @@ func TestSubscribeCommandWithoutLogFiltersReadsOnlyTheHead(t *testing.T) {
 	}
 	if header.FirstBlock != header.LastBlock {
 		t.Errorf("blocks %d..%d: want the head only", header.FirstBlock, header.LastBlock)
+	}
+}
+
+func TestSubscribeCommandWritesClientClasses(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "subscribe.jsonl")
+	err := newApp().Run([]string{"rpc_pattern_gen", "eth_subscribe", "--url", node(t), "--logs-filter", "address",
+		"--client", "wallet:90:newHeads=1", "--client", "dapp:9:newHeads=1,logs=2,pick=1",
+		"--client", "indexer:1:logs-all=1,transactionReceipts=1", "--out", out})
+	if err != nil {
+		t.Fatalf("eth_subscribe command: %v", err)
+	}
+	header, got := readJSONL(t, out)
+	if header == nil || header.Requests != 6 {
+		t.Fatalf("header %+v: want 6 requests", header)
+	}
+	want := []perf.ClientClass{
+		{Name: "wallet", Share: 90, First: 0, Count: 1},
+		{Name: "dapp", Share: 9, First: 1, Count: 3, Pick: 1},
+		{Name: "indexer", Share: 1, First: 4, Count: 2},
+	}
+	if !reflect.DeepEqual(header.Clients, want) {
+		t.Errorf("clients %+v\nwant    %+v", header.Clients, want)
+	}
+	if want := "eth_subscribe by client class: wallet share 90: 1 newHeads; dapp share 9, pick 1: 1 newHeads, 2 logs filter=address; indexer share 1: 1 logs filter=all, 1 transactionReceipts; logs filters from the 3000 most recent blocks"; header.Description != want {
+		t.Errorf("description %q\nwant        %q", header.Description, want)
+	}
+	lines := strings.Split(strings.TrimSuffix(got, "\n"), "\n")
+	if lines[0] != `{"jsonrpc":"2.0","method":"eth_subscribe","params":["newHeads"],"id":1}` {
+		t.Errorf("wallet line %s, want newHeads", lines[0])
+	}
+	if indexer := strings.Join(lines[4:], "\n"); !strings.Contains(indexer, `"params":["logs",{}]`) || !strings.Contains(indexer, `"params":["transactionReceipts"]`) {
+		t.Errorf("indexer lines %s, want logs filter=all and transactionReceipts", indexer)
+	}
+}
+
+func TestSubscribeCommandRejectsInvalidClients(t *testing.T) {
+	dir := t.TempDir()
+	for name, args := range map[string][]string{
+		"client and counts":  {"--client", "wallet:1:newHeads=1", "--newHeads", "1"},
+		"no share":           {"--client", "wallet:newHeads=1"},
+		"zero share":         {"--client", "wallet:0:newHeads=1"},
+		"unknown type":       {"--client", "wallet:1:pendingTransactions=1"},
+		"no subscription":    {"--client", "wallet:1:pick=1"},
+		"duplicate class":    {"--client", "wallet:1:newHeads=1", "--client", "wallet:2:newHeads=1"},
+		"pick above logs":    {"--client", "dapp:1:logs=1,pick=2"},
+		"negative count":     {"--client", "wallet:1:newHeads=-1"},
+		"not a key=value":    {"--client", "wallet:1:newHeads"},
+		"duplicate type key": {"--client", "wallet:1:newHeads=1,newHeads=2"},
+	} {
+		err := newApp().Run(append([]string{"rpc_pattern_gen", "eth_subscribe", "--url", node(t), "--out", filepath.Join(dir, "a.jsonl")}, args...))
+		if err == nil {
+			t.Errorf("%s: want an error", name)
+		}
 	}
 }
