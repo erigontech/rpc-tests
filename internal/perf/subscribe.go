@@ -142,6 +142,7 @@ type notification struct {
 type connection struct {
 	class    string // the client class, empty without classes
 	lines    []int  // the lines the connection sends
+	pid      int    // the process that read the connection
 	notes    []notification
 	rejected map[int]string // subscription index -> error message of its eth_subscribe
 	closed   bool           // closed by the node before the end of the test
@@ -168,58 +169,100 @@ func runClientSubscriptions(ctx context.Context, url, httpURL string, reqs [][]b
 	if err != nil {
 		return nil, attackResults{}, err
 	}
-	sockets := make([]*websocket.Conn, conns)
-	subIDs := make([]map[string]int, conns) // subscription id -> index of the subscription
-	received := make([]connection, conns)
-	for i, p := range plan {
-		received[i].class, received[i].lines = p.class, p.lines
+	received, start, end, err := collect(ctx, url, reqs, lines, plan, duration)
+	if err != nil {
+		return nil, attackResults{}, err
 	}
-	defer func() {
-		for _, c := range sockets {
-			if c != nil {
-				c.Close()
-			}
+	return measure(ctx, received, lines, url, httpURL, start, end, outputFile)
+}
+
+// collect opens the connections of plan, sends their eth_subscribe requests and returns what each one
+// received in the test, from start to end.
+func collect(ctx context.Context, url string, reqs [][]byte, lines []subscriptionLine, plan []clientConnection, duration time.Duration) ([]connection, time.Time, time.Time, error) {
+	received := make([]connection, len(plan))
+	for i, p := range plan {
+		received[i].class, received[i].lines, received[i].pid = p.class, p.lines, os.Getpid()
+	}
+	heavy := heavyConnections(plan, lines)
+	if lightCPUs, heavyCPUs := splitCPUs(allowedCPUs()); heavyCPUs != nil && slices.Contains(heavy, true) && slices.Contains(heavy, false) {
+		start, end, err := collectSplit(ctx, url, reqs, lines, received, heavy, lightCPUs, heavyCPUs, duration)
+		return received, start, end, err
+	}
+	sockets, subIDs, rejected, err := subscribeAll(ctx, url, reqs, subscriptions(received, len(reqs)))
+	defer closeAll(sockets)
+	if err != nil {
+		return nil, time.Time{}, time.Time{}, err
+	}
+	start := time.Now()
+	end := start.Add(duration)
+	listened := listenAll(ctx, sockets, subIDs, lines, end.Add(notificationDrain), parseWorkers)
+	if ctx.Err() != nil {
+		return nil, time.Time{}, time.Time{}, ctx.Err()
+	}
+	for i := range received {
+		received[i].rejected, received[i].notes, received[i].closed = rejected[i], listened[i].notes, listened[i].closed
+	}
+	return received, start, end, nil
+}
+
+// subscriptions returns the subscription indexes each connection sends: line j of connection i is
+// subscription i*lineCount+j.
+func subscriptions(conns []connection, lineCount int) [][]int {
+	subs := make([][]int, len(conns))
+	for i, p := range conns {
+		for _, j := range p.lines {
+			subs[i] = append(subs[i], i*lineCount+j)
 		}
-	}()
+	}
+	return subs
+}
+
+// subscribeAll opens one connection per entry of subs and sends its subscriptions, all at once.
+func subscribeAll(ctx context.Context, url string, reqs [][]byte, subs [][]int) ([]*websocket.Conn, []map[string]int, []map[int]string, error) {
+	sockets := make([]*websocket.Conn, len(subs))
+	ids := make([]map[string]int, len(subs)) // subscription id -> index of the subscription
+	rejected := make([]map[int]string, len(subs))
+	errs := make([]error, len(subs))
 	var wg sync.WaitGroup
-	errs := make([]error, conns)
-	for i := range conns {
+	for i := range subs {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			subs := make([]int, len(plan[i].lines))
-			for k, j := range plan[i].lines {
-				subs[k] = i*len(reqs) + j
-			}
-			sockets[i], subIDs[i], received[i].rejected, errs[i] = subscribe(ctx, url, reqs, subs)
+			sockets[i], ids[i], rejected[i], errs[i] = subscribe(ctx, url, reqs, subs[i])
 		}()
 	}
 	wg.Wait()
-	if err := errors.Join(errs...); err != nil {
-		return nil, attackResults{}, err
-	}
+	return sockets, ids, rejected, errors.Join(errs...)
+}
 
-	start := time.Now()
-	end := start.Add(duration)
+func closeAll(sockets []*websocket.Conn) {
+	for _, c := range sockets {
+		if c != nil {
+			c.Close()
+		}
+	}
+}
+
+// listenAll reads the notifications of every socket until deadline, parsing at most workers at once.
+func listenAll(ctx context.Context, sockets []*websocket.Conn, ids []map[string]int, lines []subscriptionLine, deadline time.Time, workers int) []connection {
 	stop := context.AfterFunc(ctx, func() {
 		for _, c := range sockets {
 			c.SetReadDeadline(time.Now()) //nolint:errcheck
 		}
 	})
 	defer stop()
-	parsing := make(chan struct{}, parseWorkers)
+	out := make([]connection, len(sockets))
+	parsing := make(chan struct{}, workers)
+	var wg sync.WaitGroup
 	for i, c := range sockets {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			received[i].notes, received[i].closed = listen(c, subIDs[i], lines, end.Add(notificationDrain), parsing)
+			out[i].notes, out[i].closed = listen(c, ids[i], lines, deadline, parsing)
 		}()
 	}
 	wg.Wait()
-	if ctx.Err() != nil {
-		return nil, attackResults{}, ctx.Err()
-	}
-	return measure(ctx, received, lines, url, httpURL, start, end, outputFile)
+	return out
 }
 
 // subscribe dials url and sends the request of each subscription of subs, the request of a subscription
