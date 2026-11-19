@@ -29,27 +29,10 @@ func heavyConnections(plan []clientConnection, lines []subscriptionLine) []bool 
 	return heavy
 }
 
-// splitCPUs gives a quarter of cpus, at least one, to the light connections and the rest to the heavy
-// ones, or nothing when there are fewer than two.
-func splitCPUs(cpus []int) (light, heavy []int) {
-	if len(cpus) < 2 {
-		return nil, nil
-	}
-	n := max(1, len(cpus)/4)
-	return cpus[:n], cpus[n:]
-}
-
-// parseWorkersOn is the parse workers of a process pinned to cpus: one per core, as parseWorkers.
-func parseWorkersOn(cpus []int) int {
-	if len(cpus) == 0 {
-		return parseWorkers
-	}
-	return len(cpus)
-}
-
-// collectSplit is collect with the heavy connections read by a worker process pinned to cpus of their
-// own, so that parsing their notifications does not delay the arrival of the light ones.
-func collectSplit(ctx context.Context, url string, reqs [][]byte, lines []subscriptionLine, received []connection, heavy []bool, lightCPUs, heavyCPUs []int, duration time.Duration) (time.Time, time.Time, error) {
+// collectSplit is collect with the heavy connections read by a worker process. Both processes run on every
+// CPU rpc_perf may use, and the kernel spreads their reads: with a fixed share of the CPUs each, the one
+// with the burst of heads at a block waited while the other had idle cores.
+func collectSplit(ctx context.Context, url string, reqs [][]byte, lines []subscriptionLine, received []connection, heavy []bool, duration time.Duration) (time.Time, time.Time, error) {
 	subs := subscriptions(received, len(reqs))
 	var near, far []int // the connections read here and by the worker
 	for i, h := range heavy {
@@ -59,7 +42,7 @@ func collectSplit(ctx context.Context, url string, reqs [][]byte, lines []subscr
 			near = append(near, i)
 		}
 	}
-	w, err := startWorker(ctx, workerSpec{URL: url, Reqs: reqs, Subs: pick(subs, far), CPUs: heavyCPUs})
+	w, err := startWorker(ctx, workerSpec{URL: url, Reqs: reqs, Subs: pick(subs, far)})
 	if err != nil {
 		return time.Time{}, time.Time{}, err
 	}
@@ -76,18 +59,12 @@ func collectSplit(ctx context.Context, url string, reqs [][]byte, lines []subscr
 	if ready.Error != "" {
 		return time.Time{}, time.Time{}, errors.New(ready.Error)
 	}
-	restore, err := pinProcess(lightCPUs)
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-	defer restore()
-
 	start := time.Now()
 	end := start.Add(duration)
 	if err := w.enc.Encode(workerStart{Deadline: end.Add(notificationDrain)}); err != nil {
 		return time.Time{}, time.Time{}, fmt.Errorf("subscribe worker: %w", err)
 	}
-	listened := listenAll(ctx, sockets, ids, lines, end.Add(notificationDrain), parseWorkersOn(lightCPUs))
+	listened := listenAll(ctx, sockets, ids, lines, end.Add(notificationDrain), parseWorkers)
 	if ctx.Err() != nil {
 		return time.Time{}, time.Time{}, ctx.Err()
 	}
@@ -122,7 +99,6 @@ type workerSpec struct {
 	URL  string   `json:"url"`
 	Reqs [][]byte `json:"reqs"`
 	Subs [][]int  `json:"subs"` // the subscriptions of each connection
-	CPUs []int    `json:"cpus"`
 }
 
 type workerReady struct {
@@ -219,15 +195,12 @@ func (w *worker) stop() {
 }
 
 // RunSubscribeWorker is the subscribe worker of a parent rpc_perf, talking over in and out: it opens and
-// reads the connections of the spec it receives, on the CPUs of the spec.
+// reads the connections of the spec it receives.
 func RunSubscribeWorker(in io.Reader, out io.Writer) error {
 	dec, enc := json.NewDecoder(in), json.NewEncoder(out)
 	var spec workerSpec
 	if err := dec.Decode(&spec); err != nil {
 		return fmt.Errorf("subscribe worker spec: %w", err)
-	}
-	if _, err := pinProcess(spec.CPUs); err != nil {
-		return err
 	}
 	lines, err := subscriptionLines(spec.Reqs)
 	if err != nil {
@@ -248,7 +221,7 @@ func RunSubscribeWorker(in io.Reader, out io.Writer) error {
 		return fmt.Errorf("subscribe worker start: %w", err)
 	}
 	result := workerResult{Pid: os.Getpid()}
-	for _, c := range listenAll(ctx, sockets, ids, lines, start.Deadline, parseWorkersOn(spec.CPUs)) {
+	for _, c := range listenAll(ctx, sockets, ids, lines, start.Deadline, parseWorkers) {
 		wc := workerConn{Closed: c.closed, Notes: make([]wireNote, len(c.notes))}
 		for k, n := range c.notes {
 			wc.Notes[k] = newWireNote(n)
