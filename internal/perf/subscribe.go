@@ -184,8 +184,8 @@ func collect(ctx context.Context, url string, reqs [][]byte, lines []subscriptio
 		received[i].class, received[i].lines, received[i].pid = p.class, p.lines, os.Getpid()
 	}
 	heavy := heavyConnections(plan, lines)
-	if lightCPUs, heavyCPUs := splitCPUs(allowedCPUs()); heavyCPUs != nil && slices.Contains(heavy, true) && slices.Contains(heavy, false) {
-		start, end, err := collectSplit(ctx, url, reqs, lines, received, heavy, lightCPUs, heavyCPUs, duration)
+	if len(allowedCPUs()) >= 2 && slices.Contains(heavy, true) && slices.Contains(heavy, false) {
+		start, end, err := collectSplit(ctx, url, reqs, lines, received, heavy, duration)
 		return received, start, end, err
 	}
 	sockets, subIDs, rejected, err := subscribeAll(ctx, url, reqs, subscriptions(received, len(reqs)))

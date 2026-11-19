@@ -55,7 +55,7 @@ a block with transactions), `wrong receipt count`, `more than one notification p
 `duplicate notification`, `no block timestamp`, `rejected subscribe: <message>` and `connection closed`.
 A pattern with client classes (`clients` in its header) splits the connections among them; each row then
 also has a copy per class, e.g. `newHeads fan-out wallet`; on Linux the classes with large notifications
-(receipts, logs without a filter) are read by a second process on half of the CPUs.
+(receipts, logs without a filter) are read by a second process; both processes run on every CPU.
 See "Subscription tests" in `perf/README.md`.
 
 When the `-n` process (default: the `-D` name) runs on the same machine, each repetition also prints a

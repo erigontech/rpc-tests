@@ -34,23 +34,6 @@ func TestHeavyConnectionsHoldReceiptsOrLogsWithoutFilter(t *testing.T) {
 	}
 }
 
-func TestSplitCPUsGivesHalfToTheLightConnections(t *testing.T) {
-	for _, tt := range []struct {
-		cpus, light, heavy []int
-	}{
-		{cpus: []int{24, 25, 26, 27, 28, 29, 30, 31}, light: []int{24, 25, 26, 27}, heavy: []int{28, 29, 30, 31}},
-		{cpus: []int{0, 1, 2}, light: []int{0}, heavy: []int{1, 2}},
-		{cpus: []int{0, 1}, light: []int{0}, heavy: []int{1}},
-		{cpus: []int{3}},
-		{},
-	} {
-		light, heavy := splitCPUs(tt.cpus)
-		if !reflect.DeepEqual(light, tt.light) || !reflect.DeepEqual(heavy, tt.heavy) {
-			t.Errorf("splitCPUs(%v) = %v, %v, want %v, %v", tt.cpus, light, heavy, tt.light, tt.heavy)
-		}
-	}
-}
-
 func TestCollectReadsTheHeavyConnectionsInAChildProcess(t *testing.T) {
 	node := &wsNode{conns: 4, total: 4, linesOf: func(string) int { return 1 }, heads: headsWithTxs(2, 3)}
 	addr := startWSNode(t, node)
