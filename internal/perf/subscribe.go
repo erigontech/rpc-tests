@@ -155,13 +155,13 @@ type connection struct {
 // a latency row, a fan-out row, the arrival time minus the first arrival of the same event on the same
 // pattern line, and for logs a row of the arrival time minus that of the head on the same connection.
 func runSubscriptions(ctx context.Context, url, httpURL string, reqs [][]byte, conns int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
-	return runClientSubscriptions(ctx, url, httpURL, reqs, nil, conns, duration, outputFile)
+	return runClientSubscriptions(ctx, url, httpURL, reqs, nil, 0, conns, duration, outputFile)
 }
 
 // runClientSubscriptions is runSubscriptions with the connections split into the client classes of
-// clients, each connection sending the requests of its class; the results of a class are also in rows
-// named after it.
-func runClientSubscriptions(ctx context.Context, url, httpURL string, reqs [][]byte, clients []ClientClass, conns int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
+// clients, each connection sending the requests of its class and subscribing in the order drawn from seed;
+// the results of a class are also in rows named after it.
+func runClientSubscriptions(ctx context.Context, url, httpURL string, reqs [][]byte, clients []ClientClass, seed uint64, conns int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
 	lines, err := subscriptionLines(reqs)
 	if err != nil {
 		return nil, attackResults{}, err
@@ -170,7 +170,7 @@ func runClientSubscriptions(ctx context.Context, url, httpURL string, reqs [][]b
 	if err != nil {
 		return nil, attackResults{}, err
 	}
-	received, start, end, err := collect(ctx, url, reqs, lines, plan, duration)
+	received, start, end, err := collect(ctx, url, reqs, lines, plan, seed, duration)
 	if err != nil {
 		return nil, attackResults{}, err
 	}
@@ -179,14 +179,14 @@ func runClientSubscriptions(ctx context.Context, url, httpURL string, reqs [][]b
 
 // collect opens the connections of plan, sends their eth_subscribe requests and returns what each one
 // received in the test, from start to end.
-func collect(ctx context.Context, url string, reqs [][]byte, lines []subscriptionLine, plan []clientConnection, duration time.Duration) ([]connection, time.Time, time.Time, error) {
+func collect(ctx context.Context, url string, reqs [][]byte, lines []subscriptionLine, plan []clientConnection, seed uint64, duration time.Duration) ([]connection, time.Time, time.Time, error) {
 	received := make([]connection, len(plan))
 	for i, p := range plan {
 		received[i].class, received[i].lines, received[i].pid = p.class, p.lines, os.Getpid()
 	}
 	heavy := heavyConnections(plan, lines)
 	if len(allowedCPUs()) >= 2 && slices.Contains(heavy, true) && slices.Contains(heavy, false) {
-		start, end, err := collectSplit(ctx, url, reqs, lines, received, heavy, subscribeOrder(len(plan)), duration)
+		start, end, err := collectSplit(ctx, url, reqs, lines, received, heavy, subscribeOrder(len(plan), seed), duration)
 		return received, start, end, err
 	}
 	sockets, subIDs, rejected, err := subscribeAll(ctx, url, reqs, subscriptions(received, len(reqs)))
@@ -206,13 +206,10 @@ func collect(ctx context.Context, url string, reqs [][]byte, lines []subscriptio
 	return received, start, end, nil
 }
 
-// subscribeOrderSeed fixes the random order of subscribeOrder, so every run and every client sees the same one.
-const subscribeOrderSeed = 1
-
-// subscribeOrder is a random order of n connections to subscribe in: real clients do not connect grouped by
-// kind, and a fixed seed keeps the runs comparable.
-func subscribeOrder(n int) []int {
-	return rand.New(rand.NewPCG(subscribeOrderSeed, 0)).Perm(n)
+// subscribeOrder is the random order, drawn from seed, of n connections to subscribe in: real clients do not
+// connect grouped by kind.
+func subscribeOrder(n int, seed uint64) []int {
+	return rand.New(rand.NewPCG(seed, 0)).Perm(n)
 }
 
 // subscriptions returns the subscription indexes each connection sends: line j of connection i is

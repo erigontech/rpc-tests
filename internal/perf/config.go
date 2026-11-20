@@ -56,6 +56,7 @@ type Config struct {
 	HaltOnVegetaError      bool
 	DisableHttpCompression bool
 	ByID                   bool
+	SubscribeSeed          uint64 // seed of the order the eth_subscribe connections subscribe in
 }
 
 // NewConfig creates a new Config with default values.

@@ -531,9 +531,12 @@ func TestWSURL(t *testing.T) {
 	}
 }
 
-func TestExecuteSequencePrintsTheWebSocketAddressOfASubscriptionTest(t *testing.T) {
+// subscriptionSequenceOutput runs a subscription test of no connections and returns what it printed.
+func subscriptionSequenceOutput(t *testing.T, configure func(*Config)) string {
+	t.Helper()
 	pt, cfg, _ := newJSONLPerf(t, "127.0.0.1", newHeadsRequest)
-	cfg.WSAddress, cfg.WaitingTime = "127.0.0.1:9000", 0
+	cfg.WaitingTime = 0
+	configure(cfg)
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatal(err)
@@ -547,8 +550,20 @@ func TestExecuteSequencePrintsTheWebSocketAddressOfASubscriptionTest(t *testing.
 	if err != nil {
 		t.Fatalf("ExecuteSequence: %v", err)
 	}
-	if !strings.Contains(string(out), "Test on port: ws://127.0.0.1:9000\n") {
+	return string(out)
+}
+
+func TestExecuteSequencePrintsTheWebSocketAddressOfASubscriptionTest(t *testing.T) {
+	out := subscriptionSequenceOutput(t, func(cfg *Config) { cfg.WSAddress = "127.0.0.1:9000" })
+	if !strings.Contains(out, "Test on port: ws://127.0.0.1:9000\n") {
 		t.Errorf("output %q: want the WebSocket address the connections open on", out)
+	}
+}
+
+func TestExecuteSequencePrintsTheSubscribeSeedOfASubscriptionTest(t *testing.T) {
+	out := subscriptionSequenceOutput(t, func(cfg *Config) { cfg.WSAddress, cfg.SubscribeSeed = "127.0.0.1:9000", 42 })
+	if !strings.Contains(out, "Subscribe order seed: 42\n") {
+		t.Errorf("output %q: want the seed of the subscribe order, to repeat the run", out)
 	}
 }
 
@@ -855,7 +870,7 @@ func TestRunSubscriptionsSendsTheLinesOfItsClassOnEachConnection(t *testing.T) {
 	addr := startWSNode(t, node)
 	clients := []ClientClass{{Name: "wallet", Share: 3, First: 0, Count: 1}, {Name: "indexer", Share: 1, First: 1, Count: 1}}
 
-	_, results, err := runClientSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(newHeadsRequest), []byte(receiptsRequest)}, clients, 4, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	_, results, err := runClientSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(newHeadsRequest), []byte(receiptsRequest)}, clients, 1, 4, time.Second, filepath.Join(t.TempDir(), "run.bin"))
 	if err != nil {
 		t.Fatalf("runClientSubscriptions: %v", err)
 	}

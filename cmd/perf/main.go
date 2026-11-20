@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand/v2"
 	"os"
 	"strings"
 
@@ -58,6 +59,7 @@ func perfFlags() []cli.Flag {
 		&cli.BoolFlag{Name: "more-percentiles", Aliases: []string{"P"}, Usage: "Print more percentiles in console report"},
 		&cli.BoolFlag{Name: "halt-on-vegeta-error", Aliases: []string{"H"}, Usage: "Consider test failed if Vegeta reports any error"},
 		&cli.BoolFlag{Name: "instant-report", Aliases: []string{"I"}, Usage: "Print instant Vegeta report for each test"},
+		&cli.Uint64Flag{Name: "subscribe-seed", Usage: "Seed of the random order the eth_subscribe connections subscribe in, to repeat a run (default: a new random seed per run)"},
 		&cli.BoolFlag{Name: "by-id", Aliases: []string{"i"}, Usage: "Print the results of each request id instead of each method, e.g. per tx of a pattern built with rpc_pattern_gen --txs"},
 	}
 }
@@ -94,6 +96,10 @@ func runPerfTests(c *cli.Context) error {
 	cfg.HaltOnVegetaError = c.Bool("halt-on-vegeta-error")
 	cfg.InstantReport = c.Bool("instant-report")
 	cfg.ByID = c.Bool("by-id")
+	cfg.SubscribeSeed = c.Uint64("subscribe-seed")
+	if !c.IsSet("subscribe-seed") {
+		cfg.SubscribeSeed = rand.Uint64()
+	}
 	if strings.HasSuffix(cfg.VegetaPatternTarFile, ".jsonl") && !c.IsSet("test-type") {
 		testType, err := perf.JSONLTestType(cfg.VegetaPatternTarFile)
 		if err != nil {

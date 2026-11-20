@@ -48,7 +48,7 @@ func TestCollectReadsTheHeavyConnectionsInAChildProcess(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	conns, _, _, err := collect(context.Background(), "ws://"+addr, reqs, lines, plan, time.Second)
+	conns, _, _, err := collect(context.Background(), "ws://"+addr, reqs, lines, plan, 1, time.Second)
 	if err != nil {
 		t.Fatalf("collect: %v", err)
 	}
@@ -78,7 +78,7 @@ func TestCollectWithAChildProcessReturnsTheCancelOfTheTest(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
 
-	if _, _, _, err := collect(ctx, "ws://"+addr, reqs, lines, plan, time.Minute); !errors.Is(err, context.DeadlineExceeded) {
+	if _, _, _, err := collect(ctx, "ws://"+addr, reqs, lines, plan, 1, time.Minute); !errors.Is(err, context.DeadlineExceeded) {
 		t.Errorf("collect: %v, want the deadline of the test", err)
 	}
 }
@@ -118,5 +118,14 @@ func TestCollectSplitSubscribesTheConnectionsOfBothProcessesInTheGivenOrder(t *t
 	}
 	if want := []string{"transactionReceipts", "newHeads", "transactionReceipts", "newHeads"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("subscriptions reached the node in the order %v, want %v", got, want)
+	}
+}
+
+func TestSubscribeOrderDependsOnlyOnTheSeed(t *testing.T) {
+	if a, b := subscribeOrder(500, 7), subscribeOrder(500, 7); !reflect.DeepEqual(a, b) {
+		t.Error("the same seed gave two orders")
+	}
+	if a, b := subscribeOrder(500, 7), subscribeOrder(500, 8); reflect.DeepEqual(a, b) {
+		t.Error("two seeds gave the same order")
 	}
 }
