@@ -9,6 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 // SubscribeWorkerEnv, when set, makes rpc_perf a worker process that reads some connections of a
@@ -32,7 +34,7 @@ func heavyConnections(plan []clientConnection, lines []subscriptionLine) []bool 
 // collectSplit is collect with the heavy connections read by a worker process. Both processes run on every
 // CPU rpc_perf may use, and the kernel spreads their reads: with a fixed share of the CPUs each, the one
 // with the burst of heads at a block waited while the other had idle cores.
-func collectSplit(ctx context.Context, url string, reqs [][]byte, lines []subscriptionLine, received []connection, heavy []bool, duration time.Duration) (time.Time, time.Time, error) {
+func collectSplit(ctx context.Context, url string, reqs [][]byte, lines []subscriptionLine, received []connection, heavy []bool, order []int, duration time.Duration) (time.Time, time.Time, error) {
 	subs := subscriptions(received, len(reqs))
 	var near, far []int // the connections read here and by the worker
 	for i, h := range heavy {
@@ -47,7 +49,7 @@ func collectSplit(ctx context.Context, url string, reqs [][]byte, lines []subscr
 		return time.Time{}, time.Time{}, err
 	}
 	defer w.stop()
-	sockets, ids, rejected, err := subscribeAll(ctx, url, reqs, pick(subs, near))
+	sockets, ids, rejected, err := subscribeInOrder(ctx, url, reqs, subs, heavy, order, w)
 	defer closeAll(sockets)
 	if err != nil {
 		return time.Time{}, time.Time{}, err
@@ -85,6 +87,42 @@ func collectSplit(ctx context.Context, url string, reqs [][]byte, lines []subscr
 	return start, end, nil
 }
 
+// subscribeInOrder subscribes the connections one at a time in order: the light ones here, the heavy ones
+// through the worker, so the node sees the connections of both processes mixed as order gives them. It
+// returns the sockets, subscription ids and rejections of the light connections.
+func subscribeInOrder(ctx context.Context, url string, reqs [][]byte, subs [][]int, heavy []bool, order []int, w *worker) ([]*websocket.Conn, []map[string]int, []map[int]string, error) {
+	slot := make([]int, len(heavy)) // the index of each connection among the light or the heavy ones
+	var light int
+	for i, h := range heavy {
+		if h {
+			slot[i] = i - light
+		} else {
+			slot[i] = light
+			light++
+		}
+	}
+	sockets := make([]*websocket.Conn, light)
+	ids := make([]map[string]int, light)
+	rejected := make([]map[int]string, light)
+	var errs []error
+	for _, i := range order {
+		if !heavy[i] {
+			var err error
+			sockets[slot[i]], ids[slot[i]], rejected[slot[i]], err = subscribe(ctx, url, reqs, subs[i])
+			errs = append(errs, err)
+			continue
+		}
+		if err := w.enc.Encode(workerNext{Conn: slot[i]}); err != nil {
+			return sockets, ids, rejected, fmt.Errorf("subscribe worker: %w", err)
+		}
+		var done workerNext
+		if err := w.receive(&done); err != nil {
+			return sockets, ids, rejected, err
+		}
+	}
+	return sockets, ids, rejected, errors.Join(errs...)
+}
+
 func pick[T any](items []T, indexes []int) []T {
 	out := make([]T, len(indexes))
 	for k, i := range indexes {
@@ -93,12 +131,18 @@ func pick[T any](items []T, indexes []int) []T {
 	return out
 }
 
-// The messages of a worker: the parent sends workerSpec, the worker answers workerReady once subscribed,
+// The messages of a worker: the parent sends workerSpec, then a workerNext for each connection of the spec,
+// each answered once subscribed; the worker then answers workerReady,
 // the parent sends workerStart, the worker answers workerResult after the deadline.
 type workerSpec struct {
 	URL  string   `json:"url"`
 	Reqs [][]byte `json:"reqs"`
 	Subs [][]int  `json:"subs"` // the subscriptions of each connection
+}
+
+// workerNext asks the worker to subscribe its connection Conn, and is its answer once done.
+type workerNext struct {
+	Conn int `json:"conn"`
 }
 
 type workerReady struct {
@@ -207,10 +251,26 @@ func RunSubscribeWorker(in io.Reader, out io.Writer) error {
 		return err
 	}
 	ctx := context.Background()
-	sockets, ids, rejected, err := subscribeAll(ctx, spec.URL, spec.Reqs, spec.Subs)
+	sockets := make([]*websocket.Conn, len(spec.Subs))
+	ids := make([]map[string]int, len(spec.Subs))
+	rejected := make([]map[int]string, len(spec.Subs))
 	defer closeAll(sockets)
+	var errs []error
+	for range spec.Subs {
+		var next workerNext
+		if err := dec.Decode(&next); err != nil {
+			return fmt.Errorf("subscribe worker next: %w", err)
+		}
+		k := next.Conn
+		var err error
+		sockets[k], ids[k], rejected[k], err = subscribe(ctx, spec.URL, spec.Reqs, spec.Subs[k])
+		errs = append(errs, err)
+		if err := enc.Encode(next); err != nil {
+			return err
+		}
+	}
 	ready := workerReady{Rejected: rejected}
-	if err != nil {
+	if err := errors.Join(errs...); err != nil {
 		ready.Error = err.Error()
 	}
 	if err := enc.Encode(ready); err != nil || ready.Error != "" {

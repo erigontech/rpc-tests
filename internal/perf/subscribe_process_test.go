@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"slices"
 	"testing"
 	"time"
 )
@@ -79,5 +80,43 @@ func TestCollectWithAChildProcessReturnsTheCancelOfTheTest(t *testing.T) {
 
 	if _, _, _, err := collect(ctx, "ws://"+addr, reqs, lines, plan, time.Minute); !errors.Is(err, context.DeadlineExceeded) {
 		t.Errorf("collect: %v, want the deadline of the test", err)
+	}
+}
+
+func TestCollectSplitSubscribesTheConnectionsOfBothProcessesInTheGivenOrder(t *testing.T) {
+	node := &wsNode{conns: 4, total: 4, linesOf: func(string) int { return 1 }, heads: headsWithTxs(1, 1)}
+	addr := startWSNode(t, node)
+	reqs := [][]byte{[]byte(newHeadsRequest), []byte(receiptsRequest)}
+	lines, err := subscriptionLines(reqs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan, err := clientConnections(4, lines, []ClientClass{{Name: "wallet", Share: 1, First: 0, Count: 1}, {Name: "indexer", Share: 1, First: 1, Count: 1}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	received := make([]connection, len(plan))
+	for i, p := range plan {
+		received[i].class, received[i].lines = p.class, p.lines
+	}
+	var order []int // an indexer, a wallet, the other indexer, the other wallet
+	for _, class := range []string{"indexer", "wallet", "indexer", "wallet"} {
+		for i, p := range plan {
+			if p.class == class && !slices.Contains(order, i) {
+				order = append(order, i)
+				break
+			}
+		}
+	}
+
+	if _, _, err := collectSplit(context.Background(), "ws://"+addr, reqs, lines, received, heavyConnections(plan, lines), order, 100*time.Millisecond); err != nil {
+		t.Fatalf("collectSplit: %v", err)
+	}
+	got := make([]string, len(plan))
+	for conn := range plan {
+		got[conn] = node.types[conn][0]
+	}
+	if want := []string{"transactionReceipts", "newHeads", "transactionReceipts", "newHeads"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("subscriptions reached the node in the order %v, want %v", got, want)
 	}
 }

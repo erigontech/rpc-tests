@@ -10,6 +10,7 @@ import (
 	"log"
 	"maps"
 	"math"
+	"math/rand/v2"
 	"net"
 	"net/http"
 	"os"
@@ -185,7 +186,7 @@ func collect(ctx context.Context, url string, reqs [][]byte, lines []subscriptio
 	}
 	heavy := heavyConnections(plan, lines)
 	if len(allowedCPUs()) >= 2 && slices.Contains(heavy, true) && slices.Contains(heavy, false) {
-		start, end, err := collectSplit(ctx, url, reqs, lines, received, heavy, duration)
+		start, end, err := collectSplit(ctx, url, reqs, lines, received, heavy, subscribeOrder(len(plan)), duration)
 		return received, start, end, err
 	}
 	sockets, subIDs, rejected, err := subscribeAll(ctx, url, reqs, subscriptions(received, len(reqs)))
@@ -203,6 +204,15 @@ func collect(ctx context.Context, url string, reqs [][]byte, lines []subscriptio
 		received[i].rejected, received[i].notes, received[i].closed = rejected[i], listened[i].notes, listened[i].closed
 	}
 	return received, start, end, nil
+}
+
+// subscribeOrderSeed fixes the random order of subscribeOrder, so every run and every client sees the same one.
+const subscribeOrderSeed = 1
+
+// subscribeOrder is a random order of n connections to subscribe in: real clients do not connect grouped by
+// kind, and a fixed seed keeps the runs comparable.
+func subscribeOrder(n int) []int {
+	return rand.New(rand.NewPCG(subscribeOrderSeed, 0)).Perm(n)
 }
 
 // subscriptions returns the subscription indexes each connection sends: line j of connection i is
