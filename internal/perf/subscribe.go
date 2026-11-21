@@ -153,7 +153,8 @@ type connection struct {
 // listens for duration and returns one result per notification, missing notification and duplicate:
 // its latency is the arrival time minus the block timestamp. The results of each type are also split into
 // a latency row, a fan-out row, the arrival time minus the first arrival of the same event on the same
-// pattern line, and for logs a row of the arrival time minus that of the head on the same connection.
+// pattern line, and for logs and receipts a row of the arrival time minus that of the head on the same
+// connection and one minus the first arrival of the head on any connection.
 func runSubscriptions(ctx context.Context, url, httpURL string, reqs [][]byte, conns int, duration time.Duration, outputFile string) (*vegeta.Metrics, attackResults, error) {
 	return runClientSubscriptions(ctx, url, httpURL, reqs, nil, 0, conns, duration, outputFile)
 }
@@ -502,11 +503,15 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 		conns[i].notes = mergeReceiptObjects(conns[i].notes)
 	}
 	blockFirst := map[string]time.Time{}
+	headFirst := map[string]time.Time{}  // by block hash, the first arrival of its head on any connection
 	eventFirst := map[string]time.Time{} // by pattern line and event
 	for _, conn := range conns {
 		for _, n := range conn.notes {
 			if t, ok := blockFirst[n.blockHash]; !ok || n.arrival.Before(t) {
 				blockFirst[n.blockHash] = n.arrival
+			}
+			if t, ok := headFirst[n.blockHash]; lines[n.sub%len(lines)].typ == subNewHeads && (!ok || n.arrival.Before(t)) {
+				headFirst[n.blockHash] = n.arrival
 			}
 			event := eventKey(n, lines)
 			if t, ok := eventFirst[event]; !ok || n.arrival.Before(t) {
@@ -615,6 +620,11 @@ func measure(ctx context.Context, conns []connection, lines []subscriptionLine, 
 			}
 			if head, ok := heads[n.blockHash]; ok && typ != subNewHeads {
 				for _, a := range rowsOf(typ + " vs newHeads") {
+					a.add(n.arrival.Sub(head), "")
+				}
+			}
+			if head, ok := headFirst[n.blockHash]; ok && typ != subNewHeads {
+				for _, a := range rowsOf(typ + " vs first newHeads") {
 					a.add(n.arrival.Sub(head), "")
 				}
 			}

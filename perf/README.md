@@ -280,6 +280,11 @@ Each notification is one result:
 - `logs vs newHeads`, `transactionReceipts vs newHeads` rows: the arrival time of a log or of the receipts
   minus the arrival of their head on the same connection, when the pattern also has a `newHeads` line.
   They leave out the execution of the block: the time to filter, encode and send.
+- `logs vs first newHeads`, `transactionReceipts vs first newHeads` rows: the arrival time of a log or of
+  the receipts minus the first arrival of their head on any connection. A node that is slow to send the
+  heads makes the `vs newHeads` rows short, since the head on the same connection arrives late too; these
+  rows measure every connection from the same point, so they compare when the nodes deliver the logs and
+  the receipts.
 - `transactionReceipts per receipt` row: a node that sends each receipt as its own notification, an object
   instead of the list of `eth_subscribe` in execution-apis (e.g. Nethermind), has its receipts merged by
   block, as one notification that arrives with the last receipt; the row is the time from the first to the

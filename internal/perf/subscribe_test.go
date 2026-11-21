@@ -485,6 +485,26 @@ func TestRunSubscriptionsMeasuresLogsAgainstTheirHead(t *testing.T) {
 	}
 }
 
+func TestRunSubscriptionsMeasuresLogsAgainstTheFirstHeadOnAnyConnection(t *testing.T) {
+	node := &wsNode{conns: 2, lines: 2, heads: headsWithLogs(2, 2), delay: func(conn int) time.Duration { return time.Duration(conn) * 100 * time.Millisecond }}
+	addr := startWSNode(t, node)
+
+	_, results, err := runSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(newHeadsRequest), []byte(logsRequest)}, 2, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	if err != nil {
+		t.Fatalf("runSubscriptions: %v", err)
+	}
+	row := results.apis["logs vs first newHeads"]
+	if row == nil || row.requests != 8 || len(row.errors) > 0 {
+		t.Fatalf("logs vs first newHeads row %+v: want 8 requests and no error", row)
+	}
+	if got := results.apis["logs vs newHeads"].latencies.Max; got >= 100*time.Millisecond {
+		t.Errorf("logs vs newHeads max %v: the head of the late connection is late too", got)
+	}
+	if got := row.latencies.Max; got < 100*time.Millisecond {
+		t.Errorf("logs vs first newHeads max %v: want the 100 ms delay of the second connection after the first head", got)
+	}
+}
+
 func TestRunSubscriptionsCountsTheLogsTheNodeHasButDidNotSend(t *testing.T) {
 	hs := headsWithLogs(2, 3)
 	node := &wsNode{conns: 2, heads: hs, skipLog: func(conn int, h fakeHead, index int) bool {

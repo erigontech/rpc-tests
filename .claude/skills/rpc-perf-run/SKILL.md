@@ -47,7 +47,8 @@ With an `eth_subscribe` pattern the connections go to port 8546 of the `-d` host
 another one), and the first number of `-t` is the number of WebSocket connections, not a rate (the console prints `conn:` instead of `qps:`), and each test should last minutes (one block every 12 s). The latency of a notification is its
 arrival time minus the block timestamp; `newHeads`, `logs` and `transactionReceipts` are measured. The
 `<type> fan-out` rows are the delay after the fastest subscription for the same event, and the
-`<type> vs newHeads` rows the delay of logs or receipts after their head on the same connection; a node that
+`<type> vs newHeads` rows the delay of logs or receipts after their head on the same connection, the
+`<type> vs first newHeads` rows the delay after the first arrival of their head on any connection; a node that
 sends each receipt as its own notification (e.g. Nethermind) gets a `transactionReceipts per receipt` row
 instead of errors, its receipts merged by block. Errors
 are per subscription: `missing notification` (a head, a log that `eth_getLogs` returns, or the receipts of
