@@ -79,6 +79,8 @@ type ConfigurationInfo struct {
 	ClientVersion string `json:"clientVersion,omitempty"`
 	// The header of a JSONL pattern, absent when the pattern has none.
 	Pattern *PatternInfo `json:"pattern,omitempty"`
+	// The seed of the order the connections subscribed in, absent without client classes.
+	SubscribeSeed uint64 `json:"subscribeSeed,omitempty"`
 }
 
 // JSONTestResult holds results for a single QPS/duration test.
@@ -164,6 +166,9 @@ func (tr *TestReport) Open() error {
 			gccVersion, goVersion, clientCommit)
 		tr.jsonReport.Configuration.Pattern = pattern
 		tr.jsonReport.Configuration.ClientVersion = tr.Config.ClientVersion
+		if pattern != nil && len(pattern.Clients) > 0 {
+			tr.jsonReport.Configuration.SubscribeSeed = tr.Config.SubscribeSeed
+		}
 	}
 
 	return nil

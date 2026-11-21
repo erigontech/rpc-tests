@@ -119,6 +119,7 @@ The patterns come from:
 | `-T`, `--response-timeout` | `300s` | Timeout of each request; a request that takes longer counts as failed |
 | `-O`, `--disable-http-compression` | off | Send the requests without `Accept-Encoding: gzip` |
 | `-e`, `--empty-cache` | off | Drop the OS page cache before each test, to measure cold reads (root only) |
+| `--subscribe-seed` | a new random seed per run | Seed of the order the `eth_subscribe` connections subscribe in, to repeat a run; see [Subscription tests](#subscription-tests) |
 
 The requests of the pattern are sent in a loop: a test at 1000 qps for 30 s sends 30000 requests,
 repeating the pattern when it holds fewer. A test at 0 qps is a pause: `0:60` waits 60 s.
@@ -243,7 +244,13 @@ JSON and CSV reports keep the `qps` field. Each connection sends every line of t
 opens, then only listens. With the `clients` field in the pattern header (`rpc_pattern_gen eth_subscribe
 --client`), the connections are split among the client classes by share, at least one each, and each sends
 only the lines of its class; every row also has a copy per class, named after it, e.g.
-`newHeads fan-out wallet`. The connections go to port 8546 of the `-d` host, the default WebSocket port of
+`newHeads fan-out wallet`. On Linux, when some classes subscribe to large notifications
+(`transactionReceipts`, or `logs` without a filter) and others do not, a second `rpc_perf` process reads
+the connections of the heavy classes and the first one reads the others; both run on every CPU `rpc_perf`
+may use, and the kernel spreads their reads. Pin `rpc_perf` with `taskset` to choose the CPUs. The
+connections of the two processes then subscribe one at a time, in a random order drawn from a new seed in
+each run, since real clients do not connect grouped by kind: the console prints the seed and the JSON report
+keeps it in `configuration.subscribeSeed`; `--subscribe-seed` repeats the order of a run. The connections go to port 8546 of the `-d` host, the default WebSocket port of
 Erigon, Geth and Reth; `-W` sets another `host[:port]`. The node must serve WebSocket (Erigon: `--ws`). The
 `newHeads`, `logs` and `transactionReceipts` subscriptions are measured; a `transactionReceipts`
 subscription with a `transactionHashes` filter is not.
@@ -259,9 +266,9 @@ Each notification is one result:
   for receipts, the `blockTimestamp` of a receipt or, when it has none, of one of its logs),
   the start of the slot, the same reference for every client. It covers the whole path: block
   propagation, consensus client, execution, forkchoiceUpdated and the notification itself. The arrival
-  time is read right after the WebSocket frame, and the notification is parsed apart from the reads, on one
-  core fewer than rpc_perf has, so a large notification (the receipts of a block) does not delay the arrival
-  of the next one, even while the receipts of a block take every other core. A log is one notification, so the logs at the end of a
+  time is read right after the WebSocket frame, and the notifications are parsed only once the reads are
+  over, so parsing (the receipts of a block above all) takes no CPU from the reads and does not delay the
+  arrival of the next notifications. A log is one notification, so the logs at the end of a
   block arrive later; the receipts of a block are one notification.
 - `<type> latency` row: these latencies, e.g. `newHeads latency`, `logs latency`,
   `transactionReceipts latency`.

@@ -155,14 +155,17 @@ func TestJSONLTestTypeSkipsThePatternHeader(t *testing.T) {
 	}
 }
 
-func TestJSONReportHoldsThePatternHeader(t *testing.T) {
+// patternReport writes the JSON report of one run of a JSONL pattern with header and returns it.
+func patternReport(t *testing.T, header string, subscribeSeed uint64) []byte {
+	t.Helper()
 	dirs := reportDirs(t)
 	cfg := NewConfig()
 	cfg.TestType = "eth_call"
 	cfg.TestingClient = "erigon"
+	cfg.SubscribeSeed = subscribeSeed
 	cfg.JSONReportFile = filepath.Join(t.TempDir(), "report.json")
 	cfg.VegetaPatternTarFile = filepath.Join(t.TempDir(), "p.jsonl")
-	if err := os.WriteFile(cfg.VegetaPatternTarFile, []byte(jsonlHeader+"\n"+jsonlCall+"\n"), 0o644); err != nil {
+	if err := os.WriteFile(cfg.VegetaPatternTarFile, []byte(header+"\n"+jsonlCall+"\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	binary := filepath.Join(dirs.RunTestDir, BinaryDir, "run.bin")
@@ -184,6 +187,11 @@ func TestJSONReportHoldsThePatternHeader(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	return data
+}
+
+func TestJSONReportHoldsThePatternHeader(t *testing.T) {
+	data := patternReport(t, jsonlHeader, 0)
 	var parsed struct {
 		Configuration struct {
 			Pattern json.RawMessage `json:"pattern"`
@@ -196,6 +204,29 @@ func TestJSONReportHoldsThePatternHeader(t *testing.T) {
 	var got PatternInfo
 	if err := json.Unmarshal(parsed.Configuration.Pattern, &got); err != nil || !reflect.DeepEqual(got, *want) {
 		t.Errorf("configuration.pattern %s, want %+v", parsed.Configuration.Pattern, *want)
+	}
+}
+
+func TestJSONReportHoldsTheSubscribeSeedOfAPatternWithClientClasses(t *testing.T) {
+	const classes = `{"pattern":{"description":"eth_subscribe by client class","clients":[{"name":"wallet","share":90,"first":0,"count":1},{"name":"indexer","share":10,"first":1,"count":1}]}}`
+	for _, tc := range []struct {
+		name, header string
+		want         uint64
+	}{
+		{"client classes", classes, 42},
+		{"no client classes", jsonlHeader, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var parsed struct {
+				Configuration ConfigurationInfo `json:"configuration"`
+			}
+			if err := json.Unmarshal(patternReport(t, tc.header, 42), &parsed); err != nil {
+				t.Fatal(err)
+			}
+			if got := parsed.Configuration.SubscribeSeed; got != tc.want {
+				t.Errorf("configuration.subscribeSeed %d, want %d", got, tc.want)
+			}
+		})
 	}
 }
 

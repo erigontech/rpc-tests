@@ -531,9 +531,12 @@ func TestWSURL(t *testing.T) {
 	}
 }
 
-func TestExecuteSequencePrintsTheWebSocketAddressOfASubscriptionTest(t *testing.T) {
+// subscriptionSequenceOutput runs a subscription test of no connections and returns what it printed.
+func subscriptionSequenceOutput(t *testing.T, configure func(*Config)) string {
+	t.Helper()
 	pt, cfg, _ := newJSONLPerf(t, "127.0.0.1", newHeadsRequest)
-	cfg.WSAddress, cfg.WaitingTime = "127.0.0.1:9000", 0
+	cfg.WaitingTime = 0
+	configure(cfg)
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatal(err)
@@ -547,8 +550,20 @@ func TestExecuteSequencePrintsTheWebSocketAddressOfASubscriptionTest(t *testing.
 	if err != nil {
 		t.Fatalf("ExecuteSequence: %v", err)
 	}
-	if !strings.Contains(string(out), "Test on port: ws://127.0.0.1:9000\n") {
+	return string(out)
+}
+
+func TestExecuteSequencePrintsTheWebSocketAddressOfASubscriptionTest(t *testing.T) {
+	out := subscriptionSequenceOutput(t, func(cfg *Config) { cfg.WSAddress = "127.0.0.1:9000" })
+	if !strings.Contains(out, "Test on port: ws://127.0.0.1:9000\n") {
 		t.Errorf("output %q: want the WebSocket address the connections open on", out)
+	}
+}
+
+func TestExecuteSequencePrintsTheSubscribeSeedOfASubscriptionTest(t *testing.T) {
+	out := subscriptionSequenceOutput(t, func(cfg *Config) { cfg.WSAddress, cfg.SubscribeSeed = "127.0.0.1:9000", 42 })
+	if !strings.Contains(out, "Subscribe order seed: 42\n") {
+		t.Errorf("output %q: want the seed of the subscribe order, to repeat the run", out)
 	}
 }
 
@@ -781,6 +796,45 @@ func TestListenTakesTheArrivalOfANotificationWhileTheOneBeforeIsParsed(t *testin
 	}
 }
 
+func TestListenParsesNoNotificationBeforeTheDeadline(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c, err := (&websocket.Upgrader{}).Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+		defer c.Close()
+		_ = c.WriteMessage(websocket.TextMessage, []byte(`{"jsonrpc":"2.0","method":"eth_subscription","params":{"subscription":"0x1","result":{"number":"0x64","hash":"0x01","timestamp":"0x0"}}}`))
+		_, _, _ = c.ReadMessage()
+	}))
+	defer srv.Close()
+	c, resp, err := websocket.DefaultDialer.Dial("ws"+strings.TrimPrefix(srv.URL, "http"), nil)
+	if err != nil {
+		t.Fatalf("dial: %v", err)
+	}
+	resp.Body.Close()
+	defer c.Close()
+
+	var mu sync.Mutex
+	var parsed []time.Time
+	parse := parseResult
+	parseResult = func(typ string, result json.RawMessage) (notification, string, string, bool) {
+		mu.Lock()
+		parsed = append(parsed, time.Now())
+		mu.Unlock()
+		return parse(typ, result)
+	}
+	defer func() { parseResult = parse }()
+
+	deadline := time.Now().Add(300 * time.Millisecond)
+	notes, _ := listen(c, map[string]int{"0x1": 0}, []subscriptionLine{{typ: "newHeads"}}, deadline, make(chan struct{}, 1))
+	if len(notes) != 1 || len(parsed) != 1 {
+		t.Fatalf("notifications %d, parsed %d: want the head", len(notes), len(parsed))
+	}
+	if parsed[0].Before(deadline) {
+		t.Errorf("the head was parsed %v before the deadline: want the parsing after the reads, so that it takes no CPU from them", deadline.Sub(parsed[0]))
+	}
+}
+
 func TestRunSubscriptionsParsesOnFewerGoroutinesThanTheReaders(t *testing.T) {
 	node := &wsNode{conns: 4, heads: heads(3)}
 	addr := startWSNode(t, node)
@@ -816,7 +870,7 @@ func TestRunSubscriptionsSendsTheLinesOfItsClassOnEachConnection(t *testing.T) {
 	addr := startWSNode(t, node)
 	clients := []ClientClass{{Name: "wallet", Share: 3, First: 0, Count: 1}, {Name: "indexer", Share: 1, First: 1, Count: 1}}
 
-	_, results, err := runClientSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(newHeadsRequest), []byte(receiptsRequest)}, clients, 4, time.Second, filepath.Join(t.TempDir(), "run.bin"))
+	_, results, err := runClientSubscriptions(context.Background(), "ws://"+addr, "http://"+addr, [][]byte{[]byte(newHeadsRequest), []byte(receiptsRequest)}, clients, 1, 4, time.Second, filepath.Join(t.TempDir(), "run.bin"))
 	if err != nil {
 		t.Fatalf("runClientSubscriptions: %v", err)
 	}

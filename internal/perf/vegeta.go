@@ -235,7 +235,7 @@ func (pt *PerfTest) Execute(ctx context.Context, testNumber, repetition int, nam
 		if pattern, _, err := ReadPatternHeader(pt.Config.VegetaPatternTarFile); err == nil && pattern != nil {
 			clients = pattern.Clients
 		}
-		metrics, results, err = runClientSubscriptions(ctx, WSURL(pt.Config.ClientAddress, pt.Config.WSAddress), NodeURL(pt.Config.ClientAddress), reqs, clients, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
+		metrics, results, err = runClientSubscriptions(ctx, WSURL(pt.Config.ClientAddress, pt.Config.WSAddress), NodeURL(pt.Config.ClientAddress), reqs, clients, pt.Config.SubscribeSeed, qps, time.Duration(duration)*time.Second, pt.Config.BinaryFileFullPathname)
 		if err != nil {
 			err = fmt.Errorf("subscription test failed: %w", err)
 		}
@@ -275,6 +275,9 @@ func (pt *PerfTest) ExecuteSequence(ctx context.Context, sequence TestSequence, 
 			url = WSURL(pt.Config.ClientAddress, pt.Config.WSAddress)
 		}
 		fmt.Printf("Test on port: %s\n", url)
+		if pt.isSubscription() {
+			fmt.Printf("Subscribe order seed: %d\n", pt.Config.SubscribeSeed)
+		}
 	} else if file, err := os.Open(pattern); err == nil {
 		scanner := bufio.NewScanner(file)
 		if scanner.Scan() {
