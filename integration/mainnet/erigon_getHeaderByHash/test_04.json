@@ -34,7 +34,8 @@
                 "timestamp": "0x60468700",
                 "transactionsRoot": "0x1b1f04a1ec5c282c78e5b83f3fd947cfc6fb61677e0dce75b8000bafe961f885",
                 "withdrawalsRoot": null,
-                "blockAccessListHash": null
+                "blockAccessListHash": null,
+                "slotNumber": null
             }
         }
     }
