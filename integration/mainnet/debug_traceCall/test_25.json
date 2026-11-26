@@ -30,7 +30,7 @@
     },
     "response": {
       "error": {
-        "code": -32000,
+        "code": -32602,
         "message": "block override \"withdrawals\" is not supported for this RPC method"
       },
       "id": 1,
