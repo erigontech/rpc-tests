@@ -44,6 +44,7 @@
             "structLogs": [
               {
                 "depth": 1,
+                "error": "invalid opcode: SELFBALANCE",
                 "gas": 141928,
                 "gasCost": 0,
                 "op": "SELFBALANCE",

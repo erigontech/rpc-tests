@@ -25,7 +25,7 @@
             "depth": 1,
             "error": "stack underflow (0 <=> 1)",
             "gas": 68280,
-            "gasCost": 3,
+            "gasCost": 0,
             "op": "MLOAD",
             "pc": 0,
             "stack": []

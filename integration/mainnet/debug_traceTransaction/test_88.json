@@ -2025,6 +2025,7 @@
           },
           {
             "depth": 1,
+            "error": "invalid opcode: INVALID",
             "gas": 7580389,
             "gasCost": 0,
             "op": "INVALID",

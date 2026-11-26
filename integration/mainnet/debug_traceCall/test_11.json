@@ -38,6 +38,7 @@
                     },
                     {
                         "depth": 1,
+                        "error": "invalid opcode: opcode 0xc0 not defined",
                         "gas": 157917,
                         "gasCost": 0,
                         "op": "opcode 0xc0 not defined",

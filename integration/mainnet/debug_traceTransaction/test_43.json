@@ -1567,7 +1567,7 @@
             "depth": 1,
             "error": "out of gas",
             "gas": 703,
-            "gasCost": 1756,
+            "gasCost": 0,
             "op": "LOG3",
             "pc": 2941,
             "refund": 15000

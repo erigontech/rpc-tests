@@ -43,7 +43,7 @@
             "depth": 1,
             "error": "out of gas",
             "gas": 2,
-            "gasCost": 3,
+            "gasCost": 0,
             "op": "MSTORE",
             "pc": 4,
             "stack": [

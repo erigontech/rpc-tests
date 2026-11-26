@@ -1198,7 +1198,7 @@
             "depth": 1,
             "error": "out of gas",
             "gas": 10094,
-            "gasCost": 20000,
+            "gasCost": 0,
             "op": "SSTORE",
             "pc": 263,
             "refund": 15000

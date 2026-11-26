@@ -116,7 +116,7 @@
             "depth": 1,
             "error": "out of gas",
             "gas": 3965,
-            "gasCost": 40,
+            "gasCost": 0,
             "op": "CALLCODE",
             "pc": 39
           }

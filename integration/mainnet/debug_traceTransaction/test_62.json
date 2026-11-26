@@ -3784,7 +3784,7 @@
             "depth": 2,
             "error": "out of gas: gas uint64 overflow",
             "gas": 8216,
-            "gasCost": 40,
+            "gasCost": 0,
             "op": "CALL",
             "pc": 244
           },
@@ -3804,8 +3804,9 @@
           },
           {
             "depth": 1,
+            "error": "invalid jump destination",
             "gas": 25001,
-            "gasCost": 10,
+            "gasCost": 0,
             "op": "JUMPI",
             "pc": 1042
           }

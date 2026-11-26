@@ -1307,7 +1307,7 @@
             "depth": 1,
             "error": "out of gas",
             "gas": 5,
-            "gasCost": 60,
+            "gasCost": 0,
             "op": "EXP",
             "pc": 2213,
             "stack": [
