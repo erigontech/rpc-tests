@@ -585,7 +585,7 @@
             "depth": 1,
             "error": "out of gas",
             "gas": 77895,
-            "gasCost": 1009040,
+            "gasCost": 0,
             "op": "CALL",
             "pc": 583
           }

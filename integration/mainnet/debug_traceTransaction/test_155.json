@@ -15733,7 +15733,7 @@
             "depth": 2,
             "error": "out of gas",
             "gas": 2795,
-            "gasCost": 700,
+            "gasCost": 0,
             "op": "CALL",
             "pc": 3930
           },

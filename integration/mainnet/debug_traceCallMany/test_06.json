@@ -3115,8 +3115,9 @@
               },
               {
                 "depth": 1,
+                "error": "invalid jump destination",
                 "gas": 225554,
-                "gasCost": 8,
+                "gasCost": 0,
                 "memory": [
                   "0x000000000000000000000000d58011fee7560561c9b972ed89801ccae19195de",
                   "0x57b118465ce054090c8d3a604c941f28dc51a4701edc69800b53fadb9b326783",

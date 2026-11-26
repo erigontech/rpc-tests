@@ -73,6 +73,7 @@
               },
               {
                 "depth": 1,
+                "error": "invalid opcode: opcode 0x2e not defined",
                 "gas": 155977,
                 "gasCost": 0,
                 "op": "opcode 0x2e not defined",

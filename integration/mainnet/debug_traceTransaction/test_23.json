@@ -2704,8 +2704,9 @@
           },
           {
             "depth": 1,
+            "error": "invalid jump destination",
             "gas": 3306,
-            "gasCost": 10,
+            "gasCost": 0,
             "op": "JUMPI",
             "pc": 1352
           }
